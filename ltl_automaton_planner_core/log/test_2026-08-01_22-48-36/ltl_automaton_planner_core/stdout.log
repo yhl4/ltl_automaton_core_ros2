@@ -1,0 +1,15 @@
+[1m============================= test session starts ==============================[0m
+platform linux -- Python 3.10.12, pytest-6.2.5, py-1.10.0, pluggy-0.13.0
+cachedir: build/ltl_automaton_planner_core/.pytest_cache
+rootdir: /home/yuhling/projects/ltl_automaton_core_ros2/ltl_automaton_planner_core
+plugins: launch-testing-1.0.14, ament-pep257-0.12.15, ament-copyright-0.12.15, ament-xmllint-0.12.15, launch-testing-ros-0.19.13, ament-lint-0.12.15, ament-flake8-0.12.15, cov-3.0.0, colcon-core-0.21.0
+[1mcollecting ... [0m[1m
+collected 7 items                                                              [0m
+
+test/test_boolean_formulas.py [32m.[0m[32m.[0m[32m.[0m[33m                                        [ 42%][0m
+test/test_copyright.py [33ms[0m[33m                                                 [ 57%][0m
+test/test_flake8.py [32m.[0m[33m                                                    [ 71%][0m
+test/test_pep257.py [32m.[0m[33m                                                    [ 85%][0m
+test/test_ts.py [32m.[0m[33m                                                        [100%][0m
+- generated xml file: /home/yuhling/projects/ltl_automaton_core_ros2/ltl_automaton_planner_core/build/ltl_automaton_planner_core/pytest.xml -
+[33m=================== [32m6 passed[0m, [33m[1m1 skipped[0m, [33m[1m4 warnings[0m[33m in 0.50s[0m[33m ===================[0m
