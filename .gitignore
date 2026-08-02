@@ -1,14 +1,14 @@
-touch .gitignore
+# IDE
+.idea/
+.vscode/
 
-for entry in \
-  ".idea/" \
-  "build/" \
-  "install/" \
-  "log/" \
-  "__pycache__/" \
-  "*.py[cod]" \
-  ".pytest_cache/" \
-  "*.egg-info/"
-do
-  grep -qxF "$entry" .gitignore || echo "$entry" >> .gitignore
-done
+# Colcon
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
