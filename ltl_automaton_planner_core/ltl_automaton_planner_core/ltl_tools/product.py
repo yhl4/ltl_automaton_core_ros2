@@ -287,17 +287,25 @@ class ProdAut_Run(object):
         self.suffix = suffix
         self.sufcost = sufcost
         self.totalcost = totalcost
-        # self.prod_run_to_prod_edges(product)
+        self.prod_run_to_prod_edges()
         self.plan_output(product)
 
     def prod_run_to_prod_edges(self):
-        self.pre_prod_edges = zip(self.prefix[0:-1], self.prefix[1:])
-        self.suf_prod_edges = zip(self.suffix[0:-1], self.suffix[1:])
-        #########
-        # line: a, b ,c , d, e, g
-        # pre_plan: act_a, act_b, act_c, act_d, act_e, act_g
-        # loop: g, b, c, d, e, f, g
-        # suf_plan: act_b, act_c, act_d.., act_g
+        """Convert product-state runs into reusable edge lists."""
+        self.pre_prod_edges = list(
+            zip(self.prefix[:-1], self.prefix[1:])
+        )
+
+        if self.suffix:
+            closed_suffix = self.suffix + [self.suffix[0]]
+            self.suf_prod_edges = list(
+                zip(
+                    closed_suffix[:-1],
+                    closed_suffix[1:],
+                )
+            )
+        else:
+            self.suf_prod_edges = []
 
     def plan_output(self, product):
 
