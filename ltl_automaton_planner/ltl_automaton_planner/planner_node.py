@@ -22,6 +22,7 @@ from ltl_automaton_msgs.msg import (
     TransitionSystemState,
     TransitionSystemStateStamped,
 )
+from ltl_automaton_msgs.srv import TaskPlanning
 from ltl_automaton_planner_core.ltl_tools.ltl_planner import (
     LTLPlanner,
 )
@@ -91,6 +92,12 @@ class PlannerNode(Node):
             "ts_state",
             self._ts_state_callback,
             10,
+        )
+
+        self.replanning_service = self.create_service(
+            TaskPlanning,
+            "replanning",
+            self._task_replanning_callback,
         )
 
         self.ltl_planner = None
@@ -433,6 +440,89 @@ class PlannerNode(Node):
             return run.loop[next_index]
 
         return None
+
+    def _task_replanning_callback(
+        self,
+        request,
+        response,
+    ):
+        """Replan from the current TS state using a new LTL task."""
+        if (
+            self.ltl_planner is None
+            or self.ltl_planner.curr_ts_state is None
+        ):
+            self.get_logger().error(
+                "Cannot replan before planner initialization."
+            )
+            response.success = False
+            return response
+
+        hard_task = request.hard_task.strip()
+        soft_task = request.soft_task.strip()
+
+        if not hard_task:
+            self.get_logger().error(
+                "Replanning request contains an empty hard task."
+            )
+            response.success = False
+            return response
+
+        if not soft_task:
+            self.get_logger().error(
+                "Replanning request contains an empty soft task."
+            )
+            response.success = False
+            return response
+
+        current_state = self.ltl_planner.curr_ts_state
+
+        self.get_logger().info(
+            "Received task replanning request."
+        )
+        self.get_logger().info(
+            f"New hard task: {hard_task}"
+        )
+        self.get_logger().info(
+            f"New soft task: {soft_task}"
+        )
+        self.get_logger().info(
+            f"Replanning from TS state: {current_state}"
+        )
+
+        try:
+            replanned = self.ltl_planner.replan_task(
+                hard_task,
+                soft_task,
+                current_state,
+            )
+        except Exception as error:
+            self.get_logger().error(
+                f"Task replanning failed: {error}"
+            )
+            response.success = False
+            return response
+
+        if (
+            not replanned
+            or self.ltl_planner.run is None
+            or self.ltl_planner.next_move is None
+        ):
+            self.get_logger().error(
+                "No accepting plan was found for the new task."
+            )
+            response.success = False
+            return response
+
+        self._publish_possible_states()
+        self._publish_plan()
+        self._publish_next_move()
+
+        self.get_logger().info(
+            "Task replanning succeeded."
+        )
+
+        response.success = True
+        return response
 
     def _ts_state_callback(self, message):
         """Advance the plan when the expected TS state is reached."""
