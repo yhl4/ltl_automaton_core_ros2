@@ -34,7 +34,7 @@ class LTLPlanner:
         self.planning_time = None
 
         self.Time = 0
-        self.curr_ts_state = None
+        self.curr_ts_state: tuple[str, ...] | None = None
         self.trace = []
         self.traj = []
         self.opt_log = []

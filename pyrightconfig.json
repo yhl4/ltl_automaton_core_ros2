@@ -1,0 +1,12 @@
+{
+    "include": [
+        "ltl_automaton_planner",
+        "ltl_automaton_planner_core"
+    ],
+    "extraPaths": [
+        "ltl_automaton_planner_core",
+        "/home/yuhling/ltl_ros2_ws/install/ltl_automaton_msgs/local/lib/python3.10/dist-packages",
+    ],
+    "pythonVersion": "3.10",
+    "pythonPlatform": "Linux"
+}

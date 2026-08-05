@@ -1,0 +1,31 @@
+state_dim:
+  - region
+
+state_models:
+  region:
+    initial: r1
+    nodes:
+      r1:
+        connected_to:
+          r2: goto_r2
+
+      r2:
+        connected_to:
+          r2: stay_r2
+
+      r3:
+        connected_to:
+          r2: goto_r2_from_r3
+
+actions:
+  goto_r2:
+    guard: "1"
+    weight: 2.0
+
+  stay_r2:
+    guard: "1"
+    weight: 1.0
+
+  goto_r2_from_r3:
+    guard: "1"
+    weight: 1.5
