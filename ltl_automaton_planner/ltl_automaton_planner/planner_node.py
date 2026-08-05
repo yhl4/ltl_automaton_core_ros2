@@ -16,6 +16,10 @@ from ltl_automaton_planner_core.configuration.transition_system import (
     state_models_from_ts,
 )
 from ltl_automaton_msgs.msg import (
+    LTLPlan,
+    LTLState,
+    LTLStateArray,
+    TransitionSystemState,
     TransitionSystemStateStamped,
 )
 from ltl_automaton_planner_core.ltl_tools.ltl_planner import (
@@ -61,6 +65,24 @@ class PlannerNode(Node):
         self.next_move_publisher = self.create_publisher(
             String,
             "next_move_cmd",
+            command_qos,
+        )
+
+        self.prefix_plan_publisher = self.create_publisher(
+            LTLPlan,
+            "prefix_plan",
+            command_qos,
+        )
+
+        self.suffix_plan_publisher = self.create_publisher(
+            LTLPlan,
+            "suffix_plan",
+            command_qos,
+        )
+
+        self.possible_states_publisher = self.create_publisher(
+            LTLStateArray,
+            "possible_ltl_states",
             command_qos,
         )
 
@@ -171,6 +193,8 @@ class PlannerNode(Node):
                 iter(initial_states)
             )
 
+        self._publish_possible_states()
+
         self.get_logger().info(
             "Initial LTL planning succeeded."
         )
@@ -181,7 +205,186 @@ class PlannerNode(Node):
             f"Suffix actions: {self.ltl_planner.run.suf_plan}"
         )
 
+        self._publish_plan()
         self._publish_next_move()
+
+    def _state_dimension_names(self) -> list[str]:
+        """Return flattened TS state-dimension names."""
+        if (
+            self.ltl_planner is None
+            or self.ltl_planner.product is None
+        ):
+            return []
+
+        raw_names = (
+            self.ltl_planner.product
+            .graph["ts"]
+            .graph.get("ts_state_format", [])
+        )
+
+        dimension_names = []
+
+        for name in raw_names:
+            if isinstance(name, (list, tuple)):
+                dimension_names.extend(
+                    str(item)
+                    for item in name
+                )
+            else:
+                dimension_names.append(str(name))
+
+        return dimension_names
+
+    def _state_to_message(
+        self,
+        state,
+    ) -> TransitionSystemState:
+        """Convert an internal TS node into a ROS2 state message."""
+        message = TransitionSystemState()
+
+        if isinstance(state, tuple):
+            message.states = [
+                str(value)
+                for value in state
+            ]
+        else:
+            message.states = [str(state)]
+
+        message.state_dimension_names = (
+            self._state_dimension_names()
+        )
+
+        return message
+
+    def _publish_plan(self) -> None:
+        """Publish the current prefix and suffix plans."""
+        if (
+            self.ltl_planner is None
+            or self.ltl_planner.run is None
+        ):
+            self.get_logger().warning(
+                "No plan is available for publication."
+            )
+            return
+
+        run = self.ltl_planner.run
+        stamp = self.get_clock().now().to_msg()
+
+        prefix_message = LTLPlan()
+        prefix_message.header.stamp = stamp
+        prefix_message.action_sequence = list(
+            run.pre_plan
+        )
+        prefix_message.ts_state_sequence = [
+            self._state_to_message(state)
+            for state in run.line
+        ]
+
+        suffix_message = LTLPlan()
+        suffix_message.header.stamp = stamp
+        suffix_message.action_sequence = list(
+            run.suf_plan
+        )
+        suffix_message.ts_state_sequence = [
+            self._state_to_message(state)
+            for state in run.loop
+        ]
+
+        self.prefix_plan_publisher.publish(
+            prefix_message
+        )
+        self.suffix_plan_publisher.publish(
+            suffix_message
+        )
+
+        self.get_logger().info(
+            "Published prefix and suffix plans."
+        )
+
+    def _publish_possible_states(self) -> None:
+        """Publish currently possible product-automaton states."""
+        if (
+            self.ltl_planner is None
+            or self.ltl_planner.product is None
+        ):
+            self.get_logger().warning(
+                "No product automaton is available."
+            )
+            return
+
+        possible_states = getattr(
+            self.ltl_planner.product,
+            "possible_states",
+            set(),
+        )
+
+        ltl_state_messages: list[LTLState] = []
+
+        for ts_state, buchi_state in sorted(
+            possible_states,
+            key=str,
+        ):
+            ltl_state_message = LTLState()
+            ltl_state_message.ts_state = (
+                self._state_to_message(ts_state)
+            )
+            ltl_state_message.buchi_state = str(
+                buchi_state
+            )
+
+            ltl_state_messages.append(
+                ltl_state_message
+            )
+
+        message = LTLStateArray()
+        message.ltl_states = ltl_state_messages
+
+        published_states = [
+            (
+                list(ltl_state.ts_state.states),
+                ltl_state.buchi_state,
+            )
+            for ltl_state in ltl_state_messages
+        ]
+
+        self.get_logger().info(
+            f"Publishing possible LTL states: {published_states}"
+        )
+
+        self.possible_states_publisher.publish(
+            message
+        )
+
+        self.get_logger().info(
+            f"Published {len(ltl_state_messages)} "
+            "possible LTL states."
+        )
+
+    def _update_possible_states(
+        self,
+        ts_state: tuple[str, ...],
+    ) -> None:
+        """Update and publish product states matching a TS state."""
+        if self.ltl_planner is None:
+            self.get_logger().warning(
+                "Cannot update possible states before "
+                "planner initialization."
+            )
+            return
+
+        states_available = (
+            self.ltl_planner.update_possible_states(
+                ts_state
+            )
+        )
+
+        if not states_available:
+            self.get_logger().warning(
+                f"No possible product states were found for "
+                f"{ts_state}."
+            )
+
+        self._publish_possible_states()
 
     @staticmethod
     def _state_from_message(message):
@@ -296,6 +499,10 @@ class PlannerNode(Node):
 
             self.ltl_planner.curr_ts_state = reached_state
 
+            self._update_possible_states(
+                reached_state
+            )
+
             self.get_logger().info(
                 f"Replanning succeeded from {reached_state}."
             )
@@ -303,10 +510,15 @@ class PlannerNode(Node):
                 f"Selected next move: {self.ltl_planner.next_move}"
             )
 
+            self._publish_plan()
             self._publish_next_move()
             return
 
         self.ltl_planner.curr_ts_state = reached_state
+
+        self._update_possible_states(
+            reached_state
+        )
 
         try:
             next_move = self.ltl_planner.find_next_move()
@@ -323,6 +535,7 @@ class PlannerNode(Node):
             f"Selected next move: {next_move}"
         )
 
+        self._publish_plan()
         self._publish_next_move()
 
     def _publish_next_move(self):
