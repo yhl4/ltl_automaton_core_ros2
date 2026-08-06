@@ -589,9 +589,7 @@ class PlannerNode(Node):
 
             self.ltl_planner.curr_ts_state = reached_state
 
-            self._update_possible_states(
-                reached_state
-            )
+            self._publish_possible_states()
 
             self.get_logger().info(
                 f"Replanning succeeded from {reached_state}."
@@ -665,7 +663,9 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":
