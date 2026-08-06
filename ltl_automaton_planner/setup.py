@@ -36,6 +36,14 @@ setup(
             ),
             glob("config/*.yaml"),
         ),
+        (
+            os.path.join(
+                "share",
+                package_name,
+                "docs",
+            ),
+            glob("docs/*.md"),
+        ),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
@@ -53,6 +61,10 @@ setup(
             (
                 "planner_node = "
                 "ltl_automaton_planner.planner_node:main"
+            ),
+            (
+                "kth_demo_driver = "
+                "ltl_automaton_planner.kth_demo_driver:main"
             ),
         ],
     },
