@@ -206,7 +206,7 @@ class LTLPlanner:
             self.product.get_possible_states(ts_node)
         )
 
-        if self.start_suffix():
+        if self._reaches_accepting_boundary():
             self.product.possible_states = self.intersect_accept(
                 self.product.possible_states,
                 ts_node,
@@ -227,9 +227,24 @@ class LTLPlanner:
             if state in accept_set and state[0] == reach_ts
         }
 
-    def start_suffix(self):
-        """Return whether execution is at the start of the suffix loop."""
-        return self.segment == "loop" and self.index == 0
+    def _reaches_accepting_boundary(self):
+        """Return whether the latest move reaches an accepting boundary."""
+        if self.run is None:
+            return False
+
+        if self.segment == "line":
+            return (
+                bool(self.run.pre_plan)
+                and self.index == len(self.run.pre_plan) - 1
+            )
+
+        if self.segment == "loop":
+            return (
+                bool(self.run.suf_plan)
+                and self.index == len(self.run.suf_plan) - 1
+            )
+
+        return False
 
     def find_next_move(self):
         """Advance the execution cursor and return the next planned action."""

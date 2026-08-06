@@ -39,10 +39,55 @@ actions:
 """
 
 
+BRANCHING_TS_YAML = """
+state_dim:
+  - region
+
+state_models:
+  region:
+    initial: r1
+    nodes:
+      r1:
+        connected_to:
+          r2: goto_r2
+          r3: goto_r3
+      r2:
+        connected_to:
+          r1: goto_r1
+      r3:
+        connected_to:
+          r1: goto_r1
+
+actions:
+  goto_r1:
+    guard: "1"
+    weight: 1.0
+
+  goto_r2:
+    guard: "1"
+    weight: 1.0
+
+  goto_r3:
+    guard: "1"
+    weight: 1.0
+"""
+
+
 def create_transition_system():
     """Create a two-region transition system from YAML."""
     ts_dict = import_ts_from_file(
         StringIO(TS_YAML)
+    )
+    state_models = state_models_from_ts(
+        ts_dict
+    )
+    return TSModel(state_models)
+
+
+def create_branching_transition_system():
+    """Create a branching TS with a multi-action accepting cycle."""
+    ts_dict = import_ts_from_file(
+        StringIO(BRANCHING_TS_YAML)
     )
     state_models = state_models_from_ts(
         ts_dict
@@ -105,3 +150,27 @@ def test_unknown_planning_style_is_rejected():
         style="unknown"
     ) is False
     assert planner.run is None
+
+
+def test_possible_states_survive_suffix_cycle_boundaries():
+    """Keep the product belief nonempty across repeated suffix cycles."""
+    planner = LTLPlanner(
+        create_branching_transition_system(),
+        hard_spec="<> r3",
+        soft_spec="(r3 || ! r3)",
+    )
+
+    assert planner.optimal(style="static") is True
+    assert planner.run is not None
+    assert len(planner.run.suf_plan) > 1
+
+    for reached_state in planner.run.line[1:]:
+        assert planner.update_possible_states(reached_state) is True
+        planner.find_next_move()
+
+    assert planner.segment == "loop"
+
+    for _ in range(2):
+        for reached_state in planner.run.loop[1:]:
+            assert planner.update_possible_states(reached_state) is True
+            planner.find_next_move()
