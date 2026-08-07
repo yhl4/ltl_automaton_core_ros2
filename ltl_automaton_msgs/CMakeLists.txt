@@ -13,12 +13,23 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/LTLState.msg"
   "msg/LTLStateArray.msg"
   "msg/LTLStateRuns.msg"
+  "msg/PlannerStatus.msg"
   "srv/TrapCheck.srv"
   "srv/ClosestState.srv"
   "srv/TaskPlanning.srv"
+  "srv/LoadTransitionSystem.srv"
+  "action/PlanLTL.action"
   DEPENDENCIES
     std_msgs
 )
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(
+    test_generated_interfaces
+    test/test_generated_interfaces.py
+  )
+endif()
 
 ament_export_dependencies(rosidl_default_runtime)
 

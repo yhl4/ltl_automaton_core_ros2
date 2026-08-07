@@ -1,0 +1,5 @@
+string transition_system_yaml
+---
+bool success
+string message
+string active_ts_sha256

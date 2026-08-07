@@ -1,0 +1,21 @@
+string hard_task
+string soft_task
+TransitionSystemState initial_state
+float64 beta
+float64 gamma
+---
+uint8 ERROR_NONE=0
+uint8 ERROR_INVALID_GOAL=1
+uint8 ERROR_NOT_READY=2
+uint8 ERROR_NO_ACCEPTING_PLAN=3
+uint8 ERROR_INTERNAL=4
+
+bool success
+uint8 error_code
+string message
+LTLPlan prefix_plan
+LTLPlan suffix_plan
+float64 total_cost
+float64 planning_time
+---
+string message
