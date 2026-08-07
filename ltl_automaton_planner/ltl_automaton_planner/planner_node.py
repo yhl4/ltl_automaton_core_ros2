@@ -2,24 +2,29 @@
 
 import hashlib
 import importlib
+import subprocess
+from dataclasses import dataclass
 from pathlib import Path
-from threading import RLock
+from threading import RLock, Thread
 
 import rclpy
 import yaml
 from rcl_interfaces.msg import SetParametersResult
+from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.node import Node
 from rclpy.qos import (
     DurabilityPolicy,
     QoSProfile,
     ReliabilityPolicy,
 )
+from rclpy.task import Future
 from std_msgs.msg import String
 
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
     state_models_from_ts,
 )
+from ltl_automaton_msgs.action import PlanLTL
 from ltl_automaton_msgs.msg import (
     LTLPlan,
     LTLState,
@@ -32,13 +37,40 @@ from ltl_automaton_msgs.srv import LoadTransitionSystem, TaskPlanning
 from ltl_automaton_planner_core.ltl_tools.ltl_planner import (
     LTLPlanner,
 )
+from ltl_automaton_planner_core.ltl_tools.ltl2ba import LTL2BAError
 from ltl_automaton_planner_core.ltl_tools.ts import TSModel
 
 
-def initial_states_from_message(message) -> dict[str, str]:
-    """Convert a stamped TS-state message into a dimension mapping."""
-    states = list(message.ts_state.states)
-    dimensions = list(message.ts_state.state_dimension_names)
+@dataclass(frozen=True)
+class PlanningRequest:
+    """Immutable values used by one worker-local planning transaction."""
+
+    token: object
+    origin_state: int
+    transition_system_yaml: str
+    source_hash: str
+    initial_states: tuple[tuple[str, str], ...]
+    initial_state: tuple[str, ...]
+    hard_task: str
+    soft_task: str
+    beta: float
+    gamma: float
+
+
+@dataclass(frozen=True)
+class PlanningOutcome:
+    """Return a candidate planner or a structured worker failure."""
+
+    error_code: int
+    message: str
+    transition_system: TSModel | None = None
+    planner: LTLPlanner | None = None
+
+
+def transition_state_mapping(state_message) -> dict[str, str]:
+    """Convert a TS-state message into a validated dimension mapping."""
+    states = list(state_message.states)
+    dimensions = list(state_message.state_dimension_names)
 
     if not states:
         raise ValueError(
@@ -51,12 +83,133 @@ def initial_states_from_message(message) -> dict[str, str]:
             "the number of state dimensions."
         )
 
+    if any(not dimension for dimension in dimensions):
+        raise ValueError(
+            "Transition-system state dimensions must be non-empty."
+        )
+
     if len(set(dimensions)) != len(dimensions):
         raise ValueError(
             "Transition-system state dimensions must be unique."
         )
 
     return dict(zip(dimensions, states))
+
+
+def initial_states_from_message(message) -> dict[str, str]:
+    """Convert a stamped TS-state message into a dimension mapping."""
+    return transition_state_mapping(message.ts_state)
+
+
+def normalize_transition_state(
+    state_message,
+    transition_system_yaml: str,
+) -> tuple[dict[str, str], tuple[str, ...]]:
+    """Validate and order a state according to the active TS definition."""
+    state_mapping = transition_state_mapping(state_message)
+    ts_data = import_ts_from_file(transition_system_yaml)
+    dimensions = list(ts_data["state_dim"])
+
+    # Reuse the core configuration validator for exact dimensions and values.
+    state_models_from_ts(
+        ts_data,
+        initial_states_dict=state_mapping,
+    )
+
+    canonical_state = tuple(
+        state_mapping[dimension]
+        for dimension in dimensions
+    )
+    return state_mapping, canonical_state
+
+
+def prepare_transition_system(
+    transition_system_yaml: str,
+    initial_states_dict=None,
+) -> tuple[TSModel, str]:
+    """Parse and fully construct an isolated transition-system candidate."""
+    if not transition_system_yaml.strip():
+        raise ValueError("Transition-system YAML cannot be empty.")
+
+    ts_data = import_ts_from_file(transition_system_yaml)
+    state_models = state_models_from_ts(
+        ts_data,
+        initial_states_dict=initial_states_dict,
+    )
+    transition_system = TSModel(state_models)
+    transition_system.build_full()
+
+    active_hash = hashlib.sha256(
+        transition_system_yaml.encode("utf-8")
+    ).hexdigest()
+    return transition_system, active_hash
+
+
+def compute_candidate_plan(request: PlanningRequest) -> PlanningOutcome:
+    """Build and search a worker-local candidate without ROS access."""
+    try:
+        transition_system, candidate_hash = prepare_transition_system(
+            request.transition_system_yaml,
+            initial_states_dict=dict(request.initial_states),
+        )
+
+        if candidate_hash != request.source_hash:
+            return PlanningOutcome(
+                PlanLTL.Result.ERROR_INTERNAL,
+                "Candidate transition-system hash changed unexpectedly.",
+            )
+
+        planner = LTLPlanner(
+            transition_system,
+            request.hard_task,
+            request.soft_task,
+            beta=request.beta,
+            gamma=request.gamma,
+        )
+        planned = planner.optimal(style="static")
+    except LTL2BAError as error:
+        if isinstance(error.__cause__, subprocess.CalledProcessError):
+            return PlanningOutcome(
+                PlanLTL.Result.ERROR_INVALID_GOAL,
+                str(error),
+            )
+
+        return PlanningOutcome(
+            PlanLTL.Result.ERROR_INTERNAL,
+            str(error),
+        )
+    except ValueError as error:
+        return PlanningOutcome(
+            PlanLTL.Result.ERROR_INVALID_GOAL,
+            str(error),
+        )
+    except Exception as error:
+        return PlanningOutcome(
+            PlanLTL.Result.ERROR_INTERNAL,
+            str(error),
+        )
+
+    if not planned or planner.run is None:
+        return PlanningOutcome(
+            PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN,
+            "No accepting LTL plan was found.",
+        )
+
+    planner.curr_ts_state = request.initial_state
+    return PlanningOutcome(
+        PlanLTL.Result.ERROR_NONE,
+        "Planning succeeded.",
+        transition_system=transition_system,
+        planner=planner,
+    )
+
+
+def run_candidate_worker(
+    future: Future,
+    request: PlanningRequest,
+) -> None:
+    """Compute one candidate and hand its value back to the executor."""
+    future.set_result(compute_candidate_plan(request))
 
 
 def load_plugin_specs(config_path) -> dict:
@@ -156,6 +309,14 @@ class PlannerNode(Node):
         self._active_transition_system = None
         self._active_ts_yaml = ""
         self._active_ts_sha256 = ""
+        self._canonical_ts_state = None
+        self._pending_divergence = None
+        self._planning_token = None
+        self._planning_origin_state = None
+        self._planning_source_yaml = ""
+        self._planning_source_hash = ""
+        self._planning_worker = None
+        self._shutting_down = False
 
         self.next_move_publisher = self.create_publisher(
             String,
@@ -204,6 +365,18 @@ class PlannerNode(Node):
             LoadTransitionSystem,
             "load_transition_system",
             self._load_transition_system_callback,
+        )
+
+        self.plan_ltl_action_server = ActionServer(
+            self,
+            PlanLTL,
+            "plan_ltl",
+            self._execute_plan_ltl_callback,
+            goal_callback=self._plan_ltl_goal_callback,
+            handle_accepted_callback=(
+                self._plan_ltl_handle_accepted_callback
+            ),
+            cancel_callback=self._plan_ltl_cancel_callback,
         )
 
         self.ltl_planner = None
@@ -276,22 +449,10 @@ class PlannerNode(Node):
         initial_states_dict=None,
     ) -> tuple[TSModel, str]:
         """Parse and fully construct a TS candidate without activating it."""
-        if not transition_system_yaml.strip():
-            raise ValueError("Transition-system YAML cannot be empty.")
-
-        ts_data = import_ts_from_file(transition_system_yaml)
-        state_models = state_models_from_ts(
-            ts_data,
+        return prepare_transition_system(
+            transition_system_yaml,
             initial_states_dict=initial_states_dict,
         )
-        transition_system = TSModel(state_models)
-        transition_system.build_full()
-
-        # The digest identifies the exact UTF-8 YAML payload received.
-        active_hash = hashlib.sha256(
-            transition_system_yaml.encode("utf-8")
-        ).hexdigest()
-        return transition_system, active_hash
 
     def _activate_transition_system(
         self,
@@ -304,6 +465,8 @@ class PlannerNode(Node):
             self._active_transition_system = transition_system
             self._active_ts_yaml = transition_system_yaml
             self._active_ts_sha256 = active_hash
+            self._canonical_ts_state = None
+            self._pending_divergence = None
             self.ltl_planner = None
             self._set_planner_status(
                 PlannerStatus.READY,
@@ -397,6 +560,352 @@ class PlannerNode(Node):
             response.message = "Transition system loaded successfully."
             response.active_ts_sha256 = self._active_ts_sha256
             return response
+
+    def _plan_ltl_goal_callback(self, goal_request):
+        """Admit one goal only when the wrapper can reserve planning."""
+        del goal_request
+
+        with self._state_lock:
+            if self._shutting_down:
+                return GoalResponse.REJECT
+
+            if self._planning_token is not None:
+                return GoalResponse.REJECT
+
+            if self._planner_state not in {
+                PlannerStatus.READY,
+                PlannerStatus.ACTIVE,
+            }:
+                return GoalResponse.REJECT
+
+        return GoalResponse.ACCEPT
+
+    def _plan_ltl_handle_accepted_callback(self, goal_handle) -> None:
+        """Reserve the transaction before another goal can be admitted."""
+        with self._state_lock:
+            if (
+                self._shutting_down
+                or self._planning_token is not None
+                or self._planner_state not in {
+                    PlannerStatus.READY,
+                    PlannerStatus.ACTIVE,
+                }
+            ):
+                goal_handle.execute()
+                return
+
+            token = object()
+            self._planning_token = token
+            self._planning_origin_state = self._planner_state
+            self._planning_source_yaml = self._active_ts_yaml
+            self._planning_source_hash = self._active_ts_sha256
+            self._pending_divergence = None
+            self._set_planner_status(
+                PlannerStatus.PLANNING,
+                "PlanLTL candidate planning is in progress.",
+            )
+
+        goal_handle.execute()
+
+    @staticmethod
+    def _plan_ltl_cancel_callback(goal_handle):
+        """Reject cancellation because V0.1 search is not cooperative."""
+        del goal_handle
+        return CancelResponse.REJECT
+
+    @staticmethod
+    def _plan_ltl_result(error_code: int, message: str):
+        """Create a failed-by-default generated action result."""
+        result = PlanLTL.Result()
+        result.success = False
+        result.error_code = error_code
+        result.message = message
+        return result
+
+    def _transaction_request(self, goal_handle):
+        """Validate an accepted goal and create immutable worker input."""
+        goal = goal_handle.request
+        hard_task = goal.hard_task.strip()
+        soft_task = goal.soft_task.strip()
+
+        if not hard_task:
+            raise ValueError("PlanLTL hard_task must be non-empty.")
+
+        if not soft_task:
+            raise ValueError("PlanLTL soft_task must be non-empty.")
+
+        with self._state_lock:
+            token = self._planning_token
+            origin_state = self._planning_origin_state
+            transition_system_yaml = self._planning_source_yaml
+            source_hash = self._planning_source_hash
+
+        if token is None or origin_state is None:
+            return None
+
+        initial_states, initial_state = normalize_transition_state(
+            goal.initial_state,
+            transition_system_yaml,
+        )
+
+        with self._state_lock:
+            if (
+                token is not self._planning_token
+                or self._planner_state != PlannerStatus.PLANNING
+                or source_hash != self._active_ts_sha256
+            ):
+                return None
+
+            if (
+                origin_state == PlannerStatus.ACTIVE
+                and initial_state != self._canonical_ts_state
+            ):
+                return PlanningOutcome(
+                    PlanLTL.Result.ERROR_NOT_READY,
+                    "Goal initial state does not match the current "
+                    "execution state.",
+                )
+
+        return PlanningRequest(
+            token=token,
+            origin_state=origin_state,
+            transition_system_yaml=transition_system_yaml,
+            source_hash=source_hash,
+            initial_states=tuple(initial_states.items()),
+            initial_state=initial_state,
+            hard_task=hard_task,
+            soft_task=soft_task,
+            beta=goal.beta,
+            gamma=goal.gamma,
+        )
+
+    async def _execute_plan_ltl_callback(self, goal_handle):
+        """Run candidate planning without blocking the ROS executor."""
+        try:
+            request = self._transaction_request(goal_handle)
+        except (KeyError, TypeError, ValueError) as error:
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                self._planning_token,
+                PlanLTL.Result.ERROR_INVALID_GOAL,
+                str(error),
+            )
+        except Exception as error:
+            self.get_logger().error(
+                f"Unexpected PlanLTL goal validation failure: {error}"
+            )
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                self._planning_token,
+                PlanLTL.Result.ERROR_INTERNAL,
+                str(error),
+            )
+
+        if isinstance(request, PlanningOutcome):
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                self._planning_token,
+                request.error_code,
+                request.message,
+            )
+
+        if request is None:
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                self._planning_token,
+                PlanLTL.Result.ERROR_NOT_READY,
+                "The planning transaction is no longer available.",
+            )
+
+        feedback = PlanLTL.Feedback()
+        feedback.message = "Planning started."
+        goal_handle.publish_feedback(feedback)
+
+        planning_future = Future()
+        worker = Thread(
+            target=run_candidate_worker,
+            args=(planning_future, request),
+            name="plan_ltl_worker",
+            daemon=True,
+        )
+
+        with self._state_lock:
+            transaction_is_current = (
+                request.token is self._planning_token
+            )
+
+            if transaction_is_current:
+                self._planning_worker = worker
+
+        if not transaction_is_current:
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                request.token,
+                PlanLTL.Result.ERROR_NOT_READY,
+                "The planning transaction is no longer available.",
+            )
+
+        try:
+            worker.start()
+        except RuntimeError as error:
+            self.get_logger().error(
+                f"Cannot start the PlanLTL worker: {error}"
+            )
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                request.token,
+                PlanLTL.Result.ERROR_INTERNAL,
+                str(error),
+            )
+
+        outcome = await planning_future
+
+        if self._shutting_down:
+            return self._plan_ltl_result(
+                PlanLTL.Result.ERROR_INTERNAL,
+                "The planner node is shutting down.",
+            )
+
+        feedback = PlanLTL.Feedback()
+        feedback.message = (
+            "Candidate plan completed; validating state."
+        )
+        goal_handle.publish_feedback(feedback)
+
+        if outcome.error_code != PlanLTL.Result.ERROR_NONE:
+            if outcome.error_code == PlanLTL.Result.ERROR_INTERNAL:
+                self.get_logger().error(
+                    f"PlanLTL candidate planning failed: {outcome.message}"
+                )
+
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                request.token,
+                outcome.error_code,
+                outcome.message,
+            )
+
+        return self._commit_plan_ltl_candidate(
+            goal_handle,
+            request,
+            outcome,
+        )
+
+    def _clear_planning_transaction(self) -> None:
+        """Clear wrapper-only transaction fields while holding the lock."""
+        self._planning_token = None
+        self._planning_origin_state = None
+        self._planning_source_yaml = ""
+        self._planning_source_hash = ""
+        self._planning_worker = None
+
+    def _finish_plan_ltl_failure(
+        self,
+        goal_handle,
+        token,
+        error_code: int,
+        message: str,
+    ):
+        """Abort an accepted goal without rolling back live execution."""
+        pending_divergence = None
+
+        with self._state_lock:
+            if token is not None and token is self._planning_token:
+                origin_state = self._planning_origin_state
+                pending_divergence = self._pending_divergence
+                self._pending_divergence = None
+                self._clear_planning_transaction()
+
+                if origin_state == PlannerStatus.ACTIVE:
+                    self._set_planner_status(
+                        PlannerStatus.ACTIVE,
+                        "PlanLTL failed; the previous run remains active.",
+                    )
+                else:
+                    self._set_planner_status(
+                        PlannerStatus.READY,
+                        "PlanLTL failed; the transition system remains ready.",
+                    )
+
+        result = self._plan_ltl_result(error_code, message)
+
+        if not self._shutting_down and goal_handle.is_active:
+            goal_handle.abort()
+
+        if pending_divergence is not None and not self._shutting_down:
+            self._recover_from_ts_state(pending_divergence)
+
+        return result
+
+    def _commit_plan_ltl_candidate(
+        self,
+        goal_handle,
+        request: PlanningRequest,
+        outcome: PlanningOutcome,
+    ):
+        """Atomically install a fresh candidate after freshness checks."""
+        if outcome.planner is None or outcome.transition_system is None:
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                request.token,
+                PlanLTL.Result.ERROR_INTERNAL,
+                "Candidate planning returned no planner.",
+            )
+
+        with self._state_lock:
+            commit_is_current = not (
+                request.token is not self._planning_token
+                or self._planner_state != PlannerStatus.PLANNING
+                or request.source_hash != self._active_ts_sha256
+                or (
+                    request.origin_state == PlannerStatus.ACTIVE
+                    and request.initial_state != self._canonical_ts_state
+                )
+            )
+
+            if commit_is_current:
+                self._active_transition_system = outcome.transition_system
+                self.ltl_planner = outcome.planner
+                self._canonical_ts_state = request.initial_state
+                self._pending_divergence = None
+                self._waiting_for_initial_state = False
+                self._clear_planning_transaction()
+                self._set_planner_status(
+                    PlannerStatus.ACTIVE,
+                    "The PlanLTL accepted run is active.",
+                )
+
+        if not commit_is_current:
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                request.token,
+                PlanLTL.Result.ERROR_NOT_READY,
+                "Execution state changed during planning.",
+            )
+
+        stamp = self.get_clock().now().to_msg()
+        prefix_plan, suffix_plan = self._plan_messages(
+            outcome.planner,
+            stamp,
+        )
+        self.prefix_plan_publisher.publish(prefix_plan)
+        self.suffix_plan_publisher.publish(suffix_plan)
+        self._publish_possible_states()
+        self._publish_next_move()
+        self._initialize_plugins()
+
+        result = PlanLTL.Result()
+        result.success = True
+        result.error_code = PlanLTL.Result.ERROR_NONE
+        result.message = "Planning succeeded."
+        result.prefix_plan = prefix_plan
+        result.suffix_plan = suffix_plan
+        result.total_cost = float(outcome.planner.run.totalcost)
+        result.planning_time = float(
+            outcome.planner.planning_time or 0.0
+        )
+        goal_handle.succeed()
+        return result
 
     def _initialize_plugins(self) -> None:
         """Load configured planner plugins after planning is available."""
@@ -634,6 +1143,9 @@ class PlannerNode(Node):
             self.ltl_planner.curr_ts_state = next(
                 iter(initial_states)
             )
+            self._canonical_ts_state = (
+                self.ltl_planner.curr_ts_state
+            )
 
         self._set_planner_status(
             PlannerStatus.ACTIVE,
@@ -658,16 +1170,17 @@ class PlannerNode(Node):
         self._publish_next_move()
         return True
 
-    def _state_dimension_names(self) -> list[str]:
-        """Return flattened TS state-dimension names."""
+    @staticmethod
+    def _planner_dimension_names(planner) -> list[str]:
+        """Return flattened TS dimension names for an explicit planner."""
         if (
-            self.ltl_planner is None
-            or self.ltl_planner.product is None
+            planner is None
+            or planner.product is None
         ):
             return []
 
         raw_names = (
-            self.ltl_planner.product
+            planner.product
             .graph["ts"]
             .graph.get("ts_state_format", [])
         )
@@ -685,9 +1198,14 @@ class PlannerNode(Node):
 
         return dimension_names
 
+    def _state_dimension_names(self) -> list[str]:
+        """Return flattened dimensions for the active planner."""
+        return self._planner_dimension_names(self.ltl_planner)
+
     def _state_to_message(
         self,
         state,
+        planner=None,
     ) -> TransitionSystemState:
         """Convert an internal TS node into a ROS2 state message."""
         message = TransitionSystemState()
@@ -700,11 +1218,39 @@ class PlannerNode(Node):
         else:
             message.states = [str(state)]
 
+        target_planner = (
+            self.ltl_planner
+            if planner is None
+            else planner
+        )
         message.state_dimension_names = (
-            self._state_dimension_names()
+            self._planner_dimension_names(target_planner)
         )
 
         return message
+
+    def _plan_messages(self, planner, stamp):
+        """Serialize one explicit planner run into ROS plan messages."""
+        if planner is None or planner.run is None:
+            raise ValueError("No plan is available for serialization.")
+
+        run = planner.run
+        prefix_message = LTLPlan()
+        prefix_message.header.stamp = stamp
+        prefix_message.action_sequence = list(run.pre_plan)
+        prefix_message.ts_state_sequence = [
+            self._state_to_message(state, planner=planner)
+            for state in run.line
+        ]
+
+        suffix_message = LTLPlan()
+        suffix_message.header.stamp = stamp
+        suffix_message.action_sequence = list(run.suf_plan)
+        suffix_message.ts_state_sequence = [
+            self._state_to_message(state, planner=planner)
+            for state in run.loop
+        ]
+        return prefix_message, suffix_message
 
     def _publish_plan(self) -> None:
         """Publish the current prefix and suffix plans."""
@@ -717,28 +1263,11 @@ class PlannerNode(Node):
             )
             return
 
-        run = self.ltl_planner.run
         stamp = self.get_clock().now().to_msg()
-
-        prefix_message = LTLPlan()
-        prefix_message.header.stamp = stamp
-        prefix_message.action_sequence = list(
-            run.pre_plan
+        prefix_message, suffix_message = self._plan_messages(
+            self.ltl_planner,
+            stamp,
         )
-        prefix_message.ts_state_sequence = [
-            self._state_to_message(state)
-            for state in run.line
-        ]
-
-        suffix_message = LTLPlan()
-        suffix_message.header.stamp = stamp
-        suffix_message.action_sequence = list(
-            run.suf_plan
-        )
-        suffix_message.ts_state_sequence = [
-            self._state_to_message(state)
-            for state in run.loop
-        ]
 
         self.prefix_plan_publisher.publish(
             prefix_message
@@ -845,24 +1374,13 @@ class PlannerNode(Node):
             message.header.stamp.nanosec,
         )
 
-    @staticmethod
-    def _state_from_message(message):
-        """Convert a ROS TS-state message into a TS node tuple."""
-        states = tuple(message.ts_state.states)
-        dimensions = message.ts_state.state_dimension_names
-
-        if not states:
-            raise ValueError(
-                "Received an empty transition-system state."
-            )
-
-        if len(states) != len(dimensions):
-            raise ValueError(
-                "The number of TS states does not match "
-                "the number of state dimensions."
-            )
-
-        return states
+    def _state_from_message(self, message):
+        """Normalize a stamped state according to active TS dimensions."""
+        _, canonical_state = normalize_transition_state(
+            message.ts_state,
+            self._active_ts_yaml,
+        )
+        return canonical_state
 
     def _expected_next_state(self):
         """Return the TS state expected after the current action."""
@@ -899,6 +1417,14 @@ class PlannerNode(Node):
         response,
     ):
         """Replan from the current TS state using a new LTL task."""
+        with self._state_lock:
+            if self._planner_state == PlannerStatus.PLANNING:
+                self.get_logger().warning(
+                    "Rejected /replanning while planning is in progress."
+                )
+                response.success = False
+                return response
+
         if (
             self.ltl_planner is None
             or self.ltl_planner.curr_ts_state is None
@@ -994,9 +1520,90 @@ class PlannerNode(Node):
         response.success = True
         return response
 
+    def _recover_from_ts_state(self, reached_state) -> bool:
+        """Run the existing state-based recovery path serially."""
+        if self.ltl_planner is None:
+            return False
+
+        if not self.replan_on_unplanned_move:
+            self.ltl_planner.curr_ts_state = reached_state
+
+            if self._update_possible_states(reached_state):
+                self._run_plugins(reached_state)
+                self.get_logger().warning(
+                    "Automatic replanning for an unplanned move "
+                    "is disabled; keeping the current plan cursor."
+                )
+                return True
+
+            self.get_logger().warning(
+                "The unplanned state invalidated all possible "
+                "Product states; replanning is required."
+            )
+
+        try:
+            self._set_planner_status(
+                PlannerStatus.PLANNING,
+                "State-based replanning is in progress.",
+            )
+            replanned = self.ltl_planner.replan_from_ts_state(
+                reached_state
+            )
+        except Exception as error:
+            self.get_logger().error(
+                f"Replanning from {reached_state} failed: {error}"
+            )
+            self._set_planner_status(
+                PlannerStatus.ACTIVE,
+                "State-based replanning failed; "
+                "the previous run remains active.",
+            )
+            return False
+
+        if (
+            not replanned
+            or self.ltl_planner.run is None
+            or self.ltl_planner.next_move is None
+        ):
+            self.get_logger().error(
+                "No accepting plan was found from "
+                f"the unexpected state {reached_state}."
+            )
+            self._set_planner_status(
+                PlannerStatus.ACTIVE,
+                "State-based replanning failed; "
+                "the previous run remains active.",
+            )
+            return False
+
+        self.ltl_planner.curr_ts_state = reached_state
+        self._canonical_ts_state = reached_state
+        self._set_planner_status(
+            PlannerStatus.ACTIVE,
+            "The state-replanned accepted LTL run is active.",
+        )
+        self._publish_possible_states()
+
+        self.get_logger().info(
+            f"Replanning succeeded from {reached_state}."
+        )
+        self.get_logger().info(
+            f"Selected next move: {self.ltl_planner.next_move}"
+        )
+        self._publish_plan()
+        self._publish_next_move()
+        self._run_plugins(reached_state)
+        return True
+
     def _ts_state_callback(self, message):
         """Advance the plan when the expected TS state is reached."""
         if self._waiting_for_initial_state:
+            if self._planner_state == PlannerStatus.PLANNING:
+                self.get_logger().warning(
+                    "Ignoring startup TS state while PlanLTL is planning."
+                )
+                return
+
             try:
                 initial_states = initial_states_from_message(
                     message
@@ -1054,11 +1661,27 @@ class PlannerNode(Node):
             return
 
         if (
-            reached_state == self.ltl_planner.curr_ts_state
+            reached_state == self._canonical_ts_state
             and reached_state != expected_state
         ):
             self.get_logger().debug(
                 f"Ignoring repeated TS state: {reached_state}"
+            )
+            return
+
+        active_transaction = (
+            self._planner_state == PlannerStatus.PLANNING
+            and self._planning_origin_state == PlannerStatus.ACTIVE
+        )
+
+        if active_transaction and self._pending_divergence is not None:
+            with self._state_lock:
+                self._canonical_ts_state = reached_state
+                self._pending_divergence = reached_state
+
+            self.get_logger().warning(
+                "Deferring state-based recovery while PlanLTL planning "
+                f"is in progress; latest state is {reached_state}."
             )
             return
 
@@ -1067,80 +1690,27 @@ class PlannerNode(Node):
                 "Unexpected TS state. "
                 f"Expected {expected_state}, "
                 f"received {reached_state}. "
-                "Replanning from the received state."
+                "Recovery is required."
             )
 
-            if not self.replan_on_unplanned_move:
-                self.ltl_planner.curr_ts_state = reached_state
+            with self._state_lock:
+                self._canonical_ts_state = reached_state
 
-                if self._update_possible_states(reached_state):
-                    self._run_plugins(reached_state)
-                    self.get_logger().warning(
-                        "Automatic replanning for an unplanned move "
-                        "is disabled; keeping the current plan cursor."
-                    )
-                    return
+                if active_transaction:
+                    self._pending_divergence = reached_state
 
+            if active_transaction:
                 self.get_logger().warning(
-                    "The unplanned state invalidated all possible "
-                    "Product states; replanning is required."
-                )
-
-            try:
-                self._set_planner_status(
-                    PlannerStatus.PLANNING,
-                    "State-based replanning is in progress.",
-                )
-                replanned = self.ltl_planner.replan_from_ts_state(
-                    reached_state
-                )
-            except Exception as error:
-                self.get_logger().error(
-                    f"Replanning from {reached_state} failed: {error}"
-                )
-                self._set_planner_status(
-                    PlannerStatus.ACTIVE,
-                    "State-based replanning failed; "
-                    "the previous run remains active.",
+                    "State-based recovery is deferred until the "
+                    "PlanLTL transaction finishes."
                 )
                 return
 
-            if (
-                not replanned
-                or self.ltl_planner.run is None
-                or self.ltl_planner.next_move is None
-            ):
-                self.get_logger().error(
-                    "No accepting plan was found from "
-                    f"the unexpected state {reached_state}."
-                )
-                self._set_planner_status(
-                    PlannerStatus.ACTIVE,
-                    "State-based replanning failed; "
-                    "the previous run remains active.",
-                )
-                return
-
-            self.ltl_planner.curr_ts_state = reached_state
-
-            self._set_planner_status(
-                PlannerStatus.ACTIVE,
-                "The state-replanned accepted LTL run is active.",
-            )
-
-            self._publish_possible_states()
-
-            self.get_logger().info(
-                f"Replanning succeeded from {reached_state}."
-            )
-            self.get_logger().info(
-                f"Selected next move: {self.ltl_planner.next_move}"
-            )
-
-            self._publish_plan()
-            self._publish_next_move()
-            self._run_plugins(reached_state)
+            self._recover_from_ts_state(reached_state)
             return
+
+        with self._state_lock:
+            self._canonical_ts_state = reached_state
 
         self.ltl_planner.curr_ts_state = reached_state
 
@@ -1190,6 +1760,19 @@ class PlannerNode(Node):
         self.get_logger().info(
             f"Published next move: {message.data}"
         )
+
+    def destroy_node(self):
+        """Prevent a late worker result from committing during teardown."""
+        with self._state_lock:
+            self._shutting_down = True
+            self._pending_divergence = None
+            self._clear_planning_transaction()
+
+        if self.plan_ltl_action_server is not None:
+            self.plan_ltl_action_server.destroy()
+            self.plan_ltl_action_server = None
+
+        return super().destroy_node()
 
 
 def main(args=None):

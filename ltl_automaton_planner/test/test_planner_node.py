@@ -17,6 +17,7 @@ from rclpy.qos import (
 
 from ltl_automaton_msgs.msg import (
     PlannerStatus,
+    TransitionSystemState,
     TransitionSystemStateStamped,
 )
 from ltl_automaton_msgs.srv import LoadTransitionSystem
@@ -24,6 +25,7 @@ from ltl_automaton_planner.planner_node import (
     PlannerNode,
     initial_states_from_message,
     load_plugin_specs,
+    normalize_transition_state,
 )
 
 
@@ -63,6 +65,38 @@ actions:
   stay_r3:
     guard: "1"
     weight: 1.5
+""".lstrip()
+
+MULTI_DIMENSION_TS = """
+state_dim:
+  - region
+  - load
+state_models:
+  region:
+    initial: r1
+    nodes:
+      r1:
+        connected_to:
+          r1: stay_region
+      r2:
+        connected_to:
+          r2: stay_region
+  load:
+    initial: unloaded
+    nodes:
+      unloaded:
+        connected_to:
+          unloaded: stay_load
+      loaded:
+        connected_to:
+          loaded: stay_load
+actions:
+  stay_region:
+    guard: "1"
+    weight: 1.0
+  stay_load:
+    guard: "1"
+    weight: 1.0
 """.lstrip()
 
 
@@ -168,6 +202,43 @@ def test_invalid_initial_state_messages_are_rejected(
 
     with pytest.raises(ValueError, match=error):
         initial_states_from_message(message)
+
+
+def test_transition_state_is_normalized_by_ts_dimension_order():
+    """Accept message ordering that differs from the TS definition."""
+    state = TransitionSystemState()
+    state.states = ["loaded", "r2"]
+    state.state_dimension_names = ["load", "region"]
+
+    mapping, canonical = normalize_transition_state(
+        state,
+        MULTI_DIMENSION_TS,
+    )
+
+    assert mapping == {"load": "loaded", "region": "r2"}
+    assert canonical == ("r2", "loaded")
+
+
+@pytest.mark.parametrize(
+    "states, dimensions",
+    [
+        (["r1"], ["region"]),
+        (["r1", "loaded"], ["region", "unknown"]),
+        (["r1", "invalid"], ["region", "load"]),
+        (["r1", "loaded"], ["region", ""]),
+    ],
+)
+def test_transition_state_rejects_invalid_dimensions_and_values(
+    states,
+    dimensions,
+):
+    """Reject missing, unknown, empty, and invalid dimension values."""
+    state = TransitionSystemState()
+    state.states = states
+    state.state_dimension_names = dimensions
+
+    with pytest.raises(ValueError):
+        normalize_transition_state(state, MULTI_DIMENSION_TS)
 
 
 def test_load_plugin_specs_preserves_ros1_contract(tmp_path: Path):
