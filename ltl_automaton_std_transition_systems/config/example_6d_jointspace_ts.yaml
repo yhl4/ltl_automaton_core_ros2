@@ -1,0 +1,17 @@
+state_dim: [6d_jointspace_region]
+state_models:
+  6d_jointspace_region:
+    ts_type: 6d_jointspace_region
+    initial: q1
+    nodes:
+      q1:
+        attr: {type: sphere, position: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], radius: 0.2}
+        connected_to: {q1: stay_q1, q2: goto_q2}
+      q2:
+        attr: {type: sphere, position: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0], radius: 0.2}
+        connected_to: {q1: goto_q1, q2: stay_q2}
+actions:
+  stay_q1: {type: stay, weight: 1, guard: "1"}
+  goto_q1: {type: move, weight: 10, guard: "1"}
+  stay_q2: {type: stay, weight: 1, guard: "1"}
+  goto_q2: {type: move, weight: 10, guard: "1"}

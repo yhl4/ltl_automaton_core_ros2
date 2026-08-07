@@ -1,0 +1,45 @@
+state_dim: [2d_pose_region]
+state_models:
+  2d_pose_region:
+    ts_type: 2d_pose_region
+    initial: r1
+    nodes:
+      r1:
+        attr:
+          type: square
+          pose: [[0.5, 0.5], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+        connected_to: {r1: goto_r1, r2: goto_r2, s0: goto_s0}
+      r2:
+        attr:
+          type: square
+          pose: [[1.5, 0.5], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+        connected_to: {r1: goto_r1, r2: goto_r2}
+      s0:
+        attr:
+          type: station
+          pose: [[0.5, 0.5], [0.0]]
+          radius: 0.15
+          angle_threshold: 0.2
+          dist_hysteresis: 0.05
+          angle_hysteresis: 0.1
+        connected_to: {s0: goto_s0, r1: goto_r1}
+actions:
+  goto_r1:
+    type: move
+    weight: 10
+    guard: "1"
+    attr: {region: r1, pose: [[0.5, 0.5, 0.0], [0.0, 0.0, 0.0, 1.0]]}
+  goto_r2:
+    type: move
+    weight: 10
+    guard: "1"
+    attr: {region: r2, pose: [[1.5, 0.5, 0.0], [0.0, 0.0, 0.0, 1.0]]}
+  goto_s0:
+    type: move
+    weight: 10
+    guard: "1"
+    attr: {region: s0, pose: [[0.5, 0.5, 0.0], [0.0, 0.0, 0.0, 1.0]]}
