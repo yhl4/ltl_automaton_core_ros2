@@ -12,7 +12,8 @@
 - 计划、下一动作与候选 Product 状态发布；
 - 运行时任务重规划服务；
 - 标准 2D pose 与 6D joint-space TS 状态监控及 2D TS 生成工具；
-- Bool 与 Velocity mixed-initiative HIL 控制器。
+- Bool 与 Velocity mixed-initiative HIL 控制器；
+- `TrapDetectionPlugin` 与 `IRLPlugin` Planner 插件。
 
 > 当前迁移保持 Product Automaton 与离散规划算法的核心语义，不将 ROS 2 通信逻辑写入规划核心。
 
@@ -442,8 +443,20 @@ class ExamplePlugin:
 服务或客户端。其余三个生命周期钩子保持原版语义。单个插件加载或运行失败会被记录，
 不会终止 Planner 或阻止其他插件运行。
 
-ROS 1 插件若仍直接导入 `rospy`，必须先把通信接口迁移到 `rclpy`；加载契约兼容
-不代表 ROS 1 插件源码可不经修改直接运行。
+当前已迁移两个 KTH Planner 插件：
+
+- `TrapDetectionPlugin`：提供 `check_for_trap` 服务，验证 TS 维度并判断候选
+  Product 状态是否仍可到达接受环；
+- `IRLPlugin`：记录与 TS 反馈一致的 Product 运行，通过 `irl_trigger` 控制学习，
+  更新非负 `beta` 后以事务方式重规划，失败时恢复原权重。
+
+可直接使用随 HIL 包安装的配置：
+
+```bash
+ros2 run ltl_automaton_planner ltl_automaton_planner \
+  --ros-args \
+  -p plugin_config_path:=$(ros2 pkg prefix ltl_automaton_hil_mic)/share/ltl_automaton_hil_mic/config/trap_detection_plugin.yaml
+```
 
 ## 10. Services
 
@@ -497,8 +510,7 @@ cd <workspace>
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 
-colcon test \
-  --packages-up-to ltl_automaton_planner
+colcon test
 
 colcon test-result --verbose
 ```
@@ -516,8 +528,12 @@ colcon test-result --verbose
 - Planner 节点的初始 ROS 2 输出；
 - TS 状态反馈后的计划推进；
 - `/replanning` 服务调用；
+- 不可行任务、未知状态与内部异常下的事务式重规划回滚；
+- 2D pose 与 6D joint-space 状态监控及 TS 生成；
+- Bool 与 Velocity HIL 控制器策略和真实 Launch；
+- trap service 的安全、trap、断连与错误维度路径；
+- IRL 运行记录、beta 学习、事务式重规划与真实插件联调；
 - Launch 测试结束时的干净退出。
-- 不可行任务、未知状态与内部异常下的事务式重规划回滚。
 
 提交前建议额外执行：
 
@@ -543,16 +559,14 @@ git diff --check
 | `region_2d_pose_definition.py` | `region_2d_pose_definition` | 显式输出路径，生成 planner-compatible TS |
 | `BoolCmdMixer` | `bool_cmd_hil_mic` | 保留 Bool 仲裁语义，trap 查询改为异步 ROS 2 service client |
 | `VelCmdMixer` | `vel_cmd_hil_mic` | 保留速度混合语义，增加服务不可用与状态超时的安全回退 |
+| `TrapDetectionPlugin` | `ltl_automaton_hil_mic.trap_detection` | 提供 ROS 2 `check_for_trap` 服务并检查接受环可达性 |
+| `IRLPlugin` | `ltl_automaton_hil_mic.inverse_reinforcement_learning` | 保留示教运行与 beta 学习语义，重规划失败时回滚 |
 | `catkin_make` | `colcon build --symlink-install` | 构建与测试命令见第 5、11 节 |
-
-ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。
 
 ## 13. 已知限制
 
-当前版本尚未完成以下 KTH ROS 1 功能的 ROS 2 等价迁移：
-
-- `TrapDetectionPlugin` 等具体 ROS 通信插件；
-- Ubuntu 24.04 / ROS 2 Jazzy 独立验证；
+Ubuntu 24.04 / ROS 2 Jazzy 尚未执行独立兼容性验证；当前验证基线仍为
+Ubuntu 22.04 / ROS 2 Humble。
 
 此外，使用 Fast DDS 时可能出现共享内存端口警告：
 
@@ -566,7 +580,5 @@ RTPS_TRANSPORT_SHM Error: Failed init_port ...
 
 ## 14. 后续计划
 
-建议按以下顺序继续迁移：
-
-1. 迁移并验证 `TrapDetectionPlugin` 等具体插件；
-2. 在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证。
+在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证。该项不属于当前 Humble
+迁移验收范围。

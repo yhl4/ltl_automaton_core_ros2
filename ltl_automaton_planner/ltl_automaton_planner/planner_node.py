@@ -536,6 +536,12 @@ class PlannerNode(Node):
             "Published prefix and suffix plans."
         )
 
+    def refresh_planner_outputs(self) -> None:
+        """Republish planner outputs after a plugin changes the plan."""
+        self._publish_possible_states()
+        self._publish_plan()
+        self._publish_next_move()
+
     def _publish_possible_states(self) -> None:
         """Publish currently possible product-automaton states."""
         if (

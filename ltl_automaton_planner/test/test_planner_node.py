@@ -157,3 +157,17 @@ plugins:
     assert ("init",) in events
     assert ("set_sub_and_pub",) in events
     assert ("update", ("r2",)) in events
+
+
+def test_plugin_can_refresh_planner_outputs():
+    """Expose one public refresh hook for replanning plugins."""
+    events = []
+    host = SimpleNamespace(
+        _publish_possible_states=lambda: events.append("states"),
+        _publish_plan=lambda: events.append("plan"),
+        _publish_next_move=lambda: events.append("next"),
+    )
+
+    PlannerNode.refresh_planner_outputs(host)
+
+    assert events == ["states", "plan", "next"]

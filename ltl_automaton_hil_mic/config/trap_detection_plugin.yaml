@@ -1,0 +1,8 @@
+plugins:
+  TrapDetectionPlugin:
+    path: ltl_automaton_hil_mic.trap_detection
+    args: {}
+  IRLPlugin:
+    path: ltl_automaton_hil_mic.inverse_reinforcement_learning
+    args:
+      max_run_buffer_size: 100
