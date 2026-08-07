@@ -1,5 +1,6 @@
 """Integration tests for the transactional PlanLTL action wrapper."""
 
+import hashlib
 from threading import Event
 import time
 from types import SimpleNamespace
@@ -15,10 +16,12 @@ from rclpy.qos import (
     QoSProfile,
     ReliabilityPolicy,
 )
+from std_msgs.msg import String
 
 from ltl_automaton_msgs.action import PlanLTL
 from ltl_automaton_msgs.msg import (
     LTLPlan,
+    LTLStateArray,
     PlannerStatus,
     TransitionSystemStateStamped,
 )
@@ -277,6 +280,97 @@ def test_ready_action_success_returns_plan_and_activates(action_runtime):
     assert result.total_cost > 0.0
     assert result.planning_time >= 0.0
     assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+
+
+def test_studio_consumer_contract_end_to_end(action_runtime):
+    """Exercise the complete V0.1 contract only through ROS entities."""
+    command_qos = QoSProfile(
+        depth=1,
+        reliability=ReliabilityPolicy.RELIABLE,
+        durability=DurabilityPolicy.TRANSIENT_LOCAL,
+    )
+    statuses = []
+    next_moves = []
+    possible_states = []
+    subscriptions = [
+        action_runtime.client_node.create_subscription(
+            PlannerStatus,
+            "planner_status",
+            statuses.append,
+            command_qos,
+        ),
+        action_runtime.client_node.create_subscription(
+            String,
+            "next_move_cmd",
+            lambda message: next_moves.append(message.data),
+            command_qos,
+        ),
+        action_runtime.client_node.create_subscription(
+            LTLStateArray,
+            "possible_ltl_states",
+            possible_states.append,
+            command_qos,
+        ),
+    ]
+
+    assert spin_until(
+        action_runtime,
+        lambda: (
+            bool(statuses)
+            and statuses[-1].state == PlannerStatus.UNINITIALIZED
+        ),
+    )
+
+    load_response = load_transition_system(action_runtime, VALID_TS)
+    assert load_response.success
+    assert load_response.active_ts_sha256 == hashlib.sha256(
+        VALID_TS.encode("utf-8")
+    ).hexdigest()
+    assert spin_until(
+        action_runtime,
+        lambda: statuses[-1].state == PlannerStatus.READY,
+    )
+
+    first_handle = send_goal(action_runtime, make_goal())
+    assert first_handle.accepted
+    first_response = action_result(action_runtime, first_handle)
+    assert first_response.status == GoalStatus.STATUS_SUCCEEDED
+    assert first_response.result.success
+    assert first_response.result.error_code == PlanLTL.Result.ERROR_NONE
+    assert first_response.result.prefix_plan.action_sequence
+    assert first_response.result.suffix_plan.action_sequence
+    assert spin_until(
+        action_runtime,
+        lambda: (
+            statuses[-1].state == PlannerStatus.ACTIVE
+            and next_moves
+            and possible_states
+        ),
+    )
+
+    publish_state(action_runtime, "r2")
+    assert spin_until(
+        action_runtime,
+        lambda: (
+            next_moves[-1] == "stay_r2"
+            and list(
+                possible_states[-1]
+                .ltl_states[0]
+                .ts_state.states
+            ) == ["r2"]
+        ),
+    )
+
+    second_handle = send_goal(action_runtime, make_goal(state="r2"))
+    assert second_handle.accepted
+    second_response = action_result(action_runtime, second_handle)
+    assert second_response.status == GoalStatus.STATUS_SUCCEEDED
+    assert second_response.result.success
+    assert second_response.result.error_code == PlanLTL.Result.ERROR_NONE
+    assert statuses[-1].state == PlannerStatus.ACTIVE
+
+    for subscription in subscriptions:
+        action_runtime.client_node.destroy_subscription(subscription)
 
 
 def test_uninitialized_goal_is_rejected_at_transport(action_runtime):

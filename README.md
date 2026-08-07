@@ -56,7 +56,13 @@ ltl_automaton_msgs/
 - `LTLState`
 - `LTLStateArray`
 - `LTLPlan`
+- `PlannerStatus`
+- `LoadTransitionSystem`
+- `PlanLTL`
 - `TaskPlanning`
+
+面向新 ROS 2 consumer 的正式 V0.1 contract 见
+[`ltl_automaton_planner/docs/planning_api.md`](ltl_automaton_planner/docs/planning_api.md)。
 
 ### 1.3 ROS 2 Planner 节点
 
