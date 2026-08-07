@@ -1,7 +1,9 @@
 """ROS2 node wrapping the ROS-independent LTL planner core."""
 
+import hashlib
 import importlib
 from pathlib import Path
+from threading import RLock
 
 import rclpy
 import yaml
@@ -22,10 +24,11 @@ from ltl_automaton_msgs.msg import (
     LTLPlan,
     LTLState,
     LTLStateArray,
+    PlannerStatus,
     TransitionSystemState,
     TransitionSystemStateStamped,
 )
-from ltl_automaton_msgs.srv import TaskPlanning
+from ltl_automaton_msgs.srv import LoadTransitionSystem, TaskPlanning
 from ltl_automaton_planner_core.ltl_tools.ltl_planner import (
     LTLPlanner,
 )
@@ -101,9 +104,9 @@ def load_plugin_specs(config_path) -> dict:
 class PlannerNode(Node):
     """Load a transition system and publish an initial LTL plan action."""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """Initialize the ROS2 planner node."""
-        super().__init__("ltl_planner")
+        super().__init__("ltl_planner", **kwargs)
 
         self.declare_parameter(
             "transition_system_path",
@@ -148,6 +151,12 @@ class PlannerNode(Node):
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
 
+        self._state_lock = RLock()
+        self._planner_state = PlannerStatus.UNINITIALIZED
+        self._active_transition_system = None
+        self._active_ts_yaml = ""
+        self._active_ts_sha256 = ""
+
         self.next_move_publisher = self.create_publisher(
             String,
             "next_move_cmd",
@@ -172,6 +181,12 @@ class PlannerNode(Node):
             command_qos,
         )
 
+        self.planner_status_publisher = self.create_publisher(
+            PlannerStatus,
+            "planner_status",
+            command_qos,
+        )
+
         self.state_subscription = self.create_subscription(
             TransitionSystemStateStamped,
             "ts_state",
@@ -183,6 +198,12 @@ class PlannerNode(Node):
             TaskPlanning,
             "replanning",
             self._task_replanning_callback,
+        )
+
+        self.load_transition_system_service = self.create_service(
+            LoadTransitionSystem,
+            "load_transition_system",
+            self._load_transition_system_callback,
         )
 
         self.ltl_planner = None
@@ -206,12 +227,176 @@ class PlannerNode(Node):
             ).value
         )
 
+        self._set_planner_status(
+            PlannerStatus.UNINITIALIZED,
+            "No active transition system is loaded.",
+        )
+
+        ts_path_value = str(
+            self.get_parameter("transition_system_path").value
+        ).strip()
+
         if self._waiting_for_initial_state:
+            if ts_path_value:
+                self._load_transition_system_from_path(ts_path_value)
+
             self.get_logger().info(
                 "Waiting for the initial TS state on /ts_state."
             )
-        else:
+        elif ts_path_value:
             self._initialize_planner()
+        else:
+            self.get_logger().info(
+                "Waiting for a transition system on "
+                "/load_transition_system."
+            )
+
+    def _set_planner_status(self, state: int, message: str) -> None:
+        """Store and publish the authoritative planner lifecycle state."""
+        valid_states = {
+            PlannerStatus.UNINITIALIZED,
+            PlannerStatus.READY,
+            PlannerStatus.PLANNING,
+            PlannerStatus.ACTIVE,
+        }
+
+        if state not in valid_states:
+            raise ValueError(f"Unsupported planner lifecycle state: {state}")
+
+        with self._state_lock:
+            self._planner_state = state
+            status = PlannerStatus()
+            status.state = state
+            status.message = message
+            self.planner_status_publisher.publish(status)
+
+    @staticmethod
+    def _prepare_transition_system(
+        transition_system_yaml: str,
+        initial_states_dict=None,
+    ) -> tuple[TSModel, str]:
+        """Parse and fully construct a TS candidate without activating it."""
+        if not transition_system_yaml.strip():
+            raise ValueError("Transition-system YAML cannot be empty.")
+
+        ts_data = import_ts_from_file(transition_system_yaml)
+        state_models = state_models_from_ts(
+            ts_data,
+            initial_states_dict=initial_states_dict,
+        )
+        transition_system = TSModel(state_models)
+        transition_system.build_full()
+
+        # The digest identifies the exact UTF-8 YAML payload received.
+        active_hash = hashlib.sha256(
+            transition_system_yaml.encode("utf-8")
+        ).hexdigest()
+        return transition_system, active_hash
+
+    def _activate_transition_system(
+        self,
+        transition_system: TSModel,
+        transition_system_yaml: str,
+        active_hash: str,
+    ) -> None:
+        """Atomically replace the active validated transition system."""
+        with self._state_lock:
+            self._active_transition_system = transition_system
+            self._active_ts_yaml = transition_system_yaml
+            self._active_ts_sha256 = active_hash
+            self.ltl_planner = None
+            self._set_planner_status(
+                PlannerStatus.READY,
+                "Transition system loaded; no active plan.",
+            )
+
+    def _load_transition_system_from_path(
+        self,
+        ts_path_value: str,
+        initial_states_dict=None,
+    ) -> bool:
+        """Load the startup TS path through the shared activation path."""
+        ts_path = Path(ts_path_value).expanduser()
+
+        if not ts_path.is_file():
+            self.get_logger().error(
+                f"Transition-system file does not exist: {ts_path}"
+            )
+            return False
+
+        try:
+            transition_system_yaml = ts_path.read_text(encoding="utf-8")
+            transition_system, active_hash = (
+                self._prepare_transition_system(
+                    transition_system_yaml,
+                    initial_states_dict=initial_states_dict,
+                )
+            )
+        except Exception as error:
+            self.get_logger().error(
+                f"Cannot load transition system from {ts_path}: {error}"
+            )
+            return False
+
+        self._activate_transition_system(
+            transition_system,
+            transition_system_yaml,
+            active_hash,
+        )
+        return True
+
+    def _load_transition_system_callback(self, request, response):
+        """Validate and atomically activate a transition system from YAML."""
+        with self._state_lock:
+            if self._planner_state not in {
+                PlannerStatus.UNINITIALIZED,
+                PlannerStatus.READY,
+            }:
+                response.success = False
+                response.message = (
+                    "Transition-system loading is only allowed while "
+                    "UNINITIALIZED or READY."
+                )
+                response.active_ts_sha256 = self._active_ts_sha256
+                return response
+
+            try:
+                transition_system, active_hash = (
+                    self._prepare_transition_system(
+                        request.transition_system_yaml
+                    )
+                )
+            except (AttributeError, KeyError, TypeError, ValueError) as error:
+                self.get_logger().warning(
+                    f"Rejected transition-system YAML: {error}"
+                )
+                response.success = False
+                response.message = str(error)
+                response.active_ts_sha256 = self._active_ts_sha256
+                return response
+            except Exception as error:
+                self.get_logger().error(
+                    "Unexpected transition-system loading failure: "
+                    f"{error}"
+                )
+                response.success = False
+                response.message = (
+                    "Unexpected transition-system loading failure: "
+                    f"{error}"
+                )
+                response.active_ts_sha256 = self._active_ts_sha256
+                return response
+
+            self._activate_transition_system(
+                transition_system,
+                request.transition_system_yaml,
+                active_hash,
+            )
+
+            response.success = True
+            response.message = "Transition system loaded successfully."
+            response.active_ts_sha256 = self._active_ts_sha256
+            return response
 
     def _initialize_plugins(self) -> None:
         """Load configured planner plugins after planning is available."""
@@ -328,10 +513,7 @@ class PlannerNode(Node):
         self,
         initial_states_dict=None,
     ) -> bool:
-        """Load the TS, run static planning, and publish the first action."""
-        ts_path_value = self.get_parameter(
-            "transition_system_path"
-        ).value
+        """Create the initial plan from the active transition system."""
         hard_task = self.get_parameter(
             "hard_task"
         ).value
@@ -345,11 +527,42 @@ class PlannerNode(Node):
             "gamma"
         ).value
 
-        if not ts_path_value:
-            self.get_logger().error(
-                "Parameter 'transition_system_path' is required."
+        if self._active_transition_system is None:
+            ts_path_value = str(
+                self.get_parameter("transition_system_path").value
+            ).strip()
+
+            if not ts_path_value:
+                self.get_logger().error(
+                    "No active transition system is available."
+                )
+                return False
+
+            if not self._load_transition_system_from_path(
+                ts_path_value,
+                initial_states_dict=initial_states_dict,
+            ):
+                return False
+        elif initial_states_dict is not None:
+            try:
+                transition_system, active_hash = (
+                    self._prepare_transition_system(
+                        self._active_ts_yaml,
+                        initial_states_dict=initial_states_dict,
+                    )
+                )
+            except Exception as error:
+                self.get_logger().error(
+                    "Cannot apply the agent initial TS state: "
+                    f"{error}"
+                )
+                return False
+
+            self._activate_transition_system(
+                transition_system,
+                self._active_ts_yaml,
+                active_hash,
             )
-            return False
 
         if not hard_task:
             self.get_logger().error(
@@ -363,32 +576,15 @@ class PlannerNode(Node):
             )
             return False
 
-        ts_path = Path(ts_path_value).expanduser()
-
-        if not ts_path.is_file():
-            self.get_logger().error(
-                f"Transition-system file does not exist: {ts_path}"
+        with self._state_lock:
+            transition_system = self._active_transition_system
+            self._set_planner_status(
+                PlannerStatus.PLANNING,
+                "Initial LTL planning is in progress.",
             )
-            return False
 
         try:
-            with ts_path.open(
-                "r",
-                encoding="utf-8",
-            ) as ts_file:
-                ts_data = import_ts_from_file(
-                    ts_file
-                )
-
-            state_models = state_models_from_ts(
-                ts_data,
-                initial_states_dict=initial_states_dict,
-            )
-            transition_system = TSModel(
-                state_models
-            )
-
-            self.ltl_planner = LTLPlanner(
+            planner = LTLPlanner(
                 transition_system,
                 hard_task,
                 soft_task,
@@ -396,7 +592,7 @@ class PlannerNode(Node):
                 gamma=gamma,  # type: ignore
             )
 
-            success = self.ltl_planner.optimal(
+            success = planner.optimal(
                 style="static"
             )
 
@@ -404,15 +600,29 @@ class PlannerNode(Node):
             self.get_logger().error(
                 f"Planner initialization failed: {error}"
             )
-            self.ltl_planner = None
+            with self._state_lock:
+                self.ltl_planner = None
+                self._set_planner_status(
+                    PlannerStatus.READY,
+                    "Initial planning failed; "
+                    "transition system remains ready.",
+                )
             return False
 
-        if not success or self.ltl_planner.run is None:
+        if not success or planner.run is None:
             self.get_logger().error(
                 "No accepting LTL plan was found."
             )
-            self.ltl_planner = None
+            with self._state_lock:
+                self.ltl_planner = None
+                self._set_planner_status(
+                    PlannerStatus.READY,
+                    "No accepting plan; transition system remains ready.",
+                )
             return False
+
+        with self._state_lock:
+            self.ltl_planner = planner
 
         initial_states = (
             self.ltl_planner.product
@@ -424,6 +634,11 @@ class PlannerNode(Node):
             self.ltl_planner.curr_ts_state = next(
                 iter(initial_states)
             )
+
+        self._set_planner_status(
+            PlannerStatus.ACTIVE,
+            "An accepted LTL run is active.",
+        )
 
         self._publish_possible_states()
 
@@ -713,6 +928,11 @@ class PlannerNode(Node):
 
         current_state = self.ltl_planner.curr_ts_state
 
+        self._set_planner_status(
+            PlannerStatus.PLANNING,
+            "Task replanning is in progress.",
+        )
+
         self.get_logger().info(
             "Received task replanning request."
         )
@@ -736,6 +956,10 @@ class PlannerNode(Node):
             self.get_logger().error(
                 f"Task replanning failed: {error}"
             )
+            self._set_planner_status(
+                PlannerStatus.ACTIVE,
+                "Task replanning failed; the previous run remains active.",
+            )
             response.success = False
             return response
 
@@ -747,8 +971,17 @@ class PlannerNode(Node):
             self.get_logger().error(
                 "No accepting plan was found for the new task."
             )
+            self._set_planner_status(
+                PlannerStatus.ACTIVE,
+                "Task replanning failed; the previous run remains active.",
+            )
             response.success = False
             return response
+
+        self._set_planner_status(
+            PlannerStatus.ACTIVE,
+            "The replanned accepted LTL run is active.",
+        )
 
         self._publish_possible_states()
         self._publish_plan()
@@ -854,12 +1087,21 @@ class PlannerNode(Node):
                 )
 
             try:
+                self._set_planner_status(
+                    PlannerStatus.PLANNING,
+                    "State-based replanning is in progress.",
+                )
                 replanned = self.ltl_planner.replan_from_ts_state(
                     reached_state
                 )
             except Exception as error:
                 self.get_logger().error(
                     f"Replanning from {reached_state} failed: {error}"
+                )
+                self._set_planner_status(
+                    PlannerStatus.ACTIVE,
+                    "State-based replanning failed; "
+                    "the previous run remains active.",
                 )
                 return
 
@@ -872,9 +1114,19 @@ class PlannerNode(Node):
                     "No accepting plan was found from "
                     f"the unexpected state {reached_state}."
                 )
+                self._set_planner_status(
+                    PlannerStatus.ACTIVE,
+                    "State-based replanning failed; "
+                    "the previous run remains active.",
+                )
                 return
 
             self.ltl_planner.curr_ts_state = reached_state
+
+            self._set_planner_status(
+                PlannerStatus.ACTIVE,
+                "The state-replanned accepted LTL run is active.",
+            )
 
             self._publish_possible_states()
 

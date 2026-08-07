@@ -1,16 +1,132 @@
 """Tests for ROS2 planner-node state conversion helpers."""
 
+import hashlib
 from pathlib import Path
+import time
 from types import SimpleNamespace
 
 import pytest
+import rclpy
+from rclpy.context import Context
+from rclpy.executors import SingleThreadedExecutor
+from rclpy.qos import (
+    DurabilityPolicy,
+    QoSProfile,
+    ReliabilityPolicy,
+)
 
-from ltl_automaton_msgs.msg import TransitionSystemStateStamped
+from ltl_automaton_msgs.msg import (
+    PlannerStatus,
+    TransitionSystemStateStamped,
+)
+from ltl_automaton_msgs.srv import LoadTransitionSystem
 from ltl_automaton_planner.planner_node import (
     PlannerNode,
     initial_states_from_message,
     load_plugin_specs,
 )
+
+
+VALID_TS_A = """
+state_dim:
+  - region
+state_models:
+  region:
+    initial: r1
+    nodes:
+      r1:
+        connected_to:
+          r2: goto_r2
+      r2:
+        connected_to:
+          r2: stay_r2
+actions:
+  goto_r2:
+    guard: "1"
+    weight: 2.0
+  stay_r2:
+    guard: "1"
+    weight: 1.0
+""".lstrip()
+
+VALID_TS_B = """
+state_dim:
+  - region
+state_models:
+  region:
+    initial: r3
+    nodes:
+      r3:
+        connected_to:
+          r3: stay_r3
+actions:
+  stay_r3:
+    guard: "1"
+    weight: 1.5
+""".lstrip()
+
+
+@pytest.fixture
+def planner_runtime():
+    """Create an isolated single-threaded planner service runtime."""
+    context = Context()
+    rclpy.init(context=context)
+    planner = PlannerNode(context=context)
+    client_node = rclpy.create_node(
+        "planner_lifecycle_test",
+        context=context,
+    )
+    executor = SingleThreadedExecutor(context=context)
+    executor.add_node(planner)
+    executor.add_node(client_node)
+    runtime = SimpleNamespace(
+        context=context,
+        planner=planner,
+        client_node=client_node,
+        executor=executor,
+    )
+
+    try:
+        yield runtime
+    finally:
+        executor.remove_node(client_node)
+        executor.remove_node(planner)
+        client_node.destroy_node()
+        planner.destroy_node()
+        executor.shutdown()
+        rclpy.shutdown(context=context)
+
+
+def call_load_transition_system(runtime, yaml_content):
+    """Call the real ROS service and return its generated response."""
+    client = runtime.client_node.create_client(
+        LoadTransitionSystem,
+        "load_transition_system",
+    )
+    assert client.wait_for_service(timeout_sec=2.0)
+
+    request = LoadTransitionSystem.Request()
+    request.transition_system_yaml = yaml_content
+    future = client.call_async(request)
+    runtime.executor.spin_until_future_complete(
+        future,
+        timeout_sec=3.0,
+    )
+    runtime.client_node.destroy_client(client)
+
+    assert future.done()
+    assert future.result() is not None
+    return future.result()
+
+
+def wait_for_message(runtime, messages, timeout=3.0):
+    """Spin the isolated runtime until a subscription receives a message."""
+    deadline = time.monotonic() + timeout
+
+    while time.monotonic() < deadline and not messages:
+        runtime.executor.spin_once(timeout_sec=0.1)
+
+    return bool(messages)
 
 
 def make_state_message(states, dimensions):
@@ -157,3 +273,131 @@ plugins:
     assert ("init",) in events
     assert ("set_sub_and_pub",) in events
     assert ("update", ("r2",)) in events
+
+
+def test_initial_status_reaches_a_late_subscriber(planner_runtime):
+    """Retain the initial lifecycle state for a late DDS subscriber."""
+    statuses = []
+    status_qos = QoSProfile(
+        depth=1,
+        reliability=ReliabilityPolicy.RELIABLE,
+        durability=DurabilityPolicy.TRANSIENT_LOCAL,
+    )
+    subscription = planner_runtime.client_node.create_subscription(
+        PlannerStatus,
+        "planner_status",
+        statuses.append,
+        status_qos,
+    )
+
+    assert wait_for_message(planner_runtime, statuses)
+    assert statuses[-1].state == PlannerStatus.UNINITIALIZED
+    assert planner_runtime.planner._planner_state == (
+        PlannerStatus.UNINITIALIZED
+    )
+
+    planner_runtime.client_node.destroy_subscription(subscription)
+
+
+def test_successful_load_activates_ts_and_ready_state(planner_runtime):
+    """Load and validate YAML through the real ROS service."""
+    response = call_load_transition_system(
+        planner_runtime,
+        VALID_TS_A,
+    )
+
+    assert response.success
+    assert response.active_ts_sha256 == hashlib.sha256(
+        VALID_TS_A.encode("utf-8")
+    ).hexdigest()
+    assert planner_runtime.planner._planner_state == PlannerStatus.READY
+    assert set(
+        planner_runtime.planner._active_transition_system.nodes
+    ) == {("r1",), ("r2",)}
+
+
+@pytest.mark.parametrize(
+    "invalid_yaml",
+    [
+        "state_dim: [",
+        "state_dim: [region]\nstate_models: []\nactions: {}\n",
+    ],
+)
+def test_invalid_load_preserves_active_ts(planner_runtime, invalid_yaml):
+    """Keep the previous TS, hash, and status after invalid input."""
+    first_response = call_load_transition_system(
+        planner_runtime,
+        VALID_TS_A,
+    )
+    active_ts = planner_runtime.planner._active_transition_system
+
+    response = call_load_transition_system(
+        planner_runtime,
+        invalid_yaml,
+    )
+
+    assert not response.success
+    assert response.message
+    assert response.active_ts_sha256 == first_response.active_ts_sha256
+    assert planner_runtime.planner._active_transition_system is active_ts
+    assert planner_runtime.planner._active_ts_sha256 == (
+        first_response.active_ts_sha256
+    )
+    assert planner_runtime.planner._planner_state == PlannerStatus.READY
+
+
+def test_ready_transition_system_can_be_replaced(planner_runtime):
+    """Replace TS A atomically with TS B while the planner is READY."""
+    first_response = call_load_transition_system(
+        planner_runtime,
+        VALID_TS_A,
+    )
+    first_ts = planner_runtime.planner._active_transition_system
+
+    second_response = call_load_transition_system(
+        planner_runtime,
+        VALID_TS_B,
+    )
+
+    assert second_response.success
+    assert second_response.active_ts_sha256 != (
+        first_response.active_ts_sha256
+    )
+    assert planner_runtime.planner._active_transition_system is not first_ts
+    assert set(
+        planner_runtime.planner._active_transition_system.nodes
+    ) == {("r3",)}
+    assert planner_runtime.planner._planner_state == PlannerStatus.READY
+
+
+@pytest.mark.parametrize(
+    "rejected_state",
+    [PlannerStatus.PLANNING, PlannerStatus.ACTIVE],
+)
+def test_load_is_rejected_while_busy_or_active(
+    planner_runtime,
+    rejected_state,
+):
+    """Reject TS replacement without changing any active state."""
+    first_response = call_load_transition_system(
+        planner_runtime,
+        VALID_TS_A,
+    )
+    active_ts = planner_runtime.planner._active_transition_system
+    active_planner = object()
+    planner_runtime.planner.ltl_planner = active_planner
+    planner_runtime.planner._set_planner_status(
+        rejected_state,
+        "Test rejection state.",
+    )
+
+    response = call_load_transition_system(
+        planner_runtime,
+        VALID_TS_B,
+    )
+
+    assert not response.success
+    assert response.active_ts_sha256 == first_response.active_ts_sha256
+    assert planner_runtime.planner._active_transition_system is active_ts
+    assert planner_runtime.planner.ltl_planner is active_planner
+    assert planner_runtime.planner._planner_state == rejected_state

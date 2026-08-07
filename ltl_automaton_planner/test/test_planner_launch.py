@@ -21,9 +21,10 @@ from std_msgs.msg import String
 from ltl_automaton_msgs.msg import (
     LTLPlan,
     LTLStateArray,
+    PlannerStatus,
     TransitionSystemStateStamped,
 )
-from ltl_automaton_msgs.srv import TaskPlanning
+from ltl_automaton_msgs.srv import LoadTransitionSystem, TaskPlanning
 
 
 @pytest.mark.launch_test
@@ -95,6 +96,7 @@ class TestPlannerCommunication(unittest.TestCase):
         prefix_plans = []
         suffix_plans = []
         possible_states = []
+        planner_statuses = []
 
         subscriptions = [
             self.node.create_subscription(
@@ -121,6 +123,12 @@ class TestPlannerCommunication(unittest.TestCase):
                 possible_states.append,
                 command_qos,
             ),
+            self.node.create_subscription(
+                PlannerStatus,
+                "planner_status",
+                planner_statuses.append,
+                command_qos,
+            ),
         ]
 
         self.assertTrue(
@@ -130,8 +138,13 @@ class TestPlannerCommunication(unittest.TestCase):
                     and prefix_plans
                     and suffix_plans
                     and possible_states
+                    and planner_statuses
                 )
             )
+        )
+        self.assertEqual(
+            planner_statuses[-1].state,
+            PlannerStatus.ACTIVE,
         )
         self.assertEqual(next_moves[-1], "goto_r2")
         self.assertEqual(
@@ -194,11 +207,36 @@ class TestPlannerCommunication(unittest.TestCase):
         self.assertIsNotNone(future.result())
         self.assertTrue(future.result().success)
 
+        load_client = self.node.create_client(
+            LoadTransitionSystem,
+            "load_transition_system",
+        )
+        self.assertTrue(load_client.wait_for_service(timeout_sec=5.0))
+
+        load_request = LoadTransitionSystem.Request()
+        load_request.transition_system_yaml = "state_dim: []\n"
+        load_future = load_client.call_async(load_request)
+        rclpy.spin_until_future_complete(
+            self.node,
+            load_future,
+            timeout_sec=5.0,
+        )
+
+        self.assertTrue(load_future.done())
+        self.assertIsNotNone(load_future.result())
+        self.assertFalse(load_future.result().success)
+        self.assertTrue(load_future.result().active_ts_sha256)
+        self.assertEqual(
+            planner_statuses[-1].state,
+            PlannerStatus.ACTIVE,
+        )
+
         for subscription in subscriptions:
             self.node.destroy_subscription(subscription)
 
         self.node.destroy_publisher(state_publisher)
         self.node.destroy_client(replanning_client)
+        self.node.destroy_client(load_client)
 
 
 @launch_testing.post_shutdown_test()
