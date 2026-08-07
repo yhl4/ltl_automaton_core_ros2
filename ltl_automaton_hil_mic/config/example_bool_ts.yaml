@@ -1,0 +1,17 @@
+state_dim: [load]
+state_models:
+  load:
+    ts_type: load
+    initial: empty
+    nodes:
+      empty:
+        attr: {}
+        connected_to: {empty: stay_empty, loaded: pick}
+      loaded:
+        attr: {}
+        connected_to: {empty: drop, loaded: stay_loaded}
+actions:
+  stay_empty: {type: stay, weight: 1, guard: "1"}
+  pick: {type: pick, weight: 1, guard: "1"}
+  drop: {type: drop, weight: 1, guard: "1"}
+  stay_loaded: {type: stay, weight: 1, guard: "1"}
