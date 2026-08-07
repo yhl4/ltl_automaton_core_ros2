@@ -1,5 +1,6 @@
 """Coordinate LTL planning over a transition system."""
 
+from copy import deepcopy
 import logging
 
 from .buchi import mission_to_buchi
@@ -299,12 +300,38 @@ class LTLPlanner:
 
     def replan_from_ts_state(self, ts_state):
         """Replan after replacing the current TS initial state."""
-        if self.product is None:
-            self.ts.set_initial(ts_state)
-            return self.optimal(style="static")
+        snapshot = deepcopy(self.__dict__)
+        target_ts = (
+            self.ts
+            if self.product is None
+            else self.product.graph["ts"]
+        )
 
-        self.product.graph["ts"].set_initial(ts_state)
-        return self.optimal(style="on-the-fly-initial")
+        if not target_ts.set_initial(ts_state):
+            _LOGGER.error(
+                "LTL Planner: Cannot replan from unknown TS state %s.",
+                ts_state,
+            )
+            return False
+
+        try:
+            replanned = self.optimal(
+                style=(
+                    "static"
+                    if self.product is None
+                    else "on-the-fly-initial"
+                )
+            )
+        except Exception:
+            self.__dict__.clear()
+            self.__dict__.update(snapshot)
+            raise
+
+        if not replanned:
+            self.__dict__.clear()
+            self.__dict__.update(snapshot)
+
+        return replanned
 
     def replan_task(
         self,
@@ -313,6 +340,7 @@ class LTLPlanner:
         initial_ts_state=None,
     ):
         """Replace the task and optionally the current TS initial state."""
+        snapshot = deepcopy(self.__dict__)
         target_ts = (
             self.ts
             if self.product is None
@@ -320,15 +348,35 @@ class LTLPlanner:
         )
 
         if initial_ts_state is not None:
-            target_ts.set_initial(initial_ts_state)
+            if not target_ts.set_initial(initial_ts_state):
+                _LOGGER.error(
+                    "LTL Planner: Cannot replan task from unknown "
+                    "TS state %s.",
+                    initial_ts_state,
+                )
+                return False
 
         self.hard_spec = hard_spec
         self.soft_spec = soft_spec
 
-        if self.product is None:
-            return self.optimal(style="static")
+        try:
+            replanned = self.optimal(
+                style=(
+                    "static"
+                    if self.product is None
+                    else "on-the-fly-task"
+                )
+            )
+        except Exception:
+            self.__dict__.clear()
+            self.__dict__.update(snapshot)
+            raise
 
-        return self.optimal(style="on-the-fly-task")
+        if not replanned:
+            self.__dict__.clear()
+            self.__dict__.update(snapshot)
+
+        return replanned
 
     def replan(self):
         """Create a new plan consistent with the execution history."""

@@ -1,5 +1,7 @@
 from io import StringIO
 
+import pytest
+
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
     state_models_from_ts,
@@ -68,8 +70,18 @@ def test_override_initial_state() -> None:
     assert state_models[0].graph["initial"] == {("r2",)}
 
 
-def test_yaml_to_transition_system() -> None:
-  def test_yaml_to_full_transition_system() -> None:
+def test_unknown_initial_state_is_rejected() -> None:
+    """Reject an agent override that is not a node in its TS dimension."""
+    ts_dict = import_ts_from_file(StringIO(TS_YAML))
+
+    with pytest.raises(ValueError, match="is not defined"):
+        state_models_from_ts(
+            ts_dict,
+            initial_states_dict={"region": "unknown"},
+        )
+
+
+def test_yaml_to_full_transition_system() -> None:
     """Build a complete transition system from YAML data."""
     ts_dict = import_ts_from_file(StringIO(TS_YAML))
     state_models = state_models_from_ts(ts_dict)

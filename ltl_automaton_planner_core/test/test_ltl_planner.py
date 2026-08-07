@@ -3,6 +3,8 @@
 import shutil
 from io import StringIO
 
+import pytest
+
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
     state_models_from_ts,
@@ -174,3 +176,109 @@ def test_possible_states_survive_suffix_cycle_boundaries():
         for reached_state in planner.run.loop[1:]:
             assert planner.update_possible_states(reached_state) is True
             planner.find_next_move()
+
+
+def test_failed_task_replanning_restores_previous_planner_state():
+    """Roll back task, TS initial state, plan, and execution cursor."""
+    planner = LTLPlanner(
+        create_transition_system(),
+        hard_spec="<> r2",
+        soft_spec="(r2 || ! r2)",
+    )
+    assert planner.optimal(style="static") is True
+
+    planner.curr_ts_state = ("r1",)
+    previous_run = (
+        list(planner.run.pre_plan),
+        list(planner.run.suf_plan),
+    )
+    previous_initial = set(
+        planner.product.graph["ts"].graph["initial"]
+    )
+    previous_cursor = (
+        planner.segment,
+        planner.index,
+        planner.next_move,
+        planner.curr_ts_state,
+    )
+
+    assert planner.replan_task(
+        hard_spec="<> r1",
+        soft_spec="(r1 || ! r1)",
+        initial_ts_state=("r2",),
+    ) is False
+
+    assert planner.hard_spec == "<> r2"
+    assert planner.soft_spec == "(r2 || ! r2)"
+    assert planner.product.graph["ts"].graph["initial"] == previous_initial
+    assert (
+        list(planner.run.pre_plan),
+        list(planner.run.suf_plan),
+    ) == previous_run
+    assert (
+        planner.segment,
+        planner.index,
+        planner.next_move,
+        planner.curr_ts_state,
+    ) == previous_cursor
+
+
+def test_unknown_state_replanning_preserves_current_plan():
+    """Reject an unknown TS state without changing the active plan."""
+    planner = LTLPlanner(
+        create_transition_system(),
+        hard_spec="<> r2",
+        soft_spec="(r2 || ! r2)",
+    )
+    assert planner.optimal(style="static") is True
+
+    previous_initial = set(
+        planner.product.graph["ts"].graph["initial"]
+    )
+    previous_next_move = planner.next_move
+
+    assert planner.replan_from_ts_state(("unknown",)) is False
+    assert planner.product.graph["ts"].graph["initial"] == previous_initial
+    assert planner.next_move == previous_next_move
+
+
+def test_replanning_exception_restores_previous_state(monkeypatch):
+    """Restore the active planner before propagating an internal error."""
+    planner = LTLPlanner(
+        create_transition_system(),
+        hard_spec="<> r2",
+        soft_spec="(r2 || ! r2)",
+    )
+    assert planner.optimal(style="static") is True
+
+    previous_run = (
+        list(planner.run.pre_plan),
+        list(planner.run.suf_plan),
+    )
+    previous_initial = set(
+        planner.product.graph["ts"].graph["initial"]
+    )
+
+    def fail_buchi(*args, **kwargs):
+        raise RuntimeError("injected Büchi construction failure")
+
+    monkeypatch.setattr(
+        "ltl_automaton_planner_core.ltl_tools.ltl_planner."
+        "mission_to_buchi",
+        fail_buchi,
+    )
+
+    with pytest.raises(RuntimeError, match="injected Büchi"):
+        planner.replan_task(
+            hard_spec="<> r1",
+            soft_spec="(r1 || ! r1)",
+            initial_ts_state=("r2",),
+        )
+
+    assert planner.hard_spec == "<> r2"
+    assert planner.soft_spec == "(r2 || ! r2)"
+    assert planner.product.graph["ts"].graph["initial"] == previous_initial
+    assert (
+        list(planner.run.pre_plan),
+        list(planner.run.suf_plan),
+    ) == previous_run

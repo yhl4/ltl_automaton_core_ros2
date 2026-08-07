@@ -23,6 +23,7 @@ VALID_SCENARIOS = {
     "deviation",
     "full",
 }
+PHASE_SEPARATOR = "=" * 72
 
 
 def next_state_for_action(current_state, action):
@@ -136,6 +137,10 @@ class KthDemoDriver(Node):
         self.deviation_published = False
         self.finished = False
 
+        self._log_phase(
+            1,
+            "INITIAL PLANNING AND NORMAL EXECUTION",
+        )
         self.get_logger().info(
             f"KTH demo driver started with scenario={self.scenario!r}."
         )
@@ -179,6 +184,10 @@ class KthDemoDriver(Node):
         request.soft_task = self.replanning_soft_task
 
         self.replanning_requested = True
+        self._log_phase(
+            2,
+            "ONLINE TASK REPLANNING",
+        )
         self.get_logger().info(
             "Requesting task replanning: "
             f"hard={request.hard_task!r}, soft={request.soft_task!r}."
@@ -232,6 +241,10 @@ class KthDemoDriver(Node):
 
         if self.completed_steps >= self.max_steps:
             self.finished = True
+            self._log_phase(
+                4,
+                "DEMO COMPLETE",
+            )
             self.get_logger().info(
                 f"Demo completed after {self.completed_steps} state updates."
             )
@@ -258,6 +271,10 @@ class KthDemoDriver(Node):
             return reached_state
 
         self.deviation_published = True
+        self._log_phase(
+            3,
+            "LEGAL DEVIATION AND STATE-BASED RECOVERY",
+        )
         self.get_logger().warning(
             f"Injecting legal deviation: expected {reached_state}, "
             f"publishing {alternative}."
@@ -273,6 +290,14 @@ class KthDemoDriver(Node):
 
         self.state_publisher.publish(message)
         self.get_logger().info(f"Published TS state: {state}.")
+
+    def _log_phase(self, number, title):
+        """Separate major demo phases in the combined launch output."""
+        self.get_logger().info(
+            f"\n{PHASE_SEPARATOR}\n"
+            f"KTH DEMO PHASE {number}: {title}\n"
+            f"{PHASE_SEPARATOR}"
+        )
 
 
 def main(args=None):

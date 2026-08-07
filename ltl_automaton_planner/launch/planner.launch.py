@@ -43,6 +43,22 @@ def generate_launch_description():
                 "gamma",
                 default_value="10.0",
             ),
+            DeclareLaunchArgument(
+                "initial_ts_state_from_agent",
+                default_value="false",
+            ),
+            DeclareLaunchArgument(
+                "replan_on_unplanned_move",
+                default_value="true",
+            ),
+            DeclareLaunchArgument(
+                "check_timestamp",
+                default_value="true",
+            ),
+            DeclareLaunchArgument(
+                "plugin_config_path",
+                default_value="",
+            ),
             Node(
                 package="ltl_automaton_planner",
                 executable="planner_node",
@@ -62,6 +78,26 @@ def generate_launch_description():
                         "gamma": ParameterValue(
                             LaunchConfiguration("gamma"),
                             value_type=float,
+                        ),
+                        "initial_ts_state_from_agent": ParameterValue(
+                            LaunchConfiguration(
+                                "initial_ts_state_from_agent"
+                            ),
+                            value_type=bool,
+                        ),
+                        "replan_on_unplanned_move": ParameterValue(
+                            LaunchConfiguration(
+                                "replan_on_unplanned_move"
+                            ),
+                            value_type=bool,
+                        ),
+                        "check_timestamp": ParameterValue(
+                            LaunchConfiguration("check_timestamp"),
+                            value_type=bool,
+                        ),
+                        "plugin_config_path": ParameterValue(
+                            LaunchConfiguration("plugin_config_path"),
+                            value_type=str,
                         ),
                     }
                 ],

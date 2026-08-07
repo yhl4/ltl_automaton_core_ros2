@@ -1,8 +1,11 @@
 """ROS2 node wrapping the ROS-independent LTL planner core."""
 
+import importlib
 from pathlib import Path
 
 import rclpy
+import yaml
+from rcl_interfaces.msg import SetParametersResult
 from rclpy.node import Node
 from rclpy.qos import (
     DurabilityPolicy,
@@ -27,6 +30,72 @@ from ltl_automaton_planner_core.ltl_tools.ltl_planner import (
     LTLPlanner,
 )
 from ltl_automaton_planner_core.ltl_tools.ts import TSModel
+
+
+def initial_states_from_message(message) -> dict[str, str]:
+    """Convert a stamped TS-state message into a dimension mapping."""
+    states = list(message.ts_state.states)
+    dimensions = list(message.ts_state.state_dimension_names)
+
+    if not states:
+        raise ValueError(
+            "Received an empty transition-system state."
+        )
+
+    if len(states) != len(dimensions):
+        raise ValueError(
+            "The number of TS states does not match "
+            "the number of state dimensions."
+        )
+
+    if len(set(dimensions)) != len(dimensions):
+        raise ValueError(
+            "Transition-system state dimensions must be unique."
+        )
+
+    return dict(zip(dimensions, states))
+
+
+def load_plugin_specs(config_path) -> dict:
+    """Load and validate a ROS2 planner-plugin configuration file."""
+    path = Path(config_path).expanduser()
+
+    if not path.is_file():
+        raise ValueError(
+            f"Plugin configuration file does not exist: {path}"
+        )
+
+    with path.open("r", encoding="utf-8") as config_file:
+        config = yaml.safe_load(config_file)
+
+    if not isinstance(config, dict):
+        raise ValueError("Plugin configuration must be a mapping.")
+
+    plugin_specs = config.get("plugins", {})
+
+    if not isinstance(plugin_specs, dict):
+        raise ValueError("The 'plugins' entry must be a mapping.")
+
+    for class_name, spec in plugin_specs.items():
+        if not isinstance(class_name, str) or not class_name:
+            raise ValueError("Plugin class names must be non-empty strings.")
+
+        if not isinstance(spec, dict):
+            raise ValueError(
+                f"Configuration for plugin {class_name!r} must be a mapping."
+            )
+
+        if not isinstance(spec.get("path"), str) or not spec["path"]:
+            raise ValueError(
+                f"Plugin {class_name!r} requires a module 'path'."
+            )
+
+        if not isinstance(spec.get("args", {}), dict):
+            raise ValueError(
+                f"Plugin {class_name!r} 'args' must be a mapping."
+            )
+
+    return plugin_specs
 
 
 class PlannerNode(Node):
@@ -55,6 +124,22 @@ class PlannerNode(Node):
         self.declare_parameter(
             "gamma",
             10.0,
+        )
+        self.declare_parameter(
+            "initial_ts_state_from_agent",
+            False,
+        )
+        self.declare_parameter(
+            "replan_on_unplanned_move",
+            True,
+        )
+        self.declare_parameter(
+            "check_timestamp",
+            True,
+        )
+        self.declare_parameter(
+            "plugin_config_path",
+            "",
         )
 
         command_qos = QoSProfile(
@@ -101,10 +186,148 @@ class PlannerNode(Node):
         )
 
         self.ltl_planner = None
+        self.plugins = {}
+        self._plugins_initialized = False
+        self.replan_on_unplanned_move = bool(
+            self.get_parameter(
+                "replan_on_unplanned_move"
+            ).value
+        )
+        self.check_timestamp = bool(
+            self.get_parameter("check_timestamp").value
+        )
+        self._previous_state_stamp = None
+        self.add_on_set_parameters_callback(
+            self._parameter_update_callback
+        )
+        self._waiting_for_initial_state = bool(
+            self.get_parameter(
+                "initial_ts_state_from_agent"
+            ).value
+        )
 
-        self._initialize_planner()
+        if self._waiting_for_initial_state:
+            self.get_logger().info(
+                "Waiting for the initial TS state on /ts_state."
+            )
+        else:
+            self._initialize_planner()
 
-    def _initialize_planner(self):
+    def _initialize_plugins(self) -> None:
+        """Load configured planner plugins after planning is available."""
+        if self._plugins_initialized:
+            return
+
+        config_path = self.get_parameter(
+            "plugin_config_path"
+        ).value
+
+        if not config_path:
+            self._plugins_initialized = True
+            return
+
+        try:
+            plugin_specs = load_plugin_specs(config_path)
+        except (OSError, ValueError, yaml.YAMLError) as error:
+            self.get_logger().error(
+                f"Cannot load planner plugin configuration: {error}"
+            )
+            return
+
+        loaded_plugins = {}
+
+        for class_name, spec in plugin_specs.items():
+            try:
+                module = importlib.import_module(spec["path"])
+                plugin_class = getattr(module, class_name)
+                plugin = plugin_class(
+                    self.ltl_planner,
+                    spec.get("args", {}),
+                )
+
+                if hasattr(plugin, "set_node"):
+                    plugin.set_node(self)
+
+                for method_name in (
+                    "init",
+                    "set_sub_and_pub",
+                    "run_at_ts_update",
+                ):
+                    if not callable(getattr(plugin, method_name, None)):
+                        raise TypeError(
+                            f"Plugin {class_name!r} does not implement "
+                            f"{method_name}()."
+                        )
+
+                loaded_plugins[class_name] = plugin
+            except (ImportError, AttributeError, TypeError) as error:
+                self.get_logger().error(
+                    f"Cannot load planner plugin {class_name!r}: {error}"
+                )
+
+        for class_name, plugin in loaded_plugins.items():
+            try:
+                plugin.init()
+                plugin.set_sub_and_pub()
+            except Exception as error:
+                self.get_logger().error(
+                    f"Cannot initialize planner plugin "
+                    f"{class_name!r}: {error}"
+                )
+                continue
+
+            self.plugins[class_name] = plugin
+            self.get_logger().info(
+                f"Initialized planner plugin {class_name!r}."
+            )
+
+        self._plugins_initialized = True
+
+    def _run_plugins(self, ts_state) -> None:
+        """Run every initialized plugin for an accepted TS update."""
+        for class_name, plugin in self.plugins.items():
+            try:
+                plugin.run_at_ts_update(ts_state)
+            except Exception as error:
+                self.get_logger().error(
+                    f"Planner plugin {class_name!r} failed during "
+                    f"a TS update: {error}"
+                )
+
+    def _parameter_update_callback(self, parameters):
+        """Apply supported runtime planner behavior parameters."""
+        updates = {
+            parameter.name: parameter.value
+            for parameter in parameters
+            if parameter.name in {
+                "replan_on_unplanned_move",
+                "check_timestamp",
+            }
+        }
+
+        if any(
+            not isinstance(value, bool)
+            for value in updates.values()
+        ):
+            return SetParametersResult(
+                successful=False,
+                reason="Planner behavior parameters must be boolean.",
+            )
+
+        if "replan_on_unplanned_move" in updates:
+            self.replan_on_unplanned_move = updates[
+                "replan_on_unplanned_move"
+            ]
+
+        if "check_timestamp" in updates:
+            self.check_timestamp = updates["check_timestamp"]
+
+        return SetParametersResult(successful=True)
+
+    def _initialize_planner(
+        self,
+        initial_states_dict=None,
+    ) -> bool:
         """Load the TS, run static planning, and publish the first action."""
         ts_path_value = self.get_parameter(
             "transition_system_path"
@@ -126,19 +349,19 @@ class PlannerNode(Node):
             self.get_logger().error(
                 "Parameter 'transition_system_path' is required."
             )
-            return
+            return False
 
         if not hard_task:
             self.get_logger().error(
                 "Parameter 'hard_task' is required."
             )
-            return
+            return False
 
         if not soft_task:
             self.get_logger().error(
                 "Parameter 'soft_task' is required."
             )
-            return
+            return False
 
         ts_path = Path(ts_path_value).expanduser()
 
@@ -146,7 +369,7 @@ class PlannerNode(Node):
             self.get_logger().error(
                 f"Transition-system file does not exist: {ts_path}"
             )
-            return
+            return False
 
         try:
             with ts_path.open(
@@ -158,7 +381,8 @@ class PlannerNode(Node):
                 )
 
             state_models = state_models_from_ts(
-                ts_data
+                ts_data,
+                initial_states_dict=initial_states_dict,
             )
             transition_system = TSModel(
                 state_models
@@ -181,13 +405,14 @@ class PlannerNode(Node):
                 f"Planner initialization failed: {error}"
             )
             self.ltl_planner = None
-            return
+            return False
 
         if not success or self.ltl_planner.run is None:
             self.get_logger().error(
                 "No accepting LTL plan was found."
             )
-            return
+            self.ltl_planner = None
+            return False
 
         initial_states = (
             self.ltl_planner.product
@@ -202,6 +427,8 @@ class PlannerNode(Node):
 
         self._publish_possible_states()
 
+        self._initialize_plugins()
+
         self.get_logger().info(
             "Initial LTL planning succeeded."
         )
@@ -214,6 +441,7 @@ class PlannerNode(Node):
 
         self._publish_plan()
         self._publish_next_move()
+        return True
 
     def _state_dimension_names(self) -> list[str]:
         """Return flattened TS state-dimension names."""
@@ -370,14 +598,14 @@ class PlannerNode(Node):
     def _update_possible_states(
         self,
         ts_state: tuple[str, ...],
-    ) -> None:
+    ) -> bool:
         """Update and publish product states matching a TS state."""
         if self.ltl_planner is None:
             self.get_logger().warning(
                 "Cannot update possible states before "
                 "planner initialization."
             )
-            return
+            return False
 
         states_available = (
             self.ltl_planner.update_possible_states(
@@ -392,6 +620,15 @@ class PlannerNode(Node):
             )
 
         self._publish_possible_states()
+        return states_available
+
+    @staticmethod
+    def _message_stamp(message) -> tuple[int, int]:
+        """Return a comparable ROS timestamp tuple."""
+        return (
+            message.header.stamp.sec,
+            message.header.stamp.nanosec,
+        )
 
     @staticmethod
     def _state_from_message(message):
@@ -526,6 +763,26 @@ class PlannerNode(Node):
 
     def _ts_state_callback(self, message):
         """Advance the plan when the expected TS state is reached."""
+        if self._waiting_for_initial_state:
+            try:
+                initial_states = initial_states_from_message(
+                    message
+                )
+            except ValueError as error:
+                self.get_logger().error(str(error))
+                return
+
+            if self._initialize_planner(initial_states):
+                self._waiting_for_initial_state = False
+                self._previous_state_stamp = self._message_stamp(
+                    message
+                )
+                self.get_logger().info(
+                    "Initialized the planner from the agent TS state."
+                )
+
+            return
+
         if (
             self.ltl_planner is None
             or self.ltl_planner.run is None
@@ -540,6 +797,20 @@ class PlannerNode(Node):
         except ValueError as error:
             self.get_logger().error(str(error))
             return
+
+        message_stamp = self._message_stamp(message)
+
+        if (
+            self.check_timestamp
+            and message_stamp == self._previous_state_stamp
+        ):
+            self.get_logger().warning(
+                "Ignoring TS state with a repeated timestamp: "
+                f"{message_stamp}."
+            )
+            return
+
+        self._previous_state_stamp = message_stamp
 
         expected_state = self._expected_next_state()
 
@@ -565,6 +836,22 @@ class PlannerNode(Node):
                 f"received {reached_state}. "
                 "Replanning from the received state."
             )
+
+            if not self.replan_on_unplanned_move:
+                self.ltl_planner.curr_ts_state = reached_state
+
+                if self._update_possible_states(reached_state):
+                    self._run_plugins(reached_state)
+                    self.get_logger().warning(
+                        "Automatic replanning for an unplanned move "
+                        "is disabled; keeping the current plan cursor."
+                    )
+                    return
+
+                self.get_logger().warning(
+                    "The unplanned state invalidated all possible "
+                    "Product states; replanning is required."
+                )
 
             try:
                 replanned = self.ltl_planner.replan_from_ts_state(
@@ -600,6 +887,7 @@ class PlannerNode(Node):
 
             self._publish_plan()
             self._publish_next_move()
+            self._run_plugins(reached_state)
             return
 
         self.ltl_planner.curr_ts_state = reached_state
@@ -625,6 +913,7 @@ class PlannerNode(Node):
 
         self._publish_plan()
         self._publish_next_move()
+        self._run_plugins(reached_state)
 
     def _publish_next_move(self):
         """Publish the currently selected planner action."""

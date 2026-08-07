@@ -70,6 +70,7 @@ ltl_automaton_planner/
 
 - 从 YAML 文件加载 Transition System；
 - 根据 hard task 和 soft task 构建 LTL 计划；
+- 可选等待机器人发布真实初始 TS 状态后再构建计划；
 - 发布完整 prefix 与 suffix；
 - 发布当前下一动作；
 - 接收 TS 状态反馈；
@@ -220,6 +221,10 @@ Published next move: ...
 | `soft_task` | string | 用于软约束或偏好的 LTL 任务 |
 | `beta` | double | hard-task 相关代价权重 |
 | `gamma` | double | soft-task 相关代价权重 |
+| `initial_ts_state_from_agent` | bool | 是否等待首个 `/ts_state` 作为规划初始状态 |
+| `replan_on_unplanned_move` | bool | 收到非计划下一状态时是否自动重规划 |
+| `check_timestamp` | bool | 是否丢弃时间戳与上一条相同的状态反馈 |
+| `plugin_config_path` | string | ROS 2 Planner 插件 YAML 配置文件路径 |
 
 查看运行参数：
 
@@ -229,9 +234,14 @@ ros2 param get /ltl_planner hard_task
 ros2 param get /ltl_planner soft_task
 ros2 param get /ltl_planner beta
 ros2 param get /ltl_planner gamma
+ros2 param get /ltl_planner initial_ts_state_from_agent
+ros2 param get /ltl_planner replan_on_unplanned_move
+ros2 param get /ltl_planner check_timestamp
+ros2 param get /ltl_planner plugin_config_path
 ```
 
-当前版本尚未完成 ROS 2 动态参数回调，因此运行时修改任务参数不会自动替代 `/replanning` 服务。
+两个行为参数支持通过 `ros2 param set` 动态修改。hard/soft task 的运行时切换
+仍使用 `/replanning` 服务，以保证新任务先成功规划再替换当前计划。
 
 ---
 
@@ -257,6 +267,17 @@ Planner 会比较反馈状态与计划中的期望状态：
 - 到达期望状态：更新 Product 候选状态并推进计划；
 - 收到重复但非期望状态：忽略；
 - 收到意外状态：尝试从该状态重新规划。
+
+若启动时设置：
+
+```bash
+ros2 launch ltl_automaton_planner planner.launch.py \
+  initial_ts_state_from_agent:=true
+```
+
+Planner 会先等待首个合法 `/ts_state`，按消息中的
+`state_dimension_names` 将状态覆盖到对应 TS 维度，然后才构建并发布初始计划。
+无效或维度不匹配的消息不会触发规划，节点会继续等待下一条状态。
 
 ### 8.2 `/next_move_cmd`
 
@@ -349,9 +370,40 @@ Product 候选状态的更新顺序为：
 
 ---
 
-## 9. Services
+## 9. Planner 插件
 
-### 9.1 `/replanning`
+通过 `plugin_config_path` 可以加载与 KTH ROS 1 版本同样采用
+“类名 + Python 模块路径 + 参数字典”契约的插件：
+
+```yaml
+plugins:
+  ExamplePlugin:
+    path: example_package.example_plugin
+    args:
+      threshold: 3
+```
+
+插件类构造函数及生命周期方法为：
+
+```python
+class ExamplePlugin:
+    def __init__(self, ltl_planner, args): ...
+    def set_node(self, node): ...          # ROS 2 通信插件需要
+    def init(self): ...
+    def set_sub_and_pub(self): ...
+    def run_at_ts_update(self, ts_state): ...
+```
+
+`set_node()` 是 ROS 2 适配点，插件通过传入的 Planner Node 创建订阅、发布器、
+服务或客户端。其余三个生命周期钩子保持原版语义。单个插件加载或运行失败会被记录，
+不会终止 Planner 或阻止其他插件运行。
+
+ROS 1 插件若仍直接导入 `rospy`，必须先把通信接口迁移到 `rclpy`；加载契约兼容
+不代表 ROS 1 插件源码可不经修改直接运行。
+
+## 10. Services
+
+### 10.1 `/replanning`
 
 - 类型：`ltl_automaton_msgs/srv/TaskPlanning`
 - 作用：从当前 TS 状态出发，使用新的 hard task 和 soft task 重新规划。
@@ -387,9 +439,12 @@ success: true
 - `/suffix_plan`
 - `/next_move_cmd`
 
+任务不可行、初始 TS 状态未知或规划内部抛出异常时，Planner 会保留调用前的
+hard/soft task、TS 初始状态、Product、run 和执行游标；失败请求不会留下半更新状态。
+
 ---
 
-## 10. 测试
+## 11. 测试
 
 执行全部相关测试：
 
@@ -414,7 +469,11 @@ colcon test-result --verbose
 - Product 构建；
 - prefix–suffix 规划；
 - `LTLPlanner` 静态规划与重规划；
-- Planner 节点的基本 ROS 2 通信链路。
+- Planner 节点的初始 ROS 2 输出；
+- TS 状态反馈后的计划推进；
+- `/replanning` 服务调用；
+- Launch 测试结束时的干净退出。
+- 不可行任务、未知状态与内部异常下的事务式重规划回滚。
 
 提交前建议额外执行：
 
@@ -424,16 +483,28 @@ git diff --check
 
 ---
 
-## 11. 已知限制
+## 12. ROS 1 到 ROS 2 迁移对照
+
+| KTH ROS 1 | 当前 ROS 2 | 说明 |
+|---|---|---|
+| catkin 包内规划算法 | `ltl_automaton_planner_core` | 与 ROS 通信解耦，可独立 pytest |
+| `transition_system_textfile` | `transition_system_path` | 传入 YAML 文件路径 |
+| `initial_beta` | `beta` | 权重含义不变 |
+| `~initial_ts_state_from_agent` | `initial_ts_state_from_agent` | 改为非阻塞等待首个 `/ts_state` |
+| dynamic_reconfigure | ROS 2 参数回调 | 使用 `ros2 param set` 修改两个行为参数 |
+| `~plugin/<name>/...` 参数树 | `plugin_config_path` YAML | 保留类名、模块路径、args 契约 |
+| `rospy` Publisher/Service | `rclpy` Node API | 插件通过 `set_node(node)` 获取宿主节点 |
+| `catkin_make` | `colcon build --symlink-install` | 构建与测试命令见第 5、11 节 |
+
+ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。原仓库中的标准 TS
+生成器与 HIL mixed-initiative 控制器不属于当前三个 ROS 2 包的交付范围；本仓库当前
+完成的是消息接口、规划核心和 Planner 节点的 ROS 2 重构。
+
+## 13. 已知限制
 
 当前版本尚未完成以下 KTH ROS 1 功能的 ROS 2 等价迁移：
 
-- `initial_ts_state_from_agent`：启动时等待机器人提供真实初始 TS 状态；
-- ROS 2 动态参数回调；
-- 原版 Planner 插件加载机制；
-- 完整 Launch-level 自动化集成测试；
 - Ubuntu 24.04 / ROS 2 Jazzy 独立验证；
-- 所有异常情况下的事务式 Planner 状态回滚。
 
 此外，使用 Fast DDS 时可能出现共享内存端口警告：
 
@@ -443,18 +514,11 @@ RTPS_TRANSPORT_SHM Error: Failed init_port ...
 
 在当前验证中，该警告未阻止节点、Topic 或 Service 正常工作。若遇到 ROS 2 发现异常，应优先检查是否存在残留节点、重复 Publisher 或 DDS 共享内存锁冲突。
 
-节点通过 `Ctrl+C` 退出时，个别情况下可能出现重复 shutdown 相关提示。该问题与规划和状态发布逻辑无关，后续应作为独立修复处理。
-
 ---
 
-## 12. 后续计划
+## 14. 后续计划
 
 建议按以下顺序继续迁移：
 
-1. `initial_ts_state_from_agent`；
-2. ROS 2 动态参数更新；
-3. KTH 原版插件机制；
-4. Launch 与通信级自动化测试；
-5. shutdown 与异常处理；
-6. ROS 2 Jazzy 兼容性验证；
-7. 完整安装、使用与迁移说明。
+1. 在 Ubuntu 24.04 / ROS 2 Jazzy 环境执行独立构建与全套测试；
+2. 按实际需求逐个迁移 ROS 1 辅助包与具体插件。
