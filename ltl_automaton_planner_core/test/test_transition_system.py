@@ -1,10 +1,13 @@
 from io import StringIO
 
+import pytest
+
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
     state_models_from_ts,
 )
 
+from ltl_automaton_planner_core.ltl_tools.ts import TSModel
 
 TS_YAML = """
 state_dim:
@@ -65,3 +68,42 @@ def test_override_initial_state() -> None:
     )
 
     assert state_models[0].graph["initial"] == {("r2",)}
+
+
+def test_unknown_initial_state_is_rejected() -> None:
+    """Reject an agent override that is not a node in its TS dimension."""
+    ts_dict = import_ts_from_file(StringIO(TS_YAML))
+
+    with pytest.raises(ValueError, match="is not defined"):
+        state_models_from_ts(
+            ts_dict,
+            initial_states_dict={"region": "unknown"},
+        )
+
+
+def test_yaml_to_full_transition_system() -> None:
+    """Build a complete transition system from YAML data."""
+    ts_dict = import_ts_from_file(StringIO(TS_YAML))
+    state_models = state_models_from_ts(ts_dict)
+
+    transition_system = TSModel(state_models)
+    transition_system.build_full()
+
+    assert set(transition_system.nodes) == {
+        ("r1",),
+        ("r2",),
+    }
+
+    assert transition_system.graph["initial"] == {
+        ("r1",),
+    }
+
+    assert transition_system.has_edge(
+        ("r1",),
+        ("r2",),
+    )
+
+    edge = transition_system[("r1",)][("r2",)]
+    assert edge["action"] == "goto_r2"
+    assert edge["guard"] == "1"
+    assert edge["weight"] == 2.0

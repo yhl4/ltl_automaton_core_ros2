@@ -27,6 +27,11 @@ setup(
     ),
     license='MIT',
     python_requires='>=3.10',
+    extras_require={
+        'test': [
+            'pytest',
+        ],
+    },
     entry_points={
         'console_scripts': [],
     },

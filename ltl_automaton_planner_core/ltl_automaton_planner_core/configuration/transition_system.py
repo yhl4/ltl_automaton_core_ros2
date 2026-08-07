@@ -52,6 +52,12 @@ def state_models_from_ts(ts_dict, initial_states_dict=None):
         else:
             initial_state = initial_states_dict[model_dim]
 
+        if initial_state not in state_model_dict["nodes"]:
+            raise ValueError(
+                f"Initial state {initial_state!r} is not defined "
+                f"for transition-system dimension {model_dim!r}."
+            )
+
         state_model.graph["initial"] = {
             (initial_state,),
         }

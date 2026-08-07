@@ -1,0 +1,8 @@
+# Tasks use only atomic propositions present in kth_example_ts.yaml.
+initial:
+  hard_task: "([]<> (r1 && loaded)) && ([]<> (r1 && unloaded))"
+  soft_task: "[]!r3"
+
+replanning:
+  hard_task: "<> r3"
+  soft_task: "(r3 || ! r3)"
