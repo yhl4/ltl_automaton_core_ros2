@@ -10,7 +10,8 @@
 - ROS 2 Planner 节点；
 - TS 状态反馈、计划推进和意外状态重规划；
 - 计划、下一动作与候选 Product 状态发布；
-- 运行时任务重规划服务。
+- 运行时任务重规划服务；
+- 标准 2D pose 与 6D joint-space TS 状态监控及 2D TS 生成工具。
 
 > 当前迁移保持 Product Automaton 与离散规划算法的核心语义，不将 ROS 2 通信逻辑写入规划核心。
 
@@ -79,6 +80,23 @@ ltl_automaton_planner/
 - 发布当前可能的 Product 状态；
 - 通过服务请求切换任务并重新规划。
 
+### 1.4 标准 Transition System 工具
+
+标准状态监控与 TS 生成工具位于：
+
+```text
+ltl_automaton_std_transition_systems/
+```
+
+当前支持：
+
+- 将 `Pose`、`PoseStamped`、`PoseWithCovariance` 或
+  `PoseWithCovarianceStamped` 映射为 2D square/station region；
+- 保留 `current_region`、`station_access_request` 和 `closest_region`
+  ROS 1 通信契约；
+- 将 `JointState` 的前六个关节位置映射为 6D joint-space region；
+- 交互生成可被当前 planner core 直接加载的 2D grid/station TS YAML。
+
 ---
 
 ## 2. 软件环境
@@ -115,6 +133,11 @@ Ubuntu 24.04 与 ROS 2 Jazzy 仍需完成独立兼容性验证。
 │   ├── launch/
 │   ├── ltl_automaton_planner/
 │   │   └── planner_node.py
+│   └── test/
+├── ltl_automaton_std_transition_systems/
+│   ├── config/
+│   ├── launch/
+│   ├── ltl_automaton_std_transition_systems/
 │   └── test/
 └── README.md
 ```
@@ -494,16 +517,20 @@ git diff --check
 | dynamic_reconfigure | ROS 2 参数回调 | 使用 `ros2 param set` 修改两个行为参数 |
 | `~plugin/<name>/...` 参数树 | `plugin_config_path` YAML | 保留类名、模块路径、args 契约 |
 | `rospy` Publisher/Service | `rclpy` Node API | 插件通过 `set_node(node)` 获取宿主节点 |
+| `region_2d_pose_monitor.py` | `region_2d_pose_monitor` | 四种 pose 消息通过参数选择，保留 station 与 closest-region 行为 |
+| `region_6d_jointspace_monitor.py` | `region_6d_jointspace_monitor` | 迁移旧仓库中未安装的 6D monitor |
+| `region_2d_pose_definition.py` | `region_2d_pose_definition` | 显式输出路径，生成 planner-compatible TS |
 | `catkin_make` | `colcon build --symlink-install` | 构建与测试命令见第 5、11 节 |
 
-ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。原仓库中的标准 TS
-生成器与 HIL mixed-initiative 控制器不属于当前三个 ROS 2 包的交付范围；本仓库当前
-完成的是消息接口、规划核心和 Planner 节点的 ROS 2 重构。
+ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。原仓库中的 HIL
+mixed-initiative 控制器尚未迁移。
 
 ## 13. 已知限制
 
 当前版本尚未完成以下 KTH ROS 1 功能的 ROS 2 等价迁移：
 
+- HIL mixed-initiative 控制器；
+- `TrapDetectionPlugin` 等具体 ROS 通信插件；
 - Ubuntu 24.04 / ROS 2 Jazzy 独立验证；
 
 此外，使用 Fast DDS 时可能出现共享内存端口警告：
@@ -520,5 +547,6 @@ RTPS_TRANSPORT_SHM Error: Failed init_port ...
 
 建议按以下顺序继续迁移：
 
-1. 在 Ubuntu 24.04 / ROS 2 Jazzy 环境执行独立构建与全套测试；
-2. 按实际需求逐个迁移 ROS 1 辅助包与具体插件。
+1. 迁移 HIL mixed-initiative 控制器；
+2. 迁移并验证 `TrapDetectionPlugin` 等具体插件；
+3. 在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证。
