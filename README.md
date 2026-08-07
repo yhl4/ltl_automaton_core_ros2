@@ -11,7 +11,8 @@
 - TS 状态反馈、计划推进和意外状态重规划；
 - 计划、下一动作与候选 Product 状态发布；
 - 运行时任务重规划服务；
-- 标准 2D pose 与 6D joint-space TS 状态监控及 2D TS 生成工具。
+- 标准 2D pose 与 6D joint-space TS 状态监控及 2D TS 生成工具；
+- Bool 与 Velocity mixed-initiative HIL 控制器。
 
 > 当前迁移保持 Product Automaton 与离散规划算法的核心语义，不将 ROS 2 通信逻辑写入规划核心。
 
@@ -97,6 +98,21 @@ ltl_automaton_std_transition_systems/
 - 将 `JointState` 的前六个关节位置映射为 6D joint-space region；
 - 交互生成可被当前 planner core 直接加载的 2D grid/station TS YAML。
 
+### 1.5 HIL mixed-initiative 控制器
+
+ROS 2 HIL 控制器位于：
+
+```text
+ltl_automaton_hil_mic/
+```
+
+当前支持：
+
+- Bool 命令仲裁：规划器命令直接通过，人工命令仅在 TS 连通且非 trap 时通过；
+- Velocity 命令仲裁：依据 trap 距离平滑混合人工与导航速度；
+- trap 服务不可用、TS 未连通或状态超时时安全回退到导航命令；
+- 通过异步 ROS 2 service client 查询 `check_for_trap`，避免阻塞控制回调。
+
 ---
 
 ## 2. 软件环境
@@ -138,6 +154,11 @@ Ubuntu 24.04 与 ROS 2 Jazzy 仍需完成独立兼容性验证。
 │   ├── config/
 │   ├── launch/
 │   ├── ltl_automaton_std_transition_systems/
+│   └── test/
+├── ltl_automaton_hil_mic/
+│   ├── config/
+│   ├── launch/
+│   ├── ltl_automaton_hil_mic/
 │   └── test/
 └── README.md
 ```
@@ -520,16 +541,16 @@ git diff --check
 | `region_2d_pose_monitor.py` | `region_2d_pose_monitor` | 四种 pose 消息通过参数选择，保留 station 与 closest-region 行为 |
 | `region_6d_jointspace_monitor.py` | `region_6d_jointspace_monitor` | 迁移旧仓库中未安装的 6D monitor |
 | `region_2d_pose_definition.py` | `region_2d_pose_definition` | 显式输出路径，生成 planner-compatible TS |
+| `BoolCmdMixer` | `bool_cmd_hil_mic` | 保留 Bool 仲裁语义，trap 查询改为异步 ROS 2 service client |
+| `VelCmdMixer` | `vel_cmd_hil_mic` | 保留速度混合语义，增加服务不可用与状态超时的安全回退 |
 | `catkin_make` | `colcon build --symlink-install` | 构建与测试命令见第 5、11 节 |
 
-ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。原仓库中的 HIL
-mixed-initiative 控制器尚未迁移。
+ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。
 
 ## 13. 已知限制
 
 当前版本尚未完成以下 KTH ROS 1 功能的 ROS 2 等价迁移：
 
-- HIL mixed-initiative 控制器；
 - `TrapDetectionPlugin` 等具体 ROS 通信插件；
 - Ubuntu 24.04 / ROS 2 Jazzy 独立验证；
 
@@ -547,6 +568,5 @@ RTPS_TRANSPORT_SHM Error: Failed init_port ...
 
 建议按以下顺序继续迁移：
 
-1. 迁移 HIL mixed-initiative 控制器；
-2. 迁移并验证 `TrapDetectionPlugin` 等具体插件；
-3. 在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证。
+1. 迁移并验证 `TrapDetectionPlugin` 等具体插件；
+2. 在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证。
