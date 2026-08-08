@@ -1,0 +1,7 @@
+# Return the currently active committed planning snapshot.
+---
+# On failure, snapshot.metadata may still identify the active generation and
+# explain why its graph payload is unavailable.
+bool success
+string message
+PlanningGraphSnapshot snapshot

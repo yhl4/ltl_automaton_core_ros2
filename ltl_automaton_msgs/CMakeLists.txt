@@ -14,10 +14,18 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/LTLStateArray.msg"
   "msg/LTLStateRuns.msg"
   "msg/PlannerStatus.msg"
+  "msg/PlanningGraphMetadata.msg"
+  "msg/BuchiGraphNode.msg"
+  "msg/BuchiGraphEdge.msg"
+  "msg/ProductGraphNode.msg"
+  "msg/ProductGraphEdge.msg"
+  "msg/AcceptedRunSnapshot.msg"
+  "msg/PlanningGraphSnapshot.msg"
   "srv/TrapCheck.srv"
   "srv/ClosestState.srv"
   "srv/TaskPlanning.srv"
   "srv/LoadTransitionSystem.srv"
+  "srv/GetPlanningGraphSnapshot.srv"
   "action/PlanLTL.action"
   DEPENDENCIES
     std_msgs
