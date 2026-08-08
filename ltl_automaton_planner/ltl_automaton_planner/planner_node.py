@@ -3,6 +3,7 @@
 import hashlib
 import importlib
 import subprocess
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from threading import RLock, Thread
@@ -30,15 +31,25 @@ from ltl_automaton_msgs.msg import (
     LTLState,
     LTLStateArray,
     PlannerStatus,
+    PlanningGraphSnapshot,
     TransitionSystemState,
     TransitionSystemStateStamped,
 )
-from ltl_automaton_msgs.srv import LoadTransitionSystem, TaskPlanning
+from ltl_automaton_msgs.srv import (
+    GetPlanningGraphSnapshot,
+    LoadTransitionSystem,
+    TaskPlanning,
+)
 from ltl_automaton_planner_core.ltl_tools.ltl_planner import (
     LTLPlanner,
 )
 from ltl_automaton_planner_core.ltl_tools.ltl2ba import LTL2BAError
 from ltl_automaton_planner_core.ltl_tools.ts import TSModel
+
+from .planning_graph_snapshot import (
+    build_planning_graph_snapshot,
+    unavailable_planning_graph_snapshot,
+)
 
 
 @dataclass(frozen=True)
@@ -65,6 +76,22 @@ class PlanningOutcome:
     message: str
     transition_system: TSModel | None = None
     planner: LTLPlanner | None = None
+    planning_graph_snapshot: PlanningGraphSnapshot | None = None
+
+
+def serialize_planning_graph(planner, active_ts_sha256: str):
+    """Build a snapshot without allowing conversion to fail planning."""
+    try:
+        return build_planning_graph_snapshot(
+            planner,
+            active_ts_sha256,
+        )
+    except Exception as error:
+        return unavailable_planning_graph_snapshot(
+            planner,
+            active_ts_sha256,
+            f"Planning graph snapshot conversion failed: {error}",
+        )
 
 
 def transition_state_mapping(state_message) -> dict[str, str]:
@@ -196,11 +223,13 @@ def compute_candidate_plan(request: PlanningRequest) -> PlanningOutcome:
         )
 
     planner.curr_ts_state = request.initial_state
+    snapshot = serialize_planning_graph(planner, request.source_hash)
     return PlanningOutcome(
         PlanLTL.Result.ERROR_NONE,
         "Planning succeeded.",
         transition_system=transition_system,
         planner=planner,
+        planning_graph_snapshot=snapshot,
     )
 
 
@@ -316,6 +345,8 @@ class PlannerNode(Node):
         self._planning_source_yaml = ""
         self._planning_source_hash = ""
         self._planning_worker = None
+        self._planning_generation = 0
+        self._active_planning_graph_snapshot = None
         self._shutting_down = False
 
         self.next_move_publisher = self.create_publisher(
@@ -365,6 +396,12 @@ class PlannerNode(Node):
             LoadTransitionSystem,
             "load_transition_system",
             self._load_transition_system_callback,
+        )
+
+        self.planning_graph_snapshot_service = self.create_service(
+            GetPlanningGraphSnapshot,
+            "get_planning_graph_snapshot",
+            self._get_planning_graph_snapshot_callback,
         )
 
         self.plan_ltl_action_server = ActionServer(
@@ -468,6 +505,7 @@ class PlannerNode(Node):
             self._canonical_ts_state = None
             self._pending_divergence = None
             self.ltl_planner = None
+            self._active_planning_graph_snapshot = None
             self._set_planner_status(
                 PlannerStatus.READY,
                 "Transition system loaded; no active plan.",
@@ -560,6 +598,40 @@ class PlannerNode(Node):
             response.message = "Transition system loaded successfully."
             response.active_ts_sha256 = self._active_ts_sha256
             return response
+
+    def _get_planning_graph_snapshot_callback(self, request, response):
+        """Return a defensive copy of the retained active snapshot."""
+        del request
+
+        with self._state_lock:
+            retained_snapshot = deepcopy(
+                self._active_planning_graph_snapshot
+            )
+            active_hash = self._active_ts_sha256
+
+        if retained_snapshot is None:
+            message = "No active planning graph snapshot."
+            response.success = False
+            response.message = message
+            response.snapshot = unavailable_planning_graph_snapshot(
+                None,
+                active_hash,
+                message,
+            )
+            return response
+
+        response.snapshot = retained_snapshot
+
+        if retained_snapshot.metadata.available:
+            response.success = True
+            response.message = "Active planning graph snapshot returned."
+        else:
+            response.success = False
+            response.message = (
+                retained_snapshot.metadata.unavailable_reason
+            )
+
+        return response
 
     def _plan_ltl_goal_callback(self, goal_request):
         """Admit one goal only when the wrapper can reserve planning."""
@@ -799,6 +871,14 @@ class PlannerNode(Node):
         self._planning_source_hash = ""
         self._planning_worker = None
 
+    def _commit_planning_graph_snapshot(self, snapshot) -> None:
+        """Retain one exact snapshot and allocate its generation."""
+        committed_snapshot = deepcopy(snapshot)
+        new_generation = self._planning_generation + 1
+        committed_snapshot.metadata.planning_generation = new_generation
+        self._planning_generation = new_generation
+        self._active_planning_graph_snapshot = committed_snapshot
+
     def _finish_plan_ltl_failure(
         self,
         goal_handle,
@@ -844,7 +924,11 @@ class PlannerNode(Node):
         outcome: PlanningOutcome,
     ):
         """Atomically install a fresh candidate after freshness checks."""
-        if outcome.planner is None or outcome.transition_system is None:
+        if (
+            outcome.planner is None
+            or outcome.transition_system is None
+            or outcome.planning_graph_snapshot is None
+        ):
             return self._finish_plan_ltl_failure(
                 goal_handle,
                 request.token,
@@ -869,6 +953,9 @@ class PlannerNode(Node):
                 self._canonical_ts_state = request.initial_state
                 self._pending_divergence = None
                 self._waiting_for_initial_state = False
+                self._commit_planning_graph_snapshot(
+                    outcome.planning_graph_snapshot
+                )
                 self._clear_planning_transaction()
                 self._set_planner_status(
                     PlannerStatus.ACTIVE,
@@ -1130,27 +1217,30 @@ class PlannerNode(Node):
                 )
             return False
 
-        with self._state_lock:
-            self.ltl_planner = planner
-
         initial_states = (
-            self.ltl_planner.product
+            planner.product
             .graph["ts"]  # type: ignore
             .graph["initial"]
         )
+        canonical_state = None
 
         if initial_states:
-            self.ltl_planner.curr_ts_state = next(
-                iter(initial_states)
-            )
-            self._canonical_ts_state = (
-                self.ltl_planner.curr_ts_state
-            )
+            canonical_state = next(iter(initial_states))
+            planner.curr_ts_state = canonical_state
 
-        self._set_planner_status(
-            PlannerStatus.ACTIVE,
-            "An accepted LTL run is active.",
+        snapshot = serialize_planning_graph(
+            planner,
+            self._active_ts_sha256,
         )
+
+        with self._state_lock:
+            self.ltl_planner = planner
+            self._canonical_ts_state = canonical_state
+            self._commit_planning_graph_snapshot(snapshot)
+            self._set_planner_status(
+                PlannerStatus.ACTIVE,
+                "An accepted LTL run is active.",
+            )
 
         self._publish_possible_states()
 
@@ -1504,10 +1594,17 @@ class PlannerNode(Node):
             response.success = False
             return response
 
-        self._set_planner_status(
-            PlannerStatus.ACTIVE,
-            "The replanned accepted LTL run is active.",
+        snapshot = serialize_planning_graph(
+            self.ltl_planner,
+            self._active_ts_sha256,
         )
+
+        with self._state_lock:
+            self._commit_planning_graph_snapshot(snapshot)
+            self._set_planner_status(
+                PlannerStatus.ACTIVE,
+                "The replanned accepted LTL run is active.",
+            )
 
         self._publish_possible_states()
         self._publish_plan()
@@ -1577,11 +1674,18 @@ class PlannerNode(Node):
             return False
 
         self.ltl_planner.curr_ts_state = reached_state
-        self._canonical_ts_state = reached_state
-        self._set_planner_status(
-            PlannerStatus.ACTIVE,
-            "The state-replanned accepted LTL run is active.",
+        snapshot = serialize_planning_graph(
+            self.ltl_planner,
+            self._active_ts_sha256,
         )
+
+        with self._state_lock:
+            self._canonical_ts_state = reached_state
+            self._commit_planning_graph_snapshot(snapshot)
+            self._set_planner_status(
+                PlannerStatus.ACTIVE,
+                "The state-replanned accepted LTL run is active.",
+            )
         self._publish_possible_states()
 
         self.get_logger().info(

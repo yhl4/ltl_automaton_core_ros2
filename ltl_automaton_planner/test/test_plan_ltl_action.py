@@ -25,7 +25,11 @@ from ltl_automaton_msgs.msg import (
     PlannerStatus,
     TransitionSystemStateStamped,
 )
-from ltl_automaton_msgs.srv import LoadTransitionSystem, TaskPlanning
+from ltl_automaton_msgs.srv import (
+    GetPlanningGraphSnapshot,
+    LoadTransitionSystem,
+    TaskPlanning,
+)
 import ltl_automaton_planner.planner_node as planner_module
 from ltl_automaton_planner.planner_node import PlannerNode
 
@@ -177,6 +181,21 @@ def load_transition_system(runtime, yaml_content):
     request = LoadTransitionSystem.Request()
     request.transition_system_yaml = yaml_content
     future = client.call_async(request)
+    assert spin_until(runtime, future.done)
+    response = future.result()
+    runtime.client_node.destroy_client(client)
+    assert response is not None
+    return response
+
+
+def get_planning_graph_snapshot(runtime):
+    """Read the retained snapshot through the real ROS service."""
+    client = runtime.client_node.create_client(
+        GetPlanningGraphSnapshot,
+        "get_planning_graph_snapshot",
+    )
+    assert client.wait_for_service(timeout_sec=2.0)
+    future = client.call_async(GetPlanningGraphSnapshot.Request())
     assert spin_until(runtime, future.done)
     response = future.result()
     runtime.client_node.destroy_client(client)
@@ -347,6 +366,26 @@ def test_studio_consumer_contract_end_to_end(action_runtime):
             and possible_states
         ),
     )
+    first_snapshot = get_planning_graph_snapshot(action_runtime)
+    repeated_snapshot = get_planning_graph_snapshot(action_runtime)
+    assert first_snapshot.success
+    assert first_snapshot.snapshot == repeated_snapshot.snapshot
+    assert first_snapshot.snapshot.metadata.planning_generation == 1
+    assert first_snapshot.snapshot.metadata.buchi_node_count == len(
+        first_snapshot.snapshot.buchi_nodes
+    )
+    assert first_snapshot.snapshot.metadata.product_node_count == len(
+        first_snapshot.snapshot.product_nodes
+    )
+    product_ids = {
+        node.id for node in first_snapshot.snapshot.product_nodes
+    }
+    assert set(
+        first_snapshot.snapshot.accepted_run.prefix_product_node_ids
+    ).issubset(product_ids)
+    assert set(
+        first_snapshot.snapshot.accepted_run.suffix_product_node_ids
+    ).issubset(product_ids)
 
     publish_state(action_runtime, "r2")
     assert spin_until(
@@ -361,13 +400,20 @@ def test_studio_consumer_contract_end_to_end(action_runtime):
         ),
     )
 
-    second_handle = send_goal(action_runtime, make_goal(state="r2"))
+    second_handle = send_goal(
+        action_runtime,
+        make_goal(state="r2", hard_task="[]<> r2"),
+    )
     assert second_handle.accepted
     second_response = action_result(action_runtime, second_handle)
     assert second_response.status == GoalStatus.STATUS_SUCCEEDED
     assert second_response.result.success
     assert second_response.result.error_code == PlanLTL.Result.ERROR_NONE
     assert statuses[-1].state == PlannerStatus.ACTIVE
+    second_snapshot = get_planning_graph_snapshot(action_runtime)
+    assert second_snapshot.success
+    assert second_snapshot.snapshot.metadata.planning_generation == 2
+    assert second_snapshot.snapshot.metadata.hard_task == "[]<> r2"
 
     for subscription in subscriptions:
         action_runtime.client_node.destroy_subscription(subscription)
@@ -525,6 +571,7 @@ def test_expected_execution_makes_candidate_stale_without_rollback(
 ):
     """Keep old-current cursor and publications after an A-to-B move."""
     activate(action_runtime)
+    old_snapshot = get_planning_graph_snapshot(action_runtime).snapshot
     old_planner = action_runtime.planner.ltl_planner
     prefix_messages = []
     command_qos = QoSProfile(
@@ -562,6 +609,10 @@ def test_expected_execution_makes_candidate_stale_without_rollback(
     assert old_planner.curr_ts_state == ("r2",)
     assert action_runtime.planner._canonical_ts_state == ("r2",)
     assert len(prefix_messages) == publication_count
+    assert (
+        get_planning_graph_snapshot(action_runtime).snapshot
+        == old_snapshot
+    )
     action_runtime.client_node.destroy_subscription(subscription)
 
 
@@ -609,6 +660,8 @@ def test_unexpected_state_defers_recovery_until_candidate_finishes(
 ):
     """Never run candidate search and state recovery concurrently."""
     activate(action_runtime, DIVERGENCE_TS)
+    first_snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    assert first_snapshot.metadata.planning_generation == 1
     active_planner = action_runtime.planner.ltl_planner
     recovery_calls = []
     original_recovery = active_planner.replan_from_ts_state
@@ -636,6 +689,10 @@ def test_unexpected_state_defers_recovery_until_candidate_finishes(
     assert recovery_calls == [("r3",)]
     assert active_planner.curr_ts_state == ("r3",)
     assert action_runtime.planner._pending_divergence is None
+    recovered = get_planning_graph_snapshot(action_runtime)
+    assert recovered.success
+    assert recovered.snapshot.metadata.planning_generation == 2
+    assert recovered.snapshot != first_snapshot
 
 
 def test_shutdown_does_not_wait_for_or_commit_blocked_worker(
@@ -659,3 +716,204 @@ def test_shutdown_does_not_wait_for_or_commit_blocked_worker(
     worker.join(timeout=3.0)
     assert not worker.is_alive()
     assert action_runtime.planner.ltl_planner is None
+
+
+def test_snapshot_service_has_no_candidate_before_first_commit(
+    action_runtime,
+    monkeypatch,
+):
+    """Keep READY-to-PLANNING candidates private until first commit."""
+    no_snapshot = get_planning_graph_snapshot(action_runtime)
+    assert not no_snapshot.success
+    assert not no_snapshot.snapshot.metadata.available
+    assert no_snapshot.snapshot.metadata.planning_generation == 0
+
+    assert load_transition_system(action_runtime, VALID_TS).success
+    started, release = block_candidate(monkeypatch)
+    goal_handle = send_goal(action_runtime, make_goal())
+    assert goal_handle.accepted
+    assert spin_until(action_runtime, started.is_set)
+
+    during_planning = get_planning_graph_snapshot(action_runtime)
+    assert not during_planning.success
+    assert not during_planning.snapshot.metadata.available
+    assert during_planning.snapshot.metadata.planning_generation == 0
+
+    release.set()
+    result = action_result(action_runtime, goal_handle)
+    assert result.status == GoalStatus.STATUS_SUCCEEDED
+    committed = get_planning_graph_snapshot(action_runtime)
+    assert committed.success
+    assert committed.snapshot.metadata.planning_generation == 1
+
+
+def test_active_snapshot_is_retained_during_candidate_planning(
+    action_runtime,
+    monkeypatch,
+):
+    """Expose A while B is private, then atomically replace A with B."""
+    activate(action_runtime)
+    active_a = get_planning_graph_snapshot(action_runtime)
+    assert active_a.success
+    assert active_a.snapshot.metadata.planning_generation == 1
+
+    started, release = block_candidate(monkeypatch)
+    goal_handle = send_goal(
+        action_runtime,
+        make_goal(hard_task="[]<> r2"),
+    )
+    assert spin_until(action_runtime, started.is_set)
+
+    visible = get_planning_graph_snapshot(action_runtime)
+    assert visible.success
+    assert visible.snapshot == active_a.snapshot
+
+    release.set()
+    result = action_result(action_runtime, goal_handle)
+    assert result.status == GoalStatus.STATUS_SUCCEEDED
+    active_b = get_planning_graph_snapshot(action_runtime)
+    assert active_b.success
+    assert active_b.snapshot.metadata.planning_generation == 2
+    assert active_b.snapshot.metadata.hard_task == "[]<> r2"
+    assert active_b.snapshot != active_a.snapshot
+
+
+def test_failed_candidate_never_replaces_visible_active_snapshot(
+    action_runtime,
+    monkeypatch,
+):
+    """Keep A visible while a controlled B eventually fails."""
+    activate(action_runtime)
+    active_a = get_planning_graph_snapshot(action_runtime).snapshot
+    started = Event()
+    release = Event()
+
+    def controlled_failure(request):
+        del request
+        started.set()
+        assert release.wait(timeout=8.0)
+        return planner_module.PlanningOutcome(
+            PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN,
+            "Controlled no-plan result.",
+        )
+
+    monkeypatch.setattr(
+        planner_module,
+        "compute_candidate_plan",
+        controlled_failure,
+    )
+    goal_handle = send_goal(action_runtime, make_goal())
+    assert spin_until(action_runtime, started.is_set)
+    assert get_planning_graph_snapshot(action_runtime).snapshot == active_a
+
+    release.set()
+    result = action_result(action_runtime, goal_handle)
+    assert result.status == GoalStatus.STATUS_ABORTED
+    assert get_planning_graph_snapshot(action_runtime).snapshot == active_a
+
+
+def test_snapshot_generation_is_transactional_and_service_is_read_only(
+    action_runtime,
+):
+    """Commit A, retain it after failure, and replace it only with C."""
+    activate(action_runtime)
+    active_a = get_planning_graph_snapshot(action_runtime)
+    repeated_a = get_planning_graph_snapshot(action_runtime)
+    assert active_a.snapshot == repeated_a.snapshot
+
+    active_a.snapshot.metadata.hard_task = "caller mutation"
+    active_a.snapshot.product_nodes[0].id = 999
+    after_mutation = get_planning_graph_snapshot(action_runtime)
+    assert after_mutation.snapshot == repeated_a.snapshot
+
+    failed_handle = send_goal(
+        action_runtime,
+        make_goal(hard_task="<> r3"),
+    )
+    failed_result = action_result(action_runtime, failed_handle)
+    assert failed_result.status == GoalStatus.STATUS_ABORTED
+    after_failure = get_planning_graph_snapshot(action_runtime)
+    assert after_failure.snapshot == repeated_a.snapshot
+    assert after_failure.snapshot.metadata.planning_generation == 1
+
+    success_handle = send_goal(
+        action_runtime,
+        make_goal(hard_task="[]<> r2"),
+    )
+    success_result = action_result(action_runtime, success_handle)
+    assert success_result.status == GoalStatus.STATUS_SUCCEEDED
+    active_c = get_planning_graph_snapshot(action_runtime)
+    assert active_c.snapshot.metadata.planning_generation == 2
+    assert active_c.snapshot.metadata.hard_task == "[]<> r2"
+
+
+def test_snapshot_conversion_failure_does_not_fail_planning(
+    action_runtime,
+    monkeypatch,
+):
+    """Commit unavailable metadata instead of failing a valid plan."""
+    def controlled_failure(planner, active_hash):
+        del planner, active_hash
+        raise RuntimeError("controlled serializer failure")
+
+    monkeypatch.setattr(
+        planner_module,
+        "build_planning_graph_snapshot",
+        controlled_failure,
+    )
+    assert load_transition_system(action_runtime, VALID_TS).success
+    goal_handle = send_goal(action_runtime, make_goal())
+    result = action_result(action_runtime, goal_handle)
+
+    assert result.status == GoalStatus.STATUS_SUCCEEDED
+    assert result.result.success
+    response = get_planning_graph_snapshot(action_runtime)
+    assert not response.success
+    assert response.snapshot.metadata.planning_generation == 1
+    assert not response.snapshot.metadata.available
+    assert "controlled serializer failure" in response.message
+    assert not response.snapshot.buchi_nodes
+    assert not response.snapshot.product_nodes
+
+
+def test_legacy_replanning_updates_snapshot_only_on_success(action_runtime):
+    """Track successful and failed legacy accepted-run replacements."""
+    activate(action_runtime)
+    client = action_runtime.client_node.create_client(
+        TaskPlanning,
+        "replanning",
+    )
+    assert client.wait_for_service(timeout_sec=2.0)
+
+    request = TaskPlanning.Request()
+    request.hard_task = "[]<> r2"
+    request.soft_task = "(r2 || ! r2)"
+    future = client.call_async(request)
+    assert spin_until(action_runtime, future.done, timeout=8.0)
+    assert future.result().success
+    after_success = get_planning_graph_snapshot(action_runtime)
+    assert after_success.snapshot.metadata.planning_generation == 2
+    assert after_success.snapshot.metadata.hard_task == "[]<> r2"
+
+    request = TaskPlanning.Request()
+    request.hard_task = "<> r3"
+    request.soft_task = "(r2 || ! r2)"
+    future = client.call_async(request)
+    assert spin_until(action_runtime, future.done, timeout=8.0)
+    assert not future.result().success
+    after_failure = get_planning_graph_snapshot(action_runtime)
+    assert after_failure.snapshot == after_success.snapshot
+    action_runtime.client_node.destroy_client(client)
+
+
+def test_expected_state_does_not_change_snapshot_generation(action_runtime):
+    """Keep the committed full run while the execution cursor advances."""
+    activate(action_runtime)
+    before = get_planning_graph_snapshot(action_runtime)
+    publish_state(action_runtime, "r2")
+    assert spin_until(
+        action_runtime,
+        lambda: action_runtime.planner._canonical_ts_state == ("r2",),
+    )
+    after = get_planning_graph_snapshot(action_runtime)
+    assert after.snapshot == before.snapshot

@@ -99,6 +99,27 @@ only `bool success`. New consumers should use `/plan_ltl` for structured results
 and errors. `/replanning` is rejected with `success=false` while another planning
 operation is active.
 
+## Formal Planning Graph Snapshot
+
+`/get_planning_graph_snapshot` uses
+`ltl_automaton_msgs/srv/GetPlanningGraphSnapshot`. It is an on-demand,
+read-only view of the latest successfully committed accepted planning
+generation. The retained payload contains the full Büchi graph, full Product
+graph, and complete accepted prefix-suffix run with snapshot-local IDs.
+
+`planning_generation` starts at zero and increments once when startup planning,
+`PlanLTL`, legacy task replanning, or state-based replanning successfully
+replaces the accepted run. Planning attempts, failures, stale candidates,
+transition-system loading, service requests, and ordinary execution-cursor
+progress do not increment it.
+
+During candidate planning from `ACTIVE`, the service continues to return the
+old active generation; an uncommitted candidate is never visible. If graph
+conversion is unavailable for a successful planning generation, planning still
+succeeds, the new generation is retained with `metadata.available=false`, and
+the service returns `success=false` with an empty graph payload and explanatory
+metadata. This does not restore or expose an older generation.
+
 ## Known V0.1 Limitations
 
 V0.1 does not provide:
@@ -108,8 +129,7 @@ V0.1 does not provide:
 - explored-node or percentage feedback;
 - detailed planning stages;
 - runtime transition-system replacement while `ACTIVE`;
-- queued or concurrent planning goals;
-- a complete Büchi/Product execution trace.
+- queued or concurrent planning goals.
 
 These are contract limitations, not indications that a request is malfunctioning.
 

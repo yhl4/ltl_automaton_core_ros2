@@ -24,7 +24,11 @@ from ltl_automaton_msgs.msg import (
     PlannerStatus,
     TransitionSystemStateStamped,
 )
-from ltl_automaton_msgs.srv import LoadTransitionSystem, TaskPlanning
+from ltl_automaton_msgs.srv import (
+    GetPlanningGraphSnapshot,
+    LoadTransitionSystem,
+    TaskPlanning,
+)
 
 
 @pytest.mark.launch_test
@@ -160,6 +164,52 @@ class TestPlannerCommunication(unittest.TestCase):
             ["r1"],
         )
 
+        snapshot_client = self.node.create_client(
+            GetPlanningGraphSnapshot,
+            "get_planning_graph_snapshot",
+        )
+        self.assertTrue(
+            snapshot_client.wait_for_service(timeout_sec=5.0)
+        )
+        first_snapshot_future = snapshot_client.call_async(
+            GetPlanningGraphSnapshot.Request()
+        )
+        rclpy.spin_until_future_complete(
+            self.node,
+            first_snapshot_future,
+            timeout_sec=8.0,
+        )
+        first_snapshot = first_snapshot_future.result()
+        self.assertIsNotNone(first_snapshot)
+        self.assertTrue(first_snapshot.success)
+        self.assertEqual(
+            first_snapshot.snapshot.metadata.planning_generation,
+            1,
+        )
+        self.assertEqual(
+            first_snapshot.snapshot.metadata.product_node_count,
+            len(first_snapshot.snapshot.product_nodes),
+        )
+        product_ids = {
+            node.id for node in first_snapshot.snapshot.product_nodes
+        }
+        self.assertTrue(
+            set(
+                first_snapshot
+                .snapshot
+                .accepted_run
+                .prefix_product_node_ids
+            ).issubset(product_ids)
+        )
+        self.assertTrue(
+            set(
+                first_snapshot
+                .snapshot
+                .accepted_run
+                .suffix_product_node_ids
+            ).issubset(product_ids)
+        )
+
         state_publisher = self.node.create_publisher(
             TransitionSystemStateStamped,
             "ts_state",
@@ -187,6 +237,19 @@ class TestPlannerCommunication(unittest.TestCase):
             ["r2"],
         )
 
+        cursor_snapshot_future = snapshot_client.call_async(
+            GetPlanningGraphSnapshot.Request()
+        )
+        rclpy.spin_until_future_complete(
+            self.node,
+            cursor_snapshot_future,
+            timeout_sec=8.0,
+        )
+        self.assertEqual(
+            cursor_snapshot_future.result().snapshot,
+            first_snapshot.snapshot,
+        )
+
         replanning_client = self.node.create_client(
             TaskPlanning,
             "replanning",
@@ -206,6 +269,25 @@ class TestPlannerCommunication(unittest.TestCase):
         self.assertTrue(future.done())
         self.assertIsNotNone(future.result())
         self.assertTrue(future.result().success)
+
+        replanned_snapshot_future = snapshot_client.call_async(
+            GetPlanningGraphSnapshot.Request()
+        )
+        rclpy.spin_until_future_complete(
+            self.node,
+            replanned_snapshot_future,
+            timeout_sec=8.0,
+        )
+        replanned_snapshot = replanned_snapshot_future.result()
+        self.assertTrue(replanned_snapshot.success)
+        self.assertEqual(
+            replanned_snapshot.snapshot.metadata.planning_generation,
+            2,
+        )
+        self.assertEqual(
+            replanned_snapshot.snapshot.metadata.hard_task,
+            request.hard_task,
+        )
 
         load_client = self.node.create_client(
             LoadTransitionSystem,
@@ -237,6 +319,7 @@ class TestPlannerCommunication(unittest.TestCase):
         self.node.destroy_publisher(state_publisher)
         self.node.destroy_client(replanning_client)
         self.node.destroy_client(load_client)
+        self.node.destroy_client(snapshot_client)
 
 
 @launch_testing.post_shutdown_test()

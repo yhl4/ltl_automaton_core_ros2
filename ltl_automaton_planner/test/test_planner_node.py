@@ -17,6 +17,7 @@ from rclpy.qos import (
 
 from ltl_automaton_msgs.msg import (
     PlannerStatus,
+    PlanningGraphSnapshot,
     TransitionSystemState,
     TransitionSystemStateStamped,
 )
@@ -439,6 +440,31 @@ def test_ready_transition_system_can_be_replaced(planner_runtime):
         planner_runtime.planner._active_transition_system.nodes
     ) == {("r3",)}
     assert planner_runtime.planner._planner_state == PlannerStatus.READY
+
+
+def test_ts_reload_clears_snapshot_without_resetting_generation(
+    planner_runtime,
+):
+    """Clear retained plan authority while preserving monotonic history."""
+    assert call_load_transition_system(
+        planner_runtime,
+        VALID_TS_A,
+    ).success
+    planner_runtime.planner._planning_generation = 4
+    planner_runtime.planner._active_planning_graph_snapshot = (
+        PlanningGraphSnapshot()
+    )
+
+    response = call_load_transition_system(
+        planner_runtime,
+        VALID_TS_B,
+    )
+
+    assert response.success
+    assert planner_runtime.planner._planning_generation == 4
+    assert (
+        planner_runtime.planner._active_planning_graph_snapshot is None
+    )
 
 
 @pytest.mark.parametrize(
