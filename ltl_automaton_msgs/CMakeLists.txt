@@ -15,6 +15,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/LTLStateRuns.msg"
   "msg/PlannerStatus.msg"
   "msg/PlanningGraphMetadata.msg"
+  "msg/PlanningExecutionObservation.msg"
   "msg/BuchiGraphNode.msg"
   "msg/BuchiGraphEdge.msg"
   "msg/ProductGraphNode.msg"

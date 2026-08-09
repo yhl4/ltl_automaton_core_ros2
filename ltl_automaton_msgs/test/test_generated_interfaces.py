@@ -5,6 +5,7 @@ from ltl_automaton_msgs.msg import AcceptedRunSnapshot
 from ltl_automaton_msgs.msg import BuchiGraphEdge
 from ltl_automaton_msgs.msg import BuchiGraphNode
 from ltl_automaton_msgs.msg import PlannerStatus
+from ltl_automaton_msgs.msg import PlanningExecutionObservation
 from ltl_automaton_msgs.msg import PlanningGraphMetadata
 from ltl_automaton_msgs.msg import PlanningGraphSnapshot
 from ltl_automaton_msgs.msg import ProductGraphEdge
@@ -76,6 +77,7 @@ def test_plan_ltl_contract():
 def test_planning_graph_metadata_contract():
     """Generate snapshot identity, consistency, size, and availability."""
     metadata = PlanningGraphMetadata()
+    metadata.planner_instance_id = "planner-A"
     metadata.planning_generation = 7
     metadata.active_ts_sha256 = "a" * 64
     metadata.hard_task = "<> goal"
@@ -89,6 +91,7 @@ def test_planning_graph_metadata_contract():
     metadata.unavailable_reason = "Snapshot exceeds the configured limit."
 
     assert list(metadata.get_fields_and_field_types()) == [
+        "planner_instance_id",
         "planning_generation",
         "active_ts_sha256",
         "hard_task",
@@ -101,10 +104,65 @@ def test_planning_graph_metadata_contract():
         "available",
         "unavailable_reason",
     ]
+    assert metadata.planner_instance_id == "planner-A"
     assert metadata.planning_generation == 7
     assert metadata.product_edge_count == 44
     assert not metadata.available
     assert metadata.unavailable_reason
+
+
+def test_planning_execution_observation_contract():
+    """Generate one snapshot-local 0/1/N formal execution observation."""
+    observation = PlanningExecutionObservation()
+    observation.planner_instance_id = "planner-A"
+    observation.planning_generation = 3
+    observation.possible_product_node_ids = []
+    observation.has_next_action = False
+    observation.next_action = ""
+
+    assert list(observation.get_fields_and_field_types()) == [
+        "planner_instance_id",
+        "planning_generation",
+        "possible_product_node_ids",
+        "has_next_action",
+        "next_action",
+    ]
+    assert list(observation.possible_product_node_ids) == []
+    assert not observation.has_next_action
+    assert observation.next_action == ""
+
+    observation.possible_product_node_ids = [3]
+    assert list(observation.possible_product_node_ids) == [3]
+    observation.possible_product_node_ids = [3, 7, 11]
+    observation.has_next_action = True
+    observation.next_action = "goto_r2"
+    assert list(observation.possible_product_node_ids) == [3, 7, 11]
+    assert observation.has_next_action
+    assert observation.next_action == "goto_r2"
+
+
+def test_snapshot_and_observation_can_distinguish_planner_lifetimes():
+    """Express equal generations from different opaque planner instances."""
+    snapshot = PlanningGraphMetadata()
+    snapshot.planner_instance_id = "planner-A"
+    snapshot.planning_generation = 3
+    observation = PlanningExecutionObservation()
+    observation.planner_instance_id = "planner-A"
+    observation.planning_generation = 3
+    restarted_observation = PlanningExecutionObservation()
+    restarted_observation.planner_instance_id = "planner-B"
+    restarted_observation.planning_generation = 3
+
+    assert snapshot.planner_instance_id == observation.planner_instance_id
+    assert snapshot.planning_generation == observation.planning_generation
+    assert (
+        restarted_observation.planner_instance_id
+        != snapshot.planner_instance_id
+    )
+    assert (
+        restarted_observation.planning_generation
+        == snapshot.planning_generation
+    )
 
 
 def test_buchi_graph_contract():
@@ -199,6 +257,7 @@ def test_accepted_run_snapshot_contract():
 def test_planning_graph_snapshot_contract():
     """Compose all formal graph arrays under one metadata generation."""
     snapshot = PlanningGraphSnapshot()
+    snapshot.metadata.planner_instance_id = "planner-A"
     snapshot.metadata.planning_generation = 9
     snapshot.metadata.available = True
     snapshot.buchi_nodes = [BuchiGraphNode(id=1)]
@@ -210,6 +269,7 @@ def test_planning_graph_snapshot_contract():
     snapshot.accepted_run.prefix_product_node_ids = [2]
     snapshot.accepted_run.suffix_product_node_ids = [2]
 
+    assert snapshot.metadata.planner_instance_id == "planner-A"
     assert snapshot.metadata.planning_generation == 9
     assert snapshot.metadata.available
     assert snapshot.buchi_nodes[0].id == 1

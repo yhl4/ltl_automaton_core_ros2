@@ -1,4 +1,8 @@
-# Identify one successfully committed active planning snapshot.
+# Opaque, non-empty identity of the PlannerNode lifetime that owns this snapshot.
+string planner_instance_id
+
+# Identify one successfully committed active planning snapshot within this
+# planner instance.
 uint64 planning_generation
 string active_ts_sha256
 
