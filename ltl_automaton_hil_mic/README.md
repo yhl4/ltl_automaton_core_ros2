@@ -43,3 +43,8 @@ plugins:
     path: ltl_automaton_hil_mic.trap_detection
     args: {}
 ```
+
+The legacy `IRLPlugin` is intentionally excluded from the canonical ROS 2
+runtime. It directly mutated the active planner in its ROS 1 form and remains
+deferred until candidate isolation, single-writer ownership, freshness, and
+generation identity are defined transactionally.

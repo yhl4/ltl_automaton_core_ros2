@@ -12,7 +12,8 @@
 - 计划、下一动作与候选 Product 状态发布；
 - 运行时任务重规划服务；
 - 标准 2D pose 与 6D joint-space TS 状态监控及 2D TS 生成工具；
-- Bool 与 Velocity mixed-initiative HIL 控制器。
+- Bool 与 Velocity mixed-initiative HIL 控制器；
+- 只读 `TrapDetectionPlugin` 诊断服务。
 
 > 当前迁移保持 Product Automaton 与离散规划算法的核心语义，不将 ROS 2 通信逻辑写入规划核心。
 
@@ -549,6 +550,7 @@ git diff --check
 | `region_2d_pose_definition.py` | `region_2d_pose_definition` | 显式输出路径，生成 planner-compatible TS |
 | `BoolCmdMixer` | `bool_cmd_hil_mic` | 保留 Bool 仲裁语义，trap 查询改为异步 ROS 2 service client |
 | `VelCmdMixer` | `vel_cmd_hil_mic` | 保留速度混合语义，增加服务不可用与状态超时的安全回退 |
+| `TrapDetectionPlugin` | `ltl_automaton_hil_mic.trap_detection` | 只读查询，不修改 active plan、generation 或 execution state |
 | `catkin_make` | `colcon build --symlink-install` | 构建与测试命令见第 5、11 节 |
 
 ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。
@@ -557,7 +559,7 @@ ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。
 
 当前版本尚未完成以下 KTH ROS 1 功能的 ROS 2 等价迁移：
 
-- `TrapDetectionPlugin` 等具体 ROS 通信插件；
+- `IRLPlugin` 尚未接入事务式 ROS 2 Planner contract；旧的原地 mutation 实现仅保留在 Git 历史中，不进入 canonical runtime；
 - Ubuntu 24.04 / ROS 2 Jazzy 独立验证；
 
 此外，使用 Fast DDS 时可能出现共享内存端口警告：
@@ -574,5 +576,5 @@ RTPS_TRANSPORT_SHM Error: Failed init_port ...
 
 建议按以下顺序继续迁移：
 
-1. 迁移并验证 `TrapDetectionPlugin` 等具体插件；
+1. 在候选状态隔离、单一写入者、freshness 与 generation identity contract 明确后，重新设计并迁移 `IRLPlugin`；
 2. 在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证。
