@@ -23,6 +23,7 @@ from ltl_automaton_msgs.msg import (
     LTLPlan,
     LTLStateArray,
     PlannerStatus,
+    PlanningExecutionObservation,
     TransitionSystemStateStamped,
 )
 from ltl_automaton_msgs.srv import (
@@ -311,6 +312,7 @@ def test_studio_consumer_contract_end_to_end(action_runtime):
     statuses = []
     next_moves = []
     possible_states = []
+    observations = []
     subscriptions = [
         action_runtime.client_node.create_subscription(
             PlannerStatus,
@@ -328,6 +330,12 @@ def test_studio_consumer_contract_end_to_end(action_runtime):
             LTLStateArray,
             "possible_ltl_states",
             possible_states.append,
+            command_qos,
+        ),
+        action_runtime.client_node.create_subscription(
+            PlanningExecutionObservation,
+            "planning_execution_observation",
+            observations.append,
             command_qos,
         ),
     ]
@@ -364,6 +372,7 @@ def test_studio_consumer_contract_end_to_end(action_runtime):
             statuses[-1].state == PlannerStatus.ACTIVE
             and next_moves
             and possible_states
+            and observations
         ),
     )
     first_snapshot = get_planning_graph_snapshot(action_runtime)
@@ -371,6 +380,7 @@ def test_studio_consumer_contract_end_to_end(action_runtime):
     assert first_snapshot.success
     assert first_snapshot.snapshot == repeated_snapshot.snapshot
     assert first_snapshot.snapshot.metadata.planning_generation == 1
+    assert first_snapshot.snapshot.metadata.planner_instance_id
     assert first_snapshot.snapshot.metadata.buchi_node_count == len(
         first_snapshot.snapshot.buchi_nodes
     )
@@ -386,6 +396,15 @@ def test_studio_consumer_contract_end_to_end(action_runtime):
     assert set(
         first_snapshot.snapshot.accepted_run.suffix_product_node_ids
     ).issubset(product_ids)
+    assert observations[-1].planner_instance_id == (
+        first_snapshot.snapshot.metadata.planner_instance_id
+    )
+    assert observations[-1].planning_generation == 1
+    assert observations[-1].has_next_action
+    assert observations[-1].next_action == next_moves[-1]
+    assert set(observations[-1].possible_product_node_ids).issubset(
+        product_ids
+    )
 
     publish_state(action_runtime, "r2")
     assert spin_until(
@@ -397,8 +416,10 @@ def test_studio_consumer_contract_end_to_end(action_runtime):
                 .ltl_states[0]
                 .ts_state.states
             ) == ["r2"]
+            and observations[-1].next_action == "stay_r2"
         ),
     )
+    assert observations[-1].planning_generation == 1
 
     second_handle = send_goal(
         action_runtime,
@@ -414,6 +435,10 @@ def test_studio_consumer_contract_end_to_end(action_runtime):
     assert second_snapshot.success
     assert second_snapshot.snapshot.metadata.planning_generation == 2
     assert second_snapshot.snapshot.metadata.hard_task == "[]<> r2"
+    assert second_snapshot.snapshot.metadata.planner_instance_id == (
+        first_snapshot.snapshot.metadata.planner_instance_id
+    )
+    assert observations[-1].planning_generation == 2
 
     for subscription in subscriptions:
         action_runtime.client_node.destroy_subscription(subscription)
@@ -574,6 +599,7 @@ def test_expected_execution_makes_candidate_stale_without_rollback(
     old_snapshot = get_planning_graph_snapshot(action_runtime).snapshot
     old_planner = action_runtime.planner.ltl_planner
     prefix_messages = []
+    observations = []
     command_qos = QoSProfile(
         depth=1,
         reliability=ReliabilityPolicy.RELIABLE,
@@ -585,7 +611,14 @@ def test_expected_execution_makes_candidate_stale_without_rollback(
         prefix_messages.append,
         command_qos,
     )
+    observation_subscription = action_runtime.client_node.create_subscription(
+        PlanningExecutionObservation,
+        "planning_execution_observation",
+        observations.append,
+        command_qos,
+    )
     assert spin_until(action_runtime, lambda: bool(prefix_messages))
+    assert spin_until(action_runtime, lambda: bool(observations))
 
     started, release = block_candidate(monkeypatch)
     goal_handle = send_goal(action_runtime, make_goal())
@@ -598,6 +631,12 @@ def test_expected_execution_makes_candidate_stale_without_rollback(
     assert spin_until(
         action_runtime,
         lambda: len(prefix_messages) >= 2,
+    )
+    assert observations[-1].planner_instance_id == (
+        old_snapshot.metadata.planner_instance_id
+    )
+    assert observations[-1].planning_generation == (
+        old_snapshot.metadata.planning_generation
     )
     publication_count = len(prefix_messages)
 
@@ -614,6 +653,7 @@ def test_expected_execution_makes_candidate_stale_without_rollback(
         == old_snapshot
     )
     action_runtime.client_node.destroy_subscription(subscription)
+    action_runtime.client_node.destroy_subscription(observation_subscription)
 
 
 def test_return_to_initial_state_allows_commit_and_duplicate_is_ignored(
@@ -852,6 +892,19 @@ def test_snapshot_conversion_failure_does_not_fail_planning(
     monkeypatch,
 ):
     """Commit unavailable metadata instead of failing a valid plan."""
+    observations = []
+    command_qos = QoSProfile(
+        depth=1,
+        reliability=ReliabilityPolicy.RELIABLE,
+        durability=DurabilityPolicy.TRANSIENT_LOCAL,
+    )
+    subscription = action_runtime.client_node.create_subscription(
+        PlanningExecutionObservation,
+        "planning_execution_observation",
+        observations.append,
+        command_qos,
+    )
+
     def controlled_failure(planner, active_hash):
         del planner, active_hash
         raise RuntimeError("controlled serializer failure")
@@ -874,6 +927,41 @@ def test_snapshot_conversion_failure_does_not_fail_planning(
     assert "controlled serializer failure" in response.message
     assert not response.snapshot.buchi_nodes
     assert not response.snapshot.product_nodes
+    action_runtime.executor.spin_once(timeout_sec=0.1)
+    assert not observations
+    action_runtime.client_node.destroy_subscription(subscription)
+
+
+def test_execution_observation_is_retained_for_a_late_subscriber(
+    action_runtime,
+):
+    """Expose the latest coherent formal state to a late DDS subscriber."""
+    activate(action_runtime)
+    snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    observations = []
+    command_qos = QoSProfile(
+        depth=1,
+        reliability=ReliabilityPolicy.RELIABLE,
+        durability=DurabilityPolicy.TRANSIENT_LOCAL,
+    )
+    subscription = action_runtime.client_node.create_subscription(
+        PlanningExecutionObservation,
+        "planning_execution_observation",
+        observations.append,
+        command_qos,
+    )
+
+    assert spin_until(action_runtime, lambda: bool(observations))
+    observation = observations[-1]
+    assert observation.planner_instance_id == (
+        snapshot.metadata.planner_instance_id
+    )
+    assert observation.planning_generation == (
+        snapshot.metadata.planning_generation
+    )
+    assert observation.has_next_action
+    assert observation.next_action
+    action_runtime.client_node.destroy_subscription(subscription)
 
 
 def test_legacy_replanning_updates_snapshot_only_on_success(action_runtime):

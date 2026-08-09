@@ -1,5 +1,9 @@
 """Deterministically serialize one accepted planner graph snapshot."""
 
+from dataclasses import dataclass
+from types import MappingProxyType
+from typing import Mapping
+
 from ltl_automaton_msgs.msg import (
     AcceptedRunSnapshot,
     BuchiGraphEdge,
@@ -10,6 +14,14 @@ from ltl_automaton_msgs.msg import (
     ProductGraphNode,
     TransitionSystemState,
 )
+
+
+@dataclass(frozen=True)
+class PlanningGraphSnapshotBuild:
+    """One snapshot together with its exact internal Product-node IDs."""
+
+    snapshot: PlanningGraphSnapshot
+    product_node_ids: Mapping[object, int]
 
 
 def _flatten_dimension_names(raw_names) -> list[str]:
@@ -303,8 +315,8 @@ def _serialize_run(planner, product, product_ids):
 def build_planning_graph_snapshot(
     planner,
     active_ts_sha256: str,
-) -> PlanningGraphSnapshot:
-    """Build a complete deterministic snapshot from one accepted planner."""
+) -> PlanningGraphSnapshotBuild:
+    """Build a snapshot and the Product-node IDs used in that snapshot."""
     if planner is None or planner.product is None or planner.run is None:
         raise ValueError("No accepted planner is available for serialization.")
 
@@ -341,7 +353,10 @@ def build_planning_graph_snapshot(
     snapshot.product_nodes = product_nodes
     snapshot.product_edges = product_edges
     snapshot.accepted_run = accepted_run
-    return snapshot
+    return PlanningGraphSnapshotBuild(
+        snapshot=snapshot,
+        product_node_ids=MappingProxyType(dict(product_ids)),
+    )
 
 
 def unavailable_planning_graph_snapshot(

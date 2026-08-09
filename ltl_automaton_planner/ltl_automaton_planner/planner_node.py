@@ -3,10 +3,13 @@
 import hashlib
 import importlib
 import subprocess
+import uuid
 from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from threading import RLock, Thread
+from types import MappingProxyType
+from typing import Mapping
 
 import rclpy
 import yaml
@@ -31,6 +34,7 @@ from ltl_automaton_msgs.msg import (
     LTLState,
     LTLStateArray,
     PlannerStatus,
+    PlanningExecutionObservation,
     PlanningGraphSnapshot,
     TransitionSystemState,
     TransitionSystemStateStamped,
@@ -76,21 +80,36 @@ class PlanningOutcome:
     message: str
     transition_system: TSModel | None = None
     planner: LTLPlanner | None = None
-    planning_graph_snapshot: PlanningGraphSnapshot | None = None
+    planning_graph: "PlanningGraphSerialization | None" = None
+
+
+@dataclass(frozen=True)
+class PlanningGraphSerialization:
+    """A snapshot paired with the exact Product-node IDs it exposes."""
+
+    snapshot: PlanningGraphSnapshot
+    product_node_ids: Mapping[object, int] | None
 
 
 def serialize_planning_graph(planner, active_ts_sha256: str):
     """Build a snapshot without allowing conversion to fail planning."""
     try:
-        return build_planning_graph_snapshot(
+        built_snapshot = build_planning_graph_snapshot(
             planner,
             active_ts_sha256,
         )
+        return PlanningGraphSerialization(
+            snapshot=built_snapshot.snapshot,
+            product_node_ids=built_snapshot.product_node_ids,
+        )
     except Exception as error:
-        return unavailable_planning_graph_snapshot(
-            planner,
-            active_ts_sha256,
-            f"Planning graph snapshot conversion failed: {error}",
+        return PlanningGraphSerialization(
+            snapshot=unavailable_planning_graph_snapshot(
+                planner,
+                active_ts_sha256,
+                f"Planning graph snapshot conversion failed: {error}",
+            ),
+            product_node_ids=None,
         )
 
 
@@ -223,13 +242,16 @@ def compute_candidate_plan(request: PlanningRequest) -> PlanningOutcome:
         )
 
     planner.curr_ts_state = request.initial_state
-    snapshot = serialize_planning_graph(planner, request.source_hash)
+    planning_graph = serialize_planning_graph(
+        planner,
+        request.source_hash,
+    )
     return PlanningOutcome(
         PlanLTL.Result.ERROR_NONE,
         "Planning succeeded.",
         transition_system=transition_system,
         planner=planner,
-        planning_graph_snapshot=snapshot,
+        planning_graph=planning_graph,
     )
 
 
@@ -345,8 +367,10 @@ class PlannerNode(Node):
         self._planning_source_yaml = ""
         self._planning_source_hash = ""
         self._planning_worker = None
+        self._planner_instance_id = str(uuid.uuid4())
         self._planning_generation = 0
         self._active_planning_graph_snapshot = None
+        self._active_product_node_ids = None
         self._shutting_down = False
 
         self.next_move_publisher = self.create_publisher(
@@ -371,6 +395,14 @@ class PlannerNode(Node):
             LTLStateArray,
             "possible_ltl_states",
             command_qos,
+        )
+
+        self.planning_execution_observation_publisher = (
+            self.create_publisher(
+                PlanningExecutionObservation,
+                "planning_execution_observation",
+                command_qos,
+            )
         )
 
         self.planner_status_publisher = self.create_publisher(
@@ -506,6 +538,7 @@ class PlannerNode(Node):
             self._pending_divergence = None
             self.ltl_planner = None
             self._active_planning_graph_snapshot = None
+            self._active_product_node_ids = None
             self._set_planner_status(
                 PlannerStatus.READY,
                 "Transition system loaded; no active plan.",
@@ -871,13 +904,25 @@ class PlannerNode(Node):
         self._planning_source_hash = ""
         self._planning_worker = None
 
-    def _commit_planning_graph_snapshot(self, snapshot) -> None:
-        """Retain one exact snapshot and allocate its generation."""
-        committed_snapshot = deepcopy(snapshot)
+    def _commit_planning_graph_snapshot(
+        self,
+        planning_graph: PlanningGraphSerialization,
+    ) -> None:
+        """Atomically retain one snapshot, its IDs, and its generation."""
+        committed_snapshot = deepcopy(planning_graph.snapshot)
         new_generation = self._planning_generation + 1
+        committed_snapshot.metadata.planner_instance_id = (
+            self._planner_instance_id
+        )
         committed_snapshot.metadata.planning_generation = new_generation
         self._planning_generation = new_generation
         self._active_planning_graph_snapshot = committed_snapshot
+        if planning_graph.snapshot.metadata.available:
+            self._active_product_node_ids = MappingProxyType(
+                dict(planning_graph.product_node_ids or {})
+            )
+        else:
+            self._active_product_node_ids = None
 
     def _finish_plan_ltl_failure(
         self,
@@ -927,7 +972,7 @@ class PlannerNode(Node):
         if (
             outcome.planner is None
             or outcome.transition_system is None
-            or outcome.planning_graph_snapshot is None
+            or outcome.planning_graph is None
         ):
             return self._finish_plan_ltl_failure(
                 goal_handle,
@@ -954,7 +999,7 @@ class PlannerNode(Node):
                 self._pending_divergence = None
                 self._waiting_for_initial_state = False
                 self._commit_planning_graph_snapshot(
-                    outcome.planning_graph_snapshot
+                    outcome.planning_graph
                 )
                 self._clear_planning_transaction()
                 self._set_planner_status(
@@ -979,6 +1024,7 @@ class PlannerNode(Node):
         self.suffix_plan_publisher.publish(suffix_plan)
         self._publish_possible_states()
         self._publish_next_move()
+        self._publish_planning_execution_observation()
         self._initialize_plugins()
 
         result = PlanLTL.Result()
@@ -1258,6 +1304,7 @@ class PlannerNode(Node):
 
         self._publish_plan()
         self._publish_next_move()
+        self._publish_planning_execution_observation()
         return True
 
     @staticmethod
@@ -1427,6 +1474,65 @@ class PlannerNode(Node):
         self.get_logger().info(
             f"Published {len(ltl_state_messages)} "
             "possible LTL states."
+        )
+
+    def _publish_planning_execution_observation(self) -> None:
+        """Publish formal execution state from one retained generation."""
+        with self._state_lock:
+            snapshot = self._active_planning_graph_snapshot
+            product_node_ids = self._active_product_node_ids
+            planner = self.ltl_planner
+
+            if (
+                snapshot is None
+                or not snapshot.metadata.available
+                or product_node_ids is None
+                or planner is None
+                or planner.product is None
+            ):
+                return
+
+            possible_states = getattr(
+                planner.product,
+                "possible_states",
+                set(),
+            )
+
+            try:
+                possible_product_node_ids = sorted(
+                    {
+                        product_node_ids[node]
+                        for node in possible_states
+                    }
+                )
+            except KeyError as error:
+                self.get_logger().warning(
+                    "Skipping formal execution observation because "
+                    "a possible Product node is absent from the active "
+                    f"snapshot mapping: {error}."
+                )
+                return
+
+            next_move = planner.next_move
+            observation = PlanningExecutionObservation()
+            observation.planner_instance_id = (
+                snapshot.metadata.planner_instance_id
+            )
+            observation.planning_generation = (
+                snapshot.metadata.planning_generation
+            )
+            observation.possible_product_node_ids = (
+                possible_product_node_ids
+            )
+            observation.has_next_action = next_move is not None
+            observation.next_action = (
+                str(next_move)
+                if next_move is not None
+                else ""
+            )
+
+        self.planning_execution_observation_publisher.publish(
+            observation
         )
 
     def _update_possible_states(
@@ -1609,6 +1715,7 @@ class PlannerNode(Node):
         self._publish_possible_states()
         self._publish_plan()
         self._publish_next_move()
+        self._publish_planning_execution_observation()
 
         self.get_logger().info(
             "Task replanning succeeded."
@@ -1626,6 +1733,7 @@ class PlannerNode(Node):
             self.ltl_planner.curr_ts_state = reached_state
 
             if self._update_possible_states(reached_state):
+                self._publish_planning_execution_observation()
                 self._run_plugins(reached_state)
                 self.get_logger().warning(
                     "Automatic replanning for an unplanned move "
@@ -1696,6 +1804,7 @@ class PlannerNode(Node):
         )
         self._publish_plan()
         self._publish_next_move()
+        self._publish_planning_execution_observation()
         self._run_plugins(reached_state)
         return True
 
@@ -1839,6 +1948,7 @@ class PlannerNode(Node):
 
         self._publish_plan()
         self._publish_next_move()
+        self._publish_planning_execution_observation()
         self._run_plugins(reached_state)
 
     def _publish_next_move(self):

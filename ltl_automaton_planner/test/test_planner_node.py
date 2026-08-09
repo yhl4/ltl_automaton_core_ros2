@@ -2,6 +2,7 @@
 
 import hashlib
 from pathlib import Path
+from threading import RLock
 import time
 from types import SimpleNamespace
 
@@ -170,6 +171,22 @@ def make_state_message(states, dimensions):
     message.ts_state.states = states
     message.ts_state.state_dimension_names = dimensions
     return message
+
+
+def test_planner_instance_id_changes_after_node_restart():
+    """Keep each PlannerNode lifetime distinguishable across restarts."""
+    instance_ids = []
+
+    for _ in range(2):
+        context = Context()
+        rclpy.init(context=context)
+        planner = PlannerNode(context=context)
+        instance_ids.append(planner._planner_instance_id)
+        planner.destroy_node()
+        rclpy.shutdown(context=context)
+
+    assert all(instance_ids)
+    assert instance_ids[0] != instance_ids[1]
 
 
 def test_initial_states_follow_dimension_names():
@@ -454,6 +471,7 @@ def test_ts_reload_clears_snapshot_without_resetting_generation(
     planner_runtime.planner._active_planning_graph_snapshot = (
         PlanningGraphSnapshot()
     )
+    planner_runtime.planner._active_product_node_ids = {("r1", "q0"): 7}
 
     response = call_load_transition_system(
         planner_runtime,
@@ -465,6 +483,60 @@ def test_ts_reload_clears_snapshot_without_resetting_generation(
     assert (
         planner_runtime.planner._active_planning_graph_snapshot is None
     )
+    assert planner_runtime.planner._active_product_node_ids is None
+
+
+def test_formal_observation_maps_zero_one_many_states_without_graph_walk():
+    """Publish only retained snapshot-local IDs for the active Product set."""
+    messages = []
+    warnings = []
+    snapshot = PlanningGraphSnapshot()
+    snapshot.metadata.available = True
+    snapshot.metadata.planner_instance_id = "planner-instance"
+    snapshot.metadata.planning_generation = 4
+    planner = SimpleNamespace(
+        product=SimpleNamespace(possible_states=set()),
+        next_move=None,
+    )
+    host = SimpleNamespace(
+        _state_lock=RLock(),
+        _active_planning_graph_snapshot=snapshot,
+        _active_product_node_ids={
+            ("r1", "q0"): 3,
+            ("r2", "q1"): 8,
+        },
+        ltl_planner=planner,
+        planning_execution_observation_publisher=SimpleNamespace(
+            publish=messages.append,
+        ),
+        get_logger=lambda: SimpleNamespace(
+            warning=warnings.append,
+        ),
+    )
+
+    PlannerNode._publish_planning_execution_observation(host)
+    assert list(messages[-1].possible_product_node_ids) == []
+    assert not messages[-1].has_next_action
+    assert messages[-1].next_action == ""
+
+    planner.product.possible_states = {("r2", "q1")}
+    planner.next_move = "stay_r2"
+    PlannerNode._publish_planning_execution_observation(host)
+    assert list(messages[-1].possible_product_node_ids) == [8]
+    assert messages[-1].has_next_action
+    assert messages[-1].next_action == "stay_r2"
+
+    planner.product.possible_states = {("r2", "q1"), ("r1", "q0")}
+    PlannerNode._publish_planning_execution_observation(host)
+    assert list(messages[-1].possible_product_node_ids) == [3, 8]
+    assert messages[-1].planner_instance_id == "planner-instance"
+    assert messages[-1].planning_generation == 4
+
+    planner.product.possible_states = {("outside", "q9")}
+    message_count = len(messages)
+    PlannerNode._publish_planning_execution_observation(host)
+    assert len(messages) == message_count
+    assert warnings
 
 
 @pytest.mark.parametrize(

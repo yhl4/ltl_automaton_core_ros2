@@ -113,12 +113,46 @@ replaces the accepted run. Planning attempts, failures, stale candidates,
 transition-system loading, service requests, and ordinary execution-cursor
 progress do not increment it.
 
+`metadata.planner_instance_id` is a non-empty opaque UUID created once for a
+`PlannerNode` lifetime. Snapshot identity is the pair
+`(planner_instance_id, planning_generation)`: the generation counter resets
+when the node restarts, so consumers must never compare generations across
+different instance IDs. Transition-system loading keeps the same instance ID
+and counter, but clears all active plan authority until a later successful plan
+commit.
+
 During candidate planning from `ACTIVE`, the service continues to return the
 old active generation; an uncommitted candidate is never visible. If graph
 conversion is unavailable for a successful planning generation, planning still
 succeeds, the new generation is retained with `metadata.available=false`, and
 the service returns `success=false` with an empty graph payload and explanatory
 metadata. This does not restore or expose an older generation.
+
+## Formal Execution Observation
+
+`/planning_execution_observation` publishes
+`ltl_automaton_msgs/msg/PlanningExecutionObservation` with reliable,
+transient-local, depth-1 QoS. Each message is a compact view of the active
+execution authority and carries the same `(planner_instance_id,
+planning_generation)` identity as its retained graph snapshot.
+
+- `possible_product_node_ids` is the sorted, unique set of snapshot-local
+  Product IDs currently possible for execution. It may contain zero, one, or
+  many IDs.
+- `has_next_action` is authoritative. When false, `next_action` is empty; when
+  true, `next_action` is the selected current planner action.
+- Product IDs refer only to the graph returned by
+  `/get_planning_graph_snapshot` for the same identity. Consumers should cache
+  snapshots by the identity pair and discard an observation whose matching
+  snapshot has not been obtained yet.
+
+The planner publishes an observation only when the active snapshot is
+available and every current internal Product node has a retained mapping into
+that exact snapshot. Graph-conversion failure or a mapping mismatch suppresses
+the formal observation without changing planning success or legacy execution
+topics. During `PLANNING` from `ACTIVE`, observations can continue to describe
+the previous active generation while its execution remains authoritative; an
+uncommitted candidate never publishes observations.
 
 ## Known V0.1 Limitations
 

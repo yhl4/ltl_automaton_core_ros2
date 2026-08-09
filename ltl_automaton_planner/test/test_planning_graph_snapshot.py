@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from ltl_automaton_msgs.msg import BuchiGraphNode
 from ltl_automaton_planner.planner_node import prepare_transition_system
 from ltl_automaton_planner.planning_graph_snapshot import (
@@ -100,7 +102,8 @@ def core_product_identity(product, node):
 def test_single_buchi_nodes_edges_and_membership_are_exact():
     """Export single Buchi identity, membership, and formal guards."""
     planner, active_hash = build_planner(MINIMAL_TS, "<> r2", "")
-    snapshot = build_planning_graph_snapshot(planner, active_hash)
+    built = build_planning_graph_snapshot(planner, active_hash)
+    snapshot = built.snapshot
     buchi = planner.product.graph["buchi"]
     snapshot_by_identity = {
         buchi_identity(node): node
@@ -162,12 +165,15 @@ def test_safe_buchi_and_repeated_serialization_are_deterministic():
     )
     first = build_planning_graph_snapshot(planner, active_hash)
     second = build_planning_graph_snapshot(planner, active_hash)
+    first_snapshot = first.snapshot
+    second_snapshot = second.snapshot
     buchi = planner.product.graph["buchi"]
 
-    assert first == second
-    assert first.metadata.buchi_type == "safe_buchi"
-    assert [node.id for node in first.buchi_nodes] == list(
-        range(len(first.buchi_nodes))
+    assert first_snapshot == second_snapshot
+    assert first.product_node_ids == second.product_node_ids
+    assert first_snapshot.metadata.buchi_type == "safe_buchi"
+    assert [node.id for node in first_snapshot.buchi_nodes] == list(
+        range(len(first_snapshot.buchi_nodes))
     )
     assert all(
         not node.state
@@ -175,11 +181,11 @@ def test_safe_buchi_and_repeated_serialization_are_deterministic():
         and node.soft_state
         and node.acceptance_level in {1, 2}
         and not node.display_label.startswith("(")
-        for node in first.buchi_nodes
+        for node in first_snapshot.buchi_nodes
     )
     node_by_identity = {
         buchi_identity(node): node.id
-        for node in first.buchi_nodes
+        for node in first_snapshot.buchi_nodes
     }
 
     for source, target, attributes in buchi.edges(data=True):
@@ -197,7 +203,7 @@ def test_safe_buchi_and_repeated_serialization_are_deterministic():
             and edge.soft_guard_formula
             == attributes["softguard"].formula
             and not edge.guard_formula
-            for edge in first.buchi_edges
+            for edge in first_snapshot.buchi_edges
         )
 
 
@@ -212,16 +218,14 @@ def test_product_and_accepted_run_match_real_multidimensional_core():
         "<> r3",
         "(r3 || ! r3)",
     )
-    snapshot = build_planning_graph_snapshot(planner, active_hash)
+    built = build_planning_graph_snapshot(planner, active_hash)
+    snapshot = built.snapshot
     product = planner.product
     snapshot_ids = {
         product_identity(node, snapshot.buchi_nodes): node.id
         for node in snapshot.product_nodes
     }
-    core_ids = {
-        node: snapshot_ids[core_product_identity(product, node)]
-        for node in product.nodes
-    }
+    core_ids = dict(built.product_node_ids)
 
     assert [node.id for node in snapshot.product_nodes] == list(
         range(len(snapshot.product_nodes))
@@ -271,6 +275,12 @@ def test_product_and_accepted_run_match_real_multidimensional_core():
     assert accepted.prefix_cost == float(run.precost)
     assert accepted.suffix_cost == float(run.sufcost)
     assert accepted.total_cost == float(run.totalcost)
+    assert core_ids == {
+        node: snapshot_ids[core_product_identity(product, node)]
+        for node in product.nodes
+    }
+    with pytest.raises(TypeError):
+        built.product_node_ids[next(iter(product.nodes))] = 999
 
 
 def test_unavailable_snapshot_is_an_atomic_empty_payload():
