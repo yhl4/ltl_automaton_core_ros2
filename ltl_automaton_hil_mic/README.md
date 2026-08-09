@@ -34,5 +34,12 @@ ros2 launch ltl_automaton_hil_mic vel_cmd_hil_mic.launch.py
 
 The ROS 1 topics remain `ts_state`, `key_vel`, `nav_vel`, and `cmd_vel`.
 
-The controller package consumes the `check_for_trap` service but does not
-provide it. The ROS 2 TrapDetection planner plugin is delivered separately.
+The controller package consumes the `check_for_trap` service. The read-only
+ROS 2 `TrapDetectionPlugin` provides it when the planner loads:
+
+```yaml
+plugins:
+  TrapDetectionPlugin:
+    path: ltl_automaton_hil_mic.trap_detection
+    args: {}
+```

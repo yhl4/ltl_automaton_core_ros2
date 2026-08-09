@@ -14,6 +14,7 @@
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>ltl_automaton_msgs</exec_depend>
   <exec_depend>ltl_automaton_planner_core</exec_depend>
+  <exec_depend>python3-networkx</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
 
@@ -22,6 +23,7 @@
   <test_depend>ament_pep257</test_depend>
   <test_depend>launch_testing</test_depend>
   <test_depend>launch_testing_ros</test_depend>
+  <test_depend>ltl_automaton_planner</test_depend>
   <test_depend>python3-pytest</test_depend>
 
   <export>

@@ -1,0 +1,4 @@
+plugins:
+  TrapDetectionPlugin:
+    path: ltl_automaton_hil_mic.trap_detection
+    args: {}
