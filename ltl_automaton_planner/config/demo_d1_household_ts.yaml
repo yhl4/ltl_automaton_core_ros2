@@ -1,0 +1,241 @@
+# Frozen Demo-D1 quadruped household transition system.
+state_dim:
+  - 2d_pose_region
+  - gripper_state
+
+state_models:
+  2d_pose_region:
+    ts_type: 2d_pose_region
+    initial: l0
+    nodes:
+      l0:
+        attr:
+          type: square
+          pose: [[0.0, 0.0], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+          labels: [living room]
+        connected_to:
+          l0: wait
+          d0: goto_d0_from_l0
+          h1: goto_h1_from_l0
+          lp0: goto_lp0
+          c0: goto_c0
+      d0:
+        attr:
+          type: square
+          pose: [[1.0, 0.0], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+          labels: [dining area, doorway]
+        connected_to:
+          d0: wait
+          l0: goto_l0_from_d0
+          n1: goto_n1_from_d0
+      n1:
+        attr:
+          type: square
+          pose: [[2.0, 0.0], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+          labels: [shortcut connector]
+        connected_to:
+          n1: wait
+          d0: goto_d0_from_n1
+          k0: goto_k0_from_n1
+      k0:
+        attr:
+          type: square
+          pose: [[3.0, 0.0], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+          labels: [kitchen]
+        connected_to:
+          k0: wait
+          n1: goto_n1_from_k0
+          h4: goto_h4_from_k0
+          f0: goto_f0
+          kc0: goto_kc0
+      h1:
+        attr:
+          type: square
+          pose: [[0.0, -1.0], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+          labels: [main hallway west]
+        connected_to:
+          h1: wait
+          l0: goto_l0_from_h1
+          h2: goto_h2_from_h1
+      h2:
+        attr:
+          type: square
+          pose: [[1.0, -1.0], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+          labels: [main hallway center]
+        connected_to:
+          h2: wait
+          h1: goto_h1_from_h2
+          h4: goto_h4_from_h2
+          b0: goto_b0
+          s0: goto_s0
+      h4:
+        attr:
+          type: square
+          pose: [[2.0, -1.0], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+          labels: [main hallway east]
+        connected_to:
+          h4: wait
+          h2: goto_h2_from_h4
+          k0: goto_k0_from_h4
+      b0:
+        attr:
+          type: square
+          pose: [[1.0, -2.0], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+          labels: [bedroom]
+        connected_to:
+          b0: wait
+          h2: goto_h2_from_b0
+          bp0: goto_bp0
+      s0:
+        attr:
+          type: square
+          pose: [[2.0, -2.0], [0.0]]
+          length: 1.0
+          hysteresis: 0.05
+          labels: [study]
+        connected_to:
+          s0: wait
+          h2: goto_h2_from_s0
+          sd0: goto_sd0
+      lp0:
+        attr:
+          type: station
+          pose: [[-0.7, 0.0], [0.0]]
+          radius: 0.15
+          angle_threshold: 0.2
+          dist_hysteresis: 0.05
+          angle_hysteresis: 0.1
+          labels: [living-room pick station]
+        connected_to:
+          lp0: wait
+          l0: goto_l0_from_lp0
+      c0:
+        attr:
+          type: station
+          pose: [[0.0, 0.7], [0.0]]
+          radius: 0.15
+          angle_threshold: 0.2
+          dist_hysteresis: 0.05
+          angle_hysteresis: 0.1
+          labels: [charging station]
+        connected_to:
+          c0: wait
+          l0: goto_l0_from_c0
+      sd0:
+        attr:
+          type: station
+          pose: [[2.7, -2.0], [0.0]]
+          radius: 0.15
+          angle_threshold: 0.2
+          dist_hysteresis: 0.05
+          angle_hysteresis: 0.1
+          labels: [study desk]
+        connected_to:
+          sd0: wait
+          s0: goto_s0_from_sd0
+      f0:
+        attr:
+          type: station
+          pose: [[3.7, 0.3], [0.0]]
+          radius: 0.15
+          angle_threshold: 0.2
+          dist_hysteresis: 0.05
+          angle_hysteresis: 0.1
+          labels: [fridge]
+        connected_to:
+          f0: wait
+          k0: goto_k0_from_f0
+      kc0:
+        attr:
+          type: station
+          pose: [[3.7, -0.3], [0.0]]
+          radius: 0.15
+          angle_threshold: 0.2
+          dist_hysteresis: 0.05
+          angle_hysteresis: 0.1
+          labels: [kitchen counter]
+        connected_to:
+          kc0: wait
+          k0: goto_k0_from_kc0
+      bp0:
+        attr:
+          type: station
+          pose: [[0.3, -2.0], [0.0]]
+          radius: 0.15
+          angle_threshold: 0.2
+          dist_hysteresis: 0.05
+          angle_hysteresis: 0.1
+          labels: [bedside place station]
+        connected_to:
+          bp0: wait
+          b0: goto_b0_from_bp0
+
+  gripper_state:
+    ts_type: gripper_state
+    initial: empty
+    nodes:
+      empty:
+        attr:
+          labels: [empty gripper]
+        connected_to:
+          holding: pick
+      holding:
+        attr:
+          labels: [holding object]
+        connected_to:
+          empty: place
+
+actions:
+  wait: {type: wait, guard: "1", weight: 0.1}
+
+  goto_d0_from_l0: {type: move, guard: "1", weight: 1.0}
+  goto_n1_from_d0: {type: move, guard: "1", weight: 1.0}
+  goto_k0_from_n1: {type: move, guard: "1", weight: 2.0}
+  goto_n1_from_k0: {type: move, guard: "1", weight: 2.0}
+  goto_d0_from_n1: {type: move, guard: "1", weight: 1.0}
+  goto_l0_from_d0: {type: move, guard: "1", weight: 1.0}
+
+  goto_h1_from_l0: {type: move, guard: "1", weight: 1.2}
+  goto_h2_from_h1: {type: move, guard: "1", weight: 1.2}
+  goto_h4_from_h2: {type: move, guard: "1", weight: 1.2}
+  goto_k0_from_h4: {type: move, guard: "1", weight: 1.8}
+  goto_h4_from_k0: {type: move, guard: "1", weight: 1.8}
+  goto_h2_from_h4: {type: move, guard: "1", weight: 1.2}
+  goto_h1_from_h2: {type: move, guard: "1", weight: 1.2}
+  goto_l0_from_h1: {type: move, guard: "1", weight: 1.2}
+
+  goto_lp0: {type: move, guard: "1", weight: 0.5}
+  goto_l0_from_lp0: {type: move, guard: "1", weight: 0.5}
+  goto_c0: {type: move, guard: "1", weight: 0.5}
+  goto_l0_from_c0: {type: move, guard: "1", weight: 0.5}
+  goto_b0: {type: move, guard: "1", weight: 1.0}
+  goto_h2_from_b0: {type: move, guard: "1", weight: 1.0}
+  goto_s0: {type: move, guard: "1", weight: 1.0}
+  goto_h2_from_s0: {type: move, guard: "1", weight: 1.0}
+  goto_sd0: {type: move, guard: "1", weight: 0.5}
+  goto_s0_from_sd0: {type: move, guard: "1", weight: 0.5}
+  goto_f0: {type: move, guard: "1", weight: 0.5}
+  goto_k0_from_f0: {type: move, guard: "1", weight: 0.5}
+  goto_kc0: {type: move, guard: "1", weight: 0.5}
+  goto_k0_from_kc0: {type: move, guard: "1", weight: 0.5}
+  goto_bp0: {type: move, guard: "1", weight: 0.5}
+  goto_b0_from_bp0: {type: move, guard: "1", weight: 0.5}
+
+  pick: {type: pick, guard: lp0, weight: 1.0}
+  place: {type: place, guard: bp0, weight: 1.0}
