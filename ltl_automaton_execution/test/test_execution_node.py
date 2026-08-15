@@ -13,7 +13,7 @@ from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import GetPlanningGraphSnapshot
 from ltl_automaton_execution.execution_node import COMMAND_QOS
 from ltl_automaton_execution.execution_node import ExecutionManagerNode
-from ltl_automaton_execution.fake_plant import FakePlant
+from ltl_automaton_execution.fake_runtime import FakePlant
 from ltl_automaton_execution.models import ExecutionCompletion
 from ltl_automaton_execution.models import SymbolicState
 

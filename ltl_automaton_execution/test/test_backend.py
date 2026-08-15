@@ -5,12 +5,12 @@ from dataclasses import fields
 import pytest
 
 from ltl_automaton_execution.accepted_run_resolver import AcceptedRunResolver
-from ltl_automaton_execution.execution_manager import ExecutionManager
-from ltl_automaton_execution.fake_backend import FakeBackend
-from ltl_automaton_execution.fake_plant import FakePlant
-from ltl_automaton_execution.fake_plant import FakePlantObservation
-from ltl_automaton_execution.fake_state_abstraction import FakeStateAbstraction
-from ltl_automaton_execution.fake_state_observer import FakeStateObserver
+from ltl_automaton_execution.execution import ExecutionManager
+from ltl_automaton_execution.fake_runtime import FakeBackend
+from ltl_automaton_execution.fake_runtime import FakePlant
+from ltl_automaton_execution.fake_runtime import FakePlantObservation
+from ltl_automaton_execution.fake_runtime import FakeStateAbstraction
+from ltl_automaton_execution.fake_runtime import FakeStateObserver
 from ltl_automaton_execution.models import AcceptedRun
 from ltl_automaton_execution.models import ExecutionCompletion
 from ltl_automaton_execution.models import ExecutionObservation

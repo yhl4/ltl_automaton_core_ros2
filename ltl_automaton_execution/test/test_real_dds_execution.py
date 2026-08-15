@@ -15,9 +15,9 @@ from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import LoadTransitionSystem
 from ltl_automaton_execution.execution_node import COMMAND_QOS
 from ltl_automaton_execution.execution_node import ExecutionManagerNode
-from ltl_automaton_execution.fake_plant import FakePlant
-from ltl_automaton_execution.fake_state_abstraction import FakeStateAbstraction
-from ltl_automaton_execution.fake_state_observer import FakeStateObserver
+from ltl_automaton_execution.fake_runtime import FakePlant
+from ltl_automaton_execution.fake_runtime import FakeStateAbstraction
+from ltl_automaton_execution.fake_runtime import FakeStateObserver
 from ltl_automaton_planner.planner_node import PlannerNode
 
 

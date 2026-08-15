@@ -12,11 +12,11 @@ from ltl_automaton_msgs.msg import PlanningExecutionObservation
 from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import GetPlanningGraphSnapshot
 from ltl_automaton_execution.accepted_run_resolver import AcceptedRunResolver
-from ltl_automaton_execution.execution_manager import ExecutionManager
-from ltl_automaton_execution.fake_backend import FakeBackend
-from ltl_automaton_execution.fake_plant import FakePlant
-from ltl_automaton_execution.fake_state_abstraction import FakeStateAbstraction
-from ltl_automaton_execution.fake_state_observer import FakeStateObserver
+from ltl_automaton_execution.execution import ExecutionManager
+from ltl_automaton_execution.fake_runtime import FakeBackend
+from ltl_automaton_execution.fake_runtime import FakePlant
+from ltl_automaton_execution.fake_runtime import FakeStateAbstraction
+from ltl_automaton_execution.fake_runtime import FakeStateObserver
 from ltl_automaton_execution.models import AcceptedRun
 from ltl_automaton_execution.models import ExecutionObservation
 from ltl_automaton_execution.models import PlanningSnapshot
@@ -239,16 +239,12 @@ class ExecutionManagerNode(Node):
         if abstracted is None:
             self.get_logger().warning("State abstraction rejected observation.")
             return
-        try:
-            state = SymbolicState(
-                tuple(abstracted.dimension_names),
-                tuple(abstracted.states),
-            )
-        except (AttributeError, TypeError, ValueError) as error:
+        if not isinstance(abstracted, SymbolicState):
             self.get_logger().warning(
-                f"State abstraction produced malformed state: {error}"
+                "State abstraction produced malformed symbolic state."
             )
             return
+        state = abstracted
         if self._expected_dimensions is not None:
             if set(state.dimension_names) != set(self._expected_dimensions):
                 self.get_logger().warning(
