@@ -3,6 +3,8 @@
 from ltl_automaton_execution.accepted_run_resolver import AcceptedRunResolver
 from ltl_automaton_execution.accepted_run_resolver import ResolutionError
 from ltl_automaton_execution.backend import ExecutionBackend
+from ltl_automaton_execution.execution_manager import ExecutionManager
+from ltl_automaton_execution.fake_backend import FakeBackend
 from ltl_automaton_execution.models import AcceptedRun
 from ltl_automaton_execution.models import ExecutionObservation
 from ltl_automaton_execution.models import ExecutionResult
@@ -16,9 +18,11 @@ __all__ = [
     "AcceptedRun",
     "AcceptedRunResolver",
     "ExecutionBackend",
+    "ExecutionManager",
     "ExecutionObservation",
     "ExecutionResult",
     "ExecutionStep",
+    "FakeBackend",
     "PlanningSnapshot",
     "ProductEdge",
     "ProductNode",

@@ -88,7 +88,20 @@ ltl_automaton_planner/
 - 发布当前可能的 Product 状态；
 - 通过服务请求切换任务并重新规划。
 
-### 1.4 标准 Transition System 工具
+### 1.4 可选符号执行包
+
+可选执行包位于：
+
+```text
+ltl_automaton_execution/
+```
+
+它通过带 planning identity 的正式 execution observation 和只读 planning
+graph snapshot 解析当前接受运行步骤，再由可替换的 `ExecutionBackend` 完成动作
+并发布 `/ts_state`。当前仅提供符号级 `FakeBackend`，不包含物理仿真、Gazebo、
+Isaac Sim 或机器人控制依赖；Planner 与 planner core 均不依赖该包。
+
+### 1.5 标准 Transition System 工具
 
 标准状态监控与 TS 生成工具位于：
 
@@ -105,7 +118,7 @@ ltl_automaton_std_transition_systems/
 - 将 `JointState` 的前六个关节位置映射为 6D joint-space region；
 - 交互生成可被当前 planner core 直接加载的 2D grid/station TS YAML。
 
-### 1.5 HIL mixed-initiative 控制器
+### 1.6 HIL mixed-initiative 控制器
 
 ROS 2 HIL 控制器位于：
 
@@ -156,6 +169,10 @@ Ubuntu 24.04 与 ROS 2 Jazzy 仍需完成独立兼容性验证。
 │   ├── launch/
 │   ├── ltl_automaton_planner/
 │   │   └── planner_node.py
+│   └── test/
+├── ltl_automaton_execution/
+│   ├── launch/
+│   ├── ltl_automaton_execution/
 │   └── test/
 ├── ltl_automaton_std_transition_systems/
 │   ├── config/

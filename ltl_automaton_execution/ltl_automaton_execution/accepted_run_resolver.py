@@ -1,8 +1,6 @@
 """Resolve formal observations against one retained accepted run."""
 
-from ltl_automaton_execution.models import ExecutionObservation
 from ltl_automaton_execution.models import ExecutionStep
-from ltl_automaton_execution.models import PlanningSnapshot
 
 
 class ResolutionError(ValueError):

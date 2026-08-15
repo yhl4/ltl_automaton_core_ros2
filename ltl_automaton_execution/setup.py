@@ -29,5 +29,12 @@ setup(
     description="Simulator-agnostic execution of retained LTL runs.",
     license="BSD-3-Clause",
     extras_require={"test": ["pytest"]},
-    entry_points={"console_scripts": []},
+    entry_points={
+        "console_scripts": [
+            (
+                "execution_node = "
+                "ltl_automaton_execution.execution_node:main"
+            ),
+        ],
+    },
 )
