@@ -3,11 +3,11 @@
 from typing import Callable
 from typing import Protocol
 
-from ltl_automaton_execution.models import ExecutionResult
+from ltl_automaton_execution.models import ExecutionCompletion
 from ltl_automaton_execution.models import ExecutionStep
 
 
-CompletionCallback = Callable[[ExecutionResult], None]
+CompletionCallback = Callable[[ExecutionCompletion], None]
 
 
 class ExecutionBackend(Protocol):

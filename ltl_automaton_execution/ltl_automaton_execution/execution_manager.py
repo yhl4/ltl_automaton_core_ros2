@@ -6,10 +6,9 @@ from ltl_automaton_execution.accepted_run_resolver import ResolutionError
 class ExecutionManager:
     """Dispatch at most one current-authority command while preserving truth."""
 
-    def __init__(self, resolver, backend, state_observer, diagnostic):
+    def __init__(self, resolver, backend, diagnostic):
         self._resolver = resolver
         self._backend = backend
-        self._state_observer = state_observer
         self._diagnostic = diagnostic
         self._active_instance = None
         self._active_generation = None
@@ -86,12 +85,10 @@ class ExecutionManager:
 
         def completed(result):
             self._in_flight = False
-            if not result.success or result.observed_state is None:
+            if not result.success:
                 self._diagnostic(
                     result.message or "Execution backend reported failure."
                 )
-                return
-            self._state_observer(result.observed_state)
 
         if self._backend.execute(step, completed):
             return True
