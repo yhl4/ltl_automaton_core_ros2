@@ -1,4 +1,4 @@
-"""Real ROS node-boundary tests for the execution manager."""
+"""Real ROS node-boundary tests for execution and observed state separation."""
 
 import time
 
@@ -13,7 +13,9 @@ from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import GetPlanningGraphSnapshot
 from ltl_automaton_execution.execution_node import COMMAND_QOS
 from ltl_automaton_execution.execution_node import ExecutionManagerNode
-from ltl_automaton_execution.models import ExecutionResult
+from ltl_automaton_execution.fake_plant import FakePlant
+from ltl_automaton_execution.models import ExecutionCompletion
+from ltl_automaton_execution.models import SymbolicState
 
 
 class RecordingBackend:
@@ -23,6 +25,32 @@ class RecordingBackend:
     def execute(self, step, completion):
         self.calls.append((step, completion))
         return True
+
+
+class RecordingObserver:
+    def __init__(self):
+        self.callback = None
+
+    def start(self, on_observation):
+        self.callback = on_observation
+
+    def stop(self):
+        self.callback = None
+
+    def emit(self, observation):
+        self.callback(observation)
+
+
+class RecordingAbstraction:
+    def abstract(self, observation):
+        if observation == "unsupported":
+            return None
+        return observation
+
+
+class MalformedState:
+    dimension_names = ("region", "region")
+    states = ("r1", "r2")
 
 
 def _fill_snapshot(snapshot, generation):
@@ -70,12 +98,20 @@ def _spin_until(executor, predicate, timeout=3.0):
     return predicate()
 
 
-def test_r1_through_r9_execution_node_contract():
-    """Cover fetch, dedupe, busy, publication, failure, and replacement."""
+def test_r1_through_r9_and_a10_observation_pipeline_contract():
+    """Cover independent completion, observation, schema, and authority."""
     context = Context()
     rclpy.init(context=context)
     backend = RecordingBackend()
-    execution = ExecutionManagerNode(backend=backend, context=context)
+    observer = RecordingObserver()
+    plant = FakePlant(SymbolicState(("region", "load"), ("r1", "empty")))
+    execution = ExecutionManagerNode(
+        backend=backend,
+        state_observer=observer,
+        state_abstraction=RecordingAbstraction(),
+        fake_plant=plant,
+        context=context,
+    )
     driver = rclpy.create_node("execution_node_test", context=context)
     executor = SingleThreadedExecutor(context=context)
     executor.add_node(execution)
@@ -118,17 +154,18 @@ def test_r1_through_r9_execution_node_contract():
         publisher.publish(_observation(1))
         assert _spin_until(executor, lambda: len(backend.calls) == 1)
         assert service_calls == [1]
-        assert backend.calls[0][0].action == "move"
 
         current_generation[0] = 2
         publisher.publish(_observation(2))
         executor.spin_once(timeout_sec=0.05)
         assert len(backend.calls) == 1
 
-        backend.calls[0][1](ExecutionResult(
-            True,
-            backend.calls[0][0].target_state,
-            "generation 1 completed",
+        backend.calls[0][1](ExecutionCompletion(True, "generation 1 done"))
+        executor.spin_once(timeout_sec=0.05)
+        assert states == []
+
+        observer.emit(SymbolicState(
+            ("load", "region"), ("empty", "r2")
         ))
         assert _spin_until(executor, lambda: len(states) == 1)
         assert list(states[0].ts_state.state_dimension_names) == [
@@ -137,19 +174,38 @@ def test_r1_through_r9_execution_node_contract():
         assert list(states[0].ts_state.states) == ["r2", "empty"]
         assert states[0].header.stamp.sec or states[0].header.stamp.nanosec
 
+        observer.emit(SymbolicState(
+            ("load", "region"), ("empty", "r2")
+        ))
+        assert _spin_until(executor, lambda: len(states) == 2)
+        observer.emit("unsupported")
+        observer.emit(MalformedState())
+        observer.emit(SymbolicState(("unknown",), ("value",)))
+        executor.spin_once(timeout_sec=0.05)
+        assert len(states) == 2
+
         publisher.publish(_observation(2))
         assert _spin_until(executor, lambda: len(backend.calls) == 2)
         assert service_calls == [1, 2]
-        backend.calls[1][1](ExecutionResult(False, None, "controller failed"))
+        backend.calls[1][1](ExecutionCompletion(False, "controller failed"))
         executor.spin_once(timeout_sec=0.05)
-        assert len(states) == 1
+        assert plant.current_state == SymbolicState(
+            ("region", "load"), ("r1", "empty")
+        )
+        assert len(states) == 2
+
+        observer.emit(SymbolicState(
+            ("region", "load"), ("external", "holding")
+        ))
+        assert _spin_until(executor, lambda: len(states) == 3)
+        assert list(states[-1].ts_state.states) == ["external", "holding"]
 
         current_generation[0] = 2
         publisher.publish(_observation(3))
         assert _spin_until(executor, lambda: len(service_calls) == 3)
         executor.spin_once(timeout_sec=0.05)
         assert len(backend.calls) == 2
-        assert len(states) == 1
+        assert len(states) == 3
     finally:
         executor.remove_node(driver)
         executor.remove_node(execution)

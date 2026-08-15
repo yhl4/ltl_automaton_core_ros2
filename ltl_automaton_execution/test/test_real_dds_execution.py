@@ -15,6 +15,9 @@ from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import LoadTransitionSystem
 from ltl_automaton_execution.execution_node import COMMAND_QOS
 from ltl_automaton_execution.execution_node import ExecutionManagerNode
+from ltl_automaton_execution.fake_plant import FakePlant
+from ltl_automaton_execution.fake_state_abstraction import FakeStateAbstraction
+from ltl_automaton_execution.fake_state_observer import FakeStateObserver
 from ltl_automaton_planner.planner_node import PlannerNode
 
 
@@ -28,6 +31,38 @@ DIMENSIONS = ["2d_pose_region", "gripper_state"]
 NEUTRAL = "(b0 || ! b0)"
 
 
+class InstrumentedObserver:
+    """Record the observer boundary while delegating fake observation."""
+
+    def __init__(self, plant):
+        self._observer = FakeStateObserver(plant)
+        self.states = []
+
+    def start(self, on_observation):
+        def record(observation):
+            self.states.append(tuple(observation.state.states))
+            on_observation(observation)
+
+        self._observer.start(record)
+
+    def stop(self):
+        self._observer.stop()
+
+
+class InstrumentedAbstraction:
+    """Record successful fake abstractions before ROS publication."""
+
+    def __init__(self):
+        self._abstraction = FakeStateAbstraction()
+        self.states = []
+
+    def abstract(self, observation):
+        state = self._abstraction.abstract(observation)
+        if state is not None:
+            self.states.append(tuple(state.states))
+        return state
+
+
 class RealExecutionHarness:
     """Spin public Core and execution contracts without private assertions."""
 
@@ -35,8 +70,20 @@ class RealExecutionHarness:
         self.context = Context()
         rclpy.init(context=self.context)
         self.planner = PlannerNode(context=self.context)
+        self.plant = FakePlant()
+        self.plant_states = []
+        self.plant.add_listener(
+            lambda observation: self.plant_states.append(
+                tuple(observation.state.states)
+            )
+        )
+        self.state_observer = InstrumentedObserver(self.plant)
+        self.state_abstraction = InstrumentedAbstraction()
         self.execution = ExecutionManagerNode(
             context=self.context,
+            fake_plant=self.plant,
+            state_observer=self.state_observer,
+            state_abstraction=self.state_abstraction,
             execution_delay_sec=0.005,
         )
         self.driver = rclpy.create_node(
@@ -137,6 +184,13 @@ def _wait_stable(harness, quiet_duration=0.2, timeout=2.0):
     return False
 
 
+def _assert_observation_pipeline(harness):
+    assert harness.plant_states
+    assert harness.plant_states == harness.state_observer.states
+    assert harness.state_observer.states == harness.state_abstraction.states
+    assert harness.state_abstraction.states == harness.states
+
+
 def test_real_dds_t1_and_current_state_closure():
     """T1 executes automatically and a later plan starts from executed k0."""
     harness = RealExecutionHarness()
@@ -157,6 +211,7 @@ def test_real_dds_t1_and_current_state_closure():
             and harness.observations[-1].planning_generation == 1
         )
         assert _wait_stable(harness)
+        _assert_observation_pipeline(harness)
 
         second = harness.plan(("k0", "empty"), "<>(b0)")
         assert second.success
@@ -167,6 +222,9 @@ def test_real_dds_t1_and_current_state_closure():
                 for observation in harness.observations
             )
         )
+        assert harness.wait(lambda: harness.states[-1] == ("b0", "empty"))
+        assert _wait_stable(harness)
+        _assert_observation_pipeline(harness)
     finally:
         harness.stop()
 
@@ -190,5 +248,6 @@ def test_real_dds_t3_executes_navigation_pick_and_place():
             ("bp0", "empty"),
         ])
         assert _wait_stable(harness)
+        _assert_observation_pipeline(harness)
     finally:
         harness.stop()
