@@ -15,6 +15,11 @@ from ltl_automaton_msgs.msg import (
     TransitionSystemState,
 )
 
+from .transition_state_serialization import (
+    flatten_state_dimension_names,
+    serialize_transition_state_values,
+)
+
 
 @dataclass(frozen=True)
 class PlanningGraphSnapshotBuild:
@@ -22,19 +27,6 @@ class PlanningGraphSnapshotBuild:
 
     snapshot: PlanningGraphSnapshot
     product_node_ids: Mapping[object, int]
-
-
-def _flatten_dimension_names(raw_names) -> list[str]:
-    """Flatten the TS state format retained by single or composed models."""
-    dimension_names = []
-
-    for name in raw_names:
-        if isinstance(name, (list, tuple)):
-            dimension_names.extend(str(item) for item in name)
-        else:
-            dimension_names.append(str(name))
-
-    return dimension_names
 
 
 def _membership(graph, key: str) -> set:
@@ -189,16 +181,10 @@ def _serialize_buchi(buchi):
     return graph_type, node_ids, messages, edge_messages
 
 
-def _ts_values(ts_node) -> list[str]:
-    """Return one Core TS node as ordered string dimensions."""
-    values = ts_node if isinstance(ts_node, tuple) else (ts_node,)
-    return [str(value) for value in values]
-
-
 def _serialize_product(product, buchi, buchi_ids):
     """Serialize Product nodes and edges with structured ordering."""
     transition_system = product.graph["ts"]
-    dimension_names = _flatten_dimension_names(
+    dimension_names = flatten_state_dimension_names(
         transition_system.graph["ts_state_format"]
     )
     initial = _membership(product, "initial")
@@ -209,7 +195,7 @@ def _serialize_product(product, buchi, buchi_ids):
         ts_node = attributes["ts"]
         buchi_node = attributes["buchi"]
         return (
-            tuple(_ts_values(ts_node)),
+            tuple(serialize_transition_state_values(ts_node)),
             _buchi_identity(buchi, buchi_node),
         )
 
@@ -222,7 +208,7 @@ def _serialize_product(product, buchi, buchi_ids):
 
     for node in ordered_nodes:
         attributes = product.nodes[node]
-        ts_values = _ts_values(attributes["ts"])
+        ts_values = serialize_transition_state_values(attributes["ts"])
 
         if len(ts_values) != len(dimension_names):
             raise ValueError(

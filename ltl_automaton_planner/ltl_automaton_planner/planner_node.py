@@ -54,6 +54,10 @@ from .planning_graph_snapshot import (
     build_planning_graph_snapshot,
     unavailable_planning_graph_snapshot,
 )
+from .transition_state_serialization import (
+    flatten_state_dimension_names,
+    serialize_transition_state_values,
+)
 
 
 @dataclass(frozen=True)
@@ -1322,22 +1326,7 @@ class PlannerNode(Node):
             .graph.get("ts_state_format", [])
         )
 
-        dimension_names = []
-
-        for name in raw_names:
-            if isinstance(name, (list, tuple)):
-                dimension_names.extend(
-                    str(item)
-                    for item in name
-                )
-            else:
-                dimension_names.append(str(name))
-
-        return dimension_names
-
-    def _state_dimension_names(self) -> list[str]:
-        """Return flattened dimensions for the active planner."""
-        return self._planner_dimension_names(self.ltl_planner)
+        return flatten_state_dimension_names(raw_names)
 
     def _state_to_message(
         self,
@@ -1347,13 +1336,7 @@ class PlannerNode(Node):
         """Convert an internal TS node into a ROS2 state message."""
         message = TransitionSystemState()
 
-        if isinstance(state, tuple):
-            message.states = [
-                str(value)
-                for value in state
-            ]
-        else:
-            message.states = [str(state)]
+        message.states = serialize_transition_state_values(state)
 
         target_planner = (
             self.ltl_planner

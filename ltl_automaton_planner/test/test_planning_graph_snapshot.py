@@ -283,6 +283,19 @@ def test_product_and_accepted_run_match_real_multidimensional_core():
         built.product_node_ids[next(iter(product.nodes))] = 999
 
 
+def test_product_state_shape_mismatch_remains_a_conversion_failure():
+    """Reject Product state values that do not match TS dimensions."""
+    planner, active_hash = build_planner(MINIMAL_TS, "<> r2", "")
+    product_node = next(iter(planner.product.nodes))
+    planner.product.nodes[product_node]["ts"] = ("r1", "extra")
+
+    with pytest.raises(
+        ValueError,
+        match="Product TS state does not match ts_state_format",
+    ):
+        build_planning_graph_snapshot(planner, active_hash)
+
+
 def test_unavailable_snapshot_is_an_atomic_empty_payload():
     """Never return partially serialized graph arrays on conversion failure."""
     planner, active_hash = build_planner(

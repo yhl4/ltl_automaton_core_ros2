@@ -57,6 +57,38 @@ actions:
     weight: 1.0
 """.lstrip()
 
+MULTI_DIMENSION_TS = """
+state_dim:
+  - region
+  - load
+state_models:
+  region:
+    initial: r1
+    nodes:
+      r1:
+        connected_to:
+          r1: stay_region
+      r2:
+        connected_to:
+          r2: stay_region
+  load:
+    initial: unloaded
+    nodes:
+      unloaded:
+        connected_to:
+          unloaded: stay_load
+      loaded:
+        connected_to:
+          loaded: stay_load
+actions:
+  stay_region:
+    guard: "1"
+    weight: 1.0
+  stay_load:
+    guard: "1"
+    weight: 1.0
+""".lstrip()
+
 CYCLE_TS = """
 state_dim:
   - region
@@ -300,6 +332,39 @@ def test_ready_action_success_returns_plan_and_activates(action_runtime):
     assert result.total_cost > 0.0
     assert result.planning_time >= 0.0
     assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+
+
+def test_multidimensional_initial_state_keeps_plan_payload_order(
+    action_runtime,
+):
+    """Keep PlanLTL compound initial state and ROS payload ordering."""
+    assert load_transition_system(
+        action_runtime,
+        MULTI_DIMENSION_TS,
+    ).success
+    goal = PlanLTL.Goal()
+    goal.hard_task = "[]<> r2"
+    goal.soft_task = "(r2 || ! r2)"
+    goal.initial_state.states = ["r2", "loaded"]
+    goal.initial_state.state_dimension_names = ["region", "load"]
+    goal.beta = 1000.0
+    goal.gamma = 10.0
+
+    goal_handle = send_goal(action_runtime, goal)
+    assert goal_handle.accepted
+    response = action_result(action_runtime, goal_handle)
+
+    assert response.status == GoalStatus.STATUS_SUCCEEDED
+    assert response.result.success
+    serialized_states = list(response.result.prefix_plan.ts_state_sequence)
+    serialized_states.extend(response.result.suffix_plan.ts_state_sequence)
+    assert serialized_states
+    assert all(
+        list(state.state_dimension_names) == ["region", "load"]
+        and len(state.states) == 2
+        for state in serialized_states
+    )
+    assert list(serialized_states[0].states) == ["r2", "loaded"]
 
 
 def test_studio_consumer_contract_end_to_end(action_runtime):
