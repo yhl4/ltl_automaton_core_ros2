@@ -74,6 +74,11 @@ raises. Teardown clears pending execution timers and ignores already queued
 callbacks, so they cannot mutate the fake plant after shutdown. A supplied backend
 retains its own scheduling contract.
 
+`ExecutionManagerNode` selects defaults only for `None` arguments. Explicitly
+supplied backends, observers, abstractions and fake plants are used regardless of
+their Boolean value. The default fake backend and observer share the supplied
+plant; fake execution-delay validation applies when the default backend is used.
+
 An `ExecutionBackend` receives an `ExecutionStep` containing the command identity,
 action, and exact symbolic source/target states. It completes asynchronously with
 an `ExecutionCompletion` containing only execution success and a message.

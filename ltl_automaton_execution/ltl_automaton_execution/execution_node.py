@@ -76,21 +76,28 @@ class ExecutionManagerNode(Node):
             self.get_parameter("execution_delay_sec").value
             if execution_delay_sec is None else execution_delay_sec
         )
-        self._fake_plant = fake_plant or FakePlant()
-        selected_backend = backend or FakeBackend(
-            self._fake_plant, self._schedule, delay
+        self._fake_plant = (
+            FakePlant() if fake_plant is None else fake_plant
         )
-        if not backend:
+        selected_backend = backend
+        if selected_backend is None:
+            selected_backend = FakeBackend(
+                self._fake_plant, self._schedule, delay
+            )
             try:
                 Duration(seconds=max(float(delay), 0.001))
             except (OverflowError, TypeError, ValueError) as error:
                 raise ValueError(
                     "execution_delay_sec is outside the ROS timer range."
                 ) from error
-        self._state_observer = state_observer or FakeStateObserver(
-            self._fake_plant
+        self._state_observer = (
+            FakeStateObserver(self._fake_plant)
+            if state_observer is None else state_observer
         )
-        self._state_abstraction = state_abstraction or FakeStateAbstraction()
+        self._state_abstraction = (
+            FakeStateAbstraction()
+            if state_abstraction is None else state_abstraction
+        )
         self._manager = ExecutionManager(
             AcceptedRunResolver(),
             selected_backend,

@@ -583,3 +583,26 @@ publisher 和 Future，ROS 时间与 steady 请求时间分开控制；不作为
 结合其他包保留结果，合计 **455 tests, 0 errors, 0 failures, 4 skipped**。
 未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.29 显式执行组件的选择（2026-10-06）
+
+以 `90c4e57` 为基线，执行节点用 `or` 选择默认 backend、observer、abstraction
+及 fake plant，并以 `if not backend` 决定 fake 延迟校验。符合既有接口、但
+布尔值为 False 的显式组件被默认对象替换：后端收不到正式步骤，观测器没有
+注册回调，合法独立状态被默认 abstraction 丢弃，所提供的 plant 未被更新。
+
+现在仅对 `None` 参数创建默认组件；默认 backend 与 observer 共享所提供的
+plant，自定义 backend 保留其既有调度契约。默认 fake 延迟的有限性、非负性
+与 ROS timer 范围检查保持不变。执行身份、步序去重、completion 与 TS 状态
+权威、快照请求及 timer 逻辑不变。
+
+新增五项在旧源码上均失败，修复后通过：显式后端收到正式 `move` 步骤且
+不创建 fake timer；自定义后端未使用的 fake 延迟构造覆盖不再被错误校验；
+observer 注册/停止与 abstraction 的独立观测转换正常；默认 fake 执行确实
+更新所提供的 plant 并通过其 observer 报告状态。检查使用真实 Node、受控
+快照 Future、调度回调与发布记录，不作为新增真实 DDS 故障或实机测量。
+
+重跑受影响的 execution 包，包含原有四项真实 DDS 符号执行闭环及 lint：
+**102 tests, 0 errors, 0 failures, 0 skipped**，node 文件 **23 passed**。
+结合其他包保留结果，合计 **460 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+

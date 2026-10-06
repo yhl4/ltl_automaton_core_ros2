@@ -163,6 +163,110 @@ def _successful_response(generation=1):
     return response
 
 
+@pytest.mark.parametrize("delay", [0.5, -1.0])
+def test_falsey_backend_receives_formal_step_without_fake_delay_validation(delay):
+    """An explicitly supplied backend owns scheduling regardless of its truth value."""
+    class FalseyBackend(RecordingBackend):
+        def __bool__(self):
+            return False
+
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        backend = FalseyBackend()
+        execution = ExecutionManagerNode(
+            backend=backend, state_observer=RecordingObserver(),
+            execution_delay_sec=delay, context=context,
+        )
+        client = DelayedSnapshotClient()
+        execution._snapshot_client = client
+        execution._on_observation(_observation(1))
+        _complete_snapshot(client)
+        assert len(backend.calls) == 1
+        assert backend.calls[0][0].action == "move"
+        assert not execution._execution_timers
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+@pytest.mark.parametrize("component", ["observer", "abstraction"])
+def test_falsey_observation_component_delivers_independent_state(component):
+    """Valid custom observation components must retain their callback and conversion."""
+    class FalseyObserver(RecordingObserver):
+        def __bool__(self):
+            return False
+
+    class FalseyAbstraction(RecordingAbstraction):
+        def __bool__(self):
+            return False
+
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    observer = FalseyObserver() if component == "observer" else RecordingObserver()
+    abstraction = (
+        FalseyAbstraction() if component == "abstraction" else RecordingAbstraction()
+    )
+    try:
+        execution = ExecutionManagerNode(
+            backend=RecordingBackend(), state_observer=observer,
+            state_abstraction=abstraction, context=context,
+        )
+        reported = []
+        execution._publish_state = reported.append
+        observed = SymbolicState(("region",), ("external",))
+        assert observer.callback is not None
+        observer.emit(observed)
+        assert reported == [observed]
+        assert not execution._manager.in_flight
+        execution.destroy_node()
+        assert observer.callback is None
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+def test_falsey_fake_plant_is_shared_by_default_backend_and_observer(monkeypatch):
+    """Default fake execution must update and observe the explicitly provided plant."""
+    class FalseyPlant(FakePlant):
+        def __bool__(self):
+            return False
+
+    callbacks = []
+
+    def schedule(_node, _delay, callback):
+        callbacks.append(callback)
+        return True
+
+    monkeypatch.setattr(ExecutionManagerNode, "_schedule", schedule)
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        plant = FalseyPlant(SymbolicState(("region", "load"), ("r1", "empty")))
+        execution = ExecutionManagerNode(fake_plant=plant, context=context)
+        reported = []
+        execution._publish_state = reported.append
+        client = DelayedSnapshotClient()
+        execution._snapshot_client = client
+        execution._on_observation(_observation(1))
+        _complete_snapshot(client)
+        assert len(callbacks) == 1
+        callbacks[0]()
+        expected = SymbolicState(("region", "load"), ("r2", "empty"))
+        assert plant.current_state == expected
+        assert reported == [expected]
+        assert not execution._manager.in_flight
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
 def test_command_survives_delayed_snapshot_service_discovery():
     """Execute a retained command when its snapshot service appears later."""
     context = Context()

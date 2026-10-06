@@ -119,6 +119,8 @@ graph snapshot 解析当前接受运行步骤，再由可替换的 `ExecutionBac
 独立的 `StateObserver` 与 `StateAbstraction` 将实际观测映射为符号状态并发布
 `/ts_state`；后端完成回调仅报告执行结果。当前仅提供符号级 `FakeBackend`，不包含物理仿真、Gazebo、
 Isaac Sim 或机器人控制依赖；Planner 与 planner core 均不依赖该包。
+Python 构造接口仅在参数为 `None` 时选择默认组件；显式注入的执行后端、观测器、
+抽象器与 fake plant 保留所提供的对象，自定义后端采用自己的调度契约。
 V0.2 的命令身份为
 `(planner_instance_id, planning_generation, execution_step_seq)`；快照身份仍为
 `(planner_instance_id, planning_generation)`。每个成功提交的 generation 从序号 0
@@ -664,6 +666,7 @@ colcon test-result --verbose
 - 快照复制期间的新代际提交、响应代际一致性及防御性副本；
 - 接受运行的缺边/缺节点拒绝顺序，以及索引重建失败后保留原有效缓存；
 - FakeBackend/FakeStateObserver 执行闭环及真实 ROS 2 DDS 通信边界；
+- 布尔值为 False 的显式执行/观测组件仍被使用，以及默认 fake 后端与观测器共享所提供的 plant；
 - 快照服务延迟发现后的命令恢复、执行后端异常后的忙碌状态释放；
 - 快照请求失败或超时后的最新命令恢复，以及节点销毁后晚到响应的抑制；
 - fake 执行延迟的启动校验、one-shot timer 释放和销毁后已排队回调的抑制；
@@ -687,13 +690,13 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为 HIL 人工输入的 ROS 时间年龄判定。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 HIL 包：89 tests、0 errors、0 failures、1 skipped，
-含六项新增时间边界检查、既有控制器/IRL 通信及 lint。
-负年龄或过期样本失效后，ROS 时间返回旧窗口不会让旧人工输入复活；
-时间边界使用受控 ROS 时间与独立 steady 时间，不作为 DDS 时钟分发或实机验证。
+最近代码验证为显式执行组件的选择。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 execution 包：102 tests、0 errors、0 failures、0 skipped，
+含五项新增注入检查、原有四项真实 DDS 符号执行闭环与 lint。
+布尔值为 False 的合法组件保留自己的分派、观测与 plant；默认对象仅在参数
+为 `None` 时创建。新增检查使用真实 Node 与受控客户端/发布记录，不作为实机验证。
 结合其他未改包保留结果，合计
-**455 tests, 0 errors, 0 failures, 4 skipped**。
+**460 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
