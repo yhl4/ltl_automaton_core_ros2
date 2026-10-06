@@ -311,7 +311,7 @@ def test_late_snapshot_completion_after_destroy_is_ignored(outcome):
             "Destroyable" in str(warning.message) for warning in caught
         )
         assert execution._pending_snapshot_observation is None
-        assert execution._snapshot_requests == set()
+        assert not execution._snapshot_requests
         assert backend.calls == []
     finally:
         if execution is not None:

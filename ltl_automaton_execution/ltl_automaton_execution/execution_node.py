@@ -1,8 +1,12 @@
 """ROS 2 execution manager for generation-bearing formal commands."""
 
 from functools import partial
+import math
+from time import monotonic
 
 import rclpy
+from rclpy.clock import Clock
+from rclpy.clock import ClockType
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy
 from rclpy.qos import QoSProfile
@@ -47,6 +51,17 @@ class ExecutionManagerNode(Node):
     ):
         super().__init__("ltl_execution_manager", **kwargs)
         self.declare_parameter("execution_delay_sec", 0.5)
+        self.declare_parameter("snapshot_request_timeout", 5.0)
+        self._snapshot_request_timeout = float(
+            self.get_parameter("snapshot_request_timeout").value
+        )
+        if (
+            not math.isfinite(self._snapshot_request_timeout)
+            or self._snapshot_request_timeout <= 0.0
+        ):
+            raise ValueError(
+                "snapshot_request_timeout must be finite and positive."
+            )
         delay = (
             self.get_parameter("execution_delay_sec").value
             if execution_delay_sec is None else execution_delay_sec
@@ -65,7 +80,7 @@ class ExecutionManagerNode(Node):
             self.get_logger().warning,
         )
         self._snapshots = {}
-        self._snapshot_requests = set()
+        self._snapshot_requests = {}
         self._latest_observation = None
         self._execution_timers = set()
         self._shutting_down = False
@@ -81,8 +96,11 @@ class ExecutionManagerNode(Node):
             "get_planning_graph_snapshot",
         )
         self._pending_snapshot_observation = None
+        self._steady_clock = Clock(clock_type=ClockType.STEADY_TIME)
         self._snapshot_retry_timer = self.create_timer(
-            0.1, self._retry_snapshot_discovery,
+            0.1,
+            self._retry_snapshot_discovery,
+            clock=self._steady_clock,
         )
         self._snapshot_retry_timer.cancel()
         self._observation_subscription = self.create_subscription(
@@ -157,6 +175,7 @@ class ExecutionManagerNode(Node):
     def _on_observation(self, message):
         if self._shutting_down:
             return
+        self._expire_snapshot_requests()
         observation = self._observation_from_message(message)
         if not self._manager.observe_authority(observation):
             return
@@ -166,7 +185,6 @@ class ExecutionManagerNode(Node):
         )
         self._latest_observation = observation
         self._pending_snapshot_observation = None
-        self._snapshot_retry_timer.cancel()
         if self._expected_schema_instance not in (
             None,
             observation.planner_instance_id,
@@ -174,58 +192,119 @@ class ExecutionManagerNode(Node):
             self._expected_dimensions = None
             self._expected_schema_instance = None
         if not observation.has_next_action:
+            self._cancel_snapshot_requests()
+            self._snapshot_retry_timer.cancel()
             return
+        self._cancel_snapshot_requests(identity)
         if self._manager.in_flight:
             self._pending_snapshot_observation = observation
-            self._snapshot_retry_timer.reset()
+            self._ensure_snapshot_retry_timer()
             return
         snapshot = self._snapshots.get(identity)
         if snapshot is not None:
             self._manager.dispatch(observation, snapshot)
             return
         if identity in self._snapshot_requests:
+            self._ensure_snapshot_retry_timer()
             return
         if not self._snapshot_client.service_is_ready():
             self.get_logger().warning("Planning snapshot service is unavailable.")
             self._pending_snapshot_observation = observation
-            self._snapshot_retry_timer.reset()
+            self._ensure_snapshot_retry_timer()
             return
-        self._snapshot_requests.add(identity)
+        context = {
+            "future": None,
+            "deadline": monotonic() + self._snapshot_request_timeout,
+        }
+        self._snapshot_requests[identity] = context
         try:
             future = self._snapshot_client.call_async(
                 GetPlanningGraphSnapshot.Request()
             )
+            if future is None:
+                raise RuntimeError("Planning snapshot request returned no Future.")
+            context["future"] = future
+            future.add_done_callback(
+                partial(self._on_snapshot, observation, identity, context)
+            )
         except Exception as error:
-            self._snapshot_requests.discard(identity)
+            self._detach_snapshot_request(identity, context)
             self._retain_failed_snapshot_observation(identity)
             self.get_logger().warning(
                 f"Planning snapshot request failed: {error}"
             )
             return
-        future.add_done_callback(
-            partial(self._on_snapshot, observation, identity)
-        )
+        self._ensure_snapshot_retry_timer()
+
+    def _detach_snapshot_request(
+        self, identity, context, future=None, cancel=True
+    ):
+        """Detach one matching snapshot request before cancelling it."""
+        if self._snapshot_requests.get(identity) is not context:
+            return False
+        current_future = context.get("future")
+        if future is not None and current_future is not future:
+            return False
+        self._snapshot_requests.pop(identity, None)
+        if cancel and current_future is not None:
+            try:
+                current_future.cancel()
+            except Exception:
+                pass
+        return True
+
+    def _cancel_snapshot_requests(self, keep_identity=None):
+        """Cancel requests outside the current authority identity."""
+        for identity, context in list(self._snapshot_requests.items()):
+            if keep_identity is None or identity != keep_identity:
+                self._detach_snapshot_request(identity, context)
+
+    def _ensure_snapshot_retry_timer(self):
+        """Keep the retry timer active without extending an active deadline."""
+        if self._snapshot_retry_timer.is_canceled():
+            self._snapshot_retry_timer.reset()
+
+    def _expire_snapshot_requests(self):
+        """Cancel timed-out snapshot requests and retain their latest command."""
+        now = monotonic()
+        for identity, context in list(self._snapshot_requests.items()):
+            if now >= context["deadline"]:
+                if self._detach_snapshot_request(identity, context):
+                    self._retain_failed_snapshot_observation(identity)
 
     def _retry_snapshot_discovery(self):
         """Retain the latest command while waiting for ROS service discovery."""
         if self._shutting_down:
             return
+        self._expire_snapshot_requests()
         observation = self._pending_snapshot_observation
         if observation is None or not self._manager.is_current(observation):
             self._pending_snapshot_observation = None
-            self._snapshot_retry_timer.cancel()
+            if not self._snapshot_requests:
+                self._snapshot_retry_timer.cancel()
+            else:
+                self._ensure_snapshot_retry_timer()
         elif self._manager.in_flight:
-            self._snapshot_retry_timer.reset()
+            self._ensure_snapshot_retry_timer()
         elif (
             (observation.planner_instance_id, observation.planning_generation)
             in self._snapshots
             or self._snapshot_client.service_is_ready()
         ):
             self._on_observation(observation)
+        else:
+            self._ensure_snapshot_retry_timer()
 
-    def _on_snapshot(self, observation, identity, future):
-        self._snapshot_requests.discard(identity)
+    def _on_snapshot(self, observation, identity, context, future):
         if self._shutting_down:
+            return
+        if monotonic() >= context["deadline"]:
+            if self._detach_snapshot_request(identity, context, future):
+                self._retain_failed_snapshot_observation(identity)
+            return
+        if not self._detach_snapshot_request(
+            identity, context, future, cancel=False
+        ):
             return
         try:
             response = future.result()
@@ -320,7 +399,7 @@ class ExecutionManagerNode(Node):
         ):
             return
         self._pending_snapshot_observation = observation
-        self._snapshot_retry_timer.reset()
+        self._ensure_snapshot_retry_timer()
 
     @staticmethod
     def _snapshot_dimensions(snapshot):
@@ -375,7 +454,7 @@ class ExecutionManagerNode(Node):
             return None
         self._shutting_down = True
         self._pending_snapshot_observation = None
-        self._snapshot_requests.clear()
+        self._cancel_snapshot_requests()
         self._snapshot_retry_timer.cancel()
         self._state_observer.stop()
         return super().destroy_node()

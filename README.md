@@ -657,7 +657,7 @@ colcon test-result --verbose
 - planning graph snapshot 与 execution observation 的 identity contract；
 - FakeBackend/FakeStateObserver 执行闭环及真实 ROS 2 DDS 通信边界；
 - 快照服务延迟发现后的命令恢复、执行后端异常后的忙碌状态释放；
-- 快照请求失败后的最新命令恢复，以及节点销毁后晚到响应的抑制；
+- 快照请求失败或超时后的最新命令恢复，以及节点销毁后晚到响应的抑制；
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
 - 标准 TS 无效位姿/关节反馈的丢弃与恢复，以及有限大数的 6D 距离计算；
 - HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
@@ -674,11 +674,11 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为 HIL 速度数值边界修复。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，HIL 包重跑为 81 tests、0 errors、0 failures、1 skipped，
-包含新增的 36 项检查及原有 controller/TrapDetection/IRL 通信回归。
+最近代码验证为执行端快照请求超时恢复。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，执行包重跑为 71 tests、0 errors、0 failures、0 skipped，
+包含新增的 17 项检查及原有真实 DDS 符号执行闭环回归。
 结合其他未改包保留结果，合计
-**396 tests, 0 errors, 0 failures, 4 skipped**。
+**413 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

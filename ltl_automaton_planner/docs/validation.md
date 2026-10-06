@@ -344,3 +344,37 @@ Inf，之后仍按人工限幅输出三个有限的 `0.5`，不把这个内部�
 与其他包保留结果合计为 **396 tests, 0 errors, 0 failures, 4 skipped**。
 故障用例使用受控客户端与记录型 publisher，不声称真实 DDS 故障或硬件安全验证。
 
+### 11.20 执行端快照请求截止时间（2026-10-06）
+
+以 `fe9dd86` 为基线，真实 ExecutionManagerNode 配合永不完成的 Future 复现了
+执行停滞：首次快照请求保留 identity；收到同代际的新 step 后仍只有一次请求，
+没有 pending observation，retry timer 无法恢复命令。原有异常、空响应和失败
+响应回归不覆盖这个未返回请求场景。
+
+新增 `snapshot_request_timeout`（默认 5 秒，有限正值），并在 fake launch 中
+暴露为 float 参数。每个请求保存独立上下文、Future 和 monotonic 截止时间；
+现有 0.1 秒 retry timer 改用 steady clock。timer、观测和响应回调均检查截止时间，
+重复观测不延长请求或不断重置 timer。超时先脱离上下文再取消 Future，保留同一
+当前 graph authority 的最新可执行观测以重试。旧响应不能清除新请求或派发命令；
+新 instance/generation、no-action 和销毁取消不再需要的请求。
+
+正常响应仍要求 identity、schema 和 retained run 有效，再解析最新 step。
+新参数仅限制快照读取，不给已派发 backend 设置超时，也不重试已经尝试的 step；
+backend completion 与真实符号状态的独立观测边界保持不变。检查发生在回调调度时，
+不声称严格实时截止保证。
+
+新增 **17 项检查**；新旧 Node 两文件合计 **33 passed**，覆盖永不返回请求、
+最新 step、达到截止时间但 timer 尚未调度的成功响应、同步 cancel 回调与晚到
+成功/异常、重复观测、新 authority/no-action、缺失 Future/回调注册异常及参数。
+其中两项运行真实 steady timer 和 SingleThreadedExecutor，在 `use_sim_time=True`
+且 ROS 时钟保持零的情况下，分别验证没有新观测和持续重复观测时的取消及重试。
+另验证新 instance 的 no-action 观测仍清除旧维度 schema，不阻断独立状态反馈。
+故障由受控客户端注入，不声称真实 DDS 丢包测量。
+
+已安装 fake launch 的 `--show-args` 显示新参数和默认值，安装入口解析到当前源码。
+首次包级命令遗漏 `--install-base`，误选仓库内旧安装目录，在接口导入阶段失败；
+显式选择当前隔离 build/install 后重跑执行包，含原有四项真实 DDS 符号执行闭环
+及 lint，结果为 **71 tests, 0 errors, 0 failures, 0 skipped**。
+与其他包保留结果合计 **413 tests, 0 errors, 0 failures, 4 skipped**。
+未进行仿真物理、实机、机器人示范或多线程执行器验证。
+

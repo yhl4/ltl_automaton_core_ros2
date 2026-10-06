@@ -42,6 +42,23 @@ A newer authority or no-action observation suppresses retries of the old command
 Successful responses still require valid identity and schema before dispatch.
 Node teardown cancels pending retries and ignores late snapshot completions.
 
+`snapshot_request_timeout` sets a finite positive request deadline in seconds at
+startup (default `5.0`). The existing 0.1-second retry timer uses a steady clock, so a
+paused simulated ROS clock does not prevent an unanswered request from expiring.
+Each request retains its original monotonic deadline; repeated observations do
+not extend it. The timer, new observations, and response callbacks check that
+deadline. An expired request is detached before cancelling its Future, then the
+latest actionable observation may request a new snapshot. A late reply cannot
+clear the replacement request or dispatch an old command. Changed graph authority,
+no-action observations, and teardown cancel requests that are no longer needed.
+The deadline is checked when a callback runs, not a hard real-time guarantee.
+
+The fake launch exposes the same parameter:
+
+```bash
+ros2 launch ltl_automaton_execution fake_execution.launch.py snapshot_request_timeout:=5.0
+```
+
 An `ExecutionBackend` receives an `ExecutionStep` containing the command identity,
 action, and exact symbolic source/target states. It completes asynchronously with
 an `ExecutionCompletion` containing only execution success and a message.
