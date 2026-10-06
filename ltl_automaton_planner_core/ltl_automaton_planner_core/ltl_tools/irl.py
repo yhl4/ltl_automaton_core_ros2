@@ -67,8 +67,12 @@ def _validate_runs(product, possible_runs):
 
 
 def _apply_margin(product, beta, demonstration_edges):
-    product.update_beta(beta)
+    product.graph["beta"] = beta
     for source, target, edge in product.edges(data=True):
+        edge["weight"] = (
+            edge["transition_cost"]
+            + beta * edge["soft_task_dist"]
+        )
         if (source, target) not in demonstration_edges:
             edge["weight"] += 1.0
 

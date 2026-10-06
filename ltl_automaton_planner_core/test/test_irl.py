@@ -5,6 +5,7 @@ import math
 import pytest
 from networkx import DiGraph
 
+from ltl_automaton_planner_core.ltl_tools import irl
 from ltl_automaton_planner_core.ltl_tools.irl import IRLLearningResult
 from ltl_automaton_planner_core.ltl_tools.irl import learn_beta
 from ltl_automaton_planner_core.ltl_tools.product import ProdAut
@@ -46,6 +47,43 @@ def _margin_product():
             action=action,
         )
     return product, product_nodes
+
+
+@pytest.mark.parametrize(
+    "beta, transition_cost, soft_distance",
+    [
+        (0.0, 0.0, 1.0),
+        (0.1, 0.2, 0.3),
+        (3.0, 4.0, 1.0),
+        (1.0, 1e16, 1.0),
+    ],
+)
+def test_margin_replaces_weights_without_accumulating(
+    beta, transition_cost, soft_distance,
+):
+    """Keep canonical arithmetic and add margin only to non-demo edges."""
+    product, nodes = _margin_product()
+    demonstration_edges = {
+        (nodes["hub"], nodes["good"]),
+        (nodes["good"], nodes["hub"]),
+    }
+    for edge in product.edges.values():
+        edge["transition_cost"] = transition_cost
+        edge["soft_task_dist"] = soft_distance
+        edge["weight"] = -99.0
+    original = {pair: dict(edge) for pair, edge in product.edges.items()}
+
+    for next_beta in (beta, beta + 2.0, beta + 2.0):
+        irl._apply_margin(product, next_beta, demonstration_edges)
+
+        assert product.graph["beta"] == next_beta
+        for pair, edge in product.edges.items():
+            expected = dict(original[pair])
+            weight = transition_cost + next_beta * soft_distance
+            if pair not in demonstration_edges:
+                weight += 1.0
+            expected["weight"] = weight
+            assert edge == expected
 
 
 def test_learn_beta_margin_updates_private_copy_and_matches_hand_fixture():

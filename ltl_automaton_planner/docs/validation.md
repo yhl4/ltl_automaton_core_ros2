@@ -632,3 +632,29 @@ IRL 通信及 lint：**103 tests, 0 errors, 0 failures, 1 skipped**。
 结合其他包保留结果，合计 **474 tests, 0 errors, 0 failures, 4 skipped**。
 未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.31 IRL 每轮权重的单次边扫描（2026-10-06）
+
+以 `5f47362` 为基线，IRL 每轮先通过 `update_beta` 重算全部 Product 边权，
+再完整扫描边添加非示范 margin。现在在私有学习 Product 的一次边遍历内
+设置 β、重置 `transition_cost + beta * soft_task_dist` 并按原顺序加 `1.0`。
+仅合并两次扫描；示范选择、梯度、步长、20 次上限、0.3 停止条件、接受性
+与隔离副本不变，公开的 `ProdAut.update_beta` 也未修改。
+
+新增四项权重保持检查，覆盖零/正 β、普通小数、`1e16` 运算顺序、连续修改 β
+及同一 β 重复迭代。每轮重新计算基础权重，margin 不累加；示范边无 margin，
+其它边属性不变。旧 helper 运行 **4 passed**，新 core 学习文件 **15 passed**，
+用于保持既有行为，不作为旧算法错误的 RED 证据。
+
+外部计数型 Product double 的四条边，在 β=0 与 β=2.5 时旧/新精确权重一致。
+旧 helper 调用实际仓库 `ProdAut.update_beta` 后再加 margin，共 **2 次遍历 /
+8 个 edge items**；新 helper 为 **1 次 / 4 项**。另在既有真实 `ProdAut`
+小图上，新旧完整 `IRLLearningResult` 字段相同，β 序列为 `(1, 2, 3, 3)`；
+两份源图的 β、initial、possible states 与边属性不变。计数 double 与完整
+学习对照分别验证，不作为整体耗时、吞吐、RSS 或学习效果测量。
+
+重跑受影响的 core 与 HIL 包：分别为 **120 tests / 1 skipped** 与
+**103 tests / 1 skipped**，均为 **0 errors / 0 failures**；包含真实 ROS 2
+IRL 通信、规划核心与 lint。结合其它未改包保留结果，合计
+**478 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机示范或 Jazzy 独立验证。
+

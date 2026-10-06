@@ -679,6 +679,7 @@ colcon test-result --verbose
 - HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
 - HIL 人工输入在 ROS 时间回退或过期后不会复活，以及零时刻/零 timeout 的边界；
 - HIL 非有限速度/距离的丢弃与恢复、三轴限幅和小安全区增益的数值稳定性；
+- IRL 每轮权重重置、示范边 margin 与重复迭代的浮点运算保持；
 - HIL、标准 TS 和执行节点的启动参数只读拒绝、启动覆盖及公开参数服务原子更新；
 - Launch 测试结束时的干净退出。
 - 不可行任务、未知状态与内部异常下的事务式重规划回滚。
@@ -692,13 +693,13 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为 TrapDetection 单次反向可达搜索。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 HIL 包：103 tests、0 errors、0 failures、1 skipped，
-含十四项新增语义保持检查、既有控制器/TrapDetection/IRL 通信及 lint。
-固定五节点图的新旧判定相同，六次路径查询合并为一次反向遍历，两个接受
-节点各展开一次。此计数不作为端到端性能或多线程一致性测量。
+最近代码验证为 IRL 每轮权重的单次边扫描。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 core 与 HIL：223 tests、0 errors、0 failures、2 skipped，
+含四项新增权重保持检查、既有规划核心/IRL 通信及 lint。
+每轮重置 β 权重与添加 margin 合为一次遍历；浮点运算顺序、停止条件与
+隔离副本保持不变。此修改不作为学习收敛或机器人示范效果证明。
 结合其他未改包保留结果，合计
-**474 tests, 0 errors, 0 failures, 4 skipped**。
+**478 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

@@ -155,6 +155,11 @@ The learner follows the legacy ROS 2 port's margin heuristic:
 - stop after at most 20 iterations or a beta change of at most 0.3, and return
   the latest beta.
 
+Each iteration resets canonical weights and applies the margin in one edge
+traversal on the private learning Product. The margin does not accumulate across
+iterations; multiplication, base-weight addition and margin addition keep their
+original order.
+
 This is a bounded heuristic, without a convergence, inverse-optimality, or
 exact demonstration-reproduction guarantee. Hard/soft tasks and gamma remain
 the same. Learning and replanning operate on an isolated candidate, and the
