@@ -73,26 +73,30 @@ def test_true_and_false_claims_keep_native_states_and_symbols() -> None:
     assert set(false_buchi.graph["symbols"]) == set()
 
 
-def test_symbol_names_with_underscores_and_digits_remain_atomic() -> None:
+@pytest.mark.parametrize("hard_symbol, soft_symbol", [
+    ("cargo_ready1", "danger_zone2"),
+    ("cargoReady1", "dangerZone2"),
+])
+def test_symbol_names_with_underscores_and_digits_remain_atomic(hard_symbol, soft_symbol):
     """Keep proposition names intact in original and combined Büchi graphs."""
     hard = buchi_from_ltl(
-        "<> cargo_ready1",
+        "<> " + hard_symbol,
         "hard_buchi",
     )
     soft = buchi_from_ltl(
-        "[] !danger_zone2",
+        "[] !" + soft_symbol,
         "soft_buchi",
     )
     combined = mission_to_buchi(
-        hard_spec="<> cargo_ready1",
-        soft_spec="[] !danger_zone2",
+        hard_spec="<> " + hard_symbol,
+        soft_spec="[] !" + soft_symbol,
     )
 
-    assert set(hard.graph["symbols"]) == {"cargo_ready1"}
-    assert set(soft.graph["symbols"]) == {"danger_zone2"}
+    assert set(hard.graph["symbols"]) == {hard_symbol}
+    assert set(soft.graph["symbols"]) == {soft_symbol}
     assert set(combined.graph["symbols"]) == {
-        "cargo_ready1",
-        "danger_zone2",
+        hard_symbol,
+        soft_symbol,
     }
 
     hard_guard_symbols = {
@@ -116,7 +120,7 @@ def test_symbol_names_with_underscores_and_digits_remain_atomic() -> None:
         if hasattr(edge_data["softguard"], "symbol")
     }
 
-    assert "cargo_ready1" in hard_guard_symbols
-    assert "danger_zone2" in soft_guard_symbols
-    assert "cargo_ready1" in combined_hard_symbols
-    assert "danger_zone2" in combined_soft_symbols
+    assert hard_symbol in hard_guard_symbols
+    assert soft_symbol in soft_guard_symbols
+    assert hard_symbol in combined_hard_symbols
+    assert soft_symbol in combined_soft_symbols

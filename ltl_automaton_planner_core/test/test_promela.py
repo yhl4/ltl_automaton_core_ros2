@@ -59,6 +59,13 @@ def test_boolean_constants_are_not_atomic_proposition_names() -> None:
     ]
 
 
+def test_find_symbols_preserves_mixed_case_identifiers_without_lowercasing():
+    """Retain distinct case-sensitive names in the translator formula metadata."""
+    assert find_symbols("<> cargoReady1 && <> cargoready1 && [] !dangerZone2 && r0_A1") == [
+        "cargoReady1", "cargoready1", "dangerZone2", "r0_A1",
+    ]
+
+
 def test_parse_blocked_state_preserves_declared_initial() -> None:
     """Retain a declared initial state even when it has no transitions."""
     parser = Parser("never {    /* <> (false) */\nT0_init:\n    false;\n}\n")

@@ -338,6 +338,42 @@ def test_ready_action_success_returns_plan_and_activates(action_runtime):
     assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
 
 
+def test_mixed_case_native_action_keeps_names_cost_and_case_sensitive_authority(action_runtime):
+    """Plan for an exact native identifier and reject its absent lowercase variant."""
+    yaml_content = VALID_TS.replace("r2", "cargoReady1")
+    assert load_transition_system(action_runtime, yaml_content).success
+    goal = make_goal(hard_task="<> cargoReady1", soft_task="[] !dangerZone2")
+    handle = send_goal(action_runtime, goal)
+    assert handle.accepted
+    response = action_result(action_runtime, handle)
+    result = response.result
+    assert response.status == GoalStatus.STATUS_SUCCEEDED
+    assert result.success
+    assert result.error_code == PlanLTL.Result.ERROR_NONE
+    assert result.total_cost == 23.0
+    assert list(result.prefix_plan.action_sequence) == ["goto_cargoReady1", "stay_cargoReady1"]
+    assert list(result.suffix_plan.action_sequence) == ["stay_cargoReady1", "stay_cargoReady1"]
+    assert list(result.prefix_plan.ts_state_sequence[-1].states) == ["cargoReady1"]
+    node = action_runtime.planner
+    active = node.ltl_planner
+    generation = node._planning_generation
+    snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    assert snapshot.metadata.available
+    assert set(active.product.graph["buchi"].graph["symbols"]) == {
+        "cargoReady1", "dangerZone2",
+    }
+
+    other_case = make_goal(hard_task="<> cargoready1", soft_task="[] !dangerZone2")
+    rejected = action_result(action_runtime, send_goal(action_runtime, other_case))
+    assert rejected.status == GoalStatus.STATUS_ABORTED
+    assert not rejected.result.success
+    assert rejected.result.error_code == PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN
+    assert node.ltl_planner is active
+    assert node._planning_generation == generation
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert get_planning_graph_snapshot(action_runtime).snapshot == snapshot
+
+
 def test_multidimensional_initial_state_keeps_plan_payload_order(
     action_runtime,
 ):

@@ -389,6 +389,7 @@ Planner 接受的 TS YAML 必须满足以下结构约束：
 - 每个维度的状态名、动作名以及 `connected_to` 中的目标状态和动作引用都必须是字符串；
 - 每条边的目标状态必须出现在同一维度的 `nodes` 中，动作必须出现在顶层 `actions` 中；初始状态也必须已定义；
 - 动作代价 `weight`、Planner 参数 `beta` 与 `gamma` 必须是有限的非负数；
+- LTL/guard 命题名以小写 ASCII 字母开头，后续允许 ASCII 字母、数字和下划线；区分大小写，如 `cargoReady1` 与 `cargoready1` 是不同命题；
 - 边 guard 仍按 source-label 语义求值：使用边源状态的标签检查动作 guard，不能把目标状态标签替代源状态标签。
 
 输入违反这些约束时，加载或规划请求应失败并保留此前有效的运行状态。
@@ -695,15 +696,15 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为多维 TS 因子后继复用。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 core 与 planner：243 tests、0 errors、0 failures、2 skipped，
-含四项新增语义保持检查、既有真实 translator/ROS 2 通信与 lint。
-构建内仅首次遇到因子状态时枚举有序后继；完整源标签的 guard 检查逐项保留。
-KTH、Demo-D1 与固定小图的新旧有序 TS 及 guard 检查轨迹一致；Demo-D1
-后继枚举调用 60→17、枚举项 120→47，guard 检查仍为 120 次。
-该计数不作为端到端耗时或 RSS 测量。
+最近代码验证为混合大小写命题名解析。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 core 与 planner：247 tests、0 errors、0 failures、2 skipped，
+含四项新增检查、既有真实 translator/ROS 2 通信与 lint。
+小写字母开头的 `cargoReady1` 等名称在 guard 与命题元数据中完整保留。
+真实 Action 的手算代价为 23；仅大小写不同的缺失命题返回无接受计划，
+保留原 planner、generation 与完整快照。guard truth/distance、接受性与代价
+规则保持不变，README 和 API 文档说明名称范围及大小写敏感性。
 结合其他未改包保留结果，合计
-**500 tests, 0 errors, 0 failures, 4 skipped**。
+**504 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

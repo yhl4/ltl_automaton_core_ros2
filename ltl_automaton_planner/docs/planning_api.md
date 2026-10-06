@@ -51,6 +51,10 @@ Both tasks must be non-empty for compatibility with existing wrapper behavior.
 `transition_cost + beta * soft_task_dist`; run cost is
 `prefix_cost + gamma * suffix_cost`.
 
+Atomic proposition identifiers start with a lowercase ASCII letter, followed
+by ASCII letters, digits or underscores. Names remain case-sensitive:
+`cargoReady1` and `cargoready1` are distinct propositions.
+
 - Goals are accepted in `READY` and `ACTIVE`.
 - Goals are rejected at the action transport level in `UNINITIALIZED` and
   `PLANNING`; rejected goals have no `PlanLTL.Result`.

@@ -176,7 +176,7 @@ def find_states(edges, declared_states=()):
 
 def find_symbols(formula):
     """Return the sorted atomic propositions found in a formula."""
-    symbol_regex = re.compile(r"[a-z]+[a-z0-9_]*")
+    symbol_regex = re.compile(r"[a-z][a-zA-Z0-9_]*")
     symbols = set(symbol_regex.findall(formula)) - {"true", "false"}
 
     return sorted(symbols)

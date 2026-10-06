@@ -820,3 +820,33 @@ ROS 2 Action/服务通信与 lint；跳过项为原有版权头检查。结合�
 保留结果，合计 **500 tests, 0 errors, 0 failures, 4 skipped**，
 并非本轮重跑全部包。未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.38 混合大小写命题名解析（2026-10-06）
+
+以 `0135a03` 为基线，原生 `ltl2ba` 成功翻译 `cargoReady1` 和
+`dangerZone2`，但 Boolean guard lexer 在 R/Z 抛出 ValueError，Promela
+命题元数据也会拆分名称。两处正则现在统一为 `[a-z][a-zA-Z0-9_]*`，完整
+保留小写起首的混合大小写名称；不 lower，不修改 guard truth/distance、
+source-label、接受性或代价。true/false 过滤、排序去重与非法字符处理保持
+不变。原生工具对首字母大写 `Cargo1` 和首字符下划线 `_cargo` 的拒绝已由
+外部小 probe 确认，本次没有扩展这些范围；README/API 同步说明名称约束。
+
+四项新增检查在实际旧 lexer/元数据源码上均失败：纯 guard 检查、命题元
+数据、真实 translator 的 hard/soft/组合 Büchi 检查，以及真实 ROS Action。
+修复后保留 `cargoReady1` / `dangerZone2` 完整名称，且与全小写变体区分；
+解析 guard 的手算 truth/distance 和原生 Büchi guard symbol 均符合预期。
+
+Action 经真实加载服务使用 r1→cargoReady1 与后者自环的 TS，硬任务
+`<> cargoReady1`、软任务 `[] !dangerZone2`、beta=1000、gamma=10。
+prefix 动作代价 2+1=3，组合 Büchi 接受 suffix 的两次自环代价为 2，
+总代价 `3 + 10 * 2 = 23`。相同任务改为 `<> cargoready1` 后 ABORTED /
+ERROR_NO_ACCEPTING_PLAN，原 planner 对象、generation、ACTIVE 状态和完整
+快照保持不变。该符号小图不作为物理机器人或示范学习效果测量。
+
+重跑受影响 core 与 planner：分别为 **138 tests / 1 skipped** 与
+**109 tests / 1 skipped**，均为 **0 errors / 0 failures**，合计
+**245 passed / 2 skipped**。Boolean 文件 **10 passed**，Promela 文件
+**20 passed**，原生 Büchi 文件 **5 passed**，Action 文件 **33 passed**；
+含既有真实 translator、ROS 2 通信与 lint，跳过项为原有版权头检查。
+结合其它未改包保留结果，合计 **504 tests, 0 errors, 0 failures, 4 skipped**，
+并非本轮重跑全部包。未进行物理仿真、实机或 Jazzy 独立验证。
+
