@@ -263,3 +263,88 @@ def test_factor_successors_missing_factor_state_keeps_networkx_error():
     model.add_node(("missing", "empty"), label=("missing", "empty"))
     with pytest.raises(NetworkXError, match="missing"):
         model.compose_edges(factors)
+
+
+def _shared_guard_factors():
+    region, load = make_region_model(), make_load_model()
+    for graph, prefix, weight in ((region, "region", 10), (load, "load", 20)):
+        for source in graph:
+            for target in graph:
+                graph.add_edge(
+                    source, target, action=f"{prefix}_{target[0]}",
+                    guard="r2 || empty", weight=weight,
+                )
+    return [region, load]
+
+
+def _record_guard_checks(monkeypatch, model):
+    checks = []
+    original = model.is_action_allowed
+
+    def checked(guard, label):
+        checks.append((guard, tuple(label)))
+        return original(guard, label)
+
+    monkeypatch.setattr(model, "is_action_allowed", checked)
+    return checks
+
+
+def test_shared_guard_keeps_source_truth_edge_order_and_dimension_overwrite(monkeypatch):
+    """Reuse a shared true or false guard while retaining hand-specified edges."""
+    model = TSModel(_shared_guard_factors())
+    checks = _record_guard_checks(monkeypatch, model)
+    model.build_full()
+    assert checks == [
+        ("r2 || empty", ("r1", "empty")),
+        ("r2 || empty", ("r1", "loaded")),
+        ("r2 || empty", ("r2", "empty")),
+        ("r2 || empty", ("r2", "loaded")),
+    ]
+    expected = [
+        (("r1", "empty"), ("r2", "empty"), "region_r2", 10),
+        (("r1", "empty"), ("r1", "empty"), "load_empty", 20),
+        (("r1", "empty"), ("r1", "loaded"), "load_loaded", 20),
+        (("r2", "empty"), ("r1", "empty"), "region_r1", 10),
+        (("r2", "empty"), ("r2", "empty"), "load_empty", 20),
+        (("r2", "empty"), ("r2", "loaded"), "load_loaded", 20),
+        (("r2", "loaded"), ("r1", "loaded"), "region_r1", 10),
+        (("r2", "loaded"), ("r2", "loaded"), "load_loaded", 20),
+        (("r2", "loaded"), ("r2", "empty"), "load_empty", 20),
+    ]
+    assert list(model.edges) == [(source, target) for source, target, *_ in expected]
+    for source, target, action, weight in expected:
+        assert model.edges[source, target] == dict(
+            action=action, guard="r2 || empty", weight=weight, marker="visited",
+        )
+
+
+def test_source_guard_reuse_is_fresh_for_each_composition_and_public_check(monkeypatch):
+    """Read source labels again on each call and keep the public checker uncached."""
+    factors = _shared_guard_factors()
+    model = TSModel(factors)
+    checks = _record_guard_checks(monkeypatch, model)
+    model.build_full()
+    initial_checks = list(checks)
+    model.build_full()
+    assert checks == initial_checks * 2
+    assert len(initial_checks) == 4
+
+    for graph in factors:
+        for _source, _target, data in graph.edges(data=True):
+            data["guard"] = "!r2 && loaded"
+    checks.clear()
+    model.build_full()
+    assert checks == [
+        ("!r2 && loaded", label) for _guard, label in initial_checks
+    ]
+    assert list(model.edges) == [
+        (("r1", "loaded"), ("r2", "loaded")),
+        (("r1", "loaded"), ("r1", "loaded")),
+        (("r1", "loaded"), ("r1", "empty")),
+    ]
+    assert model.is_action_allowed("!r2 && loaded", ("r1", "loaded"))
+    assert not model.is_action_allowed("!r2 && loaded", ("r2", "loaded"))
+    assert checks[-2:] == [
+        ("!r2 && loaded", ("r1", "loaded")),
+        ("!r2 && loaded", ("r2", "loaded")),
+    ]

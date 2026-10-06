@@ -1264,3 +1264,44 @@ launch 通信及退出检查。IRL plugin 的 pytest launch wrapper 内包含
 其受控 helper/真实通信检查，不将内部 unittest 数另加到上述统计。
 本轮为当前版本组合验证，不推出 IRL 收敛、整体加速、真实网络故障、
 物理仿真、硬件/机器人示范效果或 Jazzy 兼容性。
+
+### 11.51 多维 TS 每源状态复用 guard 求值（2026-10-06）
+
+以 `8eeeb5e` 为基线，多维 compose_edges 对每条因子后继边调用
+is_action_allowed；同一完整源标签的相同 guard 会重复求值。现在
+每个组合源节点使用局部 guard_checks 表，只求值第一次遇到的 guard，
+包括 False 结果。原因子后继表、全部后继枚举、source-label、维度/
+节点/边顺序、action/guard/weight 读取及后维度属性覆盖规则保持不变。
+表不跨源节点、compose 调用或 build_full；一维分支、AST parse cache
+和公开 is_action_allowed 保持不变。临时表大小随本源不同 guard 数增长，
+没有常驻图级缓存；不改变搜索、接受性、目标或 IRL 规则。
+
+两个新增检查在旧提交的求值次数条件均失败：四状态共享跨维度 guard
+原调用 16 次，而局部复用后为 4 次。新检查包含 source-dependent 的
+True/False、手工九条边/属性/插入次序与自环后维度覆盖，以及重复构图、
+修改 guard 后重建和公开 checker 的独立调用。首次新版本相关回归为
+91 passed / 2 failed，因为新 fixture 的预期边序忽略了输入图已有边；
+按旧输入实际插入次序修正期望，未改构图行为以适配测试，最终通过。
+
+外部临时 probe 加载实际旧/新 ts.py，八个小图/故障案例的完整节点、
+边顺序/属性和图元数据相同，原因子图不被修改。共享真假 guard 的
+四节点九边图求值 16→4；不同 guard/覆盖 fixture 为 12→9；一维
+分支为 4→4，空因子为 0→0；非法 guard 的异常类型及精确文字相同。
+guard 修改后的第二次构图也保持完整图一致。
+
+合成全连接因子图的计数：8×8 tautology TS 有 64 节点/960 边，
+求值 1024→64；8×8 混合真/假 guard 有 64 节点/496 边，求值
+1024→128；4×4×4 tautology TS 有 64 节点/640 边，求值 768→64。
+这些是确定性构图操作计数，不包含耗时、RSS 或端到端加速测量。
+
+真实 translator 的 KTH γ=0/10 和 Demo-D1 的 <> kc0 查询，完整 TS、
+Product 节点/边及 Run 字段/路径/动作一致，总代价分别为 10、210、6.6。
+KTH 构图 guard 求值 14→12；Demo-D1 为 120→60。该查询是规划对照，
+不是完整 Demo-D1 机器人示范或物理执行实验。
+
+仅重跑 test_ts.py、test_transition_system.py、test_ltl_planner.py、
+test_irl.py 和 test_temporal_capability_regressions.py，合计
+**93 passed**。源码 py_compile/ament_flake8、测试文件 ament_flake8 /
+pep257、README/文档链接、50 节历史正文保留及 diff 检查通过。
+本轮未重跑整包、物理仿真、实机或 Jazzy；11.50 的整包结果仍属于
+其原代码基线，不作为本轮整包证据。

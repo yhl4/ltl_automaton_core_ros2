@@ -107,6 +107,7 @@ class TSModel(DiGraph):
         # preserves the historical later-dimension overwrite for collisions.
         successor_tables = [{} for _ in graph_list]
         for node in self.nodes:
+            guard_checks = {}
             for i, graph in enumerate(graph_list):
                 state = (node[i],)
                 state_successors = successor_tables[i].get(state)
@@ -120,10 +121,13 @@ class TSModel(DiGraph):
                     )
                     successor_tables[i][state] = state_successors
                 for successor_state, edge_data in state_successors:
-                    if not self.is_action_allowed(
-                        edge_data['guard'],
-                        self.nodes[node]['label'],
-                    ):
+                    guard = edge_data['guard']
+                    if guard not in guard_checks:
+                        guard_checks[guard] = self.is_action_allowed(
+                            guard,
+                            self.nodes[node]['label'],
+                        )
+                    if not guard_checks[guard]:
                         continue
 
                     successor_state_node = list(node)

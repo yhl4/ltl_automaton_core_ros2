@@ -703,15 +703,18 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近在代码提交 `58481a2` 上重新执行 aggregate 的七包构建与整包测试。
-环境为 Ubuntu 22.04 / ROS 2 Humble / Python 3.10，使用真实 ltl2ba。
-六个功能包的本轮 JUnit 结果共 **533 passed / 4 skipped**，无错误或失败；
-四个跳过项均为既有 copyright 检查，translator 集成未跳过。标准
-`colcon test-result` 为 **538 tests**，包含额外一项已通过的接口 CTest
-wrapper；不将 wrapper 重复计作独立 pytest 检查。已核对各结果文件
-均在本轮生成，当前核心、ROS Action/服务/DDS、符号执行、IRL、HIL、
-标准 TS 及现有 lint/launch 检查均重新执行。本轮未改算法或验收条件，
-不作为性能、收敛、真实网络故障或实机效果证明。
+最近代码验证为多维 TS 构图在每个源状态内复用同一 guard 的求值结果。
+相关 TS、配置、planner、IRL 和 temporal regression 五个文件共
+**93 passed**，修改文件 lint 通过。新旧完整图、边顺序/覆盖/属性及
+三个原生规划查询一致；合成 8×8 图的求值次数从 1024 降至 64，真假
+guard 混合时降至 128。这是操作计数，不是端到端加速测量；缓存不跨
+源状态或调用，一维分支和公开 guard checker 保持不变。本轮未重跑整包。
+
+此前代码基线 `58481a2` 的 aggregate 七包构建与整包测试全部完成，
+六功能包为 **533 passed / 4 skipped**，四个跳过项均为 copyright；
+标准 colcon 汇总含一项接口 CTest wrapper，共 538 tests。该整包证据
+属于该基线，不作为最新提交的整包重跑结果。验证环境为 Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10，使用真实 ltl2ba。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
