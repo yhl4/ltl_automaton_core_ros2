@@ -875,3 +875,41 @@ planner 等其它未改包保留结果，合计
 **507 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
 未进行本轮 ROS 通信重跑、物理仿真、实机或 Jazzy 独立验证。
 
+### 11.40 可达 Product 的 SCC 搜索（2026-10-06）
+
+以 `b7c400b` 为基线，prefix Dijkstra 已算出可达节点，搜索阶段的额外 SCC
+遍历却仍处理完整 Product。现在只对 prefix 可达节点诱导的只读 DiGraph
+view 遍历 SCC；合法接受环的每个节点必定从起点可达，因此不排除有效环。
+显式选择 DiGraph view 避免调用需要 ts/buchi 参数的 ProdAut 构造器，
+view 共享原属性而不复制完整 Product。prefix/suffix Dijkstra 仍使用原图，
+候选顺序、目标函数、闭合边计费、tight 恢复、零代价、None 隐藏边及输入
+状态不变。无跨调用缓存；Product 构建时的接受环预计算未改。
+
+三项新增检查在实际旧提交与新实现均通过，不作为 RED 错误证据。覆盖
+不可达接受环和添加/移除连接后的重新搜索、显式断开起点、None 隐藏边；
+手算代价分别为 5→0→5、0，以及默认/隐藏起点下的 32/30。输入 TS 边、
+Product 边、initial/accept/accept_with_cycle/possible_states 保持不变。
+
+外部临时 probe 加载实际旧/新搜索源码，计数型只读 DiGraph view 在真正的
+NetworkX SCC 算法入口记录邻接读取。九组查询的完整接受运行字段（已消费
+zip 按剩余序列比较）和输入 TS/Product 一致，覆盖固定断开密图、切换
+起点、连接再断开、隐藏边、空起点及真实 translator 的 KTH Product。
+
+| 查询 | SCC 处理节点（旧→新） | 邻接读取调用（旧→新） | 邻接项扫描（旧→新） | 两版总代价 |
+|---|---:|---:|---:|---:|
+| 固定图：3 可达节点 + 32 节点断开完全有向图 | 35→3 | 103→8 | 2,586→11 | 32 |
+| 固定图：显式断开起点 | 35→32 | 103→95 | 2,586→2,575 | 0 |
+| 固定图：新增连接 | 35→35 | 104→104 | 2,590→2,590 | 0 |
+| 原生 KTH，gamma=0 / 10 | 24→14 | 67→41 | 155→91 | 10 / 210 |
+
+移除连接后恢复第一行计数；空起点两版均不调用 SCC。以上仅涵盖搜索阶段
+SCC 的处理节点和邻接操作，view 过滤仍有成本；不作为端到端耗时、吞吐、
+RSS 或整个 Product 构建加速测量。
+
+仅重跑受影响 core：**144 tests / 1 skipped**，**143 passed**，
+**0 errors / 0 failures**；离散规划文件 **16 passed**，含真实 translator、
+图构造、代价/接受性、IRL 与 lint，跳过项为原有版权头检查。结合 planner
+等其它未改包保留结果，合计
+**510 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+未进行本轮 ROS 通信重跑、物理仿真、实机或 Jazzy 独立验证。
+

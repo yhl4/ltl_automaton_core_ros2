@@ -5,9 +5,11 @@ import time
 from collections import defaultdict
 from collections import deque
 
+from networkx import DiGraph
 from networkx import multi_source_dijkstra_path_length
 from networkx import single_source_dijkstra_path_length
 from networkx import strongly_connected_components
+from networkx.classes.graphviews import generic_graph_view
 
 from .product import ProdAut_Run
 
@@ -50,7 +52,12 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         return None, None
 
     target_components = {}
-    for component in strongly_connected_components(product):
+    # Any accepting cycle used by a valid run must be prefix reachable.
+    reachable_product = generic_graph_view(
+        product,
+        create_using=DiGraph,
+    ).subgraph(prefix_dist)
+    for component in strongly_connected_components(reachable_product):
         reachable_targets = component & reachable_accepting
         for target in reachable_targets:
             target_components[target] = component

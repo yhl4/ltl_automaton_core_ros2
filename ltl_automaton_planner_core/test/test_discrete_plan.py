@@ -380,6 +380,82 @@ def test_networkx_dijkstra_zero_cost_multi_source_prefix_is_finite():
     assert run.totalcost == 0
 
 
+def test_cycle_search_preserves_unreachable_acceptance_and_reads_changed_edges():
+    """Recompute reachable cycles without changing input state or acceptance sets."""
+    product = make_weighted_product([
+        ("s0", "a", 2), ("a", "a", 3),
+        ("s0", "b", 6), ("b", "b", 1), ("dead", "dead", 0),
+    ], accepting="a")
+    product.graph["accept"] = {("a", "q0"), ("b", "q0"), ("dead", "q0")}
+    product.build_accept_with_cycle()
+    product.possible_states = {("s0", "q0")}
+    initial = set(product.graph["initial"])
+    acceptance = set(product.graph["accept"])
+    cycles = set(product.graph["accept_with_cycle"])
+
+    def plan_and_check(expected_prefix, expected_suffix, expected_cost):
+        before = [(source, target, dict(data)) for source, target, data
+                  in product.edges(data=True)]
+        before_ts = [(source, target, dict(data)) for source, target, data
+                     in product.graph["ts"].edges(data=True)]
+        run, _ = dijkstra_plan_networkX(product, gamma=1)
+        assert run.prefix == expected_prefix
+        assert run.suffix == expected_suffix
+        assert (run.precost, run.sufcost, run.totalcost) == expected_cost
+        assert list(product.edges(data=True)) == before
+        assert list(product.graph["ts"].edges(data=True)) == before_ts
+        assert product.graph["initial"] == initial
+        assert product.graph["accept"] == acceptance
+        assert product.graph["accept_with_cycle"] == cycles
+        assert product.possible_states == initial
+
+    plan_and_check([("s0", "q0"), ("a", "q0")], [("a", "q0")], (2, 3, 5))
+    product.graph["ts"].add_edge("s0", "dead", weight=0, action="reach_dead")
+    product.add_edge(("s0", "q0"), ("dead", "q0"), weight=0, action="reach_dead")
+    plan_and_check([("s0", "q0"), ("dead", "q0")], [("dead", "q0")], (0, 0, 0))
+    product.remove_edge(("s0", "q0"), ("dead", "q0"))
+    product.graph["ts"].remove_edge("s0", "dead")
+    plan_and_check([("s0", "q0"), ("a", "q0")], [("a", "q0")], (2, 3, 5))
+
+
+def test_explicit_start_uses_its_reachable_component_without_changing_initial():
+    """Choose a disconnected zero-cost accepting loop from an explicit start."""
+    product = make_weighted_product([
+        ("s0", "goal", 2), ("goal", "goal", 3), ("dead", "dead", 0),
+    ], accepting="goal")
+    product.graph["accept"].add(("dead", "q0"))
+    product.build_accept_with_cycle()
+    initial = set(product.graph["initial"])
+    starts = {("dead", "q0")}
+    run, _ = dijkstra_plan_networkX(product, gamma=10, start_set=starts)
+    assert run.prefix == run.suffix == [("dead", "q0")]
+    assert (run.precost, run.sufcost, run.totalcost) == (0, 0, 0)
+    assert starts == {("dead", "q0")}
+    assert product.graph["initial"] == initial
+
+
+def test_hidden_weight_edge_keeps_only_executable_accepting_cycles():
+    """A None-weight link joins a structural SCC without providing a path."""
+    product = make_weighted_product([
+        ("s0", "goal", 2), ("goal", "goal", 3),
+        ("goal", "hidden", 0), ("hidden", "goal", 0),
+    ], accepting="goal")
+    product.edges[("goal", "q0"), ("hidden", "q0")]["weight"] = None
+    product.graph["accept"].add(("hidden", "q0"))
+    product.build_accept_with_cycle()
+
+    run, _ = dijkstra_plan_networkX(product, gamma=10)
+    assert run.prefix == [("s0", "q0"), ("goal", "q0")]
+    assert run.suffix == [("goal", "q0")]
+    assert (run.precost, run.sufcost, run.totalcost) == (2, 3, 32)
+    run, _ = dijkstra_plan_networkX(product, gamma=10, start_set={("hidden", "q0")})
+    assert run.prefix == [("hidden", "q0"), ("goal", "q0")]
+    assert run.suffix == [("goal", "q0")]
+    assert (run.precost, run.sufcost, run.totalcost) == (0, 3, 30)
+    assert product.edges[("goal", "q0"), ("hidden", "q0")]["weight"] is None
+    assert product.graph["initial"] == {("s0", "q0")}
+
+
 def test_product_history_follows_complete_product_successors():
     """Resolve a source-label history through the built Product graph."""
     product = create_test_product()

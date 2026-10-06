@@ -696,14 +696,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为守卫 token 队列消费。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，仅重跑受影响 core：141 tests、0 errors、0 failures、1 skipped，
+最近代码验证为可达 Product 的 SCC 搜索。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，仅重跑受影响 core：144 tests、0 errors、0 failures、1 skipped，
 含三项新增语义保持检查、既有真实 translator 与 lint。
-新旧源码对照 10 个有效与 10 个错误守卫：AST/NNF、truth/distance、消费顺序
-及诊断一致。256 命题的 AND/OR 守卫各消费 511 个 token，消除原列表的
-130,305 次剩余元素搬移；此操作计数不作为端到端加速测量，递归深度限制未变。
+搜索阶段的 SCC 仅遍历 prefix 可达节点的只读视图；9 组新旧源码对照中，
+完整接受运行及输入图一致。固定断开图的 SCC 邻接项扫描从 2,586 降到 11，
+原生 KTH 图从 155 降到 91；仅为操作计数，不作为端到端加速测量。
 结合 planner 等未改包保留结果，合计
-**507 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+**510 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
