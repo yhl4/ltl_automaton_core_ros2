@@ -697,6 +697,21 @@ Core 的 `LTLPlanner.replan()` 改为复用已构建的完整 Product 和当前 
 **253 tests, 0 errors, 0 failures, 4 skipped**。Product source-label 与代价公式保持不变，
 未运行性能 benchmark。
 
+### 11.7 多源 prefix 搜索优化（2026-10-06）
+
+Dijkstra 将多个 Product 起点的 prefix 搜索合并为一次多源搜索，
+只对可达且属于接受环的节点计算 suffix，并只保留最佳候选。
+对固定接受节点，suffix 代价与初始点无关，因此先取最小 prefix 代价再计算
+`prefix_cost + gamma * suffix_cost`，保持原目标函数；并列最优时可能返回另一条合法路径。
+
+以提交 `fbce25d` 的搜索实现为对照，KTH、Demo-D1 导航与取放 Product 分别验证
+默认起点和三起点查询、`gamma=0/1/10`，共 18 组；总代价差均为 0，
+路径边与接受环有效，initial 与 possible states 均未改写。
+定向检查确认一次多源 prefix 搜索、不可达接受环不触发 suffix 搜索、
+零代价多源路径有限。Core、ROS planner 与 execution 三包 `colcon test` 通过，
+与其他包保留结果合计为 **256 tests, 0 errors, 0 failures, 4 skipped**。
+本轮验证搜索等价性与调用次数，未测量端到端加速比。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照

@@ -4,6 +4,7 @@ import logging
 import time
 from collections import defaultdict
 
+from networkx import multi_source_dijkstra
 from networkx import single_source_dijkstra
 
 from .product import ProdAut_Run
@@ -13,10 +14,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def dijkstra_plan_networkX(product, gamma=10, start_set=None):
-    """Search a full Product from explicit starts or its unchanged initial set."""
+    """Search a full Product from explicit or unchanged initial starts."""
     start = time.perf_counter()
-    runs = {}
-    loops = {}
     init_set = (
         product.graph["initial"]
         if start_set is None
@@ -32,9 +31,17 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         _LOGGER.error("No accepting run found in NetworkX Dijkstra planning.")
         return None, None
 
-    for prod_target in product.graph["accept"]:
-        if prod_target not in accepting_cycles:
+    prefix_dist, prefix_paths = multi_source_dijkstra(
+        product,
+        sources=init_set,
+        weight="weight",
+    )
+    best_plan = None
+
+    for prod_target in accepting_cycles:
+        if prod_target not in prefix_dist:
             continue
+
         cycle_costs: dict[object, float] = {}
         loop_dist, loop_paths = single_source_dijkstra(
             product,
@@ -49,59 +56,32 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
                     + product.edges[target_pred, prod_target]["weight"]
                 )
 
-        if cycle_costs:
-            optimal_predecessor = min(
-                cycle_costs,
-                key=lambda node: cycle_costs[node],
-            )
-            suffix = loop_paths[optimal_predecessor]
-            loops[prod_target] = (
-                cycle_costs[optimal_predecessor],
-                suffix,
-            )
-
-    for prod_init in init_set:
-        line_costs: dict[object, float] = {}
-        line_dist, line_paths = single_source_dijkstra(
-            product,
-            prod_init,
-            weight="weight",
-        )
-
-        for target, (suffix_cost, _) in loops.items():
-            if target in line_dist:
-                line_costs[target] = (
-                    line_dist[target] + gamma * suffix_cost
-                )
-
-        if not line_costs:
+        if not cycle_costs:
             continue
 
-        optimal_target = min(
-            line_costs,
-            key=lambda node: line_costs[node],
+        optimal_predecessor = min(
+            cycle_costs,
+            key=lambda node: cycle_costs[node],
         )
-        prefix = line_paths[optimal_target]
-        prefix_cost = line_dist[optimal_target]
-        suffix_cost, suffix = loops[optimal_target]
+        prefix = prefix_paths[prod_target]
+        prefix_cost = prefix_dist[prod_target]
+        suffix_cost = cycle_costs[optimal_predecessor]
+        suffix = loop_paths[optimal_predecessor]
+        candidate = (prefix, prefix_cost, suffix, suffix_cost)
+        if (
+            best_plan is None
+            or prefix_cost + gamma * suffix_cost
+            < best_plan[1] + gamma * best_plan[3]
+        ):
+            best_plan = candidate
 
-        runs[(prod_init, optimal_target)] = (
-            prefix,
-            prefix_cost,
-            suffix,
-            suffix_cost,
-        )
-
-    if not runs:
+    if best_plan is None:
         _LOGGER.error(
             "No accepting run found in NetworkX Dijkstra planning."
         )
         return None, None
 
-    prefix, prefix_cost, suffix, suffix_cost = min(
-        runs.values(),
-        key=lambda plan: plan[1] + gamma * plan[3],
-    )
+    prefix, prefix_cost, suffix, suffix_cost = best_plan
     total_cost = prefix_cost + gamma * suffix_cost
 
     run = ProdAut_Run(

@@ -206,6 +206,7 @@ def test_no_accepting_cycle_returns_without_shortest_path_search(monkeypatch):
         raise AssertionError("A graph without an accepting cycle needs no path search.")
 
     monkeypatch.setattr(discrete_plan, "single_source_dijkstra", unexpected_search)
+    monkeypatch.setattr(discrete_plan, "multi_source_dijkstra", unexpected_search)
     assert dijkstra_plan_networkX(product) == (None, None)
 
 
@@ -224,6 +225,82 @@ def test_networkx_dijkstra_uses_explicit_start_without_mutating_initial():
 
     assert dijkstra_plan_networkX(product, start_set=set()) == (None, None)
     assert product.graph["initial"] == previous_initial
+
+
+def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
+    """Choose the best real source without per-source prefix searches."""
+    product = make_weighted_product([
+        ("i1", "goal", 2), ("i2", "goal", 1),
+        ("goal", "goal", 3),
+    ], initial="i1", accepting="goal")
+    product.graph["initial"] = {
+        ("i1", "q0"),
+        ("i2", "q0"),
+    }
+    multi_calls = []
+    suffix_sources = []
+    original_multi = discrete_plan.multi_source_dijkstra
+    original_single = discrete_plan.single_source_dijkstra
+
+    def record_multi(graph, sources, **kwargs):
+        multi_calls.append(set(sources))
+        return original_multi(graph, sources, **kwargs)
+
+    def record_single(graph, source, **kwargs):
+        suffix_sources.append(source)
+        return original_single(graph, source, **kwargs)
+
+    monkeypatch.setattr(discrete_plan, "multi_source_dijkstra", record_multi)
+    monkeypatch.setattr(discrete_plan, "single_source_dijkstra", record_single)
+    run, _ = dijkstra_plan_networkX(product, gamma=10)
+
+    assert run is not None
+    assert run.prefix[0] == ("i2", "q0")
+    assert run.precost == 1
+    assert run.totalcost == 31
+    assert len(multi_calls) == 1
+    assert suffix_sources == [("goal", "q0")]
+
+
+def test_networkx_dijkstra_skips_unreachable_accepting_cycle_suffix(monkeypatch):
+    """Do not run suffix search for an accepting cycle unreachable from starts."""
+    product = make_weighted_product([
+        ("s0", "goal", 1), ("goal", "goal", 1),
+        ("dead", "dead", 0),
+    ], accepting="goal")
+    product.graph["accept"].add(("dead", "q0"))
+    product.build_accept_with_cycle()
+    suffix_sources = []
+    original_single = discrete_plan.single_source_dijkstra
+
+    def record_single(graph, source, **kwargs):
+        suffix_sources.append(source)
+        return original_single(graph, source, **kwargs)
+
+    monkeypatch.setattr(discrete_plan, "single_source_dijkstra", record_single)
+    run, _ = dijkstra_plan_networkX(product)
+
+    assert run is not None
+    assert suffix_sources == [("goal", "q0")]
+
+
+def test_networkx_dijkstra_zero_cost_multi_source_prefix_is_finite():
+    """Keep a finite zero-cost cycle and begin the prefix at its explicit start."""
+    product = make_weighted_product([
+        ("i1", "goal", 0), ("goal", "i1", 0),
+        ("i2", "goal", 0),
+    ], initial="i1", accepting="goal")
+    starts = {("i1", "q0"), ("i2", "q0")}
+    run, _ = dijkstra_plan_networkX(
+        product,
+        start_set=starts,
+    )
+
+    assert run is not None
+    assert run.prefix[0] in starts
+    assert run.prefix[-1] == ("goal", "q0")
+    assert len(run.prefix) <= len(product)
+    assert run.totalcost == 0
 
 
 def test_product_history_follows_complete_product_successors():
