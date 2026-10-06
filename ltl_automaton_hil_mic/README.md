@@ -53,7 +53,9 @@ the service returns `is_connected=false` and `is_trap=false`.
 
 `IRLPlugin` restores the original scope: learn the soft-task weight beta from
 demonstrated Product paths. It is available only when explicitly configured;
-the default plugin configuration continues to enable trap diagnosis alone.
+the default planner launch leaves `plugin_config_path` empty and loads no plugins.
+The `trap_detection_plugin.yaml` example enables trap diagnosis alone; pass
+`irl_plugin.yaml` to enable IRL.
 
 ```bash
 ros2 launch ltl_automaton_planner planner.launch.py \
