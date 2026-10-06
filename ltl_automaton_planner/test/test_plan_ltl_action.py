@@ -1,6 +1,7 @@
 """Integration tests for the transactional PlanLTL action wrapper."""
 
 import hashlib
+import os
 from threading import Event
 import time
 from types import SimpleNamespace
@@ -34,6 +35,7 @@ from ltl_automaton_msgs.srv import (
 import ltl_automaton_planner.planner_node as planner_module
 from ltl_automaton_planner.planner_node import PlannerNode
 import ltl_automaton_planner_core.ltl_tools.buchi as buchi_module
+import ltl_automaton_planner_core.ltl_tools.ltl2ba as ltl2ba_module
 
 
 VALID_TS = """
@@ -577,6 +579,52 @@ def test_native_false_task_returns_no_plan_and_preserves_authority(action_runtim
     assert failed.status == GoalStatus.STATUS_ABORTED
     assert not failed.result.success
     assert failed.result.error_code == PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN
+    assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+    assert action_runtime.planner.ltl_planner is active_planner
+    assert action_runtime.planner.ltl_planner.run is active_run
+    assert action_runtime.planner._execution_step_seq == active_seq
+    assert get_planning_graph_snapshot(action_runtime).snapshot == active_snapshot
+
+
+@pytest.mark.skipif(os.name != "posix", reason="Uses a POSIX process failure fixture.")
+@pytest.mark.parametrize(
+    "body, error_code",
+    [
+        (
+            "printf 'controlled translator error' >&2\nexit 1\n",
+            PlanLTL.Result.ERROR_INVALID_GOAL,
+        ),
+        ("kill -9 $$\n", PlanLTL.Result.ERROR_INTERNAL),
+    ],
+    ids=["positive-exit", "signal-termination"],
+)
+def test_native_translator_failure_preserves_authority(
+    action_runtime, monkeypatch, tmp_path, body, error_code,
+):
+    """Classify a failed process while retaining the active accepted generation."""
+    activate(action_runtime)
+    active_planner = action_runtime.planner.ltl_planner
+    active_run = active_planner.run
+    active_snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    active_seq = action_runtime.planner._execution_step_seq
+    executable = tmp_path / "controlled-ltl2ba"
+    executable.write_text("#!/bin/sh\n" + body, encoding="utf-8")
+    executable.chmod(0o700)
+
+    def failed_translation(formula):
+        return ltl2ba_module.run_ltl2ba(formula, executable=str(executable))
+
+    monkeypatch.setattr(buchi_module, "run_ltl2ba", failed_translation)
+    response = action_result(
+        action_runtime, send_goal(action_runtime, make_goal(hard_task="<> r3")),
+    )
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert not response.result.success
+    assert response.result.error_code == error_code
+    if error_code == PlanLTL.Result.ERROR_INTERNAL:
+        assert "signal 9" in response.result.message
+    else:
+        assert "controlled translator error" in response.result.message
     assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
     assert action_runtime.planner.ltl_planner is active_planner
     assert action_runtime.planner.ltl_planner.run is active_run

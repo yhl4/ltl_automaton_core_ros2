@@ -232,7 +232,10 @@ def compute_candidate_plan(request: PlanningRequest) -> PlanningOutcome:
         )
         planned = planner.optimal(style="static")
     except LTL2BAError as error:
-        if isinstance(error.__cause__, subprocess.CalledProcessError):
+        if (
+            isinstance(error.__cause__, subprocess.CalledProcessError)
+            and error.__cause__.returncode > 0
+        ):
             return PlanningOutcome(
                 PlanLTL.Result.ERROR_INVALID_GOAL,
                 str(error),

@@ -679,3 +679,30 @@ resolver 文件 **18 passed**，node 文件 **24 passed**；含原有四项真�
 结合其它未改包保留结果，合计 **482 tests, 0 errors, 0 failures, 4 skipped**。
 未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.33 ltl2ba 进程失败诊断（2026-10-06）
+
+以 `26af9a9` 为基线，translator 被找到但无法执行时会泄漏原始 `OSError`；
+信号终止的负退出码被 Planner 当作 `ERROR_INVALID_GOAL`，空诊断还显示
+`Unknown ltl2ba error`。现在启动异常统一为保留原 cause 的 `LTL2BAError`，
+负退出码明确报告信号号并保留可用 stderr/stdout。Planner 仅把正退出码
+映射为既有 `ERROR_INVALID_GOAL`，信号终止返回 `ERROR_INTERNAL`。
+参数列表、默认 translator 超时、公式解析与事务式计划替换规则不变。
+
+新增三项检查在旧实现为 **2 failed / 1 passed**：受控启动 `OSError`
+没有包装，真实 ROS 2 Action 调用临时 POSIX 脚本自发 signal 9 后返回错误
+输入分类。正退出码 1 的诊断/分类检查原本通过。修复后，启动异常 cause、
+完整 subprocess 参数/调用者 timeout 均保留；两项 Action 检查确认 ABORTED
+以及活动 planner/run、执行序号与完整快照不变。临时脚本由本次 fixture
+创建并运行，不代表真实 translator 自身发生了崩溃。
+
+外部临时可执行文件/脚本对照验证非零退出、空 stdout、超时、Exec format
+error 和 signal 9 五条路径均为 `LTL2BAError`。Exec format 的 cause 为
+`OSError`，signal cause 为 `CalledProcessError(returncode=-9)`；正退出码
+保留 stderr 优先的原诊断。未测量崩溃率、进程树清理或总规划截止时间。
+
+重跑受影响 core 与 planner：分别为 **121 tests / 1 skipped** 与
+**107 tests / 1 skipped**，均为 **0 errors / 0 failures**；Action 文件
+**32 passed**，含既有真实 translator、ROS 2 通信与 lint。结合其它未改包
+保留结果，合计 **485 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+

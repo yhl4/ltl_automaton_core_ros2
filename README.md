@@ -685,6 +685,7 @@ colcon test-result --verbose
 - Launch 测试结束时的干净退出。
 - 不可行任务、未知状态与内部异常下的事务式重规划回滚。
 - 完整 Product 上的历史重规划、最新到达状态、代价参数与新任务历史隔离。
+- `ltl2ba` 启动失败与信号终止的诊断、错误分类及活动计划保留。
 
 提交前建议额外执行：
 
@@ -694,14 +695,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为执行快照 suffix 结构检查。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 execution：106 tests、0 errors、0 failures、0 skipped，
-含四项新增检查、原有四项真实 DDS 符号执行闭环及 lint。
-按既有消息契约拒绝 suffix 末尾重复起点，合法单节点自环仍可执行；无效
-快照不替换原 resolver 索引，后续有效代际可继续分派。新增坏快照用例使用
-真实 Node/ROS 消息与受控 Future，不作为 DDS 故障或实机测量。
+最近代码验证为 ltl2ba 进程失败诊断。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 core 与 planner：228 tests、0 errors、0 failures、2 skipped，
+含三项新增检查、既有真实 translator/ROS 2 Action 通信与 lint。
+启动异常统一为 `LTL2BAError`，信号终止明确报告信号号并返回 `ERROR_INTERNAL`；
+正退出码保留原错误分类。临时进程失败用例验证活动计划与快照不被候选替换，
+不作为真实 translator 崩溃率或机器人测量。
 结合其他未改包保留结果，合计
-**482 tests, 0 errors, 0 failures, 4 skipped**。
+**485 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

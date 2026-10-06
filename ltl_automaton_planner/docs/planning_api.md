@@ -66,6 +66,11 @@ time. Any accepted-goal failure reaches `ABORTED` with `success=false`.
 | `ERROR_NO_ACCEPTING_PLAN` | Valid input was searched normally, but no accepting run exists. |
 | `ERROR_INTERNAL` | An unexpected implementation or runtime failure occurred. |
 
+Translator startup failures, timeouts and termination by a signal return
+`ERROR_INTERNAL`; signal diagnostics include the signal number. A positive
+translator error exit retains `ERROR_INVALID_GOAL` and its captured diagnostic.
+These failures preserve the active plan when a replacement is attempted.
+
 ## Execution During Planning
 
 Planning uses transactional replacement semantics. When a new goal starts from
