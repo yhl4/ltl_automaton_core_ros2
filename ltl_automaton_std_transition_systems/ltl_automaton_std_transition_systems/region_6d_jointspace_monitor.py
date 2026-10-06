@@ -20,13 +20,34 @@ class Region6DJointspaceModel:
         self.region_dict = region_dict
         self.state = None
 
+    @staticmethod
+    def _validate_position(position):
+        """Validate the six coordinates used by the region model."""
+        try:
+            if len(position) < 6:
+                raise ValueError(
+                    "JointState must contain at least six positions."
+                )
+            values = tuple(position[index] for index in range(6))
+        except (IndexError, TypeError) as error:
+            raise ValueError(
+                "JointState must contain at least six numeric positions."
+            ) from error
+        try:
+            finite = all(math.isfinite(value) for value in values)
+        except TypeError as error:
+            raise ValueError(
+                "JointState positions must be finite numbers."
+            ) from error
+        if not finite:
+            raise ValueError("JointState positions must be finite numbers.")
+
     def is_in_region(self, position, region, hysteresis=0.0):
-        if len(position) < 6:
-            raise ValueError("JointState must contain at least six positions.")
+        self._validate_position(position)
         attr = self.region_dict["nodes"][region]["attr"]
         center = attr["position"]
-        distance = math.sqrt(
-            sum((position[index] - center[index]) ** 2 for index in range(6))
+        distance = math.hypot(
+            *(position[index] - center[index] for index in range(6))
         )
         return distance < attr["radius"] + hysteresis
 
@@ -39,6 +60,7 @@ class Region6DJointspaceModel:
 
     def update(self, position):
         """Return the current region and whether the transition was connected."""
+        self._validate_position(position)
         if self.state:
             found = self._find(
                 position,

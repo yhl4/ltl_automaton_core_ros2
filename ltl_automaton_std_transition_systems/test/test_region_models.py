@@ -77,6 +77,52 @@ def test_generator_rejects_initial_position_outside_grid():
         generate_regions_and_actions(definition)
 
 
+@pytest.mark.parametrize("side", [0.0, -1.0])
+def test_generator_rejects_degenerate_grid_cells(side):
+    definition = _definition()
+    definition["grid"]["cell_side_length"] = side
+    definition["initial_position"] = [0.0, 0.0]
+
+    with pytest.raises(ValueError, match="side length must be positive"):
+        generate_regions_and_actions(definition)
+
+
+@pytest.mark.parametrize(
+    "field, value",
+    [
+        ("cell_side_length", float("nan")),
+        ("cell_hysteresis", float("inf")),
+        ("station_x", float("nan")),
+        ("station_yaw", float("inf")),
+        ("station_radius", float("inf")),
+        ("initial_x", float("nan")),
+    ],
+)
+def test_generator_rejects_nonfinite_geometry(field, value):
+    definition = _definition()
+    if field.startswith("cell_"):
+        definition["grid"][field] = value
+    elif field == "initial_x":
+        definition["initial_position"][0] = value
+    elif field == "station_radius":
+        definition["stations"][0]["radius"] = value
+    else:
+        key = "x" if field == "station_x" else "yaw"
+        definition["stations"][0]["origin"][key] = value
+
+    with pytest.raises(ValueError, match="geometry must be finite"):
+        generate_regions_and_actions(definition)
+
+
+def test_generator_rejects_nonfinite_derived_cell_center():
+    definition = _definition()
+    definition["grid"]["cell_side_length"] = 1e308
+    definition["grid"]["origin"]["x"] = 1e308
+
+    with pytest.raises(ValueError, match="cell centers must be finite"):
+        generate_regions_and_actions(definition)
+
+
 @pytest.mark.parametrize(
     "message, expected",
     [
@@ -133,3 +179,65 @@ def test_6d_model_reports_connected_and_unconnected_transitions():
     assert model.update([2.0] * 6) == ("c", False)
     with pytest.raises(ValueError, match="six"):
         model.update([0.0] * 5)
+
+
+@pytest.mark.parametrize("invalid", ["x_nan", "y_inf", "quaternion_nan", "zero_quaternion"])
+def test_2d_model_rejects_invalid_pose_without_changing_region(invalid):
+    transition_system = generate_regions_and_actions(_definition())
+    model = Region2DPoseModel(transition_system["state_models"]["2d_pose_region"])
+    assert model.update(_pose(0.2, 0.2)) == "r1"
+    model.station_access_request = "s0"
+    pose = _pose(0.5, 0.5)
+    if invalid == "x_nan":
+        pose.position.x = float("nan")
+    elif invalid == "y_inf":
+        pose.position.y = float("inf")
+    elif invalid == "quaternion_nan":
+        pose.orientation.z = float("nan")
+    else:
+        pose.orientation.w = 0.0
+
+    with pytest.raises(ValueError):
+        model.update(pose)
+    with pytest.raises(ValueError):
+        model.closest_region(pose)
+    assert model.state == "r1"
+    assert model.update(_pose(1.5, 0.5)) == "r2"
+
+
+def _joint_model(radius=1.0):
+    return Region6DJointspaceModel({
+        "nodes": {
+            "a": {
+                "attr": {"position": [0.0] * 6, "radius": radius},
+                "connected_to": {"a": "stay"},
+            },
+        },
+    })
+
+
+@pytest.mark.parametrize("invalid", [float("nan"), float("inf"), -float("inf")])
+def test_6d_model_rejects_nonfinite_joint_feedback(invalid):
+    model = _joint_model()
+    assert model.update([0.0] * 6) == ("a", True)
+    position = [0.0] * 5 + [invalid]
+
+    with pytest.raises(ValueError, match="finite"):
+        model.update(position)
+    with pytest.raises(ValueError, match="finite"):
+        model.is_in_region(position, "a")
+    assert model.state == "a"
+    assert model.update([0.0] * 6) == ("a", True)
+
+
+def test_6d_model_ignores_extra_joints_and_keeps_strict_radius():
+    model = _joint_model()
+    assert model.update([0.0] * 6 + [float("nan")]) == ("a", True)
+    assert model.is_in_region([0.5] + [0.0] * 5, "a")
+    assert not model.is_in_region([1.0] + [0.0] * 5, "a")
+
+
+def test_6d_model_distance_does_not_overflow_for_finite_positions():
+    model = _joint_model(radius=1e201)
+    # sqrt(6) * 1e200 is less than 1e201; squaring 1e200 overflows a float.
+    assert model.update([1e200] * 6) == ("a", True)

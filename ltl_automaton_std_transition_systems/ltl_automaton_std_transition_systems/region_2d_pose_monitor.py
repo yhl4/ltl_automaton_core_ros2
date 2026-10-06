@@ -57,6 +57,33 @@ class Region2DPoseModel:
             if data["attr"]["type"] == "square"
         ]
 
+    @staticmethod
+    def _validate_pose(pose):
+        """Reject non-finite positions and invalid zero quaternions."""
+        try:
+            values = (
+                pose.position.x,
+                pose.position.y,
+                pose.orientation.x,
+                pose.orientation.y,
+                pose.orientation.z,
+                pose.orientation.w,
+            )
+        except AttributeError as error:
+            raise ValueError("Pose is missing position or orientation fields.") from error
+        try:
+            finite = all(math.isfinite(value) for value in values)
+        except TypeError as error:
+            raise ValueError(
+                "Pose position and orientation must be finite numbers."
+            ) from error
+        if not finite:
+            raise ValueError(
+                "Pose position and orientation must be finite numbers."
+            )
+        if all(value == 0.0 for value in values[2:]):
+            raise ValueError("Pose orientation quaternion must be non-zero.")
+
     def is_in_square(self, pose, square, hysteresis=0.0):
         attr = self.region_dict["nodes"][square]["attr"]
         half = float(attr["length"]) / 2.0 + hysteresis
@@ -116,6 +143,7 @@ class Region2DPoseModel:
 
     def update(self, pose):
         """Update the region and return its name, or None when outside the TS."""
+        self._validate_pose(pose)
         nodes = self.region_dict["nodes"]
         if self.state:
             connected = nodes[self.state]["connected_to"]
@@ -148,6 +176,7 @@ class Region2DPoseModel:
 
     def closest_region(self, pose):
         """Return the closest connected region and boundary distance."""
+        self._validate_pose(pose)
         if not self.state:
             return None, None
         closest = None
@@ -205,9 +234,14 @@ class Region2DPoseMonitor(Node):
         self.create_service(ClosestState, "closest_region", self._closest_callback)
 
     def _pose_callback(self, message):
-        self.current_pose = _pose_from_message(message)
+        pose = _pose_from_message(message)
         previous = self.model.state
-        region = self.model.update(self.current_pose)
+        try:
+            region = self.model.update(pose)
+        except ValueError as error:
+            self.get_logger().warning(str(error))
+            return
+        self.current_pose = pose
         if region is not None and region != previous:
             self.region_publisher.publish(String(data=region))
 

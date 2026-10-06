@@ -143,6 +143,10 @@ ltl_automaton_std_transition_systems/
 - 将 `JointState` 的前六个关节位置映射为 6D joint-space region；
 - 交互生成可被当前 planner core 直接加载的 2D grid/station TS YAML。
 
+监控拒绝非有限坐标和零四元数，保留最后有效反馈；生成器拒绝零边长和非有限几何。
+输入约束与 6D 启动参数见
+[标准 TS README](ltl_automaton_std_transition_systems/README.md)。
+
 ### 1.6 HIL mixed-initiative 控制器
 
 ROS 2 HIL 控制器位于：
@@ -654,6 +658,7 @@ colcon test-result --verbose
 - 快照服务延迟发现后的命令恢复、执行后端异常后的忙碌状态释放；
 - 快照请求失败后的最新命令恢复，以及节点销毁后晚到响应的抑制；
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
+- 标准 TS 无效位姿/关节反馈的丢弃与恢复，以及有限大数的 6D 距离计算；
 - HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
 - Launch 测试结束时的干净退出。
 - 不可行任务、未知状态与内部异常下的事务式重规划回滚。
@@ -667,11 +672,11 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为 HIL 异步安全查询修复。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，HIL 包重跑为 45 tests、0 errors、0 failures、1 skipped，包含
-新增的 22 项检查（其中两项使用真实 ROS 定时器）及原有通信回归。
+最近代码验证为标准 TS 输入边界修复。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，标准 TS 包重跑为 34 tests、0 errors、0 failures、1 skipped，
+包含新增的 22 项检查及原有 2D/6D monitor Launch 通信回归。
 结合其他未改包保留结果，合计
-**338 tests, 0 errors, 0 failures, 4 skipped**。
+**360 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

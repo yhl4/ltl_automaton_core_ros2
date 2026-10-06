@@ -289,3 +289,29 @@ Bool 丢弃过期人工命令，Velocity 回退到最新导航；正常响应也
 **338 tests, 0 errors, 0 failures, 4 skipped**。
 这些检查不构成硬件安全、机器人示范效果或多线程执行器的验证。
 
+### 11.18 标准 TS 几何与反馈输入（2026-10-06）
+
+以 `3377669` 为基线，零边长的 2×1 网格会生成中心均为 `[0, 0]` 的两个区域，
+planner 仍能加载；NaN station 坐标会直接写入节点和动作位姿。生成器现在检查
+正边长、有限的输入几何与派生中心，拒绝这些定义，正常 grid/station 输出结构不变。
+
+2D 基线把零四元数当作 yaw=0，在 station 请求下可错误进入该区域；NaN 位姿
+会替换 `closest_region` 使用的缓存。现在 `update`/`closest_region` 在计算前
+验证 x/y 与四个 quaternion 分量有限，拒绝零四元数。Node 记录并丢弃无效反馈，
+保留最后有效 pose 和符号状态，不发布新区域。单位四元数仍是输入假设；本轮没有
+归一化或新增 norm 容差。服务使用最后有效 pose，不据此保证观测新鲜度。
+
+6D 验证至少六个位置及前六个分量有限，后续关节仍忽略；无效反馈保留最后有效
+区域并记录错误。基线的六个 `1e200` 位置触发 `OverflowError`，距离计算改为
+`math.hypot` 后，可按同一欧氏范数正确判定。手算 fixture 中
+`sqrt(6) * 1e200 < 1e201`，新实现位于半径 `1e201` 的区域内；另验证严格
+`distance < radius` 边界及额外 NaN 关节的原有忽略规则。区域切换、连通性和
+hysteresis 规则保持不变，浮点范数的末位舍入可能不同。
+
+模型与真实 Node 回调定向检查为 **30 passed**，包含 18 项新增生成/模型检查和
+四项新增回调检查；回调用记录型 publisher，未将其称为 DDS 故障测试。
+本轮仅重跑标准 TS 包 `colcon test`，含原有 2D/6D monitor Launch 通信及 lint，
+pytest 为 **34 tests, 0 errors, 0 failures, 1 skipped**；
+与其他包保留结果合计为 **360 tests, 0 errors, 0 failures, 4 skipped**。
+未进行硬件、仿真或机器人示范验证。
+
