@@ -68,6 +68,7 @@ class ExecutionManagerNode(Node):
         self._snapshot_requests = set()
         self._latest_observation = None
         self._execution_timers = set()
+        self._shutting_down = False
         self._expected_dimensions = None
         self._expected_schema_instance = None
         self._state_publisher = self.create_publisher(
@@ -154,6 +155,8 @@ class ExecutionManagerNode(Node):
         )
 
     def _on_observation(self, message):
+        if self._shutting_down:
+            return
         observation = self._observation_from_message(message)
         if not self._manager.observe_authority(observation):
             return
@@ -188,15 +191,25 @@ class ExecutionManagerNode(Node):
             self._snapshot_retry_timer.reset()
             return
         self._snapshot_requests.add(identity)
-        future = self._snapshot_client.call_async(
-            GetPlanningGraphSnapshot.Request()
-        )
+        try:
+            future = self._snapshot_client.call_async(
+                GetPlanningGraphSnapshot.Request()
+            )
+        except Exception as error:
+            self._snapshot_requests.discard(identity)
+            self._retain_failed_snapshot_observation(identity)
+            self.get_logger().warning(
+                f"Planning snapshot request failed: {error}"
+            )
+            return
         future.add_done_callback(
             partial(self._on_snapshot, observation, identity)
         )
 
     def _retry_snapshot_discovery(self):
         """Retain the latest command while waiting for ROS service discovery."""
+        if self._shutting_down:
+            return
         observation = self._pending_snapshot_observation
         if observation is None or not self._manager.is_current(observation):
             self._pending_snapshot_observation = None
@@ -212,13 +225,30 @@ class ExecutionManagerNode(Node):
 
     def _on_snapshot(self, observation, identity, future):
         self._snapshot_requests.discard(identity)
+        if self._shutting_down:
+            return
         try:
             response = future.result()
-            if response is None or not response.success:
-                raise ValueError(
-                    response.message if response is not None
-                    else "Planning snapshot request returned no response."
-                )
+        except Exception as error:
+            self._retain_failed_snapshot_observation(identity)
+            self.get_logger().warning(
+                f"Planning snapshot request failed: {error}"
+            )
+            return
+        if response is None:
+            self._retain_failed_snapshot_observation(identity)
+            self.get_logger().warning(
+                "Planning snapshot request returned no response."
+            )
+            return
+        if not response.success:
+            self._retain_failed_snapshot_observation(identity)
+            self.get_logger().warning(
+                "Planning snapshot request failed: "
+                f"{response.message or 'unsuccessful response'}"
+            )
+            return
+        try:
             snapshot = self._snapshot_from_message(response.snapshot)
         except Exception as error:
             self.get_logger().warning(f"Planning snapshot rejected: {error}")
@@ -272,6 +302,26 @@ class ExecutionManagerNode(Node):
             else:
                 self._manager.dispatch(latest_observation, snapshot)
 
+    def _retain_failed_snapshot_observation(self, identity):
+        """Retry only the latest valid command for a failed request."""
+        if self._shutting_down:
+            return
+        observation = self._latest_observation
+        if observation is None:
+            return
+        latest_identity = (
+            observation.planner_instance_id,
+            observation.planning_generation,
+        )
+        if (
+            latest_identity != identity
+            or not observation.has_next_action
+            or not self._manager.is_current(observation)
+        ):
+            return
+        self._pending_snapshot_observation = observation
+        self._snapshot_retry_timer.reset()
+
     @staticmethod
     def _snapshot_dimensions(snapshot):
         if not snapshot.product_nodes:
@@ -321,6 +371,12 @@ class ExecutionManagerNode(Node):
 
     def destroy_node(self):
         """Stop observation delivery before releasing ROS entities."""
+        if self._shutting_down:
+            return None
+        self._shutting_down = True
+        self._pending_snapshot_observation = None
+        self._snapshot_requests.clear()
+        self._snapshot_retry_timer.cancel()
         self._state_observer.stop()
         return super().destroy_node()
 

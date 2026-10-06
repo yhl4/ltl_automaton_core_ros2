@@ -1,7 +1,9 @@
 """Real ROS node-boundary tests for execution and observed state separation."""
 
 import time
+import warnings
 
+import pytest
 import rclpy
 from rclpy.context import Context
 from rclpy.executors import SingleThreadedExecutor
@@ -68,6 +70,25 @@ class DelayedSnapshotClient:
         return self.future
 
 
+class RetrySnapshotClient:
+    """Return a fresh controllable Future for every snapshot request."""
+
+    def __init__(self):
+        self.futures = []
+        self.ready = True
+        self.sync_error = None
+
+    def service_is_ready(self):
+        return self.ready
+
+    def call_async(self, _request):
+        if self.sync_error is not None:
+            raise self.sync_error
+        future = Future()
+        self.futures.append(future)
+        return future
+
+
 def _fill_snapshot(snapshot, generation):
     snapshot.metadata.planner_instance_id = "planner-a"
     snapshot.metadata.planning_generation = generation
@@ -94,9 +115,9 @@ def _fill_snapshot(snapshot, generation):
     snapshot.accepted_run.suffix_product_node_ids = [2]
 
 
-def _observation(generation, sequence=0):
+def _observation(generation, sequence=0, instance="planner-a"):
     message = PlanningExecutionObservation()
-    message.planner_instance_id = "planner-a"
+    message.planner_instance_id = instance
     message.planning_generation = generation
     message.execution_step_seq = sequence
     message.possible_product_node_ids = [1]
@@ -133,6 +154,13 @@ def _complete_snapshot(client, generation=1):
     client.future.set_result(response)
 
 
+def _successful_response(generation=1):
+    response = GetPlanningGraphSnapshot.Response()
+    response.success = True
+    _fill_snapshot(response.snapshot, generation)
+    return response
+
+
 def test_command_survives_delayed_snapshot_service_discovery():
     """Execute a retained command when its snapshot service appears later."""
     context = Context()
@@ -167,6 +195,200 @@ def test_command_survives_delayed_snapshot_service_discovery():
         driver.destroy_node()
         execution.destroy_node()
         executor.shutdown()
+        rclpy.shutdown(context=context)
+
+
+@pytest.mark.parametrize("failure", ["exception", "none", "false"])
+def test_failed_snapshot_response_is_retried(failure):
+    """Retry a failed request with the latest same-authority observation."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        backend = RecordingBackend()
+        execution = ExecutionManagerNode(
+            backend=backend,
+            state_observer=RecordingObserver(),
+            context=context,
+        )
+        client = RetrySnapshotClient()
+        execution._snapshot_client = client
+        execution._on_observation(_observation(1))
+        latest = _observation(1, sequence=1)
+        latest.possible_product_node_ids = [2]
+        latest.next_action = "wait"
+        execution._on_observation(latest)
+
+        assert len(client.futures) == 1
+        if failure == "exception":
+            client.futures[0].set_exception(
+                RuntimeError("temporary snapshot exception")
+            )
+        elif failure == "none":
+            client.futures[0].set_result(None)
+        else:
+            response = GetPlanningGraphSnapshot.Response()
+            response.success = False
+            response.message = "temporary snapshot failure"
+            client.futures[0].set_result(response)
+
+        assert execution._pending_snapshot_observation is not None
+        execution._retry_snapshot_discovery()
+        assert len(client.futures) == 2
+        client.futures[1].set_result(_successful_response())
+        assert len(backend.calls) == 1
+        assert backend.calls[0][0].execution_step_seq == 1
+        assert backend.calls[0][0].action == "wait"
+        assert backend.calls[0][0].source_product_node_ids == (2,)
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+def test_synchronous_snapshot_request_failure_is_retried():
+    """Retry when the ROS client rejects call_async synchronously."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        backend = RecordingBackend()
+        execution = ExecutionManagerNode(
+            backend=backend,
+            state_observer=RecordingObserver(),
+            context=context,
+        )
+        client = RetrySnapshotClient()
+        client.sync_error = RuntimeError("client unavailable")
+        execution._snapshot_client = client
+        execution._on_observation(_observation(1))
+
+        assert client.futures == []
+        assert execution._pending_snapshot_observation is not None
+        client.sync_error = None
+        execution._retry_snapshot_discovery()
+        assert len(client.futures) == 1
+        client.futures[0].set_result(_successful_response())
+        assert len(backend.calls) == 1
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+@pytest.mark.parametrize("outcome", ["success", "failure", "exception"])
+def test_late_snapshot_completion_after_destroy_is_ignored(outcome):
+    """Late snapshot callbacks do not touch a destroyed node."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        backend = RecordingBackend()
+        execution = ExecutionManagerNode(
+            backend=backend,
+            state_observer=RecordingObserver(),
+            context=context,
+        )
+        client = DelayedSnapshotClient()
+        execution._snapshot_client = client
+        execution._on_observation(_observation(1))
+        execution.destroy_node()
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            execution._retry_snapshot_discovery()
+            if outcome == "success":
+                client.future.set_result(_successful_response())
+            elif outcome == "failure":
+                response = GetPlanningGraphSnapshot.Response()
+                response.success = False
+                response.message = "late failure"
+                client.future.set_result(response)
+            else:
+                client.future.set_exception(RuntimeError("late exception"))
+
+        assert not any(
+            "Destroyable" in str(warning.message) for warning in caught
+        )
+        assert execution._pending_snapshot_observation is None
+        assert execution._snapshot_requests == set()
+        assert backend.calls == []
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+def test_failed_snapshot_no_action_suppresses_retry():
+    """A newer no-action observation cancels a failed request retry."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        backend = RecordingBackend()
+        execution = ExecutionManagerNode(
+            backend=backend,
+            state_observer=RecordingObserver(),
+            context=context,
+        )
+        client = RetrySnapshotClient()
+        execution._snapshot_client = client
+        execution._on_observation(_observation(1))
+        latest = _observation(1, sequence=1)
+        latest.has_next_action = False
+        latest.next_action = ""
+        latest.possible_product_node_ids = []
+        execution._on_observation(latest)
+
+        response = GetPlanningGraphSnapshot.Response()
+        response.success = False
+        response.message = "temporary snapshot failure"
+        client.futures[0].set_result(response)
+
+        assert execution._pending_snapshot_observation is None
+        execution._retry_snapshot_discovery()
+        assert len(client.futures) == 1
+        assert backend.calls == []
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+@pytest.mark.parametrize("generation, instance", [(2, "planner-a"), (1, "planner-b")])
+def test_stale_failed_snapshot_cannot_replace_new_authority(
+    generation, instance
+):
+    """A failed old request cannot queue a newer generation or instance."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        backend = RecordingBackend()
+        execution = ExecutionManagerNode(
+            backend=backend,
+            state_observer=RecordingObserver(),
+            context=context,
+        )
+        client = RetrySnapshotClient()
+        execution._snapshot_client = client
+        execution._on_observation(_observation(1))
+        execution._on_observation(
+            _observation(generation, instance=instance)
+        )
+        assert len(client.futures) == 2
+
+        response = GetPlanningGraphSnapshot.Response()
+        response.success = False
+        response.message = "old request failed"
+        client.futures[0].set_result(response)
+
+        assert execution._pending_snapshot_observation is None
+        execution._retry_snapshot_discovery()
+        assert len(client.futures) == 2
+    finally:
+        if execution is not None:
+            execution.destroy_node()
         rclpy.shutdown(context=context)
 
 

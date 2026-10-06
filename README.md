@@ -600,6 +600,7 @@ colcon test-result --verbose
 - planning graph snapshot 与 execution observation 的 identity contract；
 - FakeBackend/FakeStateObserver 执行闭环及真实 ROS 2 DDS 通信边界；
 - 快照服务延迟发现后的命令恢复、执行后端异常后的忙碌状态释放；
+- 快照请求失败后的最新命令恢复，以及节点销毁后晚到响应的抑制；
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
 - Launch 测试结束时的干净退出。
 - 不可行任务、未知状态与内部异常下的事务式重规划回滚。
@@ -728,6 +729,22 @@ prefix 与 suffix 搜索只计算最短距离，选出最佳接受环后再恢�
 浮点最短路、零代价环与多源搜索定向检查通过。Core、ROS planner 与 execution
 三包 `colcon test` 通过，与其他包保留结果合计为
 **257 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.9 执行快照请求失败恢复（2026-10-06）
+
+修复快照请求失败后动作命令被丢弃、执行停住的问题。客户端同步异常、
+Future 异常、空响应与 `success=False` 均通过现有 0.1 秒 timer 重试，
+只保留同一当前 instance/generation 下最新且有下一动作的观测。
+旧 generation/instance 的失败不会覆盖新命令，新的无动作观测会抑制重试。
+节点销毁时清空等待并取消 timer，晚到的快照完成回调直接返回。
+成功响应仍需通过图身份与 schema 校验；执行后端拒绝或失败不自动重派同一步。
+
+旧实现已复现为请求失败后 pending 命令为空。修复后的节点定向检查为
+**16 passed**，覆盖失败类型、最新序号、无动作、过期身份及销毁边界。
+真实 DDS 定向检查仅发布一次命令，让服务先失败再成功；后端接受和拒绝两种
+情况均为两次快照请求、一次动作派发，未生成 TS 状态反馈。
+本轮 `ltl_automaton_execution` 包 `colcon test` 通过（含原有四项执行闭环与 lint），
+与其他包保留结果合计为 **267 tests, 0 errors, 0 failures, 4 skipped**。
 
 ---
 

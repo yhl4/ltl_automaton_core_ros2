@@ -35,6 +35,13 @@ response validates only the graph identity and then uses the latest observation
 for that identity, so a newer sequence is not rejected because the request
 captured an older sequence.
 
+Snapshot service discovery and failed requests use the same 0.1-second retry
+timer. A request exception, missing response, or unsuccessful response retains
+only the latest actionable observation for the same current graph identity.
+A newer authority or no-action observation suppresses retries of the old command.
+Successful responses still require valid identity and schema before dispatch.
+Node teardown cancels pending retries and ignores late snapshot completions.
+
 An `ExecutionBackend` receives an `ExecutionStep` containing the command identity,
 action, and exact symbolic source/target states. It completes asynchronously with
 an `ExecutionCompletion` containing only execution success and a message.
