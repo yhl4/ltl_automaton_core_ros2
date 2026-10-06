@@ -1025,3 +1025,47 @@ Action/Bool/DDS 示范记录与提交检查。源码 py_compile/ament_flake8、
 含既有真实 translator 与 IRL 检查。源码 py_compile/ament_flake8、
 测试文件 ament_flake8/pep257、文档链接/43 节历史正文保留及 diff 检查
 通过。本轮未重跑整包、ROS 通信、物理仿真、实机或 Jazzy。
+
+### 11.45 IRL 学习内 margin 边表复用（2026-10-06）
+
+以 `5a28cba` 为基线，`learn_beta` 原先在每轮 margin 更新时重新枚举
+Product 边，并判断各边是否属于选定示范。一次学习的私有 Product 拓扑
+和示范边集合固定；现在在 deepcopy 后按原边顺序构造本次调用内的
+`(edge 属性引用, 非示范标志)` 元组表。每轮仍按原顺序更新全部边，
+从引用属性读取 transition_cost/soft_task_dist，先重置 canonical weight
+再按需加 1.0 margin；不复制属性字典或跨调用缓存。额外空间随边数增长，
+单轮学习未减少边枚举数量，并增加该临时表的构造成本。
+
+示范选择与并列时的首个选择、只读源图和私有 deepcopy 边界、距离搜索、
+浮点运算顺序、gradient、step、20 次上限及 0.3 停止阈值保持原样。
+公开 ProdAut.update_beta 和 learn_beta 接口未改变；仅内部 margin helper
+接收边表。原四项 margin 检查改用该内部签名，保留独立计算的期望权重。
+
+两项新增检查在实际旧提交和新实现均通过，不作为 RED 错误证据：
+固定大梯度/受控 suffix 运行完整 20 轮，核对前十次 +10、其后逐次
++10/(iteration+1)、全部 match scores 和每轮四条边的重置权重；同一
+私有 Product 被复用，源图不变。另一项在真实 margin 搜索后修改源边
+属性，再次学习得到 beta=0 的单轮结果，确认下一调用重新读取输入。
+
+外部临时 probe 加载实际旧/新源码，十组学习调用的完整结果、全部 β
+序列、逐轮边权重、完整规划运行字段或精确异常诊断一致；输入 Product、
+TS/Büchi 属性、initial/accept 集合和 possible_states 保持不变。覆盖
+beta=0/2.5、gamma=0、并列示范的两种顺序、源边修改后再调用、受控
+20 轮、反向梯度非负投影、无接受运行和未知示范节点。
+
+计数型边 view 与示范集合执行实际 margin 代码。固定四边图的四轮真实
+搜索，边枚举调用 **4→1**、枚举项 **16→4**、示范成员判断 **16→4**，
+两版 β 序列均为 (1, 2, 3, 3)。受控 20 轮为调用 **20→1**、项与成员
+判断各 **80→4**，两版最终 β=106.68771403175428；该场景的 planner
+返回固定 suffix，用于检验迭代规则，不作为真实 planner 的 20 轮测量。
+单轮场景两版调用 1、项和判断各 4；无效示范两版均为 0。每轮权重
+赋值没有减少。计数仅涵盖 margin 边枚举与成员判断，不作为端到端耗时、
+吞吐、RSS、学习收敛或机器人示范效果测量。
+
+相关 `test_discrete_plan.py`、`test_ltl_planner.py` 和 `test_irl.py` 分别
+**19 passed**、**26 passed**、**21 passed**，合计 **66 passed**；含
+既有真实 translator 检查。IRL `test_irl_plugin.py` launch 文件另为
+pytest **1 passed**，含真实 Action/Bool/DDS 示范记录和学习提交检查。
+源码 py_compile/ament_flake8、测试文件 ament_flake8/pep257、README/HIL
+说明/文档链接、44 节历史正文保留及 diff 检查通过。本轮没有重跑整包、
+物理仿真、实机或 Jazzy。

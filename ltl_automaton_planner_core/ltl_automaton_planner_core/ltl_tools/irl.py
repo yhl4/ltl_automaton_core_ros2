@@ -66,14 +66,14 @@ def _validate_runs(product, possible_runs):
     return validated
 
 
-def _apply_margin(product, beta, demonstration_edges):
+def _apply_margin(product, beta, margin_edges):
     product.graph["beta"] = beta
-    for source, target, edge in product.edges(data=True):
+    for edge, non_demo in margin_edges:
         edge["weight"] = (
             edge["transition_cost"]
             + beta * edge["soft_task_dist"]
         )
-        if (source, target) not in demonstration_edges:
+        if non_demo:
             edge["weight"] += 1.0
 
 
@@ -94,11 +94,18 @@ def learn_beta(product, possible_runs, beta, gamma):
     demonstration_soft = _path_soft_distance(product, demonstration)
     demonstration_edges = set(zip(demonstration, demonstration[1:]))
     learning_product = deepcopy(product)
+    margin_edges = tuple(
+        (
+            edge,
+            (source, target) not in demonstration_edges,
+        )
+        for source, target, edge in learning_product.edges(data=True)
+    )
 
     beta_sequence = []
     match_scores = []
     for iteration in range(20):
-        _apply_margin(learning_product, current_beta, demonstration_edges)
+        _apply_margin(learning_product, current_beta, margin_edges)
         run, _ = dijkstra_plan_networkX(learning_product, gamma=gamma)
         if run is None:
             raise RuntimeError("IRL margin planning found no accepting run.")

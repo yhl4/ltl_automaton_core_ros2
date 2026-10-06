@@ -166,10 +166,13 @@ The learner follows the legacy ROS 2 port's margin heuristic:
 - stop after at most 20 iterations or a beta change of at most 0.3, and return
   the latest beta.
 
-Each iteration resets canonical weights and applies the margin in one edge
-traversal on the private learning Product. The margin does not accumulate across
-iterations; multiplication, base-weight addition and margin addition keep their
-original order.
+Once per learning call, the learner records the private Product's ordered edge
+attribute references and whether each edge is absent from the demonstration.
+Every iteration traverses this local table to reset all canonical weights and
+apply the margin, reading the referenced attributes each time. The margin does
+not accumulate; multiplication, base-weight addition and margin addition keep
+their original order. The table uses space proportional to the edge count and
+is rebuilt on the next learning call.
 
 This is a bounded heuristic, without a convergence, inverse-optimality, or
 exact demonstration-reproduction guarantee. Hard/soft tasks and gamma remain

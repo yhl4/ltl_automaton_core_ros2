@@ -1,6 +1,7 @@
 """Focused tests for the pure beta-learning core."""
 
 import math
+from types import SimpleNamespace
 
 import pytest
 from networkx import DiGraph
@@ -72,9 +73,13 @@ def test_margin_replaces_weights_without_accumulating(
         edge["soft_task_dist"] = soft_distance
         edge["weight"] = -99.0
     original = {pair: dict(edge) for pair, edge in product.edges.items()}
+    margin_edges = tuple(
+        (edge, pair not in demonstration_edges)
+        for pair, edge in product.edges.items()
+    )
 
     for next_beta in (beta, beta + 2.0, beta + 2.0):
-        irl._apply_margin(product, next_beta, demonstration_edges)
+        irl._apply_margin(product, next_beta, margin_edges)
 
         assert product.graph["beta"] == next_beta
         for pair, edge in product.edges.items():
@@ -127,6 +132,69 @@ def test_nonnegative_projection_handles_reverse_gradient():
 
     assert result.beta == 0.0
     assert result.beta_sequence == (0.0,)
+
+
+def test_learning_keeps_all_twenty_margin_updates_on_one_private_product(monkeypatch):
+    """Preserve bounded large-gradient updates and reset every edge's margin."""
+    product, nodes = _margin_product()
+    product.edges[nodes["hub"], nodes["bad"]]["soft_task_dist"] = 10.0
+    demonstration = (nodes["hub"], nodes["good"], nodes["hub"])
+    demonstration_edges = set(zip(demonstration, demonstration[1:]))
+    before = {pair: dict(edge) for pair, edge in product.edges.items()}
+    products = []
+    planned_betas = []
+
+    def fixed_large_gradient(candidate, gamma):
+        assert candidate is not product
+        assert gamma == 1.0
+        products.append(candidate)
+        planned_betas.append(candidate.graph["beta"])
+        for pair, edge in candidate.edges.items():
+            expected = before[pair]["transition_cost"] + candidate.graph["beta"] * (
+                before[pair]["soft_task_dist"]
+            )
+            if pair not in demonstration_edges:
+                expected += 1.0
+            assert edge["weight"] == expected
+        return SimpleNamespace(suffix=[nodes["hub"], nodes["bad"], nodes["hub"]]), None
+
+    monkeypatch.setattr(irl, "dijkstra_plan_networkX", fixed_large_gradient)
+    result = learn_beta(product, [demonstration], beta=0, gamma=1)
+
+    assert len(planned_betas) == len(result.beta_sequence) == 20
+    assert all(candidate is products[0] for candidate in products)
+    assert tuple(planned_betas) == (0.0,) + result.beta_sequence[:-1]
+    assert result.beta_sequence[:10] == tuple(float(value) for value in range(10, 101, 10))
+    expected_tail = []
+    expected_beta = 100.0
+    for denominator in range(11, 21):
+        expected_beta += 10.0 / denominator
+        expected_tail.append(expected_beta)
+    assert result.beta_sequence[10:] == tuple(expected_tail)
+    assert result.beta == expected_beta
+    assert result.match_scores == (2,) * 20
+    assert result.demonstration == demonstration
+    assert {pair: dict(edge) for pair, edge in product.edges.items()} == before
+    assert product.graph["beta"] == 1000
+
+
+def test_learning_reads_changed_product_edges_on_the_next_call():
+    """Rebuild learning weights after changing the source Product between calls."""
+    product, nodes = _margin_product()
+    demonstration = (nodes["hub"], nodes["good"], nodes["hub"])
+    first = learn_beta(product, [demonstration], beta=0, gamma=1)
+    assert first.beta_sequence[:2] == (1.0, 2.0)
+
+    edge = product.edges[nodes["hub"], nodes["good"]]
+    edge["transition_cost"] = 0.0
+    edge["weight"] = 99.0
+    before = {pair: dict(data) for pair, data in product.edges.items()}
+    second = learn_beta(product, [demonstration], beta=0, gamma=1)
+
+    assert second.beta == 0.0
+    assert second.beta_sequence == (0.0,)
+    assert second.demonstration == demonstration
+    assert {pair: dict(data) for pair, data in product.edges.items()} == before
 
 
 @pytest.mark.parametrize(
