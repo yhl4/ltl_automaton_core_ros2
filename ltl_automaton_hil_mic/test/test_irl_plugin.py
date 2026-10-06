@@ -128,6 +128,49 @@ def _fake_plugin(buffer_size=100):
 class TestIRLPluginFakeHost(unittest.TestCase):
     """Exercise plugin lifecycle rules without a planner process."""
 
+    def test_converged_histories_keep_all_paths_and_read_changed_successors(self):
+        """Keep distinct histories through a shared endpoint and fresh graph reads."""
+        plugin, _, planner = _fake_plugin()
+        product = planner.product
+        hub = next(iter(product.possible_states))
+        first = (("before_a",), "q0")
+        second = (("before_b",), "q0")
+        goal_a = (("goal",), "q1")
+        goal_b = (("goal",), "q2")
+        other = (("other",), "q1")
+        product.add_edges_from([
+            (first, first), (first, hub), (second, hub),
+            (hub, goal_a), (hub, goal_b), (hub, other),
+        ])
+        histories = {(first, hub), (second, hub), (first, first, hub)}
+        before = set(histories)
+        expected = {run + (target,) for run in histories for target in (goal_a, goal_b)}
+        edges = list(product.edges(data=True))
+        self.assertEqual(plugin.update_possible_runs(histories, ("goal",)), expected)
+        self.assertEqual(histories, before)
+        self.assertEqual(list(product.edges(data=True)), edges)
+        self.assertEqual(product.possible_states, {hub})
+        self.assertEqual(plugin.update_possible_runs(histories, ("absent",)), set())
+
+        product.remove_edge(hub, goal_a)
+        self.assertEqual(
+            plugin.update_possible_runs(histories, ("goal",)),
+            {run + (goal_b,) for run in histories},
+        )
+        product.add_edge(hub, goal_a)
+        self.assertEqual(plugin.update_possible_runs(histories, ("goal",)), expected)
+
+    def test_empty_missing_and_duplicate_histories_keep_self_loop_semantics(self):
+        """Skip invalid endpoints and deduplicate only identical complete paths."""
+        plugin, _, planner = _fake_plugin()
+        state = next(iter(planner.product.possible_states))
+        missing = (("missing",), "q0")
+        histories = [(), (missing,), (["unhashable"],), (state,), (state,)]
+        self.assertEqual(plugin.update_possible_runs(histories, ("hub",)), {(state, state)})
+        self.assertEqual(plugin.update_possible_runs(iter([(state,)]), ("hub",)), {(state, state)})
+        self.assertEqual(plugin.update_possible_runs([], ("hub",)), set())
+        self.assertEqual(planner.product.possible_states, {state})
+
     def test_records_successors_and_tracks_authority(self):
         """Record real Product successors and reset on generation changes."""
         plugin, host, planner = _fake_plugin()

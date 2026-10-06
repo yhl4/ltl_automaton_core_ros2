@@ -698,12 +698,12 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为核心 β/γ 转换溢出诊断。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，仅重跑相关 Planner/IRL 两个测试文件：**45 passed**，
-含八项新增正/负超大整数检查及既有真实 translator 规划检查；修改文件 lint 通过。
-新增检查在实际旧提交均因 `OverflowError` 失败，修复后返回精确无效权重
-`ValueError` 并保留 cause；IRL 在复制或 margin 规划前拒绝输入，源 Product 不变。
-有效权重的处理、目标函数与学习规则保持不变。本轮没有重跑整包或 ROS 通信。
+最近代码验证为 IRL 合流示范后继复用。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，相关 IRL ROS launch/DDS test **1 passed**，修改文件 lint 通过。
+四项 fake-host 检查在实际旧/新实现均通过，包括两项新增语义保持检查。
+固定 6 条合流历史的完整延伸路径均为 24 条；后继枚举调用 6→1、枚举项
+36→6、状态比较 36→6。局部复用不跨反馈更新，不剪枝或合并不同历史，
+示范 buffer 与学习触发不变；仅为操作计数，未重跑整包或测量端到端加速。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

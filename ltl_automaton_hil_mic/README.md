@@ -142,6 +142,12 @@ replacement otherwise starts a new generation and ends the old teaching
 session. To use both IRL and trap diagnosis, list both plugin classes in your
 own plugin YAML.
 
+When distinct teaching histories converge at one Product state, each feedback
+update enumerates that state's successors once and reuses the matching targets.
+All distinct history paths remain in the run set. This lookup is local to one
+update, so the next update reads changed Product edges; buffer limits and
+learning triggers retain their existing behavior.
+
 The learner follows the legacy ROS 2 port's margin heuristic:
 
 - select the demonstrated path with the least adjacent-edge soft distance;

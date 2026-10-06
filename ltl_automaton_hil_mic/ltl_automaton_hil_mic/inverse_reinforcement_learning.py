@@ -94,13 +94,21 @@ class IRLPlugin:
     def update_possible_runs(self, previous_runs, ts_state):
         """Extend teaching paths with actual Product successors."""
         product = self.ltl_planner.product
-        return {
-            run + (successor,)
-            for run in previous_runs
-            if run and run[-1] in product
-            for successor in product.successors(run[-1])
-            if successor[0] == ts_state
-        }
+        successors_by_endpoint = {}
+        possible_runs = set()
+        for run in previous_runs:
+            if not run or run[-1] not in product:
+                continue
+            endpoint = run[-1]
+            if endpoint not in successors_by_endpoint:
+                successors_by_endpoint[endpoint] = tuple(
+                    successor
+                    for successor in product.successors(endpoint)
+                    if successor[0] == ts_state
+                )
+            for successor in successors_by_endpoint[endpoint]:
+                possible_runs.add(run + (successor,))
+        return possible_runs
 
     def run_at_ts_update(self, ts_state):
         """Record accepted TS feedback without changing active planning state."""
