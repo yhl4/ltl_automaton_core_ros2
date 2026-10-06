@@ -706,3 +706,29 @@ error 和 signal 9 五条路径均为 `LTL2BAError`。Exec format 的 cause 为
 保留结果，合计 **485 tests, 0 errors, 0 failures, 4 skipped**。
 未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.34 hard/soft Büchi 后继复用（2026-10-06）
+
+以 `7e9cdb4` 为基线，hard/soft Büchi 组合原先为每个组合状态和两个 level
+重复枚举组件后继并读取 guard。现在仅在本次构建内，为每个组件节点保存
+有序的 `(target, guard)` 元组；下一次构建重新读取组件。节点/边插入顺序、
+全部节点属性、initial/accept/symbols/type、source 接受性驱动的 level 切换、
+组件图引用和原 guard 对象引用均保持不变。公式翻译、软任务距离与代价不变。
+
+新增四项检查在旧实现与新实现均通过，用于语义保持，不作为 RED 错误证据。
+手工指定的 2 个 hard / 3 个 soft 状态覆盖全部 level 切换、12 个节点与
+24 条边的顺序、属性及解析 guard 的引用身份；两个参数化场景分别覆盖无边
+hard/soft 组件；更新同一组件 guard 后重新构建验证本次复用不跨调用保留。
+
+外部临时 probe 分别加载旧提交与新源码，并使用计数型 DiGraph 执行实际
+构建函数。固定 12 nodes / 24 edges 图的节点、边、属性及顺序一致，每版
+均引用自己的输入组件 guard。后继枚举调用 hard 12→2、soft 12→3，合计
+24→5；枚举项 hard 24→4、soft 12→3，合计 36→7。该计数使用受控组件，
+不作为原生 translator 新旧对照、端到端耗时、吞吐或 RSS 测量。
+
+重跑受影响 core 与 planner：分别为 **125 tests / 1 skipped** 与
+**107 tests / 1 skipped**，均为 **0 errors / 0 failures**，合计
+**230 passed / 2 skipped**。含新增四项、既有真实 translator、ROS 2 Action
+通信与 lint；跳过项为原有版权头检查。结合其它未改包保留结果，合计
+**489 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+未进行物理仿真、实机或 Jazzy 独立验证。
+

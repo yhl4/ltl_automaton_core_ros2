@@ -139,6 +139,27 @@ def duo_buchi_from_ltls(hard_spec, soft_spec):
     duo_buchi.graph["accept"] = accepting_states
     duo_buchi.graph["initial"] = initial_states
 
+    hard_successor_table = {
+        source: tuple(
+            (
+                target,
+                hard_buchi.edges[source, target]["guard"],
+            )
+            for target in hard_buchi.successors(source)
+        )
+        for source in hard_buchi.nodes
+    }
+    soft_successor_table = {
+        source: tuple(
+            (
+                target,
+                soft_buchi.edges[source, target]["guard"],
+            )
+            for target in soft_buchi.successors(source)
+        )
+        for source in soft_buchi.nodes
+    }
+
     for source_node in duo_buchi.nodes:
         source_hard, source_soft, source_level = check_duo_attributes(
             duo_buchi,
@@ -158,25 +179,13 @@ def duo_buchi_from_ltls(hard_spec, soft_spec):
                 else 2
             )
 
-        hard_successors = tuple(hard_buchi.successors(source_hard))
-        soft_successors = tuple(soft_buchi.successors(source_soft))
-
-        for target_hard in hard_successors:
-            hard_guard = hard_buchi.edges[
-                source_hard,
-                target_hard,
-            ]["guard"]
-
-            for target_soft in soft_successors:
+        for target_hard, hard_guard in hard_successor_table[source_hard]:
+            for target_soft, soft_guard in soft_successor_table[source_soft]:
                 target_node = (
                     target_hard,
                     target_soft,
                     target_level,
                 )
-                soft_guard = soft_buchi.edges[
-                    source_soft,
-                    target_soft,
-                ]["guard"]
 
                 duo_buchi.add_edge(
                     source_node,
