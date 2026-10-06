@@ -317,3 +317,90 @@ accept_S1:
     assert run.precost == 2.0
     assert run.sufcost == 2.0
     assert run.totalcost == 2.0 + 10 * 2.0
+
+
+def _branched_product(buchi_type):
+    ts = DiGraph(initial={"s0"})
+    ts.add_node("s0", label={"allow"})
+    ts.add_node("s1", label={"preferred"})
+    ts.add_node("isolated", label=set())
+    ts.add_edge("s0", "s1", weight=0.1, action="go")
+    ts.add_edge("s0", "s0", weight=0.2, action="stay")
+    ts.add_edge("s1", "s0", weight=0.3, action="return")
+    buchi = DiGraph(type=buchi_type, initial={"q0"}, accept={"q1"})
+    buchi.add_nodes_from(["q0", "q1", "q2"])
+    hard_guard = parse_guard("allow")
+    soft_guard = parse_guard("preferred")
+    if buchi_type == "safe_buchi":
+        guards = dict(hardguard=hard_guard, softguard=soft_guard)
+    else:
+        guards = dict(guard=hard_guard if buchi_type == "hard_buchi" else soft_guard)
+    buchi.add_edge("q0", "q1", **guards)
+    buchi.add_edge("q1", "q1", **guards)
+    return ProdAut(ts, buchi, beta=2.5)
+
+
+@pytest.mark.parametrize("buchi_type", ["hard_buchi", "soft_buchi", "safe_buchi"])
+def test_full_product_preserves_branched_order_attributes_and_source_costs(buchi_type):
+    """Match hand-specified graph results with branching and isolated states."""
+    product = _branched_product(buchi_type)
+    product.build_full()
+    expected_nodes = [
+        ("s0", "q0"), ("s1", "q1"), ("s0", "q1"), ("s0", "q2"),
+        ("s1", "q0"), ("s1", "q2"),
+        ("isolated", "q0"), ("isolated", "q1"), ("isolated", "q2"),
+    ]
+    expected_edges = [
+        (("s0", "q0"), ("s1", "q1")),
+        (("s0", "q0"), ("s0", "q1")),
+        (("s0", "q1"), ("s1", "q1")),
+        (("s0", "q1"), ("s0", "q1")),
+    ]
+    if buchi_type == "soft_buchi":
+        expected_edges.insert(2, (("s1", "q1"), ("s0", "q1")))
+        expected_edges.append((("s1", "q0"), ("s0", "q1")))
+    assert list(product) == expected_nodes
+    assert list(product.edges) == expected_edges
+    assert product.graph["initial"] == {("s0", "q0")}
+    assert product.possible_states == {("s0", "q0")}
+    assert product.graph["accept"] == {
+        ("s0", "q1"), ("s1", "q1"), ("isolated", "q1"),
+    }
+    cyclic_accepts = {("s0", "q1")}
+    if buchi_type == "soft_buchi":
+        cyclic_accepts.add(("s1", "q1"))
+    assert product.graph["accept_with_cycle"] == cyclic_accepts
+    for node, attributes in product.nodes(data=True):
+        assert attributes == dict(ts=node[0], buchi=node[1], marker="unvisited")
+    for source, target, attributes in product.edges(data=True):
+        ts_edge = product.graph["ts"].edges[source[0], target[0]]
+        distance = int(buchi_type != "hard_buchi" and source[0] == "s0")
+        assert attributes == dict(
+            transition_cost=ts_edge["weight"], soft_task_dist=distance,
+            weight=ts_edge["weight"] + 2.5 * distance, action=ts_edge["action"],
+        )
+
+
+def test_full_product_rebuild_reads_changed_ts_successors_cost_and_action():
+    """Rebuild from changed source data without retaining old transitions."""
+    product = _branched_product("soft_buchi")
+    ts, buchi = product.graph["ts"], product.graph["buchi"]
+    product.build_full()
+    ts.edges["s0", "s1"].update(weight=7.0, action="updated_go")
+    ts.remove_edge("s0", "s0")
+    ts.add_edge("s0", "isolated", weight=4.0, action="new_exit")
+    ts.graph["initial"] = {"s1"}
+    product.build_full()
+    assert product.graph["ts"] is ts
+    assert product.graph["buchi"] is buchi
+    assert product.graph["initial"] == {("s1", "q0")}
+    assert product.possible_states == {("s1", "q0")}
+    assert product.graph["accept_with_cycle"] == {("s0", "q1"), ("s1", "q1")}
+    for source in (("s0", "q0"), ("s0", "q1")):
+        assert not product.has_edge(source, ("s0", "q1"))
+        assert product.edges[source, ("s1", "q1")] == dict(
+            transition_cost=7.0, soft_task_dist=1, weight=9.5, action="updated_go",
+        )
+        assert product.edges[source, ("isolated", "q1")] == dict(
+            transition_cost=4.0, soft_task_dist=1, weight=6.5, action="new_exit",
+        )

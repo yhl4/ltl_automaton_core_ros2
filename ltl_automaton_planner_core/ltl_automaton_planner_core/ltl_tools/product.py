@@ -43,6 +43,10 @@ class ProdAut(DiGraph):
         for f_ts_node in ts:
             label = ts.nodes[f_ts_node]['label']
             label_checks = {}
+            ts_successors = tuple(
+                (t_ts_node, ts[f_ts_node][t_ts_node])
+                for t_ts_node in ts.successors(f_ts_node)
+            )
             for f_buchi_node in buchi:
                 f_prod_node = self.composition(f_ts_node, f_buchi_node)
                 # A Büchi guard depends on the source label, not the TS successor.
@@ -63,8 +67,7 @@ class ProdAut(DiGraph):
                     truth, dist = label_checks[guard_key]
                     if truth:
                         allowed.append((t_buchi_node, dist))
-                for t_ts_node in ts.successors(f_ts_node):
-                    edge = ts[f_ts_node][t_ts_node]
+                for t_ts_node, edge in ts_successors:
                     cost = edge['weight']
                     for t_buchi_node, dist in allowed:
                         t_prod_node = self.composition(t_ts_node, t_buchi_node)

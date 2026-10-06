@@ -732,3 +732,32 @@ hard/soft 组件；更新同一组件 guard 后重新构建验证本次复用不
 **489 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
 未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.35 Product 的 TS 后继复用（2026-10-06）
+
+以 `7e1bc97` 为基线，`ProdAut.build_full` 原先随每个 Büchi 源状态重复
+枚举同一 TS 源状态的后继和边属性。现在只在每个 TS 源状态的局部范围内，
+按原顺序保存 `(target, 原 edge dict)` 元组。Büchi 外层循环、composition
+调用顺序、原位置的 weight/action 读取及 `cost + beta * dist` 运算不变。
+保留 source-label、guard 求值复用、节点/边顺序与属性、initial/accept/
+accept_with_cycle、possible_states 和 TS/Büchi 引用。每次重建重新读取输入；
+局部表额外占用与当前 TS 源状态出度成比例的空间，无跨调用缓存。
+
+新增四项检查在旧实现与新实现均通过，不作为 RED 错误证据。三个参数化
+场景使用解析 guard，分别检查 hard/soft/safe Büchi 下分支、孤立状态与无边
+Büchi 状态的手工指定节点/边顺序、属性、接受集合和源标签软任务代价；另
+一项更新 TS 的后继、weight/action 和 initial 后重建，验证新值与旧边清除。
+
+外部临时 probe 加载实际旧提交和新源码，以计数型 DiGraph 构建相同三个
+9 nodes Product，边数分别为 4 / 6 / 4。新旧有序图属性与完整接受运行字段
+一致（已消费的 zip 迭代器按其剩余元素序列比较），输入 TS 节点/边属性
+保持不变；修改输入后的重建结果也一致。每图 TS 后继枚举调用及枚举项
+均从 9 降到 3。该 probe 使用受控 TS/Büchi，不作为原生 translator 新旧
+对照、端到端耗时、吞吐、RSS 或大图峰值内存测量。
+
+重跑受影响 core 与 planner：分别为 **129 tests / 1 skipped** 与
+**107 tests / 1 skipped**，均为 **0 errors / 0 failures**，合计
+**234 passed / 2 skipped**；Product 文件 **13 passed**。含既有真实
+translator、ROS 2 Action 通信与 lint；跳过项为原有版权头检查。结合其它
+未改包保留结果，合计 **493 tests, 0 errors, 0 failures, 4 skipped**，
+并非本轮重跑全部包。未进行物理仿真、实机或 Jazzy 独立验证。
+

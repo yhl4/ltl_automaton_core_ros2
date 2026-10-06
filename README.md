@@ -695,14 +695,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为 hard/soft Büchi 后继复用。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 core 与 planner：232 tests、0 errors、0 failures、2 skipped，
+最近代码验证为 Product 的 TS 后继复用。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 core 与 planner：236 tests、0 errors、0 failures、2 skipped，
 含四项新增语义保持检查、既有真实 translator/ROS 2 Action 通信与 lint。
-每次构建只枚举一次各组件节点的后继和 guard；保持组合图顺序、接受条件与
-原 guard 对象引用。固定 12 nodes / 24 edges 小图中，后继枚举调用 24→5、
-枚举项 36→7；该计数不作为端到端耗时或 RSS 测量。
+每个 TS 源状态在本次构建内复用有序后继与原边属性引用；保持 Product 顺序、
+source-label、接受条件与代价。三个 9 nodes 小图的新旧接受运行字段一致，
+TS 后继枚举调用及枚举项均为 9→3；该计数不作为端到端耗时或 RSS 测量。
 结合其他未改包保留结果，合计
-**489 tests, 0 errors, 0 failures, 4 skipped**。
+**493 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
