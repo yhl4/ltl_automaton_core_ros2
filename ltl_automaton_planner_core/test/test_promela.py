@@ -68,3 +68,58 @@ def test_missing_never_header_raises_a_parse_error() -> None:
     """Reject malformed translator output with an explicit parser error."""
     with pytest.raises(ParseException):
         parse("T0_init:\n    false;\n}")
+
+
+@pytest.mark.parametrize(
+    "malformed_promela",
+    [
+        (
+            "never { /* missing fi */\n"
+            "T0_init:\n"
+            "    if\n"
+            "    :: (1) -> goto T0_init\n"
+            "}\n"
+        ),
+        (
+            "never { /* missing brace */\n"
+            "T0_init:\n"
+            "    false;\n"
+        ),
+        (
+            "never { /* undeclared target */\n"
+            "T0_init:\n"
+            "    if\n"
+            "    :: (1) -> goto T1_state\n"
+            "    fi;\n"
+            "}\n"
+        ),
+        (
+            "never { /* duplicate state */\n"
+            "T0_init:\n"
+            "    false;\n"
+            "T0_init:\n"
+            "    false;\n"
+            "}\n"
+        ),
+        (
+            "never { /* empty if */\n"
+            "T0_init:\n"
+            "    if\n"
+            "    fi;\n"
+            "}\n"
+        ),
+        "never { /* empty claim */\n}\n",
+    ],
+    ids=[
+        "missing-fi",
+        "missing-brace",
+        "undeclared-target",
+        "duplicate-state",
+        "empty-if",
+        "empty-claim",
+    ],
+)
+def test_malformed_claim_boundaries_raise_parse_error(malformed_promela):
+    """Reject malformed claims instead of returning incomplete graphs."""
+    with pytest.raises(ParseException):
+        parse(malformed_promela)

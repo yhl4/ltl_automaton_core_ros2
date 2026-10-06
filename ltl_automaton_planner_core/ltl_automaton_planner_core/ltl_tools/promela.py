@@ -70,16 +70,29 @@ class Parser:
 
         while vertex is not None:
             vertex_name = vertex["name"]
+            if vertex_name in self.states:
+                raise ParseException(
+                    f"Duplicate state declaration: {vertex_name}"
+                )
             self.states.add(vertex_name)
 
             if self.accept(self.if_regex) is not None:
                 edge = self.accept(self.edge_regex)
+                edge_count = 0
 
                 while edge is not None:
                     edges[(vertex_name, edge["dest"])] = edge["cond"]
+                    edge_count += 1
                     edge = self.accept(self.edge_regex)
 
-                self.accept(self.fi_regex)
+                if edge_count == 0:
+                    raise ParseException(
+                        f"State {vertex_name} has an empty if block."
+                    )
+                if self.accept(self.fi_regex) is None:
+                    raise ParseException(
+                        f"State {vertex_name} is missing 'fi;'."
+                    )
 
             elif self.accept(self.skip_regex) is not None:
                 # A skip statement represents a self-loop.
@@ -92,18 +105,34 @@ class Parser:
             else:
                 remainder = self.instring[self.pos:]
                 raise ParseException(
-                    f"Expected 'if' or 'skip', but got: {remainder}"
+                    "Expected 'if', 'skip', or 'false', "
+                    f"but got: {remainder}"
                 )
 
             vertex = self.accept(self.vertex_regex)
 
-        self.accept(self.end_regex)
+        if self.accept(self.end_regex) is None:
+            raise ParseException("Expected closing '}'.")
         self.eat_whitespace()
 
         if self.pos != len(self.instring):
             remainder = self.instring[self.pos:]
             raise ParseException(
                 f"Input not fully parsed. Remainder: {remainder}"
+            )
+
+        if not self.states:
+            raise ParseException("The never claim declares no states.")
+
+        undeclared_targets = {
+            target
+            for _, target in edges
+            if target not in self.states
+        }
+        if undeclared_targets:
+            raise ParseException(
+                "Edges target undeclared states: "
+                + ", ".join(sorted(undeclared_targets))
             )
 
         return edges

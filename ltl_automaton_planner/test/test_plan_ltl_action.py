@@ -33,6 +33,7 @@ from ltl_automaton_msgs.srv import (
 )
 import ltl_automaton_planner.planner_node as planner_module
 from ltl_automaton_planner.planner_node import PlannerNode
+import ltl_automaton_planner_core.ltl_tools.buchi as buchi_module
 
 
 VALID_TS = """
@@ -576,6 +577,31 @@ def test_native_false_task_returns_no_plan_and_preserves_authority(action_runtim
     assert failed.status == GoalStatus.STATUS_ABORTED
     assert not failed.result.success
     assert failed.result.error_code == PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN
+    assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+    assert action_runtime.planner.ltl_planner is active_planner
+    assert action_runtime.planner.ltl_planner.run is active_run
+    assert action_runtime.planner._execution_step_seq == active_seq
+    assert get_planning_graph_snapshot(action_runtime).snapshot == active_snapshot
+
+
+def test_malformed_translator_output_never_replaces_active_plan(action_runtime, monkeypatch):
+    """Reject truncated tool output before it can authorize a new plan."""
+    activate(action_runtime)
+    active_planner = action_runtime.planner.ltl_planner
+    active_run = active_planner.run
+    active_snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    active_seq = action_runtime.planner._execution_step_seq
+
+    def malformed_translation(formula):
+        return f"never {{ /*{formula}*/\naccept_init:\n    skip\n"
+
+    monkeypatch.setattr(buchi_module, "run_ltl2ba", malformed_translation)
+    response = action_result(
+        action_runtime, send_goal(action_runtime, make_goal(hard_task="<> r3")),
+    )
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert not response.result.success
+    assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
     assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
     assert action_runtime.planner.ltl_planner is active_planner
     assert action_runtime.planner.ltl_planner.run is active_run

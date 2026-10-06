@@ -855,6 +855,20 @@ hard/soft 原始 Büchi 与组合图现在记录完整名称；`true`、`false` 
 验证原始/组合 Büchi 图与 `parse_ltl` 返回接口。本轮重跑 core、planner、HIL 与
 execution 四包；与其他包保留结果合计为 **297 tests, 0 errors, 0 failures, 4 skipped**。
 
+### 11.14 不完整 Promela 输出校验（2026-10-06）
+
+修复解析器静默接受不完整输出的问题。缺少 `fi;` 或 claim 闭合 `}`、未声明的
+目标状态、重复状态声明、空 if 块与未声明状态的空 claim 均明确报 `ParseException`。
+合法前向引用保持支持，原生 `false;` 的无边初始状态仍可正常解析。
+
+六类错误 fixture 在修复前均被接受，修复后均被拒绝；12 项解析检查与七项原生
+ltl2ba/Büchi 集成检查通过。受控故障测试将截断的工具输出注入真实 ROS 2 Action，
+返回 `ERROR_INTERNAL` 并保留 ACTIVE planner/run、快照与执行序号；该故障输入是
+测试 fixture，不表示观察到了原生 ltl2ba 的输出损坏。
+
+本轮重跑 core 与 planner 两包；与其他包保留结果合计为
+**304 tests, 0 errors, 0 failures, 4 skipped**。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照
