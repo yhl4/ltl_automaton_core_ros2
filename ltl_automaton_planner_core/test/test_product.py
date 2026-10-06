@@ -6,6 +6,7 @@ from ltl_automaton_planner_core.boolean_formulas.parser import (
     parse as parse_guard,
 )
 from ltl_automaton_planner_core.ltl_tools.product import ProdAut
+from ltl_automaton_planner_core.ltl_tools import product as product_module
 
 
 def create_test_ts() -> DiGraph:
@@ -169,3 +170,109 @@ def test_update_beta() -> None:
 
     assert product.graph["beta"] == 500
     assert edge_data["weight"] == 2.0
+
+
+class _CountingGuard:
+    """Small deterministic guard double for product cache checks."""
+
+    def __init__(self, required_label, distance):
+        self.required_label = required_label
+        self.distance_value = distance
+
+    def check(self, label):
+        return self.required_label in label
+
+    def distance(self, label):
+        del label
+        return self.distance_value
+
+
+def create_cached_safe_product():
+    """Create a safe Büchi product with shared and distinct guard groups."""
+    ts = DiGraph(initial={"allow", "deny"})
+    ts.add_node("allow", label={"allow"})
+    ts.add_node("deny", label={"deny"})
+    ts.add_edge("allow", "allow", weight=2.0, action="stay_allow")
+    ts.add_edge("deny", "deny", weight=2.0, action="stay_deny")
+
+    buchi = DiGraph(
+        type="safe_buchi",
+        initial={"source"},
+        accept={"shared_a"},
+    )
+    buchi.add_nodes_from(["source", "shared_a", "shared_b", "distinct"])
+    shared_hard = _CountingGuard("allow", 0.0)
+    shared_soft = _CountingGuard("preferred", 0.5)
+    buchi.add_edge(
+        "source",
+        "shared_a",
+        hardguard=shared_hard,
+        softguard=shared_soft,
+    )
+    buchi.add_edge(
+        "source",
+        "shared_b",
+        hardguard=shared_hard,
+        softguard=shared_soft,
+    )
+    buchi.add_edge(
+        "source",
+        "distinct",
+        hardguard=shared_hard,
+        softguard=_CountingGuard("other", 2.0),
+    )
+    return ProdAut(ts, buchi, beta=3.0)
+
+
+def test_build_full_caches_shared_safe_guards_per_ts_label(monkeypatch):
+    """Cache shared guards per source label and rebuild after label changes."""
+    product = create_cached_safe_product()
+    original_check = product_module.check_label_for_buchi_edge
+    calls = []
+
+    def counting_check(buchi, label, source, target):
+        data = buchi.edges[source, target]
+        calls.append(
+            (
+                id(data["hardguard"]),
+                id(data["softguard"]),
+                frozenset(label),
+            )
+        )
+        return original_check(buchi, label, source, target)
+
+    monkeypatch.setattr(
+        product_module,
+        "check_label_for_buchi_edge",
+        counting_check,
+    )
+    product.build_full()
+
+    assert len(calls) == 4
+    assert len(set(calls)) == 4
+    allow_source = ("allow", "source")
+    deny_source = ("deny", "source")
+    assert product.has_edge(allow_source, ("allow", "shared_a"))
+    assert product.has_edge(allow_source, ("allow", "shared_b"))
+    assert product.has_edge(allow_source, ("allow", "distinct"))
+    assert not list(product.out_edges(deny_source))
+    edge_data = product.edges[allow_source, ("allow", "shared_a")]
+    assert edge_data["soft_task_dist"] == 0.5
+    assert edge_data["weight"] == 2.0 + 3.0 * 0.5
+    distinct_edge = product.edges[allow_source, ("allow", "distinct")]
+    assert distinct_edge["soft_task_dist"] == 2.0
+    assert distinct_edge["weight"] == 2.0 + 3.0 * 2.0
+
+    product.graph["ts"].nodes["allow"]["label"] = {"deny"}
+    product.build_full()
+    assert not list(product.out_edges(allow_source))
+
+    product.graph["ts"].nodes["allow"]["label"] = {"allow"}
+    product.build_full()
+    assert product.has_edge(allow_source, ("allow", "shared_a"))
+
+    # Even an unchanged guard object must be reevaluated after a rebuild.
+    product.graph["buchi"].edges["source", "shared_a"]["hardguard"].required_label = "deny"
+    product.build_full()
+    assert not list(product.out_edges(allow_source))
+    assert product.has_edge(deny_source, ("deny", "shared_a"))

@@ -32,16 +32,35 @@ class ProdAut(DiGraph):
         self.remove_nodes_from(list(self.nodes))
         self.graph['initial'] = set()
         self.graph['accept'] = set()
+        guard_keys = {
+            (source, target): tuple(
+                id(data.get(name))
+                for name in ('guard', 'hardguard', 'softguard')
+            )
+            for source, target, data in buchi.edges(data=True)
+        }
 
         for f_ts_node in ts:
             label = ts.nodes[f_ts_node]['label']
+            label_checks = {}
             for f_buchi_node in buchi:
                 f_prod_node = self.composition(f_ts_node, f_buchi_node)
                 # A Büchi guard depends on the source label, not the TS successor.
                 allowed = []
                 for t_buchi_node in buchi.successors(f_buchi_node):
-                    truth, dist = check_label_for_buchi_edge(
-                        buchi, label, f_buchi_node, t_buchi_node)
+                    guard_key = guard_keys[
+                        (f_buchi_node, t_buchi_node)
+                    ]
+                    if guard_key not in label_checks:
+                        label_checks[guard_key] = (
+                            check_label_for_buchi_edge(
+                                buchi,
+                                label,
+                                f_buchi_node,
+                                t_buchi_node,
+                            )
+                        )
+                    truth, dist = label_checks[guard_key]
                     if truth:
                         allowed.append((t_buchi_node, dist))
                 for t_ts_node in ts.successors(f_ts_node):

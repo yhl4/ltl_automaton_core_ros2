@@ -814,6 +814,30 @@ prefix 仍在完整 Product 上搜索；suffix 只搜索接受点所属的强连
 本轮重跑 core、planner、HIL 与 execution 四包，覆盖可选 IRL 示范学习及真实执行
 闭环回归；与其他包保留结果合计为 **288 tests, 0 errors, 0 failures, 4 skipped**。
 
+### 11.12 Product guard 求值复用（2026-10-06）
+
+组合 Büchi 的不同层可能共享同一组 hard/soft guard 对象。构造 Product 时，
+对同一个 TS 源标签复用这些 guard 的 truth/distance 结果，避免重复求值。
+缓存只在当前源节点的构造中使用，切换源节点或重建 Product 都会重新计算，
+不保存到 Product、TS 或 Büchi 图中；source-label 语义、动作与加权代价保持不变。
+
+以 `906388b` 为旧实现，对照三个真实 Product 的完整节点、边属性、initial、accept、
+accept-with-cycle 与 possible states，结果一致，原 TS/Büchi 未变：
+
+| Product | 节点 / 边 | 旧 guard 求值次数 | 新 guard 求值次数 |
+|---|---:|---:|---:|
+| KTH | 36 / 72 | 96 | 48 |
+| Demo-D1 导航 | 120 / 388 | 180 | 90 |
+| Demo-D1 取放 | 180 / 736 | 360 | 180 |
+
+上述三个 Product 的默认与三起点、γ=0/1/10 共 18 组计划总代价差均为 0，
+prefix 与闭合 suffix 合法，初始与 possible states 保持不变。这里测量的是 guard
+求值次数，不表示端到端加速比。定向检查另验证共享 hard guard、不同 soft guard
+不会错误合并，以及修改源标签或 guard 后重建会重新求值。
+
+本轮重跑 core、planner、HIL 与 execution 四包，含 IRL 示范学习与真实执行闭环；
+与其他包保留结果合计为 **289 tests, 0 errors, 0 failures, 4 skipped**。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照
