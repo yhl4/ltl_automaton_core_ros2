@@ -22,7 +22,7 @@ def _finite_nonnegative(value, name):
         raise ValueError(f"{name} must be finite and non-negative.")
     try:
         numeric = float(value)
-    except (TypeError, ValueError) as error:
+    except (TypeError, ValueError, OverflowError) as error:
         raise ValueError(
             f"{name} must be finite and non-negative."
         ) from error

@@ -28,7 +28,17 @@ class LTLPlanner:
     ):
         """Initialize the planner from a TS and hard/soft LTL tasks."""
         for name, value in (("beta", beta), ("gamma", gamma)):
-            if isinstance(value, bool) or not isfinite(value) or value < 0:
+            try:
+                invalid_value = (
+                    isinstance(value, bool)
+                    or not isfinite(value)
+                    or value < 0
+                )
+            except OverflowError as error:
+                raise ValueError(
+                    f"{name} must be finite and nonnegative."
+                ) from error
+            if invalid_value:
                 raise ValueError(f"{name} must be finite and nonnegative.")
         self.hard_spec = hard_spec
         self.soft_spec = soft_spec

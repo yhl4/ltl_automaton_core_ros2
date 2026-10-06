@@ -913,3 +913,29 @@ RSS 或整个 Product 构建加速测量。
 **510 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
 未进行本轮 ROS 通信重跑、物理仿真、实机或 Jazzy 独立验证。
 
+### 11.41 核心 β/γ 转换溢出诊断（2026-10-06）
+
+以 `24d95ea` 为基线，直接调用 Python 核心接口并传入 β/γ=`±10**400`
+时，`LTLPlanner.__init__` 的 isfinite 与 IRL 的 float 转换均泄漏
+`OverflowError`。现在 Planner 只捕获原验证表达式的 OverflowError，
+IRL 将该类型加入原 float 转换的捕获范围；各自返回既有精确 ValueError
+诊断，并以 cause 保留原溢出。bool/有限性/非负规则不变，Planner 保留
+有效输入的原对象，IRL 保留 float 归一化及数值字符串接受行为。
+目标函数、示范选择、margin、梯度、步长、20 次上限和停止条件未改。
+
+八项新增检查在实际旧提交源码上全部失败，修复后全部通过：两个入口各
+覆盖 β/γ 与正/负超大整数。Planner 诊断为
+`{name} must be finite and nonnegative.`，IRL 为
+`{name} must be finite and non-negative.`。IRL 在 deepcopy 和 margin
+规划前拒绝无效输入，源边属性、β、initial 与 possible_states 保持不变。
+外部小对照确认 int 0/1000、float 2.5、Fraction 1/3 和 Decimal 2.5 五类
+有效输入的 Planner 对象与 IRL float 结果保持一致；IRL 的字符串 2.5
+接受行为与 Planner 对字符串权重的 TypeError 保持原状，未扩大输入范围。
+
+仅重跑相关 `test_ltl_planner.py` 与 `test_irl.py`：分别 **26 passed** 和
+**19 passed**，合计 **45 passed**，含既有真实 translator 规划检查。
+两个源码 py_compile/ament_flake8 与两个测试文件 ament_flake8/pep257 均
+通过；文档链接、40 节历史验证记录保留及 diff 检查通过。本轮没有重跑整包、
+ROS 通信、物理仿真、实机或 Jazzy，也不作为学习收敛/效果测量；超大整数
+是 Python 接口的触发输入，没有通过 ROS double 字段传输该数值。
+

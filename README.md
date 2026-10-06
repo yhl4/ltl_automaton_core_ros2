@@ -393,6 +393,8 @@ Planner 接受的 TS YAML 必须满足以下结构约束：
 - 边 guard 仍按 source-label 语义求值：使用边源状态的标签检查动作 guard，不能把目标状态标签替代源状态标签。
 
 输入违反这些约束时，加载或规划请求应失败并保留此前有效的运行状态。
+直接调用 Python 核心 Planner 或 IRL 时，超出浮点表示范围的 β/γ 也返回
+各自既有的无效权重 `ValueError`，并保留转换溢出的异常原因。
 
 ---
 
@@ -696,14 +698,12 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为可达 Product 的 SCC 搜索。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，仅重跑受影响 core：144 tests、0 errors、0 failures、1 skipped，
-含三项新增语义保持检查、既有真实 translator 与 lint。
-搜索阶段的 SCC 仅遍历 prefix 可达节点的只读视图；9 组新旧源码对照中，
-完整接受运行及输入图一致。固定断开图的 SCC 邻接项扫描从 2,586 降到 11，
-原生 KTH 图从 155 降到 91；仅为操作计数，不作为端到端加速测量。
-结合 planner 等未改包保留结果，合计
-**510 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+最近代码验证为核心 β/γ 转换溢出诊断。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，仅重跑相关 Planner/IRL 两个测试文件：**45 passed**，
+含八项新增正/负超大整数检查及既有真实 translator 规划检查；修改文件 lint 通过。
+新增检查在实际旧提交均因 `OverflowError` 失败，修复后返回精确无效权重
+`ValueError` 并保留 cause；IRL 在复制或 margin 规划前拒绝输入，源 Product 不变。
+有效权重的处理、目标函数与学习规则保持不变。本轮没有重跑整包或 ROS 通信。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

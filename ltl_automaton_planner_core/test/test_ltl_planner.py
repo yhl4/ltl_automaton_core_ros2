@@ -123,6 +123,16 @@ def test_invalid_planning_weights_are_rejected(name, value):
         LTLPlanner(create_transition_system(), "1", "1", **{name: value})
 
 
+@pytest.mark.parametrize("name", ["beta", "gamma"])
+@pytest.mark.parametrize("sign", [1, -1], ids=["positive", "negative"])
+def test_overflowing_planning_weights_have_invalid_weight_diagnostics(name, sign):
+    """Reject non-representable integer weights with the existing input error."""
+    with pytest.raises(ValueError) as caught:
+        LTLPlanner(create_transition_system(), "1", "1", **{name: sign * 10**400})
+    assert str(caught.value) == f"{name} must be finite and nonnegative."
+    assert isinstance(caught.value.__cause__, OverflowError)
+
+
 def test_static_planning_preserves_explicit_initial_state():
     """Reuse a built TS without resetting an explicitly selected start."""
     ts = create_transition_system()

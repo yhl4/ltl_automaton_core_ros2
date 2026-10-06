@@ -142,6 +142,32 @@ def test_beta_and_gamma_must_be_finite_nonnegative_numbers(value):
         learn_beta(product, [path], beta=0.0, gamma=value)
 
 
+@pytest.mark.parametrize("name", ["beta", "gamma"])
+@pytest.mark.parametrize("sign", [1, -1], ids=["positive", "negative"])
+def test_overflowing_learning_weights_preserve_product_before_planning(name, sign, monkeypatch):
+    """Reject overflowing input before copying, reweighting or margin planning."""
+    product, nodes = _margin_product()
+    path = (nodes["hub"], nodes["good"])
+    before_edges = [(source, target, dict(data)) for source, target, data
+                    in product.edges(data=True)]
+    before_beta = product.graph["beta"]
+
+    def unexpected_work(*args, **kwargs):
+        raise AssertionError("Invalid IRL weights must fail before planning or copying.")
+
+    monkeypatch.setattr(irl, "deepcopy", unexpected_work)
+    monkeypatch.setattr(irl, "dijkstra_plan_networkX", unexpected_work)
+    weights = {"beta": 0.0, "gamma": 1.0}
+    weights[name] = sign * 10**400
+    with pytest.raises(ValueError) as caught:
+        learn_beta(product, [path], **weights)
+    assert str(caught.value) == f"{name} must be finite and non-negative."
+    assert isinstance(caught.value.__cause__, OverflowError)
+    assert list(product.edges(data=True)) == before_edges
+    assert product.graph["beta"] == before_beta
+    assert product.graph["initial"] == product.possible_states == {nodes["hub"]}
+
+
 @pytest.mark.parametrize(
     "demonstrations",
     [
