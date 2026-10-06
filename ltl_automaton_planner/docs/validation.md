@@ -378,3 +378,31 @@ backend completion 与真实符号状态的独立观测边界保持不变。检�
 与其他包保留结果合计 **413 tests, 0 errors, 0 failures, 4 skipped**。
 未进行仿真物理、实机、机器人示范或多线程执行器验证。
 
+### 11.21 启动参数与运行对象一致性（2026-10-06）
+
+以 `adcb955` 为基线，真实 Node 参数写入复现了配置显示与实际对象不一致：
+HIL `max_linear_x_vel` 设置为 `1.2` 返回成功，查询显示 `1.2`，实际限幅仍为
+`0.5`；执行节点参数显示 timeout `7.0` / delay `2.0`，缓存仍为 `5.0` / `0.5`。
+2D/6D monitor 的模型路径及 2D 消息类型同样可成功写入，却没有重载模型或订阅。
+
+五个节点中这些初始化后缓存的参数现在以 `ParameterDescriptor(read_only=True)`
+声明：HIL 两个 controller 的全部配置、执行节点的 delay/快照 timeout、标准
+monitor 的路径及 2D 消息类型。运行时写入明确拒绝，参数显示与缓存保持一致；
+启动 CLI/parameter overrides 仍先应用再构造对象，`use_sim_time` 保持动态。
+三个包补齐直接 `rcl_interfaces` 依赖声明，无新增配置框架或运行时重载逻辑。
+区域、仲裁公式、任务、执行身份和既有计时语义保持不变。
+
+新增 **5 passed**：HIL 两个 Node 验证配置只读、启动覆盖、动态 ROS 时钟参数
+及混合原子写入的全体拒绝；两个 monitor 验证路径/类型写入拒绝、原模型反馈
+继续工作及动态时钟参数；执行 Node 通过真实 DescribeParameters、SetParameters
+和 SetParametersAtomically 服务检查公开 descriptor、拒绝结果、启动 timeout/delay
+缓存以及原子失败不修改 `use_sim_time`。修复后的同一 HIL probe 返回失败，
+查询值、策略限幅和输出均保留 `0.5`。
+
+仅重新构建并串行重跑三个受影响包：执行 **72 tests / 0 skipped**、HIL
+**83 tests / 1 skipped**、标准 TS **36 tests / 1 skipped**，合计
+**191 tests, 0 errors, 0 failures, 2 skipped**；包含原有 controller、IRL、
+TrapDetection、monitor Launch、真实 DDS 符号执行闭环及 lint。
+与其他包保留结果合计 **418 tests, 0 errors, 0 failures, 4 skipped**。
+这些检查不构成实机、物理仿真或机器人示范验证。
+

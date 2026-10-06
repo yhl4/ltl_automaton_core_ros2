@@ -11,6 +11,7 @@ from ltl_automaton_std_transition_systems.region_6d_jointspace_monitor import (
 )
 import pytest
 import rclpy
+from rclpy.parameter import Parameter
 from sensor_msgs.msg import JointState
 from std_msgs.msg import String
 
@@ -72,3 +73,28 @@ def test_invalid_feedback_preserves_last_valid_input_and_allows_recovery(monitor
         assert monitor.messages == ["q1"]
         node._joint_state_callback(JointState(position=[1.0] * 6))
         assert monitor.messages == ["q1", "q2"]
+
+
+def test_monitor_startup_parameters_reject_runtime_writes(monitor):
+    """Reject model and subscription changes instead of reporting unused values."""
+    node = monitor.node
+    original_path = node.get_parameter("transition_system_path").value
+    assert node.describe_parameter("transition_system_path").read_only
+    result = node.set_parameters([
+        Parameter("transition_system_path", value="/tmp/unloaded_transition_system.yaml"),
+    ])[0]
+    assert not result.successful
+    assert node.get_parameter("transition_system_path").value == original_path
+    if monitor.kind == "pose":
+        assert node.describe_parameter("pose_message_type").read_only
+        result = node.set_parameters([
+            Parameter("pose_message_type", value="geometry_msgs/msg/PoseStamped"),
+        ])[0]
+        assert not result.successful
+        assert node.get_parameter("pose_message_type").value == "geometry_msgs/msg/Pose"
+        node._pose_callback(pose())
+        assert monitor.messages == ["r1"]
+    else:
+        node._joint_state_callback(JointState(position=[0.0] * 6))
+        assert monitor.messages == ["q1"]
+    assert node.set_parameters([Parameter("use_sim_time", value=True)])[0].successful

@@ -10,6 +10,7 @@ from ltl_automaton_hil_mic import bool_cmd_mixer as bool_module
 from ltl_automaton_hil_mic import vel_cmd_mixer as velocity_module
 from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import ClosestState, TrapCheck
+from rclpy.parameter import Parameter
 import pytest
 import rclpy
 from std_msgs.msg import Bool
@@ -437,3 +438,37 @@ def test_velocity_node_rejects_nonfinite_human_timeout(timeout):
         if node is not None:
             node.destroy_node()
         rclpy.shutdown()
+
+
+def test_hil_startup_parameters_reject_runtime_writes(runtime):
+    """Do not report limits, model selection, or deadlines that were not applied."""
+    node = runtime.node
+    if runtime.kind == "bool":
+        names = [
+            "transition_system_path", "state_dimension_name", "monitored_action",
+            "safety_check_timeout",
+        ]
+        assert node.policy.monitored_action == "pick"
+    else:
+        names = [
+            "epsilon", "ds", "deadband", "timeout", "safety_check_timeout",
+            "state_dimension_name",
+            *[f"max_{kind}_{axis}_vel" for kind in ("linear", "angular")
+              for axis in ("x", "y", "z")],
+        ]
+        assert node.policy.max_linear[0] == 1.0
+        assert node.timeout == 2.0
+    for name in names:
+        original = node.get_parameter(name).value
+        replacement = original + 0.5 if isinstance(original, float) else "changed"
+        assert node.describe_parameter(name).read_only
+        result = node.set_parameters([Parameter(name, value=replacement)])[0]
+        assert not result.successful
+        assert node.get_parameter(name).value == original
+    assert node.set_parameters([Parameter("use_sim_time", value=True)])[0].successful
+    result = node.set_parameters_atomically([
+        Parameter("safety_check_timeout", value=0.1),
+        Parameter("use_sim_time", value=False),
+    ])
+    assert not result.successful
+    assert node.get_parameter("use_sim_time").value is True

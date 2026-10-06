@@ -67,6 +67,16 @@ human command; velocity publishes the latest valid navigation command. Late repl
 cannot affect a newer query or publish after node teardown. The existing velocity
 `timeout` remains the human-input freshness window, separate from this query limit.
 
+Both controllers' configuration parameters are startup-only and read-only.
+Set limits, deadlines, the monitored action and model/dimension selection when
+starting the node; runtime parameter writes are rejected instead of reporting
+values that the existing policy does not use. ROS 2's inherited `use_sim_time`
+parameter remains dynamic. For example:
+
+```bash
+ros2 run ltl_automaton_hil_mic vel_cmd_hil_mic --ros-args -p max_linear_x_vel:=1.0
+```
+
 ```bash
 ros2 launch ltl_automaton_hil_mic vel_cmd_hil_mic.launch.py \
   safety_check_timeout:=1.0

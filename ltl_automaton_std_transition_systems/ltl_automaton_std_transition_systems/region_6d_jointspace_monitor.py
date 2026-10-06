@@ -7,6 +7,7 @@ import rclpy
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
 )
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile
 from sensor_msgs.msg import JointState
@@ -78,7 +79,11 @@ class Region6DJointspaceMonitor(Node):
 
     def __init__(self):
         super().__init__("region_6d_jointspace_monitor")
-        self.declare_parameter("transition_system_path", "")
+        self.declare_parameter(
+            "transition_system_path",
+            "",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
         path = self.get_parameter("transition_system_path").value
         if not path:
             raise ValueError("transition_system_path must be set.")

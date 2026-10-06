@@ -373,6 +373,10 @@ Action 切换任务并取得结构化结果；旧 `/replanning` 服务继续兼�
 `hard_task`、`soft_task`、`beta` 与 `gamma` 参数表示启动配置；Action 或 IRL
 提交后的活动计划以当前 generation 的快照和执行观测为准，参数查询不会随之更新。
 
+执行节点的延迟/快照超时、标准 TS monitor 的模型路径/消息类型及 HIL 控制器
+配置均为只读启动参数。通过 launch 或启动 ROS 参数设定，运行时修改会返回拒绝，
+避免参数查询显示新值但实际对象继续使用旧值。继承的 `use_sim_time` 仍可动态修改。
+
 ### 7.1 TS 输入约束
 
 Planner 接受的 TS YAML 必须满足以下结构约束：
@@ -662,6 +666,7 @@ colcon test-result --verbose
 - 标准 TS 无效位姿/关节反馈的丢弃与恢复，以及有限大数的 6D 距离计算；
 - HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
 - HIL 非有限速度/距离的丢弃与恢复、三轴限幅和小安全区增益的数值稳定性；
+- HIL、标准 TS 和执行节点的启动参数只读拒绝、启动覆盖及公开参数服务原子更新；
 - Launch 测试结束时的干净退出。
 - 不可行任务、未知状态与内部异常下的事务式重规划回滚。
 - 完整 Product 上的历史重规划、最新到达状态、代价参数与新任务历史隔离。
@@ -674,11 +679,11 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为执行端快照请求超时恢复。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，执行包重跑为 71 tests、0 errors、0 failures、0 skipped，
-包含新增的 17 项检查及原有真实 DDS 符号执行闭环回归。
+最近代码验证为启动参数一致性修复。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，执行、HIL 与标准 TS 三包重跑共 191 tests、0 errors、
+0 failures、2 skipped，包含新增的五项检查及原有 Action/Launch/DDS 回归。
 结合其他未改包保留结果，合计
-**413 tests, 0 errors, 0 failures, 4 skipped**。
+**418 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

@@ -59,6 +59,11 @@ The fake launch exposes the same parameter:
 ros2 launch ltl_automaton_execution fake_execution.launch.py snapshot_request_timeout:=5.0
 ```
 
+`snapshot_request_timeout` and the fake backend's `execution_delay_sec` are
+read-only startup parameters. Startup overrides are applied before constructing
+requests and the backend; runtime writes are rejected instead of reporting
+values that were not applied. The inherited `use_sim_time` remains dynamic.
+
 An `ExecutionBackend` receives an `ExecutionStep` containing the command identity,
 action, and exact symbolic source/target states. It completes asynchronously with
 an `ExecutionCompletion` containing only execution success and a message.

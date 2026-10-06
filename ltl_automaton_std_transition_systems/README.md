@@ -52,6 +52,12 @@ The first six joint positions must be present and finite; later positions remain
 ignored. Invalid feedback is logged without changing or publishing the last
 valid region. Region membership retains the strict distance `< radius` rule.
 
+The monitors' `transition_system_path` and the 2D monitor's `pose_message_type`
+are startup-only, read-only parameters. Configure them through launch arguments
+or startup ROS parameters. Runtime writes are rejected because the running
+model and subscription are not reloaded. The inherited `use_sim_time` parameter
+retains ROS 2's dynamic clock behavior.
+
 ## Generator
 
 The output path is explicit so an installed package is never modified:

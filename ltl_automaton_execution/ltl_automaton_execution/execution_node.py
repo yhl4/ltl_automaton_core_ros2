@@ -27,6 +27,7 @@ from ltl_automaton_execution.models import PlanningSnapshot
 from ltl_automaton_execution.models import ProductEdge
 from ltl_automaton_execution.models import ProductNode
 from ltl_automaton_execution.models import SymbolicState
+from rcl_interfaces.msg import ParameterDescriptor
 
 
 COMMAND_QOS = QoSProfile(
@@ -50,8 +51,16 @@ class ExecutionManagerNode(Node):
         **kwargs,
     ):
         super().__init__("ltl_execution_manager", **kwargs)
-        self.declare_parameter("execution_delay_sec", 0.5)
-        self.declare_parameter("snapshot_request_timeout", 5.0)
+        self.declare_parameter(
+            "execution_delay_sec",
+            0.5,
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "snapshot_request_timeout",
+            5.0,
+            descriptor=ParameterDescriptor(read_only=True),
+        )
         self._snapshot_request_timeout = float(
             self.get_parameter("snapshot_request_timeout").value
         )

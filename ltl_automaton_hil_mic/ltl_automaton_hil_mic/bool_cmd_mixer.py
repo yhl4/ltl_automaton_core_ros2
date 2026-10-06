@@ -10,6 +10,7 @@ from ltl_automaton_msgs.srv import TrapCheck
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
 )
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.node import Node
 from rclpy.clock import Clock, ClockType
 from std_msgs.msg import Bool
@@ -22,9 +23,18 @@ class BoolCommandMixer(Node):
 
     def __init__(self):
         super().__init__("bool_cmd_hil_mic")
-        self.declare_parameter("transition_system_path", "")
-        self.declare_parameter("state_dimension_name", "load")
-        self.declare_parameter("monitored_action", "pick")
+        self.declare_parameter(
+            "transition_system_path", "",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "state_dimension_name", "load",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "monitored_action", "pick",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
 
         path = self.get_parameter("transition_system_path").value
         if not path:
@@ -45,7 +55,10 @@ class BoolCommandMixer(Node):
         self._trap_check_in_flight = False
         self._trap_request_context = None
         self._closed = False
-        self.declare_parameter("safety_check_timeout", 1.0)
+        self.declare_parameter(
+            "safety_check_timeout", 1.0,
+            descriptor=ParameterDescriptor(read_only=True),
+        )
         self.safety_check_timeout = float(
             self.get_parameter("safety_check_timeout").value
         )

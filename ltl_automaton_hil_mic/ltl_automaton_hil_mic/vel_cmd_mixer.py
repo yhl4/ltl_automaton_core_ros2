@@ -7,6 +7,7 @@ import rclpy
 from geometry_msgs.msg import Twist
 from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import ClosestState, TrapCheck
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 
@@ -45,7 +46,10 @@ class VelocityCommandMixer(Node):
             "state_dimension_name": "2d_pose_region",
         }
         for name, value in defaults.items():
-            self.declare_parameter(name, value)
+            self.declare_parameter(
+                name, value,
+                descriptor=ParameterDescriptor(read_only=True),
+            )
 
         self.state_dimension_name = self.get_parameter(
             "state_dimension_name"

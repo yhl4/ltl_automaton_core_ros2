@@ -9,6 +9,7 @@
 
   <buildtool_depend>ament_python</buildtool_depend>
 
+  <exec_depend>rcl_interfaces</exec_depend>
   <depend>rclpy</depend>
   <depend>ltl_automaton_msgs</depend>
   <exec_depend>launch</exec_depend>

@@ -7,7 +7,9 @@ import pytest
 import rclpy
 from rclpy.context import Context
 from rclpy.executors import SingleThreadedExecutor
+from rclpy.parameter import Parameter
 from rclpy.task import Future
+from rcl_interfaces.srv import DescribeParameters, SetParameters, SetParametersAtomically
 
 from ltl_automaton_msgs.msg import PlanningExecutionObservation
 from ltl_automaton_msgs.msg import ProductGraphEdge
@@ -609,6 +611,70 @@ def test_r1_through_r9_and_a10_observation_pipeline_contract():
         driver.destroy_subscription(subscription)
         driver.destroy_publisher(publisher)
         driver.destroy_service(service)
+        driver.destroy_node()
+        execution.destroy_node()
+        executor.shutdown()
+        rclpy.shutdown(context=context)
+
+
+def test_public_parameter_services_reject_unused_startup_updates():
+    """Keep reported startup configuration equal to the live cached values."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = ExecutionManagerNode(
+        context=context,
+        parameter_overrides=[
+            Parameter("snapshot_request_timeout", value=0.75),
+            Parameter("execution_delay_sec", value=0.25),
+        ],
+    )
+    driver = rclpy.create_node("execution_parameter_contract_test", context=context)
+    executor = SingleThreadedExecutor(context=context)
+    executor.add_node(execution)
+    executor.add_node(driver)
+    describe = driver.create_client(
+        DescribeParameters, "ltl_execution_manager/describe_parameters",
+    )
+    update = driver.create_client(SetParameters, "ltl_execution_manager/set_parameters")
+    atomic = driver.create_client(
+        SetParametersAtomically, "ltl_execution_manager/set_parameters_atomically",
+    )
+    try:
+        for client in (describe, update, atomic):
+            assert client.wait_for_service(timeout_sec=2.0)
+        names = ["snapshot_request_timeout", "execution_delay_sec", "use_sim_time"]
+        future = describe.call_async(DescribeParameters.Request(names=names))
+        assert _spin_until(executor, future.done)
+        assert [item.read_only for item in future.result().descriptors] == [True, True, False]
+        assert execution._snapshot_request_timeout == 0.75
+        assert execution._manager._backend._delay == 0.25
+
+        future = update.call_async(SetParameters.Request(parameters=[
+            Parameter("snapshot_request_timeout", value=0.1).to_parameter_msg(),
+            Parameter("execution_delay_sec", value=1.0).to_parameter_msg(),
+            Parameter("use_sim_time", value=True).to_parameter_msg(),
+        ]))
+        assert _spin_until(executor, future.done)
+        assert [item.successful for item in future.result().results] == [False, False, True]
+        assert execution.get_parameter("snapshot_request_timeout").value == 0.75
+        assert execution.get_parameter("execution_delay_sec").value == 0.25
+        assert execution.get_parameter("use_sim_time").value is True
+        assert execution._snapshot_request_timeout == 0.75
+        assert execution._manager._backend._delay == 0.25
+
+        future = atomic.call_async(SetParametersAtomically.Request(parameters=[
+            Parameter("snapshot_request_timeout", value=0.1).to_parameter_msg(),
+            Parameter("use_sim_time", value=False).to_parameter_msg(),
+        ]))
+        assert _spin_until(executor, future.done)
+        assert not future.result().result.successful
+        assert execution.get_parameter("snapshot_request_timeout").value == 0.75
+        assert execution.get_parameter("use_sim_time").value is True
+    finally:
+        for client in (describe, update, atomic):
+            driver.destroy_client(client)
+        executor.remove_node(driver)
+        executor.remove_node(execution)
         driver.destroy_node()
         execution.destroy_node()
         executor.shutdown()

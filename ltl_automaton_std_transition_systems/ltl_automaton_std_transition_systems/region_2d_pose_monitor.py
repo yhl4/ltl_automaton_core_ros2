@@ -14,6 +14,7 @@ from ltl_automaton_msgs.srv import ClosestState
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
 )
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile
 from std_msgs.msg import String
@@ -207,8 +208,16 @@ class Region2DPoseMonitor(Node):
 
     def __init__(self):
         super().__init__("region_2d_pose_monitor")
-        self.declare_parameter("transition_system_path", "")
-        self.declare_parameter("pose_message_type", "geometry_msgs/msg/Pose")
+        self.declare_parameter(
+            "transition_system_path",
+            "",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "pose_message_type",
+            "geometry_msgs/msg/Pose",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
         path = self.get_parameter("transition_system_path").value
         if not path:
             raise ValueError("transition_system_path must be set.")
