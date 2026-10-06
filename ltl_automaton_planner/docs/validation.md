@@ -1217,3 +1217,50 @@ helper 的其它调用也采用准备后赋值的次序，但本轮仅给事务�
 已提交后的 publisher 失败和进程崩溃不在回滚范围；普通快照转换失败
 fallback、freshness/锁边界、目标/接受性及 IRL 算法保持不变。本轮未
 重跑整包、物理仿真、实机或 Jazzy，不作为性能或收敛测量。
+
+### 11.50 当前七包构建与整包组合验证（2026-10-06）
+
+在实际代码提交 `58481a2b93876a5b4b34eb3a45bc5c799ce181ed` 上重新
+构建并测试 aggregate 及六个功能包，补充多轮定向修改之后的组合证据。
+`colcon list` 和 aggregate 的六个 exec_depend 确认入口覆盖全部功能包；
+aggregate 自身仅提供 ament 入口，没有独立测试。环境为 WSL
+Ubuntu-22.04-D、ROS 2 Humble、Python 3.10；保留真实 ltl2ba，未调用
+LLM、硬件、物理仿真或 benchmark，未修改代码、测试及判断条件。
+
+使用现有隔离目录 `/tmp/ltl_ros2_completion_20261006`，build/install/log
+均显式绑定该目录，build 启用 symlink-install 和 BUILD_TESTING=ON，
+选择 `--packages-up-to ltl_automaton_core`。七包全部构建成功。source
+隔离 install 后确认 planner 与 core 实际导入解析到本 checkout，msgs
+解析到隔离 build 的 rosidl_generator_py。测试同样显式指定 build/install，
+选择 aggregate、`--executor sequential --return-code-on-test-failure`，
+ROS_DOMAIN_ID=230；七包测试命令正常结束。
+
+按本轮开始时间核对六份独立 JUnit 文件，全部为新结果，不沿用先前
+未修改包的结果。每份 XML 的 testcase 数与 tests 属性一致，errors 和
+failures 均为零。当前统计如下；“收集”包含 skipped。
+
+| 功能包 | 收集 | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 157 | 156 | 1 |
+| ltl_automaton_planner | 122 | 121 | 1 |
+| ltl_automaton_execution | 108 | 108 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 36 | 35 | 1 |
+| 合计 | 537 | 533 | 4 |
+
+四个 skipped 均为既有 copyright 检查，原生 translator 集成及 POSIX
+故障检查未跳过。msgs 的本轮 CTest wrapper 也为 passed；标准
+`colcon test-result --test-result-base .../build --verbose` 返回
+**538 tests, 0 errors, 0 failures, 4 skipped**，其中多一项是该接口
+wrapper，不作为额外独立 pytest 检查。临时副本仅保留本轮六份 JUnit
+及当前 CTest XML，四份历史 CTest XML 未用于本轮统计；没有删除或
+改写历史结果。源码树保持干净。既有 NumPy/NetworkX 与 lint 插件的
+弃用警告仍存在，未作为失败，也未为本轮更换依赖。
+
+检查范围包含当前核心单元/原生 translator、ROS Action/服务/快照/DDS、
+符号 FakeBackend 执行、IRL、HIL、标准 2D/6D monitor、已有 lint 与
+launch 通信及退出检查。IRL plugin 的 pytest launch wrapper 内包含
+其受控 helper/真实通信检查，不将内部 unittest 数另加到上述统计。
+本轮为当前版本组合验证，不推出 IRL 收敛、整体加速、真实网络故障、
+物理仿真、硬件/机器人示范效果或 Jazzy 兼容性。

@@ -668,6 +668,8 @@ colcon test-result --verbose
 - TS 状态反馈后的计划推进；
 - `/replanning` 服务调用；
 - `PlanLTL` Action 的接受、失败和事务式替换；
+- PlanLTL worker 意外异常时完成 Future、释放事务及后续请求恢复；
+- PlanLTL/IRL 提交前保留快照或 ID 映射准备失败时保持原执行权威；
 - planning graph snapshot 与 execution observation 的 identity contract；
 - 快照状态值列表的独立性，以及图属性变化后再次转换的正确性；
 - 快照复制期间的新代际提交、响应代际一致性及防御性副本；
@@ -701,14 +703,15 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为事务提交前准备保留快照和 ID 映射。在 Ubuntu 22.04 /
-ROS 2 Humble / Python 3.10 下，相关 Action 和 planner-node 两个文件共
-**73 passed**，修改文件 lint 通过。六个新增检查在实际旧提交均失败：
-快照准备异常发生时候选已替换原 planner；修复后 PlanLTL/IRL 返回
-内部失败并释放事务，保留原 planner、TS、代际、执行序号、快照和 IDs，
-下一有效请求正常提交。复制/映射故障为受控注入，不作为网络故障或
-通用崩溃恢复证明。普通快照转换失败的既有处理保持不变；本轮未重跑
-整包或修改规划/学习规则。
+最近在代码提交 `58481a2` 上重新执行 aggregate 的七包构建与整包测试。
+环境为 Ubuntu 22.04 / ROS 2 Humble / Python 3.10，使用真实 ltl2ba。
+六个功能包的本轮 JUnit 结果共 **533 passed / 4 skipped**，无错误或失败；
+四个跳过项均为既有 copyright 检查，translator 集成未跳过。标准
+`colcon test-result` 为 **538 tests**，包含额外一项已通过的接口 CTest
+wrapper；不将 wrapper 重复计作独立 pytest 检查。已核对各结果文件
+均在本轮生成，当前核心、ROS Action/服务/DDS、符号执行、IRL、HIL、
+标准 TS 及现有 lint/launch 检查均重新执行。本轮未改算法或验收条件，
+不作为性能、收敛、真实网络故障或实机效果证明。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
