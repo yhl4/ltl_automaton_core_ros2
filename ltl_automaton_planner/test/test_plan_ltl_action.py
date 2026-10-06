@@ -418,6 +418,71 @@ def test_post_search_worker_failure_releases_transaction_and_preserves_authority
     assert node._planner_state == PlannerStatus.ACTIVE
 
 
+def _fail_snapshot_commit_preparation(patch, stage):
+    message = f"Controlled snapshot {stage} preparation failure."
+    if stage == "copy":
+        original_copy = planner_module.deepcopy
+
+        def failed_copy(value):
+            if isinstance(value, planner_module.PlanningGraphSnapshot):
+                raise RuntimeError(message)
+            return original_copy(value)
+
+        patch.setattr(planner_module, "deepcopy", failed_copy)
+    else:
+        def failed_ids(_value):
+            raise RuntimeError(message)
+
+        patch.setattr(planner_module, "MappingProxyType", failed_ids)
+    return message
+
+
+@pytest.mark.parametrize("stage", ["copy", "ids"])
+@pytest.mark.parametrize("active", [False, True], ids=["ready", "active"])
+def test_snapshot_commit_preparation_failure_preserves_transaction_authority(
+    action_runtime, monkeypatch, active, stage,
+):
+    """Keep all authority when retaining the candidate snapshot fails."""
+    if active:
+        activate(action_runtime)
+    else:
+        assert load_transition_system(action_runtime, VALID_TS).success
+    node = action_runtime.planner
+    old = node.ltl_planner
+    old_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    canonical = node._canonical_ts_state
+    waiting = node._waiting_for_initial_state
+    generation, sequence = node._planning_generation, node._execution_step_seq
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+
+    with monkeypatch.context() as patch:
+        message = _fail_snapshot_commit_preparation(patch, stage)
+        response = action_result(action_runtime, send_goal(action_runtime, make_goal()))
+
+    assert node.ltl_planner is old
+    assert node._active_transition_system is old_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._canonical_ts_state == canonical
+    assert node._waiting_for_initial_state == waiting
+    assert node._planning_generation == generation
+    assert node._execution_step_seq == sequence
+    assert node._planning_token is node._planning_worker is None
+    assert node._planner_state == (PlannerStatus.ACTIVE if active else PlannerStatus.READY)
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
+    assert not response.result.success
+    assert response.result.message == message
+
+    accepted = action_result(action_runtime, send_goal(action_runtime, make_goal()))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED and accepted.result.success
+    assert node._planning_generation == generation + 1
+    assert node._planner_state == PlannerStatus.ACTIVE
+
+
 @pytest.mark.parametrize(
     "weight_name, soft_task, cost_field",
     [
@@ -1456,6 +1521,50 @@ def test_irl_learning_failure_preserves_live_planner(action_runtime, monkeypatch
     assert dict(((u, v), data["weight"]) for u, v, data in old.product.edges(data=True)) == weights
     assert action_runtime.planner._execution_step_seq == 1
     assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+
+@pytest.mark.parametrize("stage", ["copy", "ids"])
+def test_irl_snapshot_commit_preparation_failure_preserves_live_authority(
+    action_runtime, monkeypatch, stage,
+):
+    """Reject a learned candidate when retained snapshot preparation fails."""
+    old = _activate_at_self_loop(action_runtime)
+    node = action_runtime.planner
+    old_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    generation, sequence = node._planning_generation, node._execution_step_seq
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+    beta = old.beta
+    weights = {(u, v): data["weight"] for u, v, data in old.product.edges(data=True)}
+    monkeypatch.setattr(
+        planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=beta + 7),
+    )
+
+    with monkeypatch.context() as patch:
+        _fail_snapshot_commit_preparation(patch, stage)
+        assert node.start_irl_replan(_current_teaching_loop(old), identity)
+        assert spin_until(action_runtime, lambda: node._planning_token is None)
+
+    assert node.ltl_planner is old and old.beta == beta
+    assert {(u, v): data["weight"] for u, v, data in old.product.edges(data=True)} == weights
+    assert node._active_transition_system is old_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._planning_generation == generation
+    assert node._execution_step_seq == sequence
+    assert node._planning_worker is None
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+    assert node.start_irl_replan(_current_teaching_loop(old), identity)
+    assert spin_until(action_runtime, lambda: node._planning_token is None)
+    assert node.ltl_planner is not old
+    assert node.ltl_planner.beta == beta + 7
+    assert node._planning_generation == generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
 
 
 def test_irl_computed_cost_overflow_preserves_live_authority(action_runtime, monkeypatch):

@@ -97,6 +97,12 @@ Planning uses transactional replacement semantics. When a new goal starts from
 `ACTIVE`, the existing plan remains the execution authority while an isolated
 candidate is built in a worker thread.
 
+At commit, the retained snapshot copy, new metadata and immutable Product ID
+mapping are prepared before replacing authority. A preparation exception returns
+`ERROR_INTERNAL` and releases the PlanLTL or IRL transaction, preserving the
+current planner, TS, snapshot, IDs, generation and execution step. This covers
+snapshot preparation; it does not roll back a later publisher or process failure.
+
 Expected `/ts_state` feedback continues to advance the old plan, update possible
 states, and publish the old plan's next command. The candidate publishes nothing
 before commit. Commit requires the current canonical TS state to still equal the

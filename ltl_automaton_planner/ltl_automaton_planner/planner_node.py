@@ -1018,15 +1018,17 @@ class PlannerNode(Node):
             self._planner_instance_id
         )
         committed_snapshot.metadata.planning_generation = new_generation
-        self._planning_generation = new_generation
-        self._execution_step_seq = 0
-        self._active_planning_graph_snapshot = committed_snapshot
         if planning_graph.snapshot.metadata.available:
-            self._active_product_node_ids = MappingProxyType(
+            committed_product_node_ids = MappingProxyType(
                 dict(planning_graph.product_node_ids or {})
             )
         else:
-            self._active_product_node_ids = None
+            committed_product_node_ids = None
+
+        self._planning_generation = new_generation
+        self._execution_step_seq = 0
+        self._active_planning_graph_snapshot = committed_snapshot
+        self._active_product_node_ids = committed_product_node_ids
 
     def _finish_plan_ltl_failure(
         self,
@@ -1095,6 +1097,7 @@ class PlannerNode(Node):
                 operation,
             )
 
+        commit_error = None
         with self._state_lock:
             commit_is_current = not (
                 request.token is not self._planning_token
@@ -1119,19 +1122,35 @@ class PlannerNode(Node):
             )
 
             if commit_is_current:
-                self._active_transition_system = outcome.transition_system
-                self.ltl_planner = outcome.planner
-                self._canonical_ts_state = request.initial_state
-                self._pending_divergence = None
-                self._waiting_for_initial_state = False
-                self._commit_planning_graph_snapshot(
-                    outcome.planning_graph
-                )
-                self._clear_planning_transaction()
-                self._set_planner_status(
-                    PlannerStatus.ACTIVE,
-                    f"The {operation} accepted run is active.",
-                )
+                try:
+                    self._commit_planning_graph_snapshot(
+                        outcome.planning_graph
+                    )
+                except Exception as error:
+                    commit_error = error
+                else:
+                    self._active_transition_system = outcome.transition_system
+                    self.ltl_planner = outcome.planner
+                    self._canonical_ts_state = request.initial_state
+                    self._pending_divergence = None
+                    self._waiting_for_initial_state = False
+                    self._clear_planning_transaction()
+                    self._set_planner_status(
+                        PlannerStatus.ACTIVE,
+                        f"The {operation} accepted run is active.",
+                    )
+
+        if commit_error is not None:
+            self.get_logger().error(
+                f"{operation} candidate commit failed: {commit_error}"
+            )
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                request.token,
+                PlanLTL.Result.ERROR_INTERNAL,
+                str(commit_error),
+                operation,
+            )
 
         if not commit_is_current:
             return self._finish_plan_ltl_failure(

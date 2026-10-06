@@ -1184,3 +1184,36 @@ SUCCEEDED，开始一个新 generation。故障为受控注入，不声称真实
 测试文件 ament_flake8/pep257、README/API、文档链接/47 节历史正文
 保留及 diff 检查通过。本轮未重跑整包、物理仿真、实机或 Jazzy，
 未修改目标、规划时限、接受性、IRL 更新/步长/停止规则。
+
+### 11.49 事务提交前准备保留快照和 ID 映射（2026-10-06）
+
+以 `931fbcf` 为基线，候选提交先替换活动 TS/planner/canonical state，
+然后才 deepcopy 保留快照；快照 helper 又在构造不可变 ID 映射之前
+更新 generation、step 和保留消息。准备若抛出异常，就可能保留混合
+代际且未释放规划事务。现在 helper 先在局部完成复制、新元数据和
+ID 映射构造，成功后才赋值保留字段；事务候选先调用该 helper，成功
+后才替换 planner/TS 和其余执行权威。普通准备异常在锁外转为带原文字
+的 ERROR_INTERNAL，经既有失败出口释放事务，不发布候选计划。
+
+六个新增检查在实际旧提交均失败：READY/ACTIVE 下各发起两个真实
+ROS 2 Action，分别受控注入保留快照复制和 MappingProxyType 构造
+异常；另两个在真实 IRL 候选重规划之后注入同样异常。旧 Action 场景
+明确观察到原 planner 已被候选替换；IRL 检查也未能完成既有失败出口。
+故障是普通 RuntimeError 的受控注入，不是实测内存耗尽或 DDS 故障。
+IRL 学习返回 beta+7 为受控 fixture，用于检查提交隔离，不作为学习效果。
+
+修复后四个 Action 均 ABORTED/ERROR_INTERNAL，错误文字精确，保持
+原 planner、TS、快照、IDs 对象以及 canonical/waiting 状态，generation
+和 execution_step_seq 不变，token/worker 被清除，状态恢复 READY 或
+ACTIVE；完整服务快照一致。两个 IRL 场景保留原 β、Product 权重、
+TS/快照/IDs、generation 和 step。移除故障后，PlanLTL 和 IRL 的下一
+有效请求均正常提交一个新 generation；IRL 新 β 为注入值且 step 归零。
+
+仅重跑 `test_plan_ltl_action.py` 和 `test_planner_node.py`，合计
+**73 passed**；源码 py_compile/ament_flake8、测试文件 ament_flake8 /
+pep257、README/API、文档链接/48 节历史正文保留和 diff 检查通过。
+helper 的其它调用也采用准备后赋值的次序，但本轮仅给事务候选补充
+结构化准备失败出口，不扩展 legacy 重规划或初始规划的恢复范围。
+已提交后的 publisher 失败和进程崩溃不在回滚范围；普通快照转换失败
+fallback、freshness/锁边界、目标/接受性及 IRL 算法保持不变。本轮未
+重跑整包、物理仿真、实机或 Jazzy，不作为性能或收敛测量。
