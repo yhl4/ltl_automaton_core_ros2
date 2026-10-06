@@ -1337,3 +1337,41 @@ ROS_DOMAIN_ID=230 及 --return-code-on-test-failure。结果为
 源码 py_compile/ament_flake8、根与包 README、文档链接/51 节历史正文
 保留及 diff 检查通过。本轮没有重跑其它包、物理仿真、实机或 Jazzy，
 既有 NumPy/NetworkX 和 lint 插件弃用警告保留。
+
+### 11.53 Planner 批次内复用状态维度名（2026-10-06）
+
+以 `c2cdc7a` 为基线，prefix/suffix 和 possible-state 消息对每个
+TS 状态重复展开相同维度名。现在本次构造的第一个状态先按既有顺序
+序列化 states、读取维度名，成功后保留不可变 tuple；后续消息仍各自
+用新列表写入维度字段。prefix 与 suffix 共用本次局部值，possible-state
+捕获本次 planner。无跨调用缓存，不复用可变 states，不新增锁或改变
+QoS、公开接口、执行身份、快照、规划目标、接受性或 IRL 规则。
+
+原 prefix 构造与迭代仍先于 suffix；possible-state 仍按 str 排序，
+状态、动作、stamp、Büchi 字符串及日志/发布顺序保持不变。空计划或
+空候选集合不访问 TS graph；首个状态转换失败仍先于维度元数据访问。
+ROS 生成 setter 直接保留传入列表，因此缓存 tuple 后每个消息创建
+独立列表，修改一个消息不能影响其它消息；后续调用读取更新后的维度。
+
+十个新增参数化检查覆盖 compound/空维度、prefix+suffix/suffix-only、
+相同 TS 状态的多个 Büchi 状态、完整消息字段/顺序与日志、列表独立性、
+跨调用刷新、输入保持、空批次缺少 graph/非法 metadata 和错误优先级。
+在独立进程执行实际旧提交完整 planner_node.py 后，该文件为
+**9 passed / 5 failed**，五个失败均仅为维度复用计数条件：plan 为
+5→1 或 3→1，possible-state 为 3→1；旧字段行为没有被判为功能故障。
+
+外部临时 probe 分别加载实际旧完整模块与当前 checkout 模块，使用
+真实生成 ROS 消息直接比较完整 LTLPlan、LTLStateArray 和日志。
+五个批次对照均相同：compound prefix+suffix 调用 5→1，suffix-only
+2→1，三个 Product 候选为 3→1；空计划和不可访问 graph 的空候选
+均为 0→0。输入、列表独立性、跨调用刷新与首个转换错误顺序通过。
+这是确定性操作计数，未测量耗时、RSS、DDS 传输或端到端加速。
+
+仅运行 test_transition_state_serialization.py、test_plan_ltl_action.py
+及 test_planner_node.py，合计 **87 passed**；包含真实 ROS Action
+交互与事务回归。加强输入快照断言后，序列化文件的 **14 passed**
+再次通过。源码 py_compile/ament_flake8、测试 ament_flake8/pep257、
+README/文档链接、52 节历史正文保留及 diff 检查通过。使用既有
+Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 隔离 overlay；本轮
+未重跑整包、物理仿真、实机或 Jazzy。11.50 整包证据仍属于原代码
+基线，NumPy/NetworkX 的既有弃用警告保留。

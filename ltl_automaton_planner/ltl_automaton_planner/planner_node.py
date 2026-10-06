@@ -1577,20 +1577,24 @@ class PlannerNode(Node):
         self,
         state,
         planner=None,
+        dimension_names=None,
     ) -> TransitionSystemState:
         """Convert an internal TS node into a ROS2 state message."""
         message = TransitionSystemState()
 
         message.states = serialize_transition_state_values(state)
 
-        target_planner = (
-            self.ltl_planner
-            if planner is None
-            else planner
-        )
-        message.state_dimension_names = (
-            self._planner_dimension_names(target_planner)
-        )
+        if dimension_names is None:
+            target_planner = (
+                self.ltl_planner
+                if planner is None
+                else planner
+            )
+            message.state_dimension_names = (
+                self._planner_dimension_names(target_planner)
+            )
+        else:
+            message.state_dimension_names = list(dimension_names)
 
         return message
 
@@ -1603,18 +1607,33 @@ class PlannerNode(Node):
         prefix_message = LTLPlan()
         prefix_message.header.stamp = stamp
         prefix_message.action_sequence = list(run.pre_plan)
-        prefix_message.ts_state_sequence = [
-            self._state_to_message(state, planner=planner)
-            for state in run.line
-        ]
+        dimension_names = None
+        prefix_states = []
+        for state in run.line:
+            state_message = self._state_to_message(
+                state,
+                planner=planner,
+                dimension_names=dimension_names,
+            )
+            if dimension_names is None:
+                dimension_names = tuple(state_message.state_dimension_names)
+            prefix_states.append(state_message)
+        prefix_message.ts_state_sequence = prefix_states
 
         suffix_message = LTLPlan()
         suffix_message.header.stamp = stamp
         suffix_message.action_sequence = list(run.suf_plan)
-        suffix_message.ts_state_sequence = [
-            self._state_to_message(state, planner=planner)
-            for state in run.loop
-        ]
+        suffix_states = []
+        for state in run.loop:
+            state_message = self._state_to_message(
+                state,
+                planner=planner,
+                dimension_names=dimension_names,
+            )
+            if dimension_names is None:
+                dimension_names = tuple(state_message.state_dimension_names)
+            suffix_states.append(state_message)
+        suffix_message.ts_state_sequence = suffix_states
         return prefix_message, suffix_message
 
     def _publish_plan(self) -> None:
@@ -1647,22 +1666,21 @@ class PlannerNode(Node):
 
     def _publish_possible_states(self) -> None:
         """Publish currently possible product-automaton states."""
-        if (
-            self.ltl_planner is None
-            or self.ltl_planner.product is None
-        ):
+        planner = self.ltl_planner
+        if planner is None or planner.product is None:
             self.get_logger().warning(
                 "No product automaton is available."
             )
             return
 
         possible_states = getattr(
-            self.ltl_planner.product,
+            planner.product,
             "possible_states",
             set(),
         )
 
         ltl_state_messages: list[LTLState] = []
+        dimension_names = None
 
         for ts_state, buchi_state in sorted(
             possible_states,
@@ -1670,8 +1688,16 @@ class PlannerNode(Node):
         ):
             ltl_state_message = LTLState()
             ltl_state_message.ts_state = (
-                self._state_to_message(ts_state)
+                self._state_to_message(
+                    ts_state,
+                    planner=planner,
+                    dimension_names=dimension_names,
+                )
             )
+            if dimension_names is None:
+                dimension_names = tuple(
+                    ltl_state_message.ts_state.state_dimension_names
+                )
             ltl_state_message.buchi_state = str(
                 buchi_state
             )
