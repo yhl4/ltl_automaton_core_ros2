@@ -66,6 +66,7 @@ class ExecutionManagerNode(Node):
         )
         self._snapshots = {}
         self._snapshot_requests = set()
+        self._latest_observation = None
         self._execution_timers = set()
         self._expected_dimensions = None
         self._expected_schema_instance = None
@@ -155,6 +156,11 @@ class ExecutionManagerNode(Node):
         observation = self._observation_from_message(message)
         if not self._manager.observe_authority(observation):
             return
+        identity = (
+            observation.planner_instance_id,
+            observation.planning_generation,
+        )
+        self._latest_observation = observation
         self._pending_snapshot_observation = None
         self._snapshot_retry_timer.cancel()
         if self._expected_schema_instance not in (
@@ -167,10 +173,6 @@ class ExecutionManagerNode(Node):
             return
         if self._manager.in_flight:
             return
-        identity = (
-            observation.planner_instance_id,
-            observation.planning_generation,
-        )
         snapshot = self._snapshots.get(identity)
         if snapshot is not None:
             self._manager.dispatch(observation, snapshot)
@@ -226,6 +228,23 @@ class ExecutionManagerNode(Node):
                 "Planning authority changed before snapshot acceptance."
             )
             return
+        latest_observation = self._latest_observation
+        latest_identity = None
+        if latest_observation is not None:
+            latest_identity = (
+                latest_observation.planner_instance_id,
+                latest_observation.planning_generation,
+            )
+        if (
+            latest_observation is None
+            or latest_identity != identity
+            or not self._manager.is_current(latest_observation)
+        ):
+            self.get_logger().warning(
+                "Planning authority changed before latest "
+                "snapshot observation."
+            )
+            return
         try:
             expected_dimensions = self._snapshot_dimensions(snapshot)
         except ValueError as error:
@@ -237,7 +256,8 @@ class ExecutionManagerNode(Node):
         self._snapshots[identity] = snapshot
         self._expected_dimensions = expected_dimensions
         self._expected_schema_instance = snapshot.planner_instance_id
-        self._manager.dispatch(observation, snapshot)
+        if latest_observation.has_next_action:
+            self._manager.dispatch(latest_observation, snapshot)
 
     @staticmethod
     def _snapshot_dimensions(snapshot):

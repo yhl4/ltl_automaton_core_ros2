@@ -11,10 +11,17 @@ uses only Product nodes, Product edges, and the retained prefix/suffix accepted
 run in those ROS contracts; it never imports planner internals or searches for a
 different route.
 
+The resolver indexes only one immutable snapshot at a time and reuses its
+node and retained-action lookup for subsequent commands. A replacement snapshot
+rebuilds the index. Missing accepted-run nodes are rejected as resolution errors.
+
 If the snapshot service has not been discovered yet, the node retains the
 latest current-authority observation and retries discovery. A newer observation
-replaces the pending one. Only the current accepted snapshot is cached, and
-dispatch deduplication records are cleared when planning authority advances.
+replaces the pending one, including while a snapshot request is in flight. On
+response, dispatch uses that latest observation after checking its authority;
+a newer observation without a next action suppresses the old command. Only one
+accepted snapshot is cached, and dispatch deduplication records are cleared when
+planning authority advances.
 
 Within one generation, dispatch is deduplicated by Product state set and action.
 An accepting cycle that revisits the same fingerprint stops dispatching at that

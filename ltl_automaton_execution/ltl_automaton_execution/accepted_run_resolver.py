@@ -10,13 +10,18 @@ class ResolutionError(ValueError):
 class AcceptedRunResolver:
     """Resolve only edges explicitly retained by the accepted run."""
 
+    def __init__(self):
+        self._indexed_snapshot = None
+        self._nodes = {}
+        self._retained_targets = {}
+
     def resolve(self, observation, snapshot):
         """Return one exact symbolic step or fail closed."""
         self._validate_identity(observation, snapshot)
         if not observation.has_next_action or not observation.next_action:
             raise ResolutionError("Observation has no executable next action.")
 
-        nodes = self._node_map(snapshot)
+        nodes, retained_targets = self._snapshot_index(snapshot)
         current_ids = tuple(sorted(set(observation.possible_product_node_ids)))
         if not current_ids:
             raise ResolutionError("Observation has no possible Product nodes.")
@@ -33,16 +38,11 @@ class AcceptedRunResolver:
             )
         source_state = next(iter(source_states))
 
-        retained_pairs = self._retained_pairs(snapshot)
-        edges = {
-            (edge.source_id, edge.target_id, edge.action): edge
-            for edge in snapshot.product_edges
-        }
-        candidates = []
-        for source_id, target_id in retained_pairs:
-            edge = edges.get((source_id, target_id, observation.next_action))
-            if source_id in current_ids and edge is not None:
-                candidates.append((source_id, target_id))
+        candidates = [
+            (source_id, target_id)
+            for source_id in current_ids
+            for target_id in retained_targets.get((source_id, observation.next_action), ())
+        ]
 
         if not candidates:
             raise ResolutionError(
@@ -67,6 +67,34 @@ class AcceptedRunResolver:
                 sorted({target_id for _, target_id in candidates})
             ),
         )
+
+    def _snapshot_index(self, snapshot):
+        """Index one immutable snapshot, replacing rather than accumulating graphs."""
+        if snapshot is self._indexed_snapshot:
+            return self._nodes, self._retained_targets
+
+        nodes = self._node_map(snapshot)
+        retained_pairs = set(self._retained_pairs(snapshot))
+        retained_nodes = {
+            node_id for pair in retained_pairs for node_id in pair
+        }
+        missing = sorted(retained_nodes - nodes.keys())
+        if missing:
+            raise ResolutionError(
+                f"Accepted run references missing Product nodes: {missing}."
+            )
+
+        targets = {}
+        for edge in snapshot.product_edges:
+            if (edge.source_id, edge.target_id) in retained_pairs:
+                targets.setdefault((edge.source_id, edge.action), set()).add(edge.target_id)
+
+        # PlanningSnapshot and its nested models are frozen. Object identity
+        # prevents accidentally reusing indexes for a newly received graph.
+        self._indexed_snapshot = snapshot
+        self._nodes = nodes
+        self._retained_targets = targets
+        return nodes, targets
 
     @staticmethod
     def _validate_identity(observation, snapshot):

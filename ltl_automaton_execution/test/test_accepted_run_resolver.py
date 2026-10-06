@@ -1,5 +1,7 @@
 """Pure accepted-run resolution regressions."""
 
+from dataclasses import replace
+
 import pytest
 
 from ltl_automaton_execution.accepted_run_resolver import AcceptedRunResolver
@@ -142,3 +144,35 @@ def test_e8_distinct_retained_targets_are_ambiguous():
             _observation((1, 2)),
             ambiguous,
         )
+
+
+def test_retained_run_with_missing_target_node_fails_closed():
+    snapshot = _snapshot()
+    incomplete = replace(
+        snapshot,
+        product_nodes=tuple(node for node in snapshot.product_nodes if node.node_id != 3),
+    )
+    with pytest.raises(ResolutionError, match="missing Product nodes"):
+        AcceptedRunResolver().resolve(_observation(), incomplete)
+
+
+def test_resolver_reuses_one_snapshot_then_switches_generation():
+    resolver = AcceptedRunResolver()
+    snapshot = _snapshot()
+    assert resolver.resolve(_observation(), snapshot).target_state == _state("r2")
+    assert resolver.resolve(
+        _observation((5,), "suffix-close"), snapshot,
+    ).target_state == _state("r2")
+    replacement = replace(
+        snapshot,
+        planning_generation=5,
+        product_nodes=tuple(
+            replace(node, ts_state=_state("new-r2")) if node.node_id == 3 else node
+            for node in snapshot.product_nodes
+        ),
+    )
+    assert resolver.resolve(
+        _observation(generation=5), replacement,
+    ).target_state == _state("new-r2")
+    with pytest.raises(ResolutionError, match="identity"):
+        resolver.resolve(_observation(), replacement)

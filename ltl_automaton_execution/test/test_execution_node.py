@@ -5,6 +5,7 @@ import time
 import rclpy
 from rclpy.context import Context
 from rclpy.executors import SingleThreadedExecutor
+from rclpy.task import Future
 
 from ltl_automaton_msgs.msg import PlanningExecutionObservation
 from ltl_automaton_msgs.msg import ProductGraphEdge
@@ -53,6 +54,19 @@ class MalformedState:
     states = ("r1", "r2")
 
 
+class DelayedSnapshotClient:
+    """Return one controllable Future for a delayed snapshot response."""
+
+    def __init__(self):
+        self.future = Future()
+
+    def service_is_ready(self):
+        return True
+
+    def call_async(self, _request):
+        return self.future
+
+
 def _fill_snapshot(snapshot, generation):
     snapshot.metadata.planner_instance_id = "planner-a"
     snapshot.metadata.planning_generation = generation
@@ -98,6 +112,25 @@ def _spin_until(executor, predicate, timeout=3.0):
     return predicate()
 
 
+def _delayed_execution(context):
+    backend = RecordingBackend()
+    execution = ExecutionManagerNode(
+        backend=backend,
+        state_observer=RecordingObserver(),
+        context=context,
+    )
+    client = DelayedSnapshotClient()
+    execution._snapshot_client = client
+    return execution, backend, client
+
+
+def _complete_snapshot(client, generation=1):
+    response = GetPlanningGraphSnapshot.Response()
+    response.success = True
+    _fill_snapshot(response.snapshot, generation)
+    client.future.set_result(response)
+
+
 def test_command_survives_delayed_snapshot_service_discovery():
     """Execute a retained command when its snapshot service appears later."""
     context = Context()
@@ -132,6 +165,72 @@ def test_command_survives_delayed_snapshot_service_discovery():
         driver.destroy_node()
         execution.destroy_node()
         executor.shutdown()
+        rclpy.shutdown(context=context)
+
+
+def test_delayed_snapshot_dispatches_latest_same_generation_observation():
+    """Use the newest Product belief and action when a snapshot catches up."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        execution, backend, client = _delayed_execution(context)
+        execution._on_observation(_observation(1))
+        latest = _observation(1)
+        latest.possible_product_node_ids = [2]
+        latest.next_action = "wait"
+        execution._on_observation(latest)
+
+        _complete_snapshot(client)
+
+        assert len(backend.calls) == 1
+        assert backend.calls[0][0].action == "wait"
+        assert backend.calls[0][0].source_product_node_ids == (2,)
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+def test_delayed_snapshot_latest_no_action_suppresses_old_dispatch():
+    """A newer no-action observation must suppress the captured command."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        execution, backend, client = _delayed_execution(context)
+        execution._on_observation(_observation(1))
+        latest = _observation(1)
+        latest.possible_product_node_ids = []
+        latest.has_next_action = False
+        latest.next_action = ""
+        execution._on_observation(latest)
+
+        _complete_snapshot(client)
+
+        assert backend.calls == []
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+def test_delayed_snapshot_stale_generation_cannot_restore_old_command():
+    """A newer generation keeps an older delayed snapshot from dispatching."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        execution, backend, client = _delayed_execution(context)
+        execution._on_observation(_observation(1))
+        execution._on_observation(_observation(2))
+
+        _complete_snapshot(client, generation=1)
+
+        assert backend.calls == []
+    finally:
+        if execution is not None:
+            execution.destroy_node()
         rclpy.shutdown(context=context)
 
 
