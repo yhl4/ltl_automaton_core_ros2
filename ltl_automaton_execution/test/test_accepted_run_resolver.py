@@ -8,6 +8,7 @@ from ltl_automaton_execution.accepted_run_resolver import AcceptedRunResolver
 from ltl_automaton_execution.accepted_run_resolver import ResolutionError
 from ltl_automaton_execution.models import AcceptedRun
 from ltl_automaton_execution.models import ExecutionObservation
+from ltl_automaton_execution.models import ExecutionStep
 from ltl_automaton_execution.models import PlanningSnapshot
 from ltl_automaton_execution.models import ProductEdge
 from ltl_automaton_execution.models import ProductNode
@@ -93,6 +94,33 @@ def test_e2_multiple_product_nodes_must_reduce_to_one_ts_state():
             _observation((1, 3)),
             snapshot,
         )
+
+
+@pytest.mark.parametrize("node_ids", [(1, 2, 5), (5, 2, 1, 2, 5, 1)])
+def test_multiple_candidate_pairs_keep_complete_sorted_product_ids(node_ids):
+    """Keep all matched IDs while omitting current nodes with no matching edge."""
+    snapshot = PlanningSnapshot(
+        "planner-a", 4,
+        tuple(ProductNode(node_id, _state("r1" if node_id in (1, 2, 5) else "r2"))
+              for node_id in range(1, 6)),
+        (
+            ProductEdge(1, 3, "move"),
+            ProductEdge(3, 2, "bridge"),
+            ProductEdge(2, 4, "move"),
+            ProductEdge(4, 1, "bridge"),
+            ProductEdge(1, 4, "move"),
+            ProductEdge(4, 4, "wait"),
+        ),
+        AcceptedRun((1, 3, 2, 4, 1, 4), (4,)),
+    )
+    resolver = AcceptedRunResolver()
+    expected = ExecutionStep(
+        "planner-a", 4, 9, "move", _state("r1"), _state("r2"), (1, 2), (3, 4),
+    )
+    assert resolver.resolve(_observation(node_ids, "move", sequence=9), snapshot) == expected
+    assert resolver.resolve(_observation(tuple(reversed(node_ids)), "move", sequence=9),
+                            snapshot) == expected
+    assert resolver._indexed_snapshot is snapshot
 
 
 def test_e3_prefix_step_is_exact():

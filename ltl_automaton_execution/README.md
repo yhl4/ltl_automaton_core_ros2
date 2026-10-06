@@ -27,6 +27,12 @@ rebuilds the index with one full Product-edge scan, retaining only edges used by
 the accepted run. Missing run edges are reported before missing run nodes; a
 failed rebuild leaves the prior valid index intact.
 
+Command resolution visits every retained edge matching the current Product IDs
+and action, accumulating the complete source and target ID sets directly. IDs
+are still returned sorted, current nodes with no matching edge are omitted,
+and all target IDs must represent one symbolic TS state. This avoids a temporary
+list of candidate pairs without pruning the matches or changing ambiguity rules.
+
 The suffix omits the repeated start node at the end and closes through an implicit
 final edge.
 A multi-node suffix that repeats its start at the end is rejected before

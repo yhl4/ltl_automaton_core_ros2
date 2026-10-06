@@ -1069,3 +1069,43 @@ pytest **1 passed**，含真实 Action/Bool/DDS 示范记录和学习提交检�
 源码 py_compile/ament_flake8、测试文件 ament_flake8/pep257、README/HIL
 说明/文档链接、44 节历史正文保留及 diff 检查通过。本轮没有重跑整包、
 物理仿真、实机或 Jazzy。
+
+### 11.46 执行 resolver 流式汇总候选 ID（2026-10-06）
+
+以 `31246f9` 为基线，`AcceptedRunResolver.resolve` 原先先保存所有
+匹配的 `(source_id, target_id)` 候选，再分别提取目标 TS 状态与源/目标
+ID。现在遍历相同有序 current_ids 和 retained target set，直接汇总这
+三个集合，省去候选边对列表；没有跳过匹配或提前结束。返回的源/目标
+ID 仍分别去重排序，只包含确有匹配边的节点；目标仍须对应唯一 TS 状态。
+动作身份、instance/generation/step、结构及源 TS 校验、完整返回字段、
+精确失败诊断、快照索引和提交边界不变，未改变 ROS 消息或规划规则。
+
+两项新增检查在实际旧提交和新实现均通过，不作为 RED 错误证据：
+两种含重复/重排/无匹配当前节点的输入，对照完整 ExecutionStep；三个
+匹配边对汇总为源 IDs (1, 2)、目标 IDs (3, 4)，无匹配的当前节点 5
+未进入返回源集合，两个目标共享同一 TS 状态。重复解析同一快照仍使用
+原索引，输入顺序变化不影响结果。
+
+外部临时 probe 加载实际旧/新源码，十三组调用的全部步骤字段或精确
+ResolutionError 诊断及缓存状态一致。覆盖 prefix、closing suffix、
+单节点自环、多 ID 完整汇总、目标歧义、源 TS 歧义、缺失观测节点、
+无匹配动作、空当前集合、无 action、身份不一致、缺边优先于缺节点和
+显式重复首节点 suffix。另验证失败索引保留先前快照，下一有效 generation
+可正常替换并解析新目标状态。
+
+在预构造并已索引的有向二分匹配 fixture 上，仅测量后续单次 resolve
+的 tracemalloc Python 分配峰值。128 nodes / 8,256 edges / 4,096
+匹配边对：旧版三次均 **267,320 bytes**，新版三次均 **7,728 bytes**；
+256 nodes / 32,896 edges / 16,384 匹配边对：旧版三次均
+**1,067,736 bytes**，新版三次均 **21,776 bytes**。完整 ExecutionStep
+相同，返回全部 64/128 个源与 64/128 个目标 ID，nodes/edges/接受运行
+完整序列的重复遍历增量均为零。fixture 的保留 prefix 遍历全部匹配边，
+不是 planner 生成的最优路径样本；未包含构图或首次索引，不作为 RSS、
+端到端耗时、吞吐或机器人效果测量。
+
+仅重跑相关 `test_accepted_run_resolver.py`、`test_execution_node.py` 和
+`test_snapshot_timeout.py`，合计 **61 passed**；`test_real_dds_execution.py`
+另为 **4 passed**，包含真实 ROS 2 Action/服务/观察消息与符号 FakeBackend
+执行闭环。源码 py_compile/ament_flake8、测试文件 ament_flake8/pep257、
+README/执行说明/文档链接、45 节历史正文保留及 diff 检查通过。本轮
+未重跑整包、物理仿真、实机或 Jazzy。

@@ -38,17 +38,21 @@ class AcceptedRunResolver:
             )
         source_state = next(iter(source_states))
 
-        candidates = [
-            (source_id, target_id)
-            for source_id in current_ids
-            for target_id in retained_targets.get((source_id, observation.next_action), ())
-        ]
+        source_product_node_ids = set()
+        target_product_node_ids = set()
+        target_states = set()
+        for source_id in current_ids:
+            for target_id in retained_targets.get(
+                (source_id, observation.next_action), ()
+            ):
+                source_product_node_ids.add(source_id)
+                target_product_node_ids.add(target_id)
+                target_states.add(nodes[target_id].ts_state)
 
-        if not candidates:
+        if not target_product_node_ids:
             raise ResolutionError(
                 "Next action is not represented from the current accepted-run state."
             )
-        target_states = {nodes[target_id].ts_state for _, target_id in candidates}
         if len(target_states) != 1:
             raise ResolutionError(
                 "Accepted-run candidates have ambiguous symbolic targets."
@@ -61,12 +65,8 @@ class AcceptedRunResolver:
             action=observation.next_action,
             source_state=source_state,
             target_state=next(iter(target_states)),
-            source_product_node_ids=tuple(
-                sorted({source_id for source_id, _ in candidates})
-            ),
-            target_product_node_ids=tuple(
-                sorted({target_id for _, target_id in candidates})
-            ),
+            source_product_node_ids=tuple(sorted(source_product_node_ids)),
+            target_product_node_ids=tuple(sorted(target_product_node_ids)),
         )
 
     def _snapshot_index(self, snapshot):
