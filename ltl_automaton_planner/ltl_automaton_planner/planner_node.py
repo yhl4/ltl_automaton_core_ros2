@@ -701,11 +701,12 @@ class PlannerNode(Node):
         del request
 
         with self._state_lock:
-            retained_snapshot = deepcopy(
-                self._active_planning_graph_snapshot
-            )
+            retained_snapshot = self._active_planning_graph_snapshot
             active_hash = self._active_ts_sha256
 
+        # Commit replaces the privately owned snapshot instead of editing it.
+        # Copy this captured generation without holding up worker commits.
+        retained_snapshot = deepcopy(retained_snapshot)
         if retained_snapshot is None:
             message = "No active planning graph snapshot."
             response.success = False

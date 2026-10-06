@@ -506,3 +506,29 @@ ID 映射和实际编解码结果相等，不宣称原始字节逐一相同。he
 额外直接运行的 DDS 检查不再次累计到这一总数。
 未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.26 服务快照副本与状态锁（2026-10-06）
+
+以 `6c17694` 为基线，服务在 `_state_lock` 内 deepcopy 整个保留快照。
+受控 Event 暂停复制时，另一线程无法获得此锁；释放复制后才可以获得锁。
+ROS 默认 callback group 仍互斥，实际共享此锁的并发参与者包括 PlanLTL 和
+IRL 的独立 worker。本轮仅减少服务复制的锁占用，不改变 callback group。
+
+所有权检查确认保留消息只在初始化/TS 替换时清空，或在提交时被新的独立副本
+替换；metadata 在安装为 active 之前赋值，随后不原地修改。服务仍返回防御性
+副本。现在仅在锁内捕获 snapshot 引用与 active TS hash，再在锁外复制。
+局部引用保留捕获对象；复制期间新代际提交不会混合旧响应的身份、图或运行。
+API 文档明确一次响应对应捕获时的完整代际，复制期间可能已有更新提交。
+
+新增 **3 passed**，三项均在基线上因复制持锁而失败。使用真实 ROS 消息、
+实际服务/commit helper 与 RLock/Event/Thread 受控 fixture，覆盖可用快照、
+转换不可用及尚无快照：复制被暂停时另一线程获得锁并提交 generation 8；
+响应仍为捕获的 generation 7 或旧的无快照/hash 结果，旧消息保持不变，
+修改响应也不影响当前保留副本；候选输入不被 commit 原地修改，执行序号归零。
+这些 helper 检查不调用 planner，不作为 ROS 多线程 executor 压力或实时性验证。
+
+重跑受影响的 planner 包：**105 tests, 0 errors, 0 failures, 1 skipped**，
+含既有只读服务、候选可见性、事务、Action、Launch 与 lint；另重跑原有四项
+真实 DDS 符号执行闭环，**4 passed**。与其他包保留的 colcon 结果合计
+**447 tests, 0 errors, 0 failures, 4 skipped**，额外 DDS 检查不重复累计。
+未测量整体耗时、吞吐或 RSS；未进行物理仿真、实机或 Jazzy 独立验证。
+
