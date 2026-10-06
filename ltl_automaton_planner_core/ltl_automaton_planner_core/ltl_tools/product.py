@@ -93,9 +93,10 @@ class ProdAut(DiGraph):
 
     # Build required for IRL
     def build_full_margin(self, opt_path):
+        """Build margin weights from alternating source/target entries."""
         opt_edges = None
         if len(opt_path) >= 2:
-            opt_edges = zip(opt_path[0::2], opt_path[1::2])
+            opt_edges = tuple(zip(opt_path[0::2], opt_path[1::2]))
         for f_ts_node in self.graph['ts'].nodes():
             for f_buchi_node in self.graph['buchi'].nodes():
                 f_prod_node = self.composition(f_ts_node, f_buchi_node)

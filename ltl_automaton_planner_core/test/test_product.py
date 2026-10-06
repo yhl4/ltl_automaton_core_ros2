@@ -1,5 +1,7 @@
 """Tests for TS-Büchi product automata."""
 
+from copy import deepcopy
+
 from networkx import DiGraph
 import pytest
 
@@ -173,6 +175,104 @@ def test_update_beta() -> None:
 
     assert product.graph["beta"] == 500
     assert edge_data["weight"] == 2.0
+
+
+def _legacy_margin_product(buchi_type, matching_branch_first):
+    ts = DiGraph(initial={"s0"})
+    ts.add_nodes_from([("s0", {"label": {"allow"}}), ("s1", {"label": {"allow"}})])
+    ts.add_edge("s0", "s1", weight=2, action="go")
+    ts.add_edge("s1", "s1", weight=3, action="stay")
+    buchi = DiGraph(type=buchi_type, initial={"q0"}, accept={"q1"})
+    buchi.add_nodes_from(["q0", "q1", "q2"])
+    if buchi_type == "safe_buchi":
+        guards = {"hardguard": parse_guard("allow"), "softguard": parse_guard("preferred")}
+    else:
+        guards = {"guard": parse_guard("allow" if buchi_type == "hard_buchi" else "preferred")}
+    targets = ["q1", "q2"] if matching_branch_first else ["q2", "q1"]
+    for target in targets:
+        buchi.add_edge("q0", target, **guards)
+    buchi.add_edge("q1", "q0", **guards)
+    buchi.add_edge("q1", "q1", **guards)
+    return ProdAut(ts, buchi, beta=4)
+
+
+def _legacy_margin_input_snapshot(ts, buchi):
+    return deepcopy((
+        list(ts.nodes(data=True)), list(ts.edges(data=True)), list(buchi.nodes(data=True)),
+        [(source, target, [(name, id(guard), vars(guard)) for name, guard in data.items()])
+         for source, target, data in buchi.edges(data=True)],
+    ))
+
+
+@pytest.mark.parametrize("buchi_type", ["hard_buchi", "soft_buchi", "safe_buchi"])
+@pytest.mark.parametrize("matching_branch_first", [False, True])
+def test_legacy_margin_membership_survives_other_edges_and_refreshes(
+    buchi_type, matching_branch_first,
+):
+    """Apply each alternating demo pair regardless of earlier membership queries."""
+    product = _legacy_margin_product(buchi_type, matching_branch_first)
+    first_pair = (("s0", "q0"), ("s1", "q1"))
+    second_pair = (("s1", "q0"), ("s1", "q2"))
+    # Duplicate pairs are one membership hit; an unpaired final entry is ignored.
+    opt_path = list(first_pair + second_pair + first_pair + (("unpaired", "q9"),))
+    before_path = tuple(opt_path)
+    ts = product.graph["ts"]
+    buchi = product.graph["buchi"]
+    before_inputs = _legacy_margin_input_snapshot(ts, buchi)
+    penalty = 0 if buchi_type == "hard_buchi" else 4
+    expected = {
+        (("s0", "q0"), ("s1", "q2")): 3 + penalty,
+        first_pair: 2 + penalty,
+        (("s0", "q1"), ("s1", "q0")): 3 + penalty,
+        (("s0", "q1"), ("s1", "q1")): 3 + penalty,
+        second_pair: 3 + penalty,
+        (("s1", "q0"), ("s1", "q1")): 4 + penalty,
+        # This consecutive pair bridges two demo pairs and must keep its margin.
+        (("s1", "q1"), ("s1", "q0")): 4 + penalty,
+        (("s1", "q1"), ("s1", "q1")): 4 + penalty,
+    }
+
+    product.build_full_margin(opt_path)
+
+    assert set(product.edges) == set(expected)
+    for edge, weight in expected.items():
+        assert product.edges[edge] == {
+            "weight": weight,
+            "transition_cost": 2 if edge[0][0] == "s0" else 3,
+            "soft_task_dist": 0 if buchi_type == "hard_buchi" else 1,
+        }
+    assert product.graph["initial"] == {("s0", "q0")}
+    assert product.graph["accept"] == {("s0", "q1"), ("s1", "q1")}
+    assert product.graph["accept_with_cycle"] == {("s1", "q1")}
+    assert tuple(opt_path) == before_path
+    assert _legacy_margin_input_snapshot(ts, buchi) == before_inputs
+    previous_nodes = list(product.nodes(data=True))
+    previous_edges = list(product.edges)
+
+    loop_pair = (("s1", "q1"), ("s1", "q1"))
+    product.build_full_margin(loop_pair)
+
+    expected[first_pair] += 1
+    expected[second_pair] += 1
+    expected[loop_pair] -= 1
+    assert {edge: product.edges[edge]["weight"] for edge in product.edges} == expected
+    assert list(product.nodes(data=True)) == previous_nodes
+    assert list(product.edges) == previous_edges
+    assert _legacy_margin_input_snapshot(ts, buchi) == before_inputs
+
+
+@pytest.mark.parametrize("opt_path", [[], [("s0", "q0")]])
+def test_legacy_margin_short_input_keeps_all_edge_penalties(opt_path):
+    """Keep the original full margin when the input has no complete pair."""
+    product = _legacy_margin_product("hard_buchi", False)
+
+    product.build_full_margin(opt_path)
+
+    assert product.number_of_edges() == 8
+    assert all(
+        data["weight"] == data["transition_cost"] + 1
+        for _, _, data in product.edges(data=True)
+    )
 
 
 class _CountingGuard:

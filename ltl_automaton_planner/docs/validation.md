@@ -1375,3 +1375,41 @@ README/文档链接、52 节历史正文保留及 diff 检查通过。使用既�
 Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 隔离 overlay；本轮
 未重跑整包、物理仿真、实机或 Jazzy。11.50 整包证据仍属于原代码
 基线，NumPy/NetworkX 的既有弃用警告保留。
+
+### 11.54 遗留 margin 构图示范边成员查询（2026-10-06）
+
+以 `211dca9` 为基线，ProdAut.build_full_margin 将 opt_path 的交替
+source/target 配对保存为一次性 zip，随后对每条 Product 候选执行
+成员查询。前面的未命中会消耗所有后续项，导致实际示范边未减去 1，
+错误保留 margin；即使第一个示范命中，后续未命中也会耗尽余下示范。
+现在只将该 zip 固化为 tuple，并补充输入格式 docstring。可重复查询
+不新增 hashability 要求，保留原 [0::2]/[1::2] 配对、重复项与奇数
+尾项忽略，不改为相邻轨迹边。len<2 的 None 路径、guard/source-label、
+cost + beta*dist + 1 - k 运算顺序、节点/边属性与接受循环构造不变。
+tuple 仅存在于本次调用；没有跨调用缓存或新增输入校验。
+
+仓内 rg 确认该 helper 只有定义和本次直接测试，没有运行调用点。
+当前可选 IRL 的 learn_beta 使用独立 _apply_margin；活跃 build_full、
+搜索、β 更新、IRL 学习与 ROS 接口不变。本轮修复遗留公开 helper，
+不把该缺陷描述为当前 IRL 的学习故障，也不声称学习效果或加速。
+
+八个新增参数化检查：六项组合 hard/soft/safe Büchi 和示范分支前/后
+两种插入顺序，以手算八条边检查两个示范、非示范和跨两个 flat pair
+的桥接边；重复示范仅减一次，奇数尾项不参与。验证 transition_cost、
+soft_task_dist、initial/accept/accept_with_cycle、输入对象/守卫属性保持，
+并以新示范再次调用，确认旧优惠恢复、margin 不累积、节点/边顺序不变。
+另两项空/单节点输入保持所有边的 margin。
+
+实际旧提交完整 product.py 在独立进程的八项新检查为
+**6 failed / 2 passed**，六项均只因示范边额外加 1 的权重不符失败，
+分别为 3 vs 2、7 vs 6、4 vs 3、8 vs 7；没有使用 mocked margin。
+初次新版本相关回归为 **62 passed / 6 failed**：边权均正确，但新
+输入保留断言直接比较深拷贝后的守卫对象，而它们没有值相等实现。
+改为原对象身份与独立属性快照比较，未改生产代码适配测试，随后通过。
+
+仅重跑 test_product.py、test_irl.py 与 test_ltl_planner.py，结果
+**68 passed**。源码 py_compile/ament_flake8、测试 ament_flake8/pep257、
+README/文档链接、53 节历史正文保留与 diff 检查通过。环境仍为既有
+Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 隔离 overlay；本轮未
+重跑整包、物理仿真、实机、Jazzy 或真实示范学习实验。11.50 的整包
+证据属于原基线，既有 NumPy/NetworkX 弃用警告保留。
