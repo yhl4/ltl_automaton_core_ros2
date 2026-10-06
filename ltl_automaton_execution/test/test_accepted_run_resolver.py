@@ -131,6 +131,41 @@ def test_e6_suffix_closing_edge_is_resolved():
     assert step.target_state == _state("r2")
 
 
+@pytest.mark.parametrize("suffix", [(3, 3), (3, 4, 5, 3)])
+def test_repeated_suffix_start_is_rejected_without_replacing_index(suffix):
+    """Reject explicitly closed suffixes even when the extra self-loop exists."""
+    snapshot = _snapshot()
+    resolver = AcceptedRunResolver()
+    resolver.resolve(_observation(), snapshot)
+    malformed = replace(
+        snapshot,
+        planning_generation=5,
+        product_edges=snapshot.product_edges + (ProductEdge(3, 3, "wait"),),
+        accepted_run=AcceptedRun((1, 3), suffix),
+    )
+
+    with pytest.raises(ResolutionError) as error:
+        resolver.resolve(_observation(generation=5), malformed)
+
+    assert str(error.value) == "Accepted suffix repeats its start node at the end."
+    assert resolver._indexed_snapshot is snapshot
+    assert resolver.resolve(_observation(), snapshot).target_state == _state("r2")
+
+
+def test_single_node_suffix_keeps_its_closing_self_loop():
+    """A one-node suffix represents one implicit self-loop action."""
+    snapshot = _snapshot()
+    snapshot = replace(
+        snapshot,
+        product_edges=snapshot.product_edges + (ProductEdge(3, 3, "wait"),),
+        accepted_run=AcceptedRun((1, 3), (3,)),
+    )
+    step = AcceptedRunResolver().resolve(_observation((3,), "wait"), snapshot)
+    assert step.action == "wait"
+    assert step.source_state == step.target_state == _state("r2")
+    assert step.source_product_node_ids == step.target_product_node_ids == (3,)
+
+
 def test_e7_missing_action_fails_closed():
     with pytest.raises(ResolutionError, match="not represented"):
         AcceptedRunResolver().resolve(

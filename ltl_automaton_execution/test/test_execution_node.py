@@ -163,6 +163,37 @@ def _successful_response(generation=1):
     return response
 
 
+def test_repeated_suffix_start_snapshot_cannot_dispatch():
+    """Reject a malformed ROS suffix and accept a later valid generation."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        execution, backend, client = _delayed_execution(context)
+        diagnostics = []
+        execution._manager._diagnostic = diagnostics.append
+        execution._on_observation(_observation(1))
+        response = _successful_response(1)
+        response.snapshot.accepted_run.suffix_product_node_ids = [2, 2]
+        client.future.set_result(response)
+
+        assert backend.calls == []
+        assert not execution._manager.in_flight
+        assert diagnostics[-1] == "Accepted suffix repeats its start node at the end."
+
+        replacement_client = DelayedSnapshotClient()
+        execution._snapshot_client = replacement_client
+        execution._on_observation(_observation(2))
+        _complete_snapshot(replacement_client, generation=2)
+        assert len(backend.calls) == 1
+        assert backend.calls[0][0].planning_generation == 2
+        assert backend.calls[0][0].action == "move"
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
 @pytest.mark.parametrize("delay", [0.5, -1.0])
 def test_falsey_backend_receives_formal_step_without_fake_delay_validation(delay):
     """An explicitly supplied backend owns scheduling regardless of its truth value."""

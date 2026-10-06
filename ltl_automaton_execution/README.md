@@ -27,6 +27,11 @@ rebuilds the index with one full Product-edge scan, retaining only edges used by
 the accepted run. Missing run edges are reported before missing run nodes; a
 failed rebuild leaves the prior valid index intact.
 
+The suffix omits the repeated start node at the end and closes through an implicit
+final edge.
+A multi-node suffix that repeats its start at the end is rejected before
+dispatch. A one-node suffix remains valid and uses its explicit Product self-loop.
+
 Duplicate or older execution sequences are not dispatched. A later sequence may
 dispatch even when its Product IDs and action match the previous step. While a
 backend call is in flight, the node retains the newest current-authority

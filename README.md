@@ -673,6 +673,7 @@ colcon test-result --verbose
 - fake 执行延迟的启动校验、one-shot timer 释放和销毁后已排队回调的抑制；
 - fake 异步观测或反馈发布异常后的忙碌状态释放，以及相同序号的去重；
 - 观测管线销毁后已排队回调的丢弃，避免访问已销毁的 ROS publisher；
+- 执行快照拒绝 suffix 末尾重复起点，保留合法单节点自环及后续代际恢复；
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
 - TrapDetection 多候选/多接受环可达性、空集合边界与同一图更新后的重新判定；
 - 标准 TS 无效位姿/关节反馈的丢弃与恢复，以及有限大数的 6D 距离计算；
@@ -693,13 +694,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为 IRL 每轮权重的单次边扫描。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 core 与 HIL：223 tests、0 errors、0 failures、2 skipped，
-含四项新增权重保持检查、既有规划核心/IRL 通信及 lint。
-每轮重置 β 权重与添加 margin 合为一次遍历；浮点运算顺序、停止条件与
-隔离副本保持不变。此修改不作为学习收敛或机器人示范效果证明。
+最近代码验证为执行快照 suffix 结构检查。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 execution：106 tests、0 errors、0 failures、0 skipped，
+含四项新增检查、原有四项真实 DDS 符号执行闭环及 lint。
+按既有消息契约拒绝 suffix 末尾重复起点，合法单节点自环仍可执行；无效
+快照不替换原 resolver 索引，后续有效代际可继续分派。新增坏快照用例使用
+真实 Node/ROS 消息与受控 Future，不作为 DDS 故障或实机测量。
 结合其他未改包保留结果，合计
-**478 tests, 0 errors, 0 failures, 4 skipped**。
+**482 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

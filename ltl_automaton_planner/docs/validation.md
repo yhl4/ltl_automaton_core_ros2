@@ -658,3 +658,24 @@ IRL 通信、规划核心与 lint。结合其它未改包保留结果，合计
 **478 tests, 0 errors, 0 failures, 4 skipped**。
 未进行物理仿真、实机示范或 Jazzy 独立验证。
 
+### 11.32 执行快照 suffix 结构检查（2026-10-06）
+
+以 `660e2c7` 为基线，执行 resolver 会接受末尾重复起点的 suffix；若起点
+还有自环，该自环会被额外计为闭合边。既有 `AcceptedRunSnapshot.msg` 规定
+首节点不在末尾重复，planner serializer 也已拒绝此形态。现在 resolver 在
+边界校验后拒绝长度大于 1 且首末相同的 suffix，使用明确 `ResolutionError`。
+合法单节点 suffix 仍通过 Product 自环闭合，无接口消息或规划语义变更。
+
+新增四项定向检查：两项纯 resolver 坏 suffix `(3, 3)` 与 `(3, 4, 5, 3)`
+在旧实现均因未抛错失败；额外 `3 -> 3` 边存在，排除原缺边校验导致的拒绝。
+合法 `(3,)` suffix 检查在旧实现即通过。另用真实 ROS Node/消息与受控
+snapshot Future，旧代码收到 `[2, 2]` suffix 后确实派发一次 `move`，因此
+不分派断言失败。修复后坏快照拒绝、manager 不忙碌，并接受后续有效代际。
+两项纯 resolver 检查还验证拒绝不替换原有效索引，原快照仍可正常解析。
+
+重跑 execution 包：**106 tests, 0 errors, 0 failures, 0 skipped**，
+resolver 文件 **18 passed**，node 文件 **24 passed**；含原有四项真实 DDS
+符号执行闭环与 lint。新增坏快照场景不作为真实 DDS 网络故障或机器人测量。
+结合其它未改包保留结果，合计 **482 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+

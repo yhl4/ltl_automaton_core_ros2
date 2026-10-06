@@ -111,6 +111,11 @@ read-only view of the latest successfully committed accepted planning
 generation. The retained payload contains the full Büchi graph, full Product
 graph, and complete accepted prefix-suffix run with snapshot-local IDs.
 
+The accepted suffix omits the repeated start node at the end; its final node
+closes back to its first through a Product edge. A one-node suffix represents a
+self-loop. The execution resolver rejects a multi-node suffix whose final node
+duplicates its first.
+
 Each request atomically captures the current snapshot or its absence. A snapshot
 response remains tied to that complete captured generation even if a newer one
 commits during copying. The returned copy can be modified without changing the

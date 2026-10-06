@@ -149,6 +149,10 @@ class AcceptedRunResolver:
             raise ResolutionError(
                 "Accepted prefix and suffix do not share their boundary node."
             )
+        if len(suffix) > 1 and suffix[-1] == suffix[0]:
+            raise ResolutionError(
+                "Accepted suffix repeats its start node at the end."
+            )
         pairs = list(zip(prefix, prefix[1:]))
         pairs.extend(zip(suffix, suffix[1:]))
         pairs.append((suffix[-1], suffix[0]))
