@@ -1305,3 +1305,35 @@ test_irl.py 和 test_temporal_capability_regressions.py，合计
 pep257、README/文档链接、50 节历史正文保留及 diff 检查通过。
 本轮未重跑整包、物理仿真、实机或 Jazzy；11.50 的整包结果仍属于
 其原代码基线，不作为本轮整包证据。
+
+### 11.52 6D Python 输入坐标溢出诊断（2026-10-06）
+
+以 `d081611` 为基线，Region6DJointspaceModel 的前六坐标有限性检查
+对 ±10**400 的 Python 整数抛出 OverflowError，未转为已约定的
+ValueError；Node 的现有失败出口只捕获 ValueError。现在仅给
+math.isfinite 的既有捕获增加 OverflowError，保留原精确诊断
+`JointState positions must be finite numbers.` 和 raise-from cause。
+不转换或钳制输入，不扩展配置 center/radius 校验，不修改区域顺序、
+六维截取、严格半径、math.hypot、ROS 参数或规划/IRL 规则。
+
+四个新增检查在实际旧提交均失败，均由 OverflowError 逃出。
+两个 model 检查分别使用正/负超大整数，覆盖第一个和第六个坐标，
+update 与 is_in_region 均精确返回 ValueError，并保留 OverflowError
+cause、输入列表及最后有效区域。第七个同类整数继续被忽略，后续有效
+位置正常处理。另两个使用真实 ROS Node 和记录型 publisher，向回调
+注入受控 SimpleNamespace Python 消息；无效输入不发布或改变 q1，
+随后有效生成 JointState 反馈继续发布 q2。
+
+超大整数不能作为正常的 ROS float64 坐标传输；本轮是 Python 接口
+边界检查，不声称真实 DDS 传输此整数，也不是配置几何或物理反馈测试。
+现有 nan/±inf、缺少关节、额外关节忽略、严格半径和 1e200 级别有限
+坐标的距离检查仍通过。
+
+仅重跑标准 TS 包的 colcon test，明确指定既有隔离 build/install、
+ROS_DOMAIN_ID=230 及 --return-code-on-test-failure。结果为
+**40 tests, 0 errors, 0 failures, 1 skipped**，即 **39 passed**；
+单一 skipped 为既有 copyright 检查。JUnit 确认四个新增 case 均通过。
+包含原有 2D/6D monitor launch 通信/干净退出及 package lint。
+源码 py_compile/ament_flake8、根与包 README、文档链接/51 节历史正文
+保留及 diff 检查通过。本轮没有重跑其它包、物理仿真、实机或 Jazzy，
+既有 NumPy/NetworkX 和 lint 插件弃用警告保留。

@@ -51,6 +51,8 @@ ros2 launch ltl_automaton_std_transition_systems \
 The first six joint positions must be present and finite; later positions remain
 ignored. Invalid feedback is logged without changing or publishing the last
 valid region. Region membership retains the strict distance `< radius` rule.
+Programmatic model calls report invalid first-six coordinates as `ValueError`,
+including numeric overflow during their finite-value check.
 
 The monitors' `transition_system_path` and the 2D monitor's `pose_message_type`
 are startup-only, read-only parameters. Configure them through launch arguments

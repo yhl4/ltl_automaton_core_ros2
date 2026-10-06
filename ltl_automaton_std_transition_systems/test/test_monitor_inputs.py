@@ -75,6 +75,31 @@ def test_invalid_feedback_preserves_last_valid_input_and_allows_recovery(monitor
         assert monitor.messages == ["q1", "q2"]
 
 
+@pytest.mark.parametrize("invalid", [10**400, -(10**400)], ids=["positive", "negative"])
+def test_6d_monitor_rejects_oversized_python_input_and_recovers(monkeypatch, invalid):
+    """Use a controlled Python input; oversized integers cannot be ROS float64."""
+    path = Path(__file__).resolve().parents[1] / "config" / "example_6d_jointspace_ts.yaml"
+    rclpy.init(args=["--ros-args", "-p", f"transition_system_path:={path}"])
+    node = Region6DJointspaceMonitor()
+    messages = []
+    publisher = SimpleNamespace(publish=lambda message: messages.append(message.data))
+    monkeypatch.setattr(node, "publisher", publisher)
+    try:
+        node._joint_state_callback(JointState(position=[0.0] * 6))
+        for index in (0, 5):
+            position = [0.0] * 6
+            position[index] = invalid
+            node._joint_state_callback(SimpleNamespace(position=position))
+            assert node.model.state == "q1"
+            assert messages == ["q1"]
+        node._joint_state_callback(JointState(position=[1.0] * 6))
+        assert node.model.state == "q2"
+        assert messages == ["q1", "q2"]
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
 def test_monitor_startup_parameters_reject_runtime_writes(monitor):
     """Reject model and subscription changes instead of reporting unused values."""
     node = monitor.node

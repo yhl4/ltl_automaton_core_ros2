@@ -36,7 +36,7 @@ class Region6DJointspaceModel:
             ) from error
         try:
             finite = all(math.isfinite(value) for value in values)
-        except TypeError as error:
+        except (TypeError, OverflowError) as error:
             raise ValueError(
                 "JointState positions must be finite numbers."
             ) from error

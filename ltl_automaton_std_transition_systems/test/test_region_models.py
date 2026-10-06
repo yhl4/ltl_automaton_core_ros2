@@ -237,6 +237,26 @@ def test_6d_model_ignores_extra_joints_and_keeps_strict_radius():
     assert not model.is_in_region([1.0] + [0.0] * 5, "a")
 
 
+@pytest.mark.parametrize("invalid", [10**400, -(10**400)], ids=["positive", "negative"])
+def test_6d_model_normalizes_python_coordinate_overflow_and_preserves_state(invalid):
+    """Classify float conversion overflow without changing the last valid region."""
+    model = _joint_model()
+    assert model.update([0.0] * 6) == ("a", True)
+    for index in (0, 5):
+        position = [0.0] * 6
+        position[index] = invalid
+        before = list(position)
+        for validate in (model.update, lambda values: model.is_in_region(values, "a")):
+            with pytest.raises(ValueError) as caught:
+                validate(position)
+            assert str(caught.value) == "JointState positions must be finite numbers."
+            assert isinstance(caught.value.__cause__, OverflowError)
+            assert position == before
+            assert model.state == "a"
+    assert model.update([0.0] * 6 + [invalid]) == ("a", True)
+    assert model.update([0.5] + [0.0] * 5) == ("a", True)
+
+
 def test_6d_model_distance_does_not_overflow_for_finite_positions():
     model = _joint_model(radius=1e201)
     # sqrt(6) * 1e200 is less than 1e201; squaring 1e200 overflows a float.
