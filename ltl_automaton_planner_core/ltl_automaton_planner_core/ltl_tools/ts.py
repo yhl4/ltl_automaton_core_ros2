@@ -105,11 +105,21 @@ class TSModel(DiGraph):
         # Enumerate each combined source node once, then expand only the
         # actual successors of each factor state.  Keeping factors in order
         # preserves the historical later-dimension overwrite for collisions.
+        successor_tables = [{} for _ in graph_list]
         for node in self.nodes:
             for i, graph in enumerate(graph_list):
                 state = (node[i],)
-                for successor_state in graph.successors(state):
-                    edge_data = graph[state][successor_state]
+                state_successors = successor_tables[i].get(state)
+                if state_successors is None:
+                    state_successors = tuple(
+                        (
+                            successor_state,
+                            graph[state][successor_state],
+                        )
+                        for successor_state in graph.successors(state)
+                    )
+                    successor_tables[i][state] = state_successors
+                for successor_state, edge_data in state_successors:
                     if not self.is_action_allowed(
                         edge_data['guard'],
                         self.nodes[node]['label'],

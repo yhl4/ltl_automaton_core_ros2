@@ -1,4 +1,6 @@
 from networkx import DiGraph
+from networkx import NetworkXError
+import pytest
 
 from ltl_automaton_planner_core.ltl_tools.ts import TSModel
 
@@ -176,3 +178,88 @@ def test_node_product_public_list_contract_including_empty_factors():
         ("b", "x"),
         ("b", "y"),
     ]
+
+
+def _branching_factors():
+    region, load = make_region_model(), make_load_model()
+    region.add_edge(("r1",), ("r1",), action="stay_region", guard="1", weight=3.0)
+    region.add_edge(("r2",), ("r2",), action="stay_r2", guard="empty", weight=4.0)
+    load.add_edge(("empty",), ("empty",), action="wait", guard="1", weight=5.0)
+    load.add_edge(("loaded",), ("loaded",), action="hold", guard="r2", weight=6.0)
+    return [region, load]
+
+
+def test_factor_successors_preserve_order_cross_dimension_guards_and_overwrites():
+    """Match hand-specified edges with source-label guards and self-loop collisions."""
+    factors = _branching_factors()
+    model = TSModel(factors)
+    model.build_full()
+    assert list(model) == [
+        ("r1", "empty"), ("r1", "loaded"), ("r2", "empty"), ("r2", "loaded"),
+    ]
+    expected = [
+        (("r1", "empty"), ("r2", "empty"), "goto_r2", "1", 2.0),
+        (("r1", "empty"), ("r1", "empty"), "wait", "1", 5.0),
+        (("r1", "loaded"), ("r2", "loaded"), "goto_r2", "1", 2.0),
+        (("r1", "loaded"), ("r1", "loaded"), "stay_region", "1", 3.0),
+        (("r2", "empty"), ("r2", "empty"), "wait", "1", 5.0),
+        (("r2", "empty"), ("r2", "loaded"), "load", "r2", 1.0),
+        (("r2", "loaded"), ("r2", "loaded"), "hold", "r2", 6.0),
+    ]
+    assert list(model.edges) == [(source, target) for source, target, *_ in expected]
+    for source, target, action, guard, weight in expected:
+        assert model.edges[source, target] == dict(
+            action=action, guard=guard, weight=weight, marker="visited",
+        )
+    assert model.graph["initial"] == {("r1", "empty")}
+    assert model.graph["ts_state_format"] == ["region", "load"]
+    assert model.state_models is factors
+    for node, attributes in model.nodes(data=True):
+        assert attributes == dict(label=node, marker="unvisited")
+
+
+def test_factor_successors_rebuild_reads_new_guards_edges_actions_costs_and_initials():
+    """Read changed factors again and discard earlier composed transitions."""
+    factors = _branching_factors()
+    model = TSModel(factors)
+    model.build_full()
+    region, load = factors
+    region.edges[("r1",), ("r2",)].update(weight=2.5, action="updated_go")
+    region.remove_edge(("r1",), ("r1",))
+    region.add_edge(("r2",), ("r1",), action="return", guard="loaded", weight=7.0)
+    load.edges[("empty",), ("loaded",)].update(guard="r1", action="new_load", weight=9.5)
+    region.graph["initial"] = {("r2",)}
+    load.graph["initial"] = {("loaded",)}
+    model.build_full()
+    assert model.graph["initial"] == {("r2", "loaded")}
+    assert not model.has_edge(("r1", "loaded"), ("r1", "loaded"))
+    assert not model.has_edge(("r2", "empty"), ("r2", "loaded"))
+    assert not model.has_edge(("r2", "empty"), ("r1", "empty"))
+    for source, target, action, guard, weight in (
+        (("r1", "empty"), ("r1", "loaded"), "new_load", "r1", 9.5),
+        (("r1", "loaded"), ("r2", "loaded"), "updated_go", "1", 2.5),
+        (("r2", "loaded"), ("r1", "loaded"), "return", "loaded", 7.0),
+    ):
+        assert model.edges[source, target] == dict(
+            action=action, guard=guard, weight=weight, marker="visited",
+        )
+
+
+def test_factor_successors_empty_composition_keeps_empty_graph():
+    """An empty factor yields no composed states, edges, or initial states."""
+    empty = DiGraph(initial=set(), ts_state_format="empty")
+    model = TSModel([make_region_model(), empty])
+    model.build_full()
+    assert list(model) == []
+    assert list(model.edges) == []
+    assert model.graph["initial"] == set()
+    assert model._guard_cache == {}
+
+
+def test_factor_successors_missing_factor_state_keeps_networkx_error():
+    """Retain the original graph error for a malformed composed source."""
+    factors = _branching_factors()
+    model = TSModel(factors)
+    model.add_node(("missing", "empty"), label=("missing", "empty"))
+    with pytest.raises(NetworkXError, match="missing"):
+        model.compose_edges(factors)
