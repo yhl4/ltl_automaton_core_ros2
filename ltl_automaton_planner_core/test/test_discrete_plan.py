@@ -7,6 +7,8 @@ from ltl_automaton_planner_core.boolean_formulas.parser import (
 )
 from ltl_automaton_planner_core.ltl_tools.discrete_plan import (
     dijkstra_plan_networkX,
+    improve_plan_given_history,
+    prod_states_given_history,
 )
 from ltl_automaton_planner_core.ltl_tools import discrete_plan
 from ltl_automaton_planner_core.ltl_tools.product import ProdAut
@@ -205,3 +207,65 @@ def test_no_accepting_cycle_returns_without_shortest_path_search(monkeypatch):
 
     monkeypatch.setattr(discrete_plan, "single_source_dijkstra", unexpected_search)
     assert dijkstra_plan_networkX(product) == (None, None)
+
+
+def test_networkx_dijkstra_uses_explicit_start_without_mutating_initial():
+    """Use an explicit Product start and preserve the graph's initial set."""
+    product = create_test_product()
+    previous_initial = set(product.graph["initial"])
+
+    run, _ = dijkstra_plan_networkX(
+        product,
+        start_set={("s1", "q1")},
+    )
+    assert run is not None
+    assert run.prefix == [("s1", "q1")]
+    assert product.graph["initial"] == previous_initial
+
+    assert dijkstra_plan_networkX(product, start_set=set()) == (None, None)
+    assert product.graph["initial"] == previous_initial
+
+
+def test_product_history_follows_complete_product_successors():
+    """Resolve a source-label history through the built Product graph."""
+    product = create_test_product()
+
+    assert prod_states_given_history(product, ["s0", "s1"]) == {
+        ("s1", "q1"),
+    }
+    assert prod_states_given_history(product, []) == set()
+    assert prod_states_given_history(product, ["unknown"]) == set()
+    assert prod_states_given_history(product, ["s0", "s0"]) == set()
+    assert improve_plan_given_history(product, ["unknown"]) is None
+    assert improve_plan_given_history(product, ["s0", "s0"]) is None
+
+
+def test_history_replanning_passes_gamma_to_networkx_search():
+    """Select different accepted cycles for gamma one and ten."""
+    product = make_weighted_product([
+        ("s0", "a", 0), ("a", "a", 4),
+        ("s0", "b", 8), ("b", "b", 1),
+    ])
+    product.graph["accept"] = {
+        ("a", "q0"),
+        ("b", "q0"),
+    }
+    product.build_accept_with_cycle()
+
+    low_gamma = improve_plan_given_history(
+        product,
+        ["s0"],
+        gamma=1,
+    )
+    high_gamma = improve_plan_given_history(
+        product,
+        ["s0"],
+        gamma=10,
+    )
+
+    assert low_gamma is not None
+    assert high_gamma is not None
+    assert low_gamma.suffix == [("a", "q0")]
+    assert low_gamma.totalcost == 4
+    assert high_gamma.suffix == [("b", "q0")]
+    assert high_gamma.totalcost == 18

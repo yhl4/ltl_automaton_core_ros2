@@ -149,6 +149,10 @@ class LTLPlanner:
         if not self._initialize_execution_state():
             return False
 
+        # A newly planned task starts a new execution word. History-based
+        # replanning below keeps this word because it retains the same task.
+        self.trace = []
+
         _LOGGER.info(
             "LTL Planner: --- Planning successful! ---"
         )
@@ -397,9 +401,18 @@ class LTLPlanner:
             )
             return False
 
+        # trace contains sources of completed actions; the cursor now points
+        # at their latest reached state, which must also constrain the search.
+        remaining_prefix = (
+            self.run.prefix[self.index:]
+            if self.segment == "line"
+            else [self.run.suffix[self.index]]
+        )
+        current_state = remaining_prefix[0][0]
         new_run = improve_plan_given_history(
             self.product,
-            self.trace,
+            [*self.trace, current_state],
+            gamma=self.gamma,
         )
 
         if new_run is None:
@@ -417,15 +430,9 @@ class LTLPlanner:
             new_run.loop,
         )
 
-        remaining_prefix = (
-            self.run.pre_plan[self.index:]
-            if self.segment == "line"
-            else []
-        )
-
         if (
-            new_run.pre_plan == remaining_prefix
-            and new_run.suf_plan == self.run.suf_plan
+            new_run.prefix == remaining_prefix
+            and new_run.suffix == self.run.suffix
         ):
             _LOGGER.info(
                 "LTL Planner: The current plan remains valid."

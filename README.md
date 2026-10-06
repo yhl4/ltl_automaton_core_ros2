@@ -603,6 +603,7 @@ colcon test-result --verbose
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
 - Launch 测试结束时的干净退出。
 - 不可行任务、未知状态与内部异常下的事务式重规划回滚。
+- 完整 Product 上的历史重规划、最新到达状态、代价参数与新任务历史隔离。
 
 提交前建议额外执行：
 
@@ -678,6 +679,23 @@ Planning Contract 升级为 V0.2，新增 `uint64 execution_step_seq`。
 
 V0.1 消费者需重新生成并构建 `ltl_automaton_msgs` 及其依赖包；
 当前不提供旧消息兼容层。
+
+### 11.6 历史重规划补全（2026-10-06）
+
+Core 的 `LTLPlanner.replan()` 改为复用已构建的完整 Product 和当前 Dijkstra 搜索，
+不再调用依赖旧 `region/fly_predecessors` 接口的动态搜索。
+搜索历史包含已完成动作的源状态与游标当前到达状态，使用配置的 `gamma`；
+候选起点不改写图的 initial 集。计划比较使用 Product 路径，避免同名动作掩盖
+不同目标状态。成功规划新任务时清空旧任务历史，同任务历史重规划保留原执行记录。
+该路径以已接受反馈、已推进游标的当前执行状态为起点；异常偏离后的恢复仍使用
+`replan_from_ts_state()`。
+
+原问题在小图中复现为缺失动态 TS 接口异常、重规划起点落后以及旧任务历史残留。
+修复后的手算代价检查、未知/非法历史、任务替换和八次连续执行/重规划均通过。
+本轮重跑 Core、ROS planner 与 execution 三包 `colcon test`（含 Action、真实 DDS
+闭环与 lint），全部通过；与其他包保留结果合计为
+**253 tests, 0 errors, 0 failures, 4 skipped**。Product source-label 与代价公式保持不变，
+未运行性能 benchmark。
 
 ---
 

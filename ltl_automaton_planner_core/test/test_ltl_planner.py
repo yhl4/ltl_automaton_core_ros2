@@ -4,8 +4,10 @@ from copy import deepcopy
 import shutil
 from io import StringIO
 
+from networkx import DiGraph
 import pytest
 
+from ltl_automaton_planner_core.boolean_formulas.parser import parse as parse_guard
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
     state_models_from_ts,
@@ -210,6 +212,88 @@ def test_possible_states_survive_suffix_cycle_boundaries():
         for reached_state in planner.run.loop[1:]:
             assert planner.update_possible_states(reached_state) is True
             planner.find_next_move()
+
+
+def test_history_replanning_starts_from_latest_reached_state():
+    """Do not replay the source of an action that already completed."""
+    planner = LTLPlanner(create_transition_system(), "<> r2", "(r2 || !r2)", gamma=3)
+    assert planner.optimal()
+    reached = planner.run.line[1]
+    assert planner.update_possible_states(reached)
+    planner.find_next_move()
+    previous_run = planner.run
+    previous_cursor = (planner.segment, planner.index, planner.next_move)
+    previous_trace = list(planner.trace)
+
+    assert planner.replan() is False
+
+    assert planner.run is previous_run
+    assert (planner.segment, planner.index, planner.next_move) == previous_cursor
+    assert planner.trace == previous_trace
+
+
+def test_history_replanning_uses_gamma_and_product_paths(monkeypatch):
+    """Distinguish equal action names leading to differently weighted loops."""
+    ts = DiGraph(initial={("s0",)})
+    for source, target, cost, action in [
+        ("s0", "a", 1, "move"), ("s0", "b", 5, "move"),
+        ("a", "a", 4, "wait"), ("b", "b", 1, "wait"),
+    ]:
+        ts.add_edge((source,), (target,), weight=cost, action=action)
+    for state in ts:
+        ts.nodes[state]["label"] = set(state)
+    buchi = DiGraph(type="hard_buchi", initial={"q0"}, accept={"q0"})
+    buchi.add_edge("q0", "q0", guard=parse_guard("1"))
+    monkeypatch.setattr(
+        "ltl_automaton_planner_core.ltl_tools.ltl_planner.mission_to_buchi",
+        lambda *_args: buchi,
+    )
+    planner = LTLPlanner(ts, "1", "1", gamma=1)
+    assert planner.optimal()
+    assert planner.run.suffix == [(("a",), "q0")]
+    assert planner.run.totalcost == 5
+    previous_actions = (planner.run.pre_plan, planner.run.suf_plan)
+
+    planner.gamma = 10
+    assert planner.replan()
+
+    assert planner.run.suffix == [(("b",), "q0")]
+    assert planner.run.totalcost == 15
+    assert (planner.run.pre_plan, planner.run.suf_plan) == previous_actions
+
+
+def test_new_task_discards_previous_task_history():
+    """Keep historical words within the task that observed them."""
+    planner = LTLPlanner(create_transition_system(), "<> r2", "(r2 || !r2)")
+    assert planner.optimal()
+    reached = planner.run.line[1]
+    assert planner.update_possible_states(reached)
+    planner.find_next_move()
+    assert planner.trace
+
+    assert planner.replan_task("[] r2", "(r2 || !r2)", initial_ts_state=reached)
+
+    assert planner.trace == []
+    assert planner.replan() is False
+
+
+def test_history_replanning_keeps_execution_consistent_across_cycles():
+    """Retain the current TS state and feasible belief after repeated replans."""
+    planner = LTLPlanner(create_branching_transition_system(), "<> r3", "(r3 || !r3)")
+    assert planner.optimal()
+    for _ in range(8):
+        states = planner.run.line if planner.segment == "line" else planner.run.loop
+        reached = states[planner.index + 1]
+        assert planner.update_possible_states(reached)
+        planner.find_next_move()
+        completed_sources = list(planner.trace)
+
+        planner.replan()
+
+        current_states = planner.run.line if planner.segment == "line" else planner.run.loop
+        assert current_states[planner.index] == reached
+        assert planner.trace == completed_sources
+        assert planner.product.possible_states
 
 
 def test_failed_task_replanning_restores_previous_planner_state():

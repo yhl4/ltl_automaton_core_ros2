@@ -12,12 +12,22 @@ from .product import ProdAut_Run
 _LOGGER = logging.getLogger(__name__)
 
 
-def dijkstra_plan_networkX(product, gamma=10):
-    """Find an accepting run in a fully built Product with Dijkstra search."""
+def dijkstra_plan_networkX(product, gamma=10, start_set=None):
+    """Search a full Product from explicit starts or its unchanged initial set."""
     start = time.perf_counter()
     runs = {}
     loops = {}
-    accepting_cycles = product.graph["accept"] & product.graph["accept_with_cycle"]
+    init_set = (
+        product.graph["initial"]
+        if start_set is None
+        else start_set
+    )
+    if not init_set:
+        _LOGGER.error("No accepting run found from the requested start set.")
+        return None, None
+    accepting_cycles = (
+        product.graph["accept"] & product.graph["accept_with_cycle"]
+    )
     if not accepting_cycles:
         _LOGGER.error("No accepting run found in NetworkX Dijkstra planning.")
         return None, None
@@ -50,7 +60,7 @@ def dijkstra_plan_networkX(product, gamma=10):
                 suffix,
             )
 
-    for prod_init in product.graph["initial"]:
+    for prod_init in init_set:
         line_costs: dict[object, float] = {}
         line_dist, line_paths = single_source_dijkstra(
             product,
@@ -416,20 +426,21 @@ def compute_path_from_pre(predecessor, target):
 
 
 def prod_states_given_history(product, trace):
-    """Compute possible product states from a TS execution trace."""
+    """Trace observed TS states through the already built Product edges."""
     if not trace:
         return set()
 
     possible_states = {
         (trace[0], buchi_state)
         for buchi_state in product.graph["buchi"].graph["initial"]
+        if (trace[0], buchi_state) in product
     }
 
     for ts_state in trace[1:]:
         next_states = set()
 
         for product_node in possible_states:
-            for successor, _ in product.fly_successors(product_node):
+            for successor in product.successors(product_node):
                 if successor[0] == ts_state:
                     next_states.add(successor)
 
@@ -438,8 +449,8 @@ def prod_states_given_history(product, trace):
     return possible_states
 
 
-def improve_plan_given_history(product, trace):
-    """Replan from product states consistent with execution history."""
+def improve_plan_given_history(product, trace, gamma=10):
+    """Replan a full Product from history with the configured suffix weight."""
     new_initial_set = prod_states_given_history(
         product,
         trace,
@@ -448,9 +459,9 @@ def improve_plan_given_history(product, trace):
     if not new_initial_set:
         return None
 
-    new_run, _ = dijkstra_plan_optimal(
+    new_run, _ = dijkstra_plan_networkX(
         product,
-        gamma=10,
+        gamma=gamma,
         start_set=new_initial_set,
     )
     return new_run
