@@ -307,8 +307,12 @@ def run_candidate_worker(
     future: Future,
     request: PlanningRequest,
 ) -> None:
-    """Compute one candidate and hand its value back to the executor."""
-    future.set_result(compute_candidate_plan(request))
+    """Complete the executor-bound Future even after an unexpected failure."""
+    try:
+        outcome = compute_candidate_plan(request)
+    except Exception as error:
+        outcome = PlanningOutcome(PlanLTL.Result.ERROR_INTERNAL, str(error))
+    future.set_result(outcome)
 
 
 def compute_irl_candidate(request: IRLPlanningRequest) -> PlanningOutcome:

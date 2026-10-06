@@ -1154,3 +1154,33 @@ ROS 2 事务、IRL 提交、快照及转换失败 fallback 检查。源码 py_co
 ament_flake8、测试文件 ament_flake8/pep257、README/API/HIL 说明、
 文档链接/46 节历史正文保留及 diff 检查通过。本轮没有重跑整包、物理
 仿真、实机或 Jazzy，不作为性能、收敛或机器人示范效果测量。
+
+### 11.48 PlanLTL worker 意外异常完成 Future（2026-10-06）
+
+以 `61e88c4` 为基线，PlanLTL worker 直接将计算返回值写入 Future；
+计算若在内部已分类异常之外失败，worker 线程退出而 Future 保持未完成，
+Action 和规划事务无法结束。现在只在 worker 的候选计算调用周围捕获
+普通 Exception，转换为带原异常文字的 ERROR_INTERNAL outcome，并通过
+原有单次 set_result 交回 executor。已有输入/translator 错误分类、
+候选成本检查、提交身份/状态检查、IRL worker 与快照 fallback 保持不变。
+
+四个新增检查在实际旧提交均失败。两个直接使用真实 rclpy Future，分别
+注入 RuntimeError 和 ValueError；旧版异常逃出，修复后 Future 完成、
+错误码/文字精确且 outcome 不携带可提交的 planner、TS 或快照。另两个
+从 READY 和 ACTIVE 发起真实 ROS 2 Action，在真实 translator 和搜索
+完成后向候选序列化注入 RuntimeError；旧版两个 Action 在测试观察窗口
+内均未完成，并出现 worker 线程异常。失败断言之后仅为旧基线 teardown
+完成悬置 Future，不将该清理算作通过，也不在生产代码增加超时或重试。
+
+修复后两个 Action 为 ABORTED/ERROR_INTERNAL，保留精确异常文字，
+释放规划 token，保持原 planner、generation、execution_step_seq、
+READY/ACTIVE 状态和完整服务快照。恢复序列化后下一有效请求均正常
+SUCCEEDED，开始一个新 generation。故障为受控注入，不声称真实 DDS
+故障、线程终止、BaseException 或通用进程崩溃恢复。
+
+仅重跑 `test_plan_ltl_action.py` 和 `test_planner_node.py`，合计
+**67 passed**，包含四个新增检查，以及既有事务、IRL、候选代价检查和
+普通快照转换失败不阻断规划的检查。源码 py_compile/ament_flake8、
+测试文件 ament_flake8/pep257、README/API、文档链接/47 节历史正文
+保留及 diff 检查通过。本轮未重跑整包、物理仿真、实机或 Jazzy，
+未修改目标、规划时限、接受性、IRL 更新/步长/停止规则。

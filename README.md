@@ -701,13 +701,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为 ROS 事务候选代价溢出拒绝。在 Ubuntu 22.04 / ROS 2
-Humble / Python 3.10 下，相关 Action 和 planner-node 两个文件共
-**63 passed**，修改文件 lint 通过。三个新增检查在实际旧提交均失败：
-非有限结果仍成功提交；修复后 PlanLTL/IRL 候选内部失败并保留活动权威。
-六组有限候选的新旧完整快照及 ID 映射一致，包括 β=1e308 且软距离为零
-的情况；不钳制权重、修改目标或缩减学习流程。普通快照转换失败的既有
-处理保持不变；本轮未重跑整包或测量端到端加速。
+最近代码验证为 PlanLTL worker 意外异常时完成 Future。在 Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10 下，相关 Action 和 planner-node 两个文件共
+**67 passed**，修改文件 lint 通过。四个新增检查在实际旧提交均失败：
+计算异常逃出 worker，READY/ACTIVE 下的 Action 无法结束；修复后返回
+ABORTED/ERROR_INTERNAL、释放事务并保留原 planner、代际、执行序号和
+完整快照，下一有效请求正常提交。真实规划后的序列化故障为受控注入，
+不作为网络故障或通用崩溃恢复证明。普通快照转换失败的既有处理保持
+不变；本轮未重跑整包或修改规划/学习规则。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

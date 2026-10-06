@@ -85,6 +85,12 @@ Diagnostics name the first invalid cost in prefix/suffix/total order. Large
 finite results remain accepted. This ROS candidate check does not clamp weights,
 change the Core objective, or change the ordinary snapshot-conversion fallback.
 
+If candidate computation raises an unexpected exception, the PlanLTL worker
+completes its executor-bound Future with `ERROR_INTERNAL` and the exception's
+message. The action aborts and releases the transaction, preserving the current
+authority. A later valid request can proceed. This does not add a planning
+deadline, cooperative cancellation, or an automatic retry.
+
 ## Execution During Planning
 
 Planning uses transactional replacement semantics. When a new goal starts from

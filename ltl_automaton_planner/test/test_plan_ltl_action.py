@@ -18,6 +18,7 @@ from rclpy.qos import (
     QoSProfile,
     ReliabilityPolicy,
 )
+from rclpy.task import Future
 from std_msgs.msg import String
 
 from ltl_automaton_msgs.action import PlanLTL
@@ -337,6 +338,84 @@ def test_ready_action_success_returns_plan_and_activates(action_runtime):
     assert result.total_cost > 0.0
     assert result.planning_time >= 0.0
     assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+
+
+@pytest.mark.parametrize("error_type", [RuntimeError, ValueError])
+def test_worker_exception_completes_future_with_internal_failure(monkeypatch, error_type):
+    """Complete the real executor Future when candidate computation escapes."""
+    future = Future()
+    request = object()
+
+    def failed_compute(received):
+        assert received is request
+        raise error_type("Controlled late worker failure.")
+
+    monkeypatch.setattr(planner_module, "compute_candidate_plan", failed_compute)
+    planner_module.run_candidate_worker(future, request)
+
+    assert future.done()
+    outcome = future.result()
+    assert outcome.error_code == PlanLTL.Result.ERROR_INTERNAL
+    assert outcome.message == "Controlled late worker failure."
+    assert outcome.planner is outcome.transition_system is outcome.planning_graph is None
+
+
+@pytest.mark.parametrize("active", [False, True], ids=["ready", "active"])
+def test_post_search_worker_failure_releases_transaction_and_preserves_authority(
+    action_runtime, monkeypatch, active,
+):
+    """Finish a late failed Action and allow the next valid request to commit."""
+    if active:
+        activate(action_runtime)
+    else:
+        assert load_transition_system(action_runtime, VALID_TS).success
+    node = action_runtime.planner
+    old = node.ltl_planner
+    generation = node._planning_generation
+    sequence = node._execution_step_seq
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    original_worker = planner_module.run_candidate_worker
+    original_serialize = planner_module.serialize_planning_graph
+    pending = []
+
+    def record_future(future, request):
+        pending.append(future)
+        return original_worker(future, request)
+
+    def failed_serialization(*_args):
+        raise RuntimeError("Controlled candidate serialization failure.")
+
+    monkeypatch.setattr(planner_module, "run_candidate_worker", record_future)
+    monkeypatch.setattr(planner_module, "serialize_planning_graph", failed_serialization)
+    handle = send_goal(action_runtime, make_goal())
+    assert handle.accepted
+    result_future = handle.get_result_async()
+    try:
+        assert spin_until(action_runtime, result_future.done, timeout=2.0)
+        response = result_future.result()
+        assert response.status == GoalStatus.STATUS_ABORTED
+        assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
+        assert not response.result.success
+        assert response.result.message == "Controlled candidate serialization failure."
+        assert node._planning_token is None
+        assert node.ltl_planner is old
+        assert node._planning_generation == generation
+        assert node._execution_step_seq == sequence
+        assert node._planner_state == (PlannerStatus.ACTIVE if active else PlannerStatus.READY)
+        assert get_planning_graph_snapshot(action_runtime).snapshot == before
+    finally:
+        # Let the old, failing baseline tear down after its unresolved-Future assertion.
+        if pending and not pending[0].done():
+            pending[0].set_result(planner_module.PlanningOutcome(
+                PlanLTL.Result.ERROR_INTERNAL, "Controlled unresolved-Future cleanup.",
+            ))
+            spin_until(action_runtime, result_future.done, timeout=2.0)
+        monkeypatch.setattr(planner_module, "serialize_planning_graph", original_serialize)
+
+    accepted = action_result(action_runtime, send_goal(action_runtime, make_goal()))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED and accepted.result.success
+    assert node._planning_generation == generation + 1
+    assert node._planner_state == PlannerStatus.ACTIVE
 
 
 @pytest.mark.parametrize(
