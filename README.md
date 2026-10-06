@@ -869,6 +869,24 @@ ltl2ba/Büchi 集成检查通过。受控故障测试将截断的工具输出注
 本轮重跑 core 与 planner 两包；与其他包保留结果合计为
 **304 tests, 0 errors, 0 failures, 4 skipped**。
 
+### 11.15 同目标 Promela 分支保留（2026-10-06）
+
+同一源/目标的多个 `:: guard -> goto target` 现在将条件合并为带括号的逻辑或，
+避免被最后一条分支覆盖。[Promela 的 if 语义](https://spinroot.com/spin/Man/if.html)
+允许选择任意可执行分支，因此合并保留同一转移的可执行条件。唯一分支文本、
+transition-dictionary 与 DiGraph 接口不变；soft distance 仍沿用现有 OR 的最小值规则。
+
+受控双分支 fixture 的单状态 TS 仅含 `cargo` 标签，边代价为 2、β=5、γ=10。
+修复前 hard Product 丢失接受路径，soft 计划总代价为 27；修复后两者均得到
+手算总代价 **2 + 10 × 2 = 22**。另用三分支的六种标签核对真值与软距离，
+并反转分支顺序，确保较早分支和嵌套条件都保留。
+
+独立原生 ltl2ba 探测的 20 个固定公式均翻译成功，未观察到重复源/目标分支。
+以上复现采用受控 fixture，不据此声称当前原生输出发生了该缺陷。
+
+本轮重跑 core 与 planner 两包；与其他包保留结果合计为
+**313 tests, 0 errors, 0 failures, 4 skipped**。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照

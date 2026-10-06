@@ -81,7 +81,13 @@ class Parser:
                 edge_count = 0
 
                 while edge is not None:
-                    edges[(vertex_name, edge["dest"])] = edge["cond"]
+                    edge_key = (vertex_name, edge["dest"])
+                    if edge_key in edges:
+                        edges[edge_key] = (
+                            f"({edges[edge_key]}) || ({edge['cond']})"
+                        )
+                    else:
+                        edges[edge_key] = edge["cond"]
                     edge_count += 1
                     edge = self.accept(self.edge_regex)
 

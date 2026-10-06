@@ -1,11 +1,14 @@
 """Tests for TS-Büchi product automata."""
 
 from networkx import DiGraph
+import pytest
 
 from ltl_automaton_planner_core.boolean_formulas.parser import (
     parse as parse_guard,
 )
 from ltl_automaton_planner_core.ltl_tools.product import ProdAut
+from ltl_automaton_planner_core.ltl_tools import buchi as buchi_module
+from ltl_automaton_planner_core.ltl_tools.discrete_plan import dijkstra_plan_networkX
 from ltl_automaton_planner_core.ltl_tools import product as product_module
 
 
@@ -276,3 +279,41 @@ def test_build_full_caches_shared_safe_guards_per_ts_label(monkeypatch):
     product.build_full()
     assert not list(product.out_edges(allow_source))
     assert product.has_edge(deny_source, ("deny", "shared_a"))
+
+
+@pytest.mark.parametrize("buchi_type", ["hard_buchi", "soft_buchi"])
+def test_parallel_promela_guards_preserve_feasibility_and_cost(monkeypatch, buchi_type):
+    """Retain an earlier enabled branch in hard and soft Product planning."""
+    claim = """never { /* <> (cargo || danger) */
+T0_init:
+    if
+    :: (cargo) -> goto accept_S1
+    :: (danger) -> goto accept_S1
+    fi;
+accept_S1:
+    skip
+}
+"""
+    monkeypatch.setattr(buchi_module, "run_ltl2ba", lambda formula: claim)
+    buchi = buchi_module.buchi_from_ltl("<> (cargo || danger)", buchi_type)
+    ts = DiGraph(initial={"s0"})
+    ts.add_node("s0", label={"cargo"})
+    ts.add_edge("s0", "s0", weight=2.0, action="stay")
+    product = ProdAut(ts, buchi, beta=5)
+    product.build_full()
+
+    initial = ("s0", "T0_init")
+    accepting = ("s0", "accept_S1")
+    assert product.has_edge(initial, accepting)
+    edge = product.edges[initial, accepting]
+    assert edge["transition_cost"] == 2.0
+    assert edge["soft_task_dist"] == 0
+    assert edge["weight"] == 2.0
+
+    run, _ = dijkstra_plan_networkX(product, gamma=10)
+    assert run is not None
+    assert run.prefix == [initial, accepting]
+    assert run.suffix == [accepting]
+    assert run.precost == 2.0
+    assert run.sufcost == 2.0
+    assert run.totalcost == 2.0 + 10 * 2.0

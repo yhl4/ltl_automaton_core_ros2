@@ -1,5 +1,8 @@
 import pytest
 
+from ltl_automaton_planner_core.boolean_formulas.parser import (
+    parse as parse_guard,
+)
 from ltl_automaton_planner_core.ltl_tools.promela import (
     ParseException,
     Parser,
@@ -68,6 +71,78 @@ def test_missing_never_header_raises_a_parse_error() -> None:
     """Reject malformed translator output with an explicit parser error."""
     with pytest.raises(ParseException):
         parse("T0_init:\n    false;\n}")
+
+
+MULTI_BRANCH_PROMELA = """
+never { /* duplicate branches */
+T0_init:
+    if
+    :: (cargo) -> goto accept_S1
+    :: (carry && ready) -> goto accept_S1
+    :: (danger && alert) -> goto accept_S1
+    fi;
+accept_S1:
+    skip
+}
+"""
+
+
+@pytest.mark.parametrize(
+    "label, expected_truth, expected_distance",
+    [
+        ({"cargo"}, True, 0),
+        ({"carry", "ready"}, True, 0),
+        ({"danger", "alert"}, True, 0),
+        ({"carry"}, False, 1),
+        ({"danger"}, False, 1),
+        (set(), False, 1),
+    ],
+)
+def test_duplicate_branch_guards_are_or_merged(
+    label,
+    expected_truth,
+    expected_distance,
+) -> None:
+    """Merge same-target Promela options with OR guard semantics."""
+    edges = parse(MULTI_BRANCH_PROMELA)
+    guard = parse_guard(edges[("T0_init", "accept_S1")])
+
+    assert len(edges) == 2
+    assert guard.check(label) is expected_truth
+    assert guard.distance(label) == expected_distance
+
+
+def test_duplicate_branch_guard_merge_is_order_independent() -> None:
+    """Produce equivalent OR semantics when same-target options are reversed."""
+    reversed_promela = MULTI_BRANCH_PROMELA.replace(
+        "    :: (cargo) -> goto accept_S1\n"
+        "    :: (carry && ready) -> goto accept_S1\n"
+        "    :: (danger && alert) -> goto accept_S1\n",
+        "    :: (danger && alert) -> goto accept_S1\n"
+        "    :: (carry && ready) -> goto accept_S1\n"
+        "    :: (cargo) -> goto accept_S1\n",
+    )
+    forward = parse_guard(
+        parse(MULTI_BRANCH_PROMELA)[("T0_init", "accept_S1")]
+    )
+    reverse = parse_guard(
+        parse(reversed_promela)[("T0_init", "accept_S1")]
+    )
+
+    labels = [
+        {"cargo"},
+        {"carry", "ready"},
+        {"danger", "alert"},
+        {"carry"},
+        {"danger"},
+        set(),
+    ]
+    assert [forward.check(label) for label in labels] == [
+        reverse.check(label) for label in labels
+    ]
+    assert [forward.distance(label) for label in labels] == [
+        reverse.distance(label) for label in labels
+    ]
 
 
 @pytest.mark.parametrize(
