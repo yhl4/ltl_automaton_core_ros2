@@ -664,6 +664,7 @@ colcon test-result --verbose
 - 快照请求失败或超时后的最新命令恢复，以及节点销毁后晚到响应的抑制；
 - fake 执行延迟的启动校验、one-shot timer 释放和销毁后已排队回调的抑制；
 - fake 异步观测或反馈发布异常后的忙碌状态释放，以及相同序号的去重；
+- 观测管线销毁后已排队回调的丢弃，避免访问已销毁的 ROS publisher；
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
 - 标准 TS 无效位姿/关节反馈的丢弃与恢复，以及有限大数的 6D 距离计算；
 - HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
@@ -681,11 +682,11 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为 fake 异步反馈异常后的忙碌状态释放。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，仅重跑受影响的执行包：94 tests、0 errors、0 failures、0 skipped，
-包含新增的三项故障检查、原有四项真实 DDS 符号执行闭环及 lint。
+最近代码验证为观测管线销毁后的晚到回调抑制。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，仅重跑受影响的执行包：95 tests、0 errors、0 failures、0 skipped，
+包含新增的关闭边界检查、原有四项真实 DDS 符号执行闭环及 lint。
 结合其他未改包保留结果，合计
-**440 tests, 0 errors, 0 failures, 4 skipped**。
+**441 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

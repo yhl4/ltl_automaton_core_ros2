@@ -617,6 +617,39 @@ def test_r1_through_r9_and_a10_observation_pipeline_contract():
         rclpy.shutdown(context=context)
 
 
+def test_queued_state_observation_is_ignored_after_node_teardown():
+    """A saved observer callback must not touch abstraction or destroyed ROS entities."""
+    class TrackingAbstraction(RecordingAbstraction):
+        def __init__(self):
+            self.calls = []
+
+        def abstract(self, observation):
+            self.calls.append(observation)
+            return super().abstract(observation)
+
+    context = Context()
+    rclpy.init(context=context)
+    observer = RecordingObserver()
+    abstraction = TrackingAbstraction()
+    execution = ExecutionManagerNode(
+        backend=RecordingBackend(), state_observer=observer,
+        state_abstraction=abstraction, context=context,
+    )
+    try:
+        active = SymbolicState(("region",), ("r1",))
+        observer.emit(active)
+        assert abstraction.calls == [active]
+        queued_callback = observer.callback
+        execution.destroy_node()
+        assert observer.callback is None
+        queued_callback(SymbolicState(("region",), ("r2",)))
+        queued_callback("unsupported")
+        assert abstraction.calls == [active]
+    finally:
+        execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
 def test_public_parameter_services_reject_unused_startup_updates():
     """Keep reported startup configuration equal to the live cached values."""
     context = Context()

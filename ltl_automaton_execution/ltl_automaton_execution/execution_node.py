@@ -438,6 +438,8 @@ class ExecutionManagerNode(Node):
         return dimensions
 
     def _on_state_observation(self, observation):
+        if self._shutting_down:
+            return
         try:
             abstracted = self._state_abstraction.abstract(observation)
         except Exception as error:

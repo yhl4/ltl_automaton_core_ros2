@@ -454,3 +454,22 @@ DDS 网络故障测量。
 **440 tests, 0 errors, 0 failures, 4 skipped**。
 未进行物理仿真、实机或多线程执行器验证。
 
+### 11.24 观测管线销毁后的晚到回调（2026-10-06）
+
+以 `cf0cb71` 为基线，保存 observer 回调模拟已排队观测后销毁真实 ROS Node：
+`stop()` 虽然已清空 observer 当前回调，保存的旧回调仍进入 abstraction 和
+TS publisher，触发 `InvalidHandle: cannot use Destroyable because destruction
+was requested`。同一新增回归在基线上失败。
+
+观测回调入口现在检查已有的 `_shutting_down` 状态；关闭后直接丢弃晚到观测，
+在 abstraction、日志与发布之前返回。活动节点的观察、schema 校验和 TS 状态
+权威保持不变，不新增 observer 框架或更改原有 `start/stop` 生命周期。
+
+新增 **1 passed**：活动时有效观测正常进入 abstraction；销毁后 observer 已
+停止，保存的回调对有效及不支持的输入均不再调用 abstraction，也不访问已
+销毁 publisher。该检查直接交付保存的 callback，不作为多线程竞争测量。
+仅重跑受影响的执行包，含原有四项真实 DDS 符号执行闭环、快照恢复与 lint：
+**95 tests, 0 errors, 0 failures, 0 skipped**。与其他包保留结果合计
+**441 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或多线程执行器验证。
+

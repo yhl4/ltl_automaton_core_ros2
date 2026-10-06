@@ -91,6 +91,9 @@ safe observation to ordered `SymbolicState`; only that pipeline may publish
 `/ts_state`. Invalid abstractions fail closed. Core remains authoritative for
 whether the observation is expected and how planning state advances.
 
+Node teardown stops the observer and ignores previously queued observation
+callbacks before abstraction or publication, protecting destroyed ROS entities.
+
 P4 fake execution composes `FakeBackend` and `FakeStateObserver` around one
 in-memory `FakePlant`. The backend mutates the plant after its configured delay;
 the observer emits `FakePlantObservation`; `FakeStateAbstraction` revalidates the
