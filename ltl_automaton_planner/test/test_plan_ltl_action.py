@@ -515,6 +515,23 @@ def test_uninitialized_goal_is_rejected_at_transport(action_runtime):
     assert not goal_handle.accepted
 
 
+@pytest.mark.parametrize("name,value", [("beta", -1.0), ("gamma", float("nan"))])
+def test_invalid_objective_weights_abort_before_worker(action_runtime, monkeypatch, name, value):
+    """Preserve READY authority and avoid translation for invalid weights."""
+    assert load_transition_system(action_runtime, VALID_TS).success
+
+    def unexpected_compute(request):
+        raise AssertionError("Candidate worker must not run for invalid weights.")
+
+    monkeypatch.setattr(planner_module, "compute_candidate_plan", unexpected_compute)
+    goal = make_goal()
+    setattr(goal, name, value)
+    response = action_result(action_runtime, send_goal(action_runtime, goal))
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert response.result.error_code == PlanLTL.Result.ERROR_INVALID_GOAL
+    assert action_runtime.planner._planner_state == PlannerStatus.READY
+
+
 def test_no_accepting_plan_aborts_with_specific_error(action_runtime):
     """Map a normal empty search result to ERROR_NO_ACCEPTING_PLAN."""
     assert load_transition_system(action_runtime, VALID_TS).success

@@ -15,11 +15,11 @@ t_NOT = r"!"
 t_LPAREN = r"\("
 t_RPAREN = r"\)"
 
-t_ignore = " "
+t_ignore = " \t\r\n"
 
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    raise ValueError("Illegal guard character %r" % t.value[0])
 
 
 def get_lexer():

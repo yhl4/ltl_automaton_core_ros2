@@ -107,3 +107,39 @@ def test_yaml_to_full_transition_system() -> None:
     assert edge["action"] == "goto_r2"
     assert edge["guard"] == "1"
     assert edge["weight"] == 2.0
+
+
+@pytest.mark.parametrize("dimensions", [[], ["region", "region"], [1], "region"])
+def test_invalid_dimensions_are_rejected(dimensions):
+    """Require a nonempty sequence of unique named dimensions."""
+    data = import_ts_from_file(TS_YAML)
+    data["state_dim"] = dimensions
+    with pytest.raises(ValueError):
+        state_models_from_ts(data)
+
+
+def test_undefined_transition_target_is_rejected():
+    """Reject dangling edges before NetworkX creates an unlabeled node."""
+    data = import_ts_from_file(TS_YAML)
+    data["state_models"]["region"]["nodes"]["r1"]["connected_to"] = {
+        "missing": "goto_r2",
+    }
+    with pytest.raises(ValueError, match="target"):
+        state_models_from_ts(data)
+
+
+@pytest.mark.parametrize("weight", [-1, float("nan"), float("inf"), True, "1"])
+def test_invalid_action_cost_is_rejected(weight):
+    """Require finite nonnegative numeric costs for shortest-path search."""
+    data = import_ts_from_file(TS_YAML)
+    data["actions"]["goto_r2"]["weight"] = weight
+    with pytest.raises(ValueError, match="weight"):
+        state_models_from_ts(data)
+
+
+def test_invalid_action_guard_is_rejected_during_loading():
+    """Validate guards even when a single dimension would bypass composition."""
+    data = import_ts_from_file(TS_YAML)
+    data["actions"]["goto_r2"]["guard"] = "r1)"
+    with pytest.raises(ValueError):
+        state_models_from_ts(data)

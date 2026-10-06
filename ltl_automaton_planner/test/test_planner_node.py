@@ -410,6 +410,8 @@ def test_successful_load_activates_ts_and_ready_state(planner_runtime):
     [
         "state_dim: [",
         "state_dim: [region]\nstate_models: []\nactions: {}\n",
+        VALID_TS_A.replace("weight: 2.0", "weight: -1.0"),
+        VALID_TS_A.replace('guard: "1"', 'guard: "r1)"'),
     ],
 )
 def test_invalid_load_preserves_active_ts(planner_runtime, invalid_yaml):

@@ -6,6 +6,7 @@ import subprocess
 import uuid
 from copy import deepcopy
 from dataclasses import dataclass
+from math import isfinite
 from pathlib import Path
 from threading import RLock, Thread
 from types import MappingProxyType
@@ -742,6 +743,9 @@ class PlannerNode(Node):
 
         if not soft_task:
             raise ValueError("PlanLTL soft_task must be non-empty.")
+        for name, value in (("beta", goal.beta), ("gamma", goal.gamma)):
+            if not isfinite(value) or value < 0:
+                raise ValueError(f"PlanLTL {name} must be finite and nonnegative.")
 
         with self._state_lock:
             token = self._planning_token
@@ -1554,11 +1558,19 @@ class PlannerNode(Node):
         )
 
     def _state_from_message(self, message):
-        """Normalize a stamped state according to active TS dimensions."""
-        _, canonical_state = normalize_transition_state(
-            message.ts_state,
-            self._active_ts_yaml,
+        """Validate feedback against the already constructed active TS."""
+        transition_system = self._active_transition_system
+        if transition_system is None:
+            raise ValueError("No active transition system is loaded.")
+        mapping = transition_state_mapping(message.ts_state)
+        dimensions = flatten_state_dimension_names(
+            transition_system.graph["ts_state_format"]
         )
+        if set(mapping) != set(dimensions):
+            raise ValueError("TS state dimensions do not match the active TS.")
+        canonical_state = tuple(mapping[dimension] for dimension in dimensions)
+        if canonical_state not in transition_system:
+            raise ValueError(f"TS state {canonical_state!r} is not defined.")
         return canonical_state
 
     def _expected_next_state(self):

@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 import logging
+from math import isfinite
 
 from .buchi import mission_to_buchi
 from .discrete_plan import (
@@ -26,6 +27,9 @@ class LTLPlanner:
         gamma=10,
     ):
         """Initialize the planner from a TS and hard/soft LTL tasks."""
+        for name, value in (("beta", beta), ("gamma", gamma)):
+            if isinstance(value, bool) or not isfinite(value) or value < 0:
+                raise ValueError(f"{name} must be finite and nonnegative.")
         self.hard_spec = hard_spec
         self.soft_spec = soft_spec
         self.ts = ts
@@ -76,7 +80,8 @@ class LTLPlanner:
                 self.beta,
             )
 
-            self.product.graph["ts"].build_full()
+            if not self.ts:
+                self.ts.build_full()
             self.product.build_full()
 
         elif style == "ready":

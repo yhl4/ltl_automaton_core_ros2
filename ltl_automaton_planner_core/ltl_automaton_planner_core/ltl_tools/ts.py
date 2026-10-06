@@ -13,16 +13,28 @@ class TSModel(DiGraph):
 
     def __init__(self, state_models):
         """TS model, built from a list of state models to combine."""
+        if not state_models:
+            raise ValueError("At least one state model is required.")
+        DiGraph.__init__(self, initial=set(), ts_state_format=[])
         self.state_models = state_models
+        self._guard_cache = {}
 
     def build_full(self):
         """Build TS graph from one or more state model TS."""
+        self._guard_cache.clear()
         # If only one state model, use directly as the TS
         if len(self.state_models) == 1:
             DiGraph.__init__(self,
                              incoming_graph_data=self.state_models[0],
                              initial=self.state_models[0].graph['initial'],
                              ts_state_format=self.state_models[0].graph['ts_state_format'])
+            disallowed = [
+                (source, target) for source, target, data in self.edges(data=True)
+                if not self.is_action_allowed(
+                    data['guard'], self.nodes[source].get('label', source)
+                )
+            ]
+            self.remove_edges_from(disallowed)
 
         # If more than one, build a combined TS model
         else:
@@ -115,11 +127,9 @@ class TSModel(DiGraph):
 
     def is_action_allowed(self, action_guard, ts_label):
         """Check action guard against the node label."""
-        guard_expr = parse_guard(action_guard)
-        if guard_expr.check(ts_label):
-            return True
-        else:
-            return False
+        if action_guard not in self._guard_cache:
+            self._guard_cache[action_guard] = parse_guard(action_guard)
+        return self._guard_cache[action_guard].check(ts_label)
 
     @staticmethod
     def node_product(*args):

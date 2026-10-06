@@ -111,7 +111,15 @@ class NotExpression(Expression):
         return not self.inner.check(label)
 
     def nnf(self):
-        if isinstance(self.inner, SymbolExpression):
+        if isinstance(self.inner, FalseExpression):
+            return TrueExpression()
+        elif isinstance(self.inner, TrueExpression):
+            return FalseExpression()
+        elif isinstance(self.inner, NotExpression):
+            return self.inner.inner.nnf()
+        elif isinstance(self.inner, NotSymbolExpression):
+            return SymbolExpression(self.inner.symbol)
+        elif isinstance(self.inner, SymbolExpression):
             s = NotSymbolExpression(self.inner.name)
             return s
         elif isinstance(self.inner, ORExpression):
@@ -124,7 +132,22 @@ class NotExpression(Expression):
             right = NotExpression(self.inner.right).nnf()
             s = ORExpression(left, right)
             return s
-        raise Exception("Unexpected child of NotExpression")
+        raise ValueError("Unexpected child of NotExpression")
+
+
+class FalseExpression(TrueExpression):
+    """Represent an unsatisfiable Boolean constant in negation normal form."""
+
+    name = "FALSE"
+
+    def __repr__(self):
+        return "FalseExpression()"
+
+    def check(self, label):
+        return False
+
+    def distance(self, label):
+        return float("inf")
 
 
 class BinExpression(Expression):
@@ -175,6 +198,8 @@ class ANDExpression(BinExpression):
 
 class Parser(object):
     def __init__(self, formula):
+        if not isinstance(formula, str) or not formula.strip():
+            raise ValueError("A guard must be a non-empty string.")
         lexer = get_lexer()
         lexer.input(formula)
         self.formula = formula
@@ -189,6 +214,8 @@ class Parser(object):
 
     def parse(self):
         expr = self.orx()
+        if self.tokens:
+            raise ValueError("Unexpected trailing guard token: %s" % self.tokens[0])
         expr = expr.nnf()
         expr.formula = self.formula
         return expr
@@ -207,7 +234,7 @@ class Parser(object):
                 lhs = ORExpression(lhs, rhs)
             return lhs
         else:
-            raise Exception("Expected OR, RPAREN or nothing but got %s" % self.tokens[0])
+            raise ValueError("Expected OR, RPAREN or nothing but got %s" % self.tokens[0])
 
     def andx(self):
         lhs = self.notx()
@@ -223,21 +250,25 @@ class Parser(object):
                 lhs = ANDExpression(lhs, rhs)
             return lhs
         else:
-            raise Exception("Expected OR, AND or nothing but got %s" % self.tokens[0])
+            raise ValueError("Expected OR, AND or nothing but got %s" % self.tokens[0])
 
     def notx(self):
+        if not self.tokens:
+            raise ValueError("Expected a guard operand.")
         if self.tokens[0].type == "NOT":
             self.tokens.pop(0)
-            return NotExpression(self.parx())
+            return NotExpression(self.notx())
         else:
             return self.parx()
 
     def parx(self):
+        if not self.tokens:
+            raise ValueError("Expected a guard operand.")
         if self.tokens[0].type == "LPAREN":
             self.tokens.pop(0)
             expr = self.orx()
-            if self.tokens[0].type != "RPAREN":
-                raise Exception("Expected RPAREN but got %s" % self.tokens[0])
+            if not self.tokens or self.tokens[0].type != "RPAREN":
+                raise ValueError("Expected a closing guard parenthesis.")
             self.tokens.pop(0)
         elif self.tokens[0].type == "SYMBOL":
             expr = SymbolExpression(self.tokens[0].value)
@@ -246,7 +277,7 @@ class Parser(object):
             expr = TrueExpression()
             self.tokens.pop(0)
         else:
-            raise Exception("Expected LPAREN or SYMBOL but got %s" % self.tokens[0])
+            raise ValueError("Expected LPAREN or SYMBOL but got %s" % self.tokens[0])
         return expr
 
 

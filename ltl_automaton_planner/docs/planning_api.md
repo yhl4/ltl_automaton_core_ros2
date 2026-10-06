@@ -44,6 +44,10 @@ The goal supplies a hard task, soft task, multidimensional initial TS state,
 `beta`, and `gamma`. State values are matched by dimension name and reordered
 to the active TS definition, so message dimension order is not significant.
 Both tasks must be non-empty for compatibility with existing wrapper behavior.
+`beta` and `gamma` must be finite and nonnegative. Invalid weights abort with
+`ERROR_INVALID_GOAL` before a candidate worker starts. Product edge weight is
+`transition_cost + beta * soft_task_dist`; run cost is
+`prefix_cost + gamma * suffix_cost`.
 
 - Goals are accepted in `READY` and `ACTIVE`.
 - Goals are rejected at the action transport level in `UNINITIALIZED` and

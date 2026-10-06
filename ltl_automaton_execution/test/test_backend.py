@@ -202,3 +202,18 @@ def test_a9_recording_backend_seam_has_no_observation_capability():
     assert backend.calls[0][0].action == "move"
     backend.calls[0][1](ExecutionCompletion(True, "done"))
     assert not manager.in_flight
+
+
+def test_backend_exception_releases_busy_state_and_reports_failure():
+    """Do not leave execution permanently busy after a dispatch exception."""
+    class BrokenBackend:
+        def execute(self, step, completion):
+            raise RuntimeError("controller disconnected")
+
+    diagnostics = []
+    manager = ExecutionManager(AcceptedRunResolver(), BrokenBackend(), diagnostics.append)
+    observation = _observation()
+    assert manager.observe_authority(observation)
+    assert not manager.dispatch(observation, _snapshot())
+    assert not manager.in_flight
+    assert "controller disconnected" in diagnostics[-1]

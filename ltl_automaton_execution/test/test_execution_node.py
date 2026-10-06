@@ -98,6 +98,43 @@ def _spin_until(executor, predicate, timeout=3.0):
     return predicate()
 
 
+def test_command_survives_delayed_snapshot_service_discovery():
+    """Execute a retained command when its snapshot service appears later."""
+    context = Context()
+    rclpy.init(context=context)
+    backend = RecordingBackend()
+    execution = ExecutionManagerNode(
+        backend=backend, state_observer=RecordingObserver(), context=context,
+    )
+    driver = rclpy.create_node("late_snapshot_service_test", context=context)
+    executor = SingleThreadedExecutor(context=context)
+    executor.add_node(execution)
+    executor.add_node(driver)
+    service = None
+    try:
+        assert not execution._snapshot_client.service_is_ready()
+        execution._on_observation(_observation(1))
+
+        def snapshot_callback(_request, response):
+            response.success = True
+            _fill_snapshot(response.snapshot, 1)
+            return response
+
+        service = driver.create_service(
+            GetPlanningGraphSnapshot, "get_planning_graph_snapshot", snapshot_callback,
+        )
+        assert _spin_until(executor, lambda: len(backend.calls) == 1)
+    finally:
+        if service is not None:
+            driver.destroy_service(service)
+        executor.remove_node(driver)
+        executor.remove_node(execution)
+        driver.destroy_node()
+        execution.destroy_node()
+        executor.shutdown()
+        rclpy.shutdown(context=context)
+
+
 def test_r1_through_r9_and_a10_observation_pipeline_contract():
     """Cover independent completion, observation, schema, and authority."""
     context = Context()

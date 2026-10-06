@@ -2,6 +2,9 @@
 
 本仓库是对 KTH-SML `ltl_automaton_core` 的 ROS 2 迁移版本，目标是在保留原有 LTL 规划语义的基础上，将消息接口、规划核心与 Planner 节点迁移到 ROS 2。
 
+`ltl_automaton_core` 是 ROS 2 aggregate 包，统一组织下面六个功能包并提供
+`colcon build/test --packages-up-to ltl_automaton_core` 入口。
+
 当前版本重点完成了：
 
 - Transition System、Büchi Automaton 与 Product Automaton 的 ROS 无关核心；
@@ -52,7 +55,7 @@ ltl_automaton_planner_core/
 ltl_automaton_msgs/
 ```
 
-已包含 Planner 使用的消息与服务定义，包括：
+已包含 Planner、执行器和 Studio consumer 使用的 ROS 2 消息、服务与 Action，当前公开接口包括：
 
 - `TransitionSystemState`
 - `TransitionSystemStateStamped`
@@ -60,7 +63,15 @@ ltl_automaton_msgs/
 - `LTLStateArray`
 - `LTLPlan`
 - `PlannerStatus`
+- `PlanningExecutionObservation`
+- `PlanningGraphMetadata`
+- `PlanningGraphSnapshot`
+- `BuchiGraphNode`、`BuchiGraphEdge`
+- `ProductGraphNode`、`ProductGraphEdge`
+- `AcceptedRunSnapshot`
 - `LoadTransitionSystem`
+- `GetPlanningGraphSnapshot`
+- `ClosestState`、`TrapCheck`
 - `PlanLTL`
 - `TaskPlanning`
 
@@ -97,8 +108,9 @@ ltl_automaton_execution/
 ```
 
 它通过带 planning identity 的正式 execution observation 和只读 planning
-graph snapshot 解析当前接受运行步骤，再由可替换的 `ExecutionBackend` 完成动作
-并发布 `/ts_state`。当前仅提供符号级 `FakeBackend`，不包含物理仿真、Gazebo、
+graph snapshot 解析当前接受运行步骤，再由可替换的 `ExecutionBackend` 完成动作。
+独立的 `StateObserver` 与 `StateAbstraction` 将实际观测映射为符号状态并发布
+`/ts_state`；后端完成回调仅报告执行结果。当前仅提供符号级 `FakeBackend`，不包含物理仿真、Gazebo、
 Isaac Sim 或机器人控制依赖；Planner 与 planner core 均不依赖该包。
 
 ### 1.5 标准 Transition System 工具
@@ -155,6 +167,9 @@ Ubuntu 24.04 与 ROS 2 Jazzy 仍需完成独立兼容性验证。
 
 ```text
 .
+├── ltl_automaton_core/
+│   ├── CMakeLists.txt
+│   └── package.xml
 ├── ltl_automaton_msgs/
 │   ├── msg/
 │   └── srv/
@@ -238,9 +253,15 @@ rosdep install \
   -r \
   -y
 
-colcon build --symlink-install
+colcon build \
+  --symlink-install \
+  --packages-up-to ltl_automaton_core
 source install/setup.bash
 ```
+
+`ltl_automaton_core` 是六个功能包的 ROS 2 aggregate 入口；使用
+`--packages-up-to ltl_automaton_core` 会一并构建并安装接口、Planner core、
+Planner、execution、标准 TS 和 HIL 包。
 
 仅构建 Planner 及其依赖：
 
@@ -248,6 +269,17 @@ source install/setup.bash
 colcon build \
   --symlink-install \
   --packages-up-to ltl_automaton_planner
+```
+
+要同时构建执行器、标准 TS 工具和 HIL 控制器，可使用：
+
+```bash
+colcon build \
+  --symlink-install \
+  --packages-up-to \
+  ltl_automaton_execution \
+  ltl_automaton_std_transition_systems \
+  ltl_automaton_hil_mic
 ```
 
 ---
@@ -287,8 +319,8 @@ Published next move: ...
 | `transition_system_path` | string | Transition System YAML 文件路径 |
 | `hard_task` | string | 必须满足的 LTL 任务 |
 | `soft_task` | string | 用于软约束或偏好的 LTL 任务 |
-| `beta` | double | hard-task 相关代价权重 |
-| `gamma` | double | soft-task 相关代价权重 |
+| `beta` | double | soft-task 边惩罚权重 |
+| `gamma` | double | suffix 代价乘数 |
 | `initial_ts_state_from_agent` | bool | 是否等待首个 `/ts_state` 作为规划初始状态 |
 | `replan_on_unplanned_move` | bool | 收到非计划下一状态时是否自动重规划 |
 | `check_timestamp` | bool | 是否丢弃时间戳与上一条相同的状态反馈 |
@@ -308,8 +340,21 @@ ros2 param get /ltl_planner check_timestamp
 ros2 param get /ltl_planner plugin_config_path
 ```
 
-两个行为参数支持通过 `ros2 param set` 动态修改。hard/soft task 的运行时切换
-仍使用 `/replanning` 服务，以保证新任务先成功规划再替换当前计划。
+两个行为参数支持通过 `ros2 param set` 动态修改。新 consumer 使用 `/plan_ltl`
+Action 切换任务并取得结构化结果；旧 `/replanning` 服务继续兼容。
+两者均保证新任务成功规划后才替换当前计划。
+
+### 7.1 TS 输入约束
+
+Planner 接受的 TS YAML 必须满足以下结构约束：
+
+- `state_dim` 必须是非空列表，维度名必须是唯一、非空字符串；
+- 每个维度的状态名、动作名以及 `connected_to` 中的目标状态和动作引用都必须是字符串；
+- 每条边的目标状态必须出现在同一维度的 `nodes` 中，动作必须出现在顶层 `actions` 中；初始状态也必须已定义；
+- 动作代价 `weight`、Planner 参数 `beta` 与 `gamma` 必须是有限的非负数；
+- 边 guard 仍按 source-label 语义求值：使用边源状态的标签检查动作 guard，不能把目标状态标签替代源状态标签。
+
+输入违反这些约束时，加载或规划请求应失败并保留此前有效的运行状态。
 
 ---
 
@@ -522,12 +567,12 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 
 colcon test \
-  --packages-up-to ltl_automaton_planner
+  --packages-up-to ltl_automaton_core
 
 colcon test-result --verbose
 ```
 
-当前已验证的内容包括：
+仓库包含以下定向测试：
 
 - TS 构建；
 - Boolean guard 解析；
@@ -535,11 +580,18 @@ colcon test-result --verbose
 - `ltl2ba` 集成；
 - Büchi 构建；
 - Product 构建；
+- 接受状态所在 SCC、自环与更便宜接受环的比较、零代价循环；
+- 非法 TS/guard/代价拒绝、单维 TS guard 与显式初始状态保留；
 - prefix–suffix 规划；
 - `LTLPlanner` 静态规划与重规划；
 - Planner 节点的初始 ROS 2 输出；
 - TS 状态反馈后的计划推进；
 - `/replanning` 服务调用；
+- `PlanLTL` Action 的接受、失败和事务式替换；
+- planning graph snapshot 与 execution observation 的 identity contract；
+- FakeBackend/FakeStateObserver 执行闭环及真实 ROS 2 DDS 通信边界；
+- 快照服务延迟发现后的命令恢复、执行后端异常后的忙碌状态释放；
+- 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
 - Launch 测试结束时的干净退出。
 - 不可行任务、未知状态与内部异常下的事务式重规划回滚。
 
@@ -549,6 +601,20 @@ colcon test-result --verbose
 git diff --check
 ```
 
+### 11.1 本次重构补全验证（2026-10-06）
+
+在 Ubuntu 22.04 / ROS 2 Humble / Python 3.10 下，七个包完成
+`colcon build --symlink-install` 与 `colcon test`。`colcon test-result`
+汇总为 **227 tests, 0 errors, 0 failures, 4 skipped**；四项跳过均为仓库
+原有的版权头检查标记，功能与通信测试没有跳过。
+
+本轮恢复统一包入口并补齐依赖；修正接受环识别、自环与其他循环的代价比较、
+零代价路径、单维动作 guard 和非法输入处理。优化包含 guard 复用、Product
+guard 检查复用、一次 SCC 遍历、已构建 TS 复用、反馈状态直接对已加载图校验，
+以及仅缓存当前执行 generation。目标函数与 source-label 约定保持不变；
+受上述缺陷影响的旧计划可能被拒绝或得到更低代价的正确计划。
+这些是定向正确性与通信验证结果，未开展性能 benchmark 或物理仿真实验。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照
@@ -557,7 +623,8 @@ git diff --check
 |---|---|---|
 | catkin 包内规划算法 | `ltl_automaton_planner_core` | 与 ROS 通信解耦，可独立 pytest |
 | `transition_system_textfile` | `transition_system_path` | 传入 YAML 文件路径 |
-| `initial_beta` | `beta` | 权重含义不变 |
+| `initial_beta` | `beta` | soft-task 边惩罚权重 |
+| `gamma` | `gamma` | suffix 代价乘数 |
 | `~initial_ts_state_from_agent` | `initial_ts_state_from_agent` | 改为非阻塞等待首个 `/ts_state` |
 | dynamic_reconfigure | ROS 2 参数回调 | 使用 `ros2 param set` 修改两个行为参数 |
 | `~plugin/<name>/...` 参数树 | `plugin_config_path` YAML | 保留类名、模块路径、args 契约 |

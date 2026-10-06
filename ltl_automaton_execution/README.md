@@ -11,10 +11,18 @@ uses only Product nodes, Product edges, and the retained prefix/suffix accepted
 run in those ROS contracts; it never imports planner internals or searches for a
 different route.
 
+If the snapshot service has not been discovered yet, the node retains the
+latest current-authority observation and retries discovery. A newer observation
+replaces the pending one. Only the current accepted snapshot is cached, and
+dispatch deduplication records are cleared when planning authority advances.
+
 An `ExecutionBackend` receives an `ExecutionStep` containing an action and exact
 symbolic source/target states. It completes asynchronously with an
 `ExecutionCompletion` containing only execution success and a message. Backend
 completion is not state truth and never publishes `/ts_state`.
+
+A dispatch exception is reported as a backend failure and releases the busy
+state. It does not fabricate observed state or automatically retry that command.
 
 A generic `StateObserver[T]` reports raw plant, simulator, or robot observations
 independently of command execution. A matching `StateAbstraction[T]` converts a

@@ -57,12 +57,14 @@ class ExecutionManager:
             self._retired_instances.add(self._active_instance)
             self._active_instance = instance
             self._active_generation = generation
+            self._attempted_fingerprints.clear()
             return True
         if generation < self._active_generation:
             self._diagnostic("Ignoring stale planning generation.")
             return False
         if generation > self._active_generation:
             self._active_generation = generation
+            self._attempted_fingerprints.clear()
         return True
 
     def is_current(self, observation):
@@ -109,7 +111,13 @@ class ExecutionManager:
                     result.message or "Execution backend reported failure."
                 )
 
-        if self._backend.execute(step, completed):
+        try:
+            accepted = self._backend.execute(step, completed)
+        except Exception as error:
+            self._in_flight = False
+            self._diagnostic(f"Execution backend dispatch failed: {error}")
+            return False
+        if accepted:
             return True
         self._in_flight = False
         self._diagnostic("Execution backend rejected dispatch.")

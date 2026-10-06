@@ -78,6 +78,11 @@ class ExecutionManagerNode(Node):
             GetPlanningGraphSnapshot,
             "get_planning_graph_snapshot",
         )
+        self._pending_snapshot_observation = None
+        self._snapshot_retry_timer = self.create_timer(
+            0.1, self._retry_snapshot_discovery,
+        )
+        self._snapshot_retry_timer.cancel()
         self._observation_subscription = self.create_subscription(
             PlanningExecutionObservation,
             "planning_execution_observation",
@@ -150,6 +155,8 @@ class ExecutionManagerNode(Node):
         observation = self._observation_from_message(message)
         if not self._manager.observe_authority(observation):
             return
+        self._pending_snapshot_observation = None
+        self._snapshot_retry_timer.cancel()
         if self._expected_schema_instance not in (
             None,
             observation.planner_instance_id,
@@ -172,6 +179,8 @@ class ExecutionManagerNode(Node):
             return
         if not self._snapshot_client.service_is_ready():
             self.get_logger().warning("Planning snapshot service is unavailable.")
+            self._pending_snapshot_observation = observation
+            self._snapshot_retry_timer.reset()
             return
         self._snapshot_requests.add(identity)
         future = self._snapshot_client.call_async(
@@ -180,6 +189,15 @@ class ExecutionManagerNode(Node):
         future.add_done_callback(
             partial(self._on_snapshot, observation, identity)
         )
+
+    def _retry_snapshot_discovery(self):
+        """Retain the latest command while waiting for ROS service discovery."""
+        observation = self._pending_snapshot_observation
+        if observation is None or not self._manager.is_current(observation):
+            self._pending_snapshot_observation = None
+            self._snapshot_retry_timer.cancel()
+        elif self._snapshot_client.service_is_ready():
+            self._on_observation(observation)
 
     def _on_snapshot(self, observation, identity, future):
         self._snapshot_requests.discard(identity)
@@ -213,6 +231,9 @@ class ExecutionManagerNode(Node):
         except ValueError as error:
             self.get_logger().warning(f"Planning snapshot rejected: {error}")
             return
+        # In-flight steps already hold their resolved states; only current
+        # authority needs a graph cache.
+        self._snapshots.clear()
         self._snapshots[identity] = snapshot
         self._expected_dimensions = expected_dimensions
         self._expected_schema_instance = snapshot.planner_instance_id

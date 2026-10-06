@@ -3,7 +3,7 @@
 
 import logging
 
-from networkx import NetworkXNoCycle, find_cycle
+from networkx import strongly_connected_components
 from networkx.classes.digraph import DiGraph
 
 from .buchi import check_label_for_buchi_edge
@@ -26,34 +26,37 @@ class ProdAut(DiGraph):
     # Build product automaton of TS and büchi by exploring every node
     # combination and adding edges when required
     def build_full(self):
-        # Iterate over all TS nodes and buchi nodes
-        for f_ts_node in self.graph['ts'].nodes():
-            for f_buchi_node in self.graph['buchi'].nodes():
-                # Compose node from current TS and buchi node
+        """Rebuild the full product using source-state label semantics."""
+        ts = self.graph['ts']
+        buchi = self.graph['buchi']
+        self.remove_nodes_from(list(self.nodes))
+        self.graph['initial'] = set()
+        self.graph['accept'] = set()
+
+        for f_ts_node in ts:
+            label = ts.nodes[f_ts_node]['label']
+            for f_buchi_node in buchi:
                 f_prod_node = self.composition(f_ts_node, f_buchi_node)
-                # Iterate over all nodes connected to current TS node and büchi node
-                for t_ts_node in self.graph['ts'].successors(f_ts_node):
-                    for t_buchi_node in self.graph['buchi'].successors(f_buchi_node):
-                        # Compose and check node from connected buchi node and connected TS node
-                        # should be connected to previously composed TS/büchi node
+                # A Büchi guard depends on the source label, not the TS successor.
+                allowed = []
+                for t_buchi_node in buchi.successors(f_buchi_node):
+                    truth, dist = check_label_for_buchi_edge(
+                        buchi, label, f_buchi_node, t_buchi_node)
+                    if truth:
+                        allowed.append((t_buchi_node, dist))
+                for t_ts_node in ts.successors(f_ts_node):
+                    edge = ts[f_ts_node][t_ts_node]
+                    cost = edge['weight']
+                    for t_buchi_node, dist in allowed:
                         t_prod_node = self.composition(t_ts_node, t_buchi_node)
-                        # Get label from TS node, and weight and action from TS edge
-                        label = self.graph['ts'].nodes[f_ts_node]['label']
-                        cost = self.graph['ts'][f_ts_node][t_ts_node]['weight']  # action weight
-                        action = self.graph['ts'][f_ts_node][t_ts_node]['action']
-                        # Check if label is compatible with büchi (black magic for now, need to
-                        # understand this better)
-                        truth, dist = check_label_for_buchi_edge(
-                            self.graph['buchi'], label, f_buchi_node, t_buchi_node)
                         total_weight = cost + self.graph['beta'] * dist
-                        if truth:
-                            self.add_edge(
-                                f_prod_node,
-                                t_prod_node,
-                                transition_cost=cost,
-                                soft_task_dist=dist,
-                                weight=total_weight,
-                                action=action)
+                        self.add_edge(
+                            f_prod_node,
+                            t_prod_node,
+                            transition_cost=cost,
+                            soft_task_dist=dist,
+                            weight=total_weight,
+                            action=edge['action'])
 
         self.build_accept_with_cycle()
 
@@ -176,17 +179,14 @@ class ProdAut(DiGraph):
     # TS needs to be built and Büchi accept states
     # defined before calling this function
     def build_accept_with_cycle(self):
-        # self.graph['ts'].build_full()
-        for accept_state in self.graph['accept']:
-            try:
-                # print('Accepting state in consider is', accept_state)
-                find_cycle(self, accept_state, orientation="original")
-            except NetworkXNoCycle:
-                # print(accept_state, 'fails to find a cycle')
-                pass
-            else:
-                # print(accept_state, 'finds a cycle')
-                self.graph['accept_with_cycle'].add(accept_state)
+        """Find accepting states on a cycle in one SCC traversal."""
+        accepting_cycles = set()
+        for component in strongly_connected_components(self):
+            if len(component) > 1 or any(
+                self.has_edge(state, state) for state in component
+            ):
+                accepting_cycles.update(component & self.graph['accept'])
+        self.graph['accept_with_cycle'] = accepting_cycles
 
     def accept_predecessors(self, accept_node):
         pre_set = set()

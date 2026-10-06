@@ -117,8 +117,39 @@ def test_build_full_product() -> None:
     assert edge_data["soft_task_dist"] == 0
     assert edge_data["weight"] == 2.0
     assert edge_data["action"] == "goto_s1"
-
     assert accepting_node in product.graph["accept_with_cycle"]
+
+
+def test_accepting_state_must_belong_to_a_cycle():
+    """Exclude an accepting state that only reaches a nonaccepting cycle."""
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    product.add_edges_from([("accept", "other"), ("other", "other")])
+    product.graph["accept"] = {"accept"}
+    product.build_accept_with_cycle()
+    assert product.graph["accept_with_cycle"] == set()
+
+
+def test_accepting_cycle_cache_is_rebuilt_after_edge_removal():
+    """Discard accepting states whose cycle has been removed."""
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    product.add_edge("accept", "accept")
+    product.graph["accept"] = {"accept"}
+    product.build_accept_with_cycle()
+    assert product.graph["accept_with_cycle"] == {"accept"}
+    product.remove_edge("accept", "accept")
+    product.build_accept_with_cycle()
+    assert product.graph["accept_with_cycle"] == set()
+
+
+def test_full_product_rebuild_discards_removed_ts_edges():
+    """Remove stale Product edges when rebuilding a changed source graph."""
+    ts = create_test_ts()
+    product = ProdAut(ts, create_test_buchi())
+    product.build_full()
+    ts.remove_edge("s1", "s1")
+    product.build_full()
+    assert not product.has_edge(("s1", "q1"), ("s1", "q1"))
+    assert product.graph["accept_with_cycle"] == set()
 
 
 def test_update_beta() -> None:

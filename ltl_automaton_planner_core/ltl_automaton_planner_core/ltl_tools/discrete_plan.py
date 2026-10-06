@@ -4,7 +4,7 @@ import logging
 import time
 from collections import defaultdict
 
-from networkx import dijkstra_predecessor_and_distance
+from networkx import single_source_dijkstra
 
 from .product import ProdAut_Run
 
@@ -14,20 +14,13 @@ _LOGGER = logging.getLogger(__name__)
 
 def dijkstra_plan_networkX(product, gamma=10):
     """Find an accepting run with NetworkX Dijkstra search."""
-    start = time.time()
+    start = time.perf_counter()
     runs = {}
     loops = {}
 
     for prod_target in product.graph["accept"]:
-        if product.has_edge(prod_target, prod_target):
-            loops[prod_target] = (
-                product.edges[prod_target, prod_target]["weight"],
-                [prod_target],
-            )
-            continue
-
         cycle_costs: dict[object, float] = {}
-        loop_pre, loop_dist = dijkstra_predecessor_and_distance(
+        loop_dist, loop_paths = single_source_dijkstra(
             product,
             prod_target,
             weight="weight",
@@ -45,10 +38,7 @@ def dijkstra_plan_networkX(product, gamma=10):
                 cycle_costs,
                 key=lambda node: cycle_costs[node],
             )
-            suffix = compute_path_from_pre(
-                loop_pre,
-                optimal_predecessor,
-            )
+            suffix = loop_paths[optimal_predecessor]
             loops[prod_target] = (
                 cycle_costs[optimal_predecessor],
                 suffix,
@@ -56,7 +46,7 @@ def dijkstra_plan_networkX(product, gamma=10):
 
     for prod_init in product.graph["initial"]:
         line_costs: dict[object, float] = {}
-        line_pre, line_dist = dijkstra_predecessor_and_distance(
+        line_dist, line_paths = single_source_dijkstra(
             product,
             prod_init,
             weight="weight",
@@ -75,10 +65,7 @@ def dijkstra_plan_networkX(product, gamma=10):
             line_costs,
             key=lambda node: line_costs[node],
         )
-        prefix = compute_path_from_pre(
-            line_pre,
-            optimal_target,
-        )
+        prefix = line_paths[optimal_target]
         prefix_cost = line_dist[optimal_target]
         suffix_cost, suffix = loops[optimal_target]
 
@@ -109,7 +96,7 @@ def dijkstra_plan_networkX(product, gamma=10):
         suffix_cost,
         total_cost,
     )
-    elapsed = time.time() - start
+    elapsed = time.perf_counter() - start
 
     _LOGGER.debug(
         "NetworkX Dijkstra planning completed in %.2fs: "

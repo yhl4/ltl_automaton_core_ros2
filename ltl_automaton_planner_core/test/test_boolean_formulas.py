@@ -1,3 +1,5 @@
+import pytest
+
 from ltl_automaton_planner_core.boolean_formulas.parser import parse
 
 
@@ -22,3 +24,18 @@ def test_distance() -> None:
     assert expression.distance({"a", "b"}) == 0
     assert expression.distance({"a"}) == 1
     assert expression.distance(set()) == 2
+
+
+@pytest.mark.parametrize("formula", ["", "a)", "(a", "a &&", "a @ b"])
+def test_malformed_guard_is_rejected(formula):
+    """Reject incomplete guards and unconsumed or illegal tokens."""
+    with pytest.raises(ValueError):
+        parse(formula)
+
+
+def test_negated_constant_and_repeated_negation():
+    """Evaluate negated truth and nested negation without dropping tokens."""
+    assert not parse("!1").check(set())
+    assert parse("!1").distance(set()) == float("inf")
+    assert parse("!!a").check({"a"})
+    assert parse("!(!a || b)").check({"a"})

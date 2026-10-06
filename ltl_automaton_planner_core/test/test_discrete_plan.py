@@ -125,3 +125,50 @@ def test_networkx_dijkstra_finds_accepting_run() -> None:
     assert run.precost == 2.0
     assert run.sufcost == 1.0
     assert run.totalcost == 12.0
+
+
+def make_weighted_product(edges, initial="s0", accepting="s1"):
+    """Build a one-state Büchi product for hand-computed cycle costs."""
+    ts = DiGraph(initial={initial})
+    for source, target, cost in edges:
+        ts.add_edge(source, target, weight=cost, action=f"{source}_to_{target}")
+    for state in ts:
+        ts.nodes[state]["label"] = set()
+    buchi = DiGraph(type="hard_buchi", initial={"q0"}, accept={"q0"})
+    buchi.add_edge("q0", "q0", guard=parse_guard("1"))
+    product = ProdAut(ts, buchi)
+    product.build_full()
+    product.graph["accept"] = {(accepting, "q0")}
+    product.build_accept_with_cycle()
+    return product
+
+
+def test_cheaper_cycle_is_considered_alongside_accepting_self_loop():
+    """Choose cost 4 rather than an accepting self-loop costing 100."""
+    product = make_weighted_product([
+        ("s0", "s1", 1), ("s1", "s1", 100),
+        ("s1", "s2", 2), ("s2", "s1", 2),
+    ])
+    run, _ = dijkstra_plan_networkX(product, gamma=10)
+    assert run.precost == 1
+    assert run.sufcost == 4
+    assert run.totalcost == 41
+    assert run.suf_plan == ["s1_to_s2", "s2_to_s1"]
+
+
+def test_zero_cost_cycle_has_finite_prefix_and_suffix_paths():
+    """Do not follow cyclic predecessor links on zero-cost shortest paths."""
+    product = make_weighted_product([("s0", "s1", 0), ("s1", "s0", 0)])
+    run, _ = dijkstra_plan_networkX(product)
+    assert run.totalcost == 0
+    assert run.prefix == [("s0", "q0"), ("s1", "q0")]
+    assert run.suffix == [("s1", "q0"), ("s0", "q0")]
+
+
+def test_zero_cost_accepting_self_loop():
+    """Keep a zero-cost self-loop without a cyclic prefix reconstruction."""
+    product = make_weighted_product([("s1", "s1", 0)], initial="s1")
+    run, _ = dijkstra_plan_networkX(product)
+    assert run.totalcost == 0
+    assert run.prefix == [("s1", "q0")]
+    assert run.suffix == [("s1", "q0")]

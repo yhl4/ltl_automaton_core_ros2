@@ -98,3 +98,14 @@ def test_set_initial_state() -> None:
     assert model.set_initial(("r2", "loaded")) is True
     assert model.graph["initial"] == {("r2", "loaded")}
     assert model.set_initial(("unknown", "state")) is False
+
+
+def test_single_dimension_guard_is_enforced():
+    """Apply the same source-label guard rule to one-dimensional systems."""
+    region = make_region_model()
+    for state in region:
+        region.nodes[state]["label"] = {state[0]}
+    region[("r1",)][("r2",)]["guard"] = "r2"
+    model = TSModel([region])
+    model.build_full()
+    assert not model.has_edge(("r1",), ("r2",))

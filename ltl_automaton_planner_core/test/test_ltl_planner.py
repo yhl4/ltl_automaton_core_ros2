@@ -97,6 +97,24 @@ def create_branching_transition_system():
     return TSModel(state_models)
 
 
+@pytest.mark.parametrize("name", ["beta", "gamma"])
+@pytest.mark.parametrize("value", [-1.0, float("nan"), float("inf"), True])
+def test_invalid_planning_weights_are_rejected(name, value):
+    """Reject invalid objective weights before invoking an LTL translator."""
+    with pytest.raises(ValueError, match=name):
+        LTLPlanner(create_transition_system(), "1", "1", **{name: value})
+
+
+def test_static_planning_preserves_explicit_initial_state():
+    """Reuse a built TS without resetting an explicitly selected start."""
+    ts = create_transition_system()
+    ts.build_full()
+    assert ts.set_initial(("r2",))
+    planner = LTLPlanner(ts, "<> r2", "(r2 || !r2)")
+    assert planner.optimal()
+    assert planner.run.line[0] == ("r2",)
+
+
 def test_static_planning_finds_accepting_run():
     """Build the complete planning chain and find an accepting run."""
     assert shutil.which("ltl2ba") is not None, (
