@@ -5,6 +5,11 @@ string planner_instance_id
 # Active accepted planning generation within this planner instance.
 uint64 planning_generation
 
+# Planner-owned command-cursor step within this accepted generation.
+# Starts at zero on commit, advances on accepted expected TS feedback, and
+# remains unchanged on republication. It is not backend completion evidence.
+uint64 execution_step_seq
+
 # Snapshot-local Product node IDs representing the complete 0/1/N
 # currently possible Product-state set.
 uint32[] possible_product_node_ids

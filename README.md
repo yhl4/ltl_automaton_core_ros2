@@ -75,7 +75,7 @@ ltl_automaton_msgs/
 - `PlanLTL`
 - `TaskPlanning`
 
-面向新 ROS 2 consumer 的正式 V0.1 contract 见
+面向新 ROS 2 consumer 的正式 V0.2 contract 见
 [`ltl_automaton_planner/docs/planning_api.md`](ltl_automaton_planner/docs/planning_api.md)。
 
 ### 1.3 ROS 2 Planner 节点
@@ -112,6 +112,12 @@ graph snapshot 解析当前接受运行步骤，再由可替换的 `ExecutionBac
 独立的 `StateObserver` 与 `StateAbstraction` 将实际观测映射为符号状态并发布
 `/ts_state`；后端完成回调仅报告执行结果。当前仅提供符号级 `FakeBackend`，不包含物理仿真、Gazebo、
 Isaac Sim 或机器人控制依赖；Planner 与 planner core 均不依赖该包。
+V0.2 的命令身份为
+`(planner_instance_id, planning_generation, execution_step_seq)`；快照身份仍为
+`(planner_instance_id, planning_generation)`。每个成功提交的 generation 从序号 0
+开始，只有接受预期 TS 状态反馈并推进执行游标时才递增，包括带新时间戳的同状态自环；
+重复发布不递增，后端 completion 不代表 TS 状态真值。使用者必须重新生成并构建
+`ltl_automaton_msgs` 接口，当前不提供旧消息的兼容层。
 
 ### 1.5 标准 Transition System 工具
 
@@ -638,7 +644,8 @@ guard 检查复用、一次 SCC 遍历、已构建 TS 复用、反馈状态直�
 
 本轮重跑 execution 包 `colcon test`，包括三个可控延迟响应节点回归、
 解析与 generation 切换、已有真实 DDS/FakeBackend 场景和 lint，全部通过。
-这项修复未解决第 13 节所列的持续循环执行限制。
+该轮 V0.1 验证时，接受环的重复状态/动作仍会抑制派发；这一限制由
+第 11.5 节的接口升级解决。
 
 ### 11.4 重规划隔离与搜索优化（2026-10-06）
 
@@ -651,6 +658,26 @@ run 引用以及初始集、possible states、游标均保持不变。
 到达非接受环的接受节点启动搜索。该结果不代表端到端加速比。
 本轮重跑 Core 与 ROS planner 两包的 `colcon test`，包括重规划、Action、
 快照 generation 和 lint 回归，全部通过。
+
+### 11.5 执行步骤接口升级（2026-10-06）
+
+Planning Contract 升级为 V0.2，新增 `uint64 execution_step_seq`。
+规划成功提交时序号归零，预期 TS 反馈推进游标后递增；失败的规划请求保留原序号。
+执行器按 instance、generation 和步骤序号去重，使接受环与同状态自环可持续派发。
+后端忙碌时保留最新命令，空闲后复用已有快照；快照服务离线不影响已缓存图的派发。
+默认 `check_timestamp=true` 时拒绝重复或倒序 TS 时间戳。
+
+七个包重新完成 `colcon build --symlink-install`，并运行七包 `colcon test`；
+更新旧接口字段断言后重跑消息包，最终汇总为
+**246 tests, 0 errors, 0 failures, 4 skipped**，跳过项仍为原有版权头检查。
+真实 DDS/FakeBackend 四项闭环回归覆盖 Demo-D1 导航与任务替换、取放动作、
+两状态接受环至少推进 10 步，以及同状态自环至少推进 8 步。
+另检查重复/倒序命令、忙碌期间最新命令保留、重复后端回调、失败规划保留序号、
+新 generation 归零及 `uint64` 消息序列化。验证范围为符号执行与 ROS 通信；
+未运行性能 benchmark 或物理仿真实验。
+
+V0.1 消费者需重新生成并构建 `ltl_automaton_msgs` 及其依赖包；
+当前不提供旧消息兼容层。
 
 ---
 
@@ -681,7 +708,7 @@ ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。
 当前版本的主要未完成项与限制：
 
 - `IRLPlugin` 尚未接入事务式 ROS 2 Planner contract；旧的原地 mutation 实现仅保留在 Git 历史中，不进入 canonical runtime；
-- 当前符号执行器按 planning generation 内的 Product 状态集与动作去重。接受环再次产生相同指纹时会停止派发；正式观测缺少执行步骤序号，循环执行修复仍待接口契约升级。静态 prefix–suffix 规划成功不能作为持续循环执行已完成的证据；
+- `ltl_automaton_execution` 仍是符号级执行包，尚未提供 Gazebo、Isaac Sim、运动学、轨迹、碰撞检查、感知或真实机器人控制，也没有物理仿真验证；
 - Ubuntu 24.04 / ROS 2 Jazzy 独立验证；
 
 此外，使用 Fast DDS 时可能出现共享内存端口警告：

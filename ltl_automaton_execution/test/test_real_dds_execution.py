@@ -29,6 +29,31 @@ HOUSEHOLD_TS = (
 )
 DIMENSIONS = ["2d_pose_region", "gripper_state"]
 NEUTRAL = "(b0 || ! b0)"
+CYCLE_TS = """
+state_dim: [region]
+state_models:
+  region:
+    initial: r1
+    nodes:
+      r1:
+        connected_to: {r2: goto_r2}
+      r2:
+        connected_to: {r1: goto_r1}
+actions:
+  goto_r1: {guard: '1', weight: 1.0}
+  goto_r2: {guard: '1', weight: 1.0}
+"""
+SELF_LOOP_TS = """
+state_dim: [region]
+state_models:
+  region:
+    initial: r1
+    nodes:
+      r1:
+        connected_to: {r1: wait}
+actions:
+  wait: {guard: '1', weight: 1.0}
+"""
 
 
 class InstrumentedObserver:
@@ -68,6 +93,7 @@ class RealExecutionHarness:
 
     def __init__(self):
         self.context = Context()
+        self.execution_paused = False
         rclpy.init(context=self.context)
         self.planner = PlannerNode(context=self.context)
         self.plant = FakePlant()
@@ -124,22 +150,23 @@ class RealExecutionHarness:
             self.executor.spin_once(timeout_sec=0.02)
         return predicate()
 
-    def load(self):
+    def load(self, yaml_content=None):
         assert self.load_client.wait_for_service(timeout_sec=3.0)
         request = LoadTransitionSystem.Request()
-        request.transition_system_yaml = HOUSEHOLD_TS.read_text(
-            encoding="utf-8"
+        request.transition_system_yaml = (
+            HOUSEHOLD_TS.read_text(encoding="utf-8")
+            if yaml_content is None else yaml_content
         )
         future = self.load_client.call_async(request)
         assert self.wait(future.done)
         assert future.result().success
 
-    def plan(self, initial, hard_task):
+    def plan(self, initial, hard_task, dimensions=DIMENSIONS, soft_task=NEUTRAL):
         assert self.action_client.wait_for_server(timeout_sec=3.0)
         goal = PlanLTL.Goal()
         goal.hard_task = hard_task
-        goal.soft_task = NEUTRAL
-        goal.initial_state.state_dimension_names = DIMENSIONS
+        goal.soft_task = soft_task
+        goal.initial_state.state_dimension_names = dimensions
         goal.initial_state.states = list(initial)
         goal.beta = 1000.0
         goal.gamma = 10.0
@@ -153,9 +180,20 @@ class RealExecutionHarness:
         assert response.status == GoalStatus.STATUS_SUCCEEDED
         return response.result
 
+    def pause_execution(self):
+        """Stop scheduling new fake steps and drain already published truth."""
+        self.executor.remove_node(self.execution)
+        self.execution_paused = True
+        assert self.wait(lambda: len(self.states) == len(self.plant_states))
+
+    def resume_execution(self):
+        self.executor.add_node(self.execution)
+        self.execution_paused = False
+
     def stop(self):
         self.executor.remove_node(self.driver)
-        self.executor.remove_node(self.execution)
+        if not self.execution_paused:
+            self.executor.remove_node(self.execution)
         self.executor.remove_node(self.planner)
         self.action_client.destroy()
         self.driver.destroy_node()
@@ -170,18 +208,11 @@ def _subsequence(sequence, expected):
     return all(any(item == wanted for item in iterator) for wanted in expected)
 
 
-def _wait_stable(harness, quiet_duration=0.2, timeout=2.0):
-    count = len(harness.states)
-    quiet_since = time.monotonic()
-    deadline = quiet_since + timeout
-    while time.monotonic() < deadline:
-        harness.executor.spin_once(timeout_sec=0.02)
-        if len(harness.states) != count:
-            count = len(harness.states)
-            quiet_since = time.monotonic()
-        elif time.monotonic() - quiet_since >= quiet_duration:
-            return True
-    return False
+def _wait_steps(harness, generation, minimum):
+    return harness.wait(lambda: any(
+        item.planning_generation == generation and item.execution_step_seq >= minimum
+        for item in harness.observations
+    ))
 
 
 def _assert_observation_pipeline(harness):
@@ -210,12 +241,14 @@ def test_real_dds_t1_and_current_state_closure():
             lambda: harness.observations
             and harness.observations[-1].planning_generation == 1
         )
-        assert _wait_stable(harness)
+        assert _wait_steps(harness, 1, 8)
+        harness.pause_execution()
         _assert_observation_pipeline(harness)
 
         second = harness.plan(("k0", "empty"), "<>(b0)")
         assert second.success
         assert second.error_code == PlanLTL.Result.ERROR_NONE
+        harness.resume_execution()
         assert harness.wait(
             lambda: any(
                 observation.planning_generation == 2
@@ -223,7 +256,8 @@ def test_real_dds_t1_and_current_state_closure():
             )
         )
         assert harness.wait(lambda: harness.states[-1] == ("b0", "empty"))
-        assert _wait_stable(harness)
+        assert _wait_steps(harness, 2, 8)
+        harness.pause_execution()
         _assert_observation_pipeline(harness)
     finally:
         harness.stop()
@@ -247,7 +281,44 @@ def test_real_dds_t3_executes_navigation_pick_and_place():
             ("bp0", "holding"),
             ("bp0", "empty"),
         ])
-        assert _wait_stable(harness)
+        assert _wait_steps(harness, 1, 10)
+        harness.pause_execution()
+        _assert_observation_pipeline(harness)
+    finally:
+        harness.stop()
+
+
+def test_real_dds_two_state_accepting_cycle_keeps_dispatching():
+    """Execute beyond the four steps previously suppressed by fingerprints."""
+    harness = RealExecutionHarness()
+    try:
+        harness.load(CYCLE_TS)
+        assert harness.plan(
+            ("r1",), "([]<> r1) && ([]<> r2)", ["region"], "(r1 || !r1)",
+        ).success
+        assert _wait_steps(harness, 1, 10)
+        harness.pause_execution()
+        assert harness.states.count(("r1",)) >= 4
+        assert harness.states.count(("r2",)) >= 4
+        assert {item.planning_generation for item in harness.observations} == {1}
+        sequences = [item.execution_step_seq for item in harness.observations]
+        assert sequences == sorted(sequences)
+        _assert_observation_pipeline(harness)
+    finally:
+        harness.stop()
+
+
+def test_real_dds_same_state_self_loop_uses_new_steps():
+    """Repeated state and action still execute with advancing command steps."""
+    harness = RealExecutionHarness()
+    try:
+        harness.load(SELF_LOOP_TS)
+        assert harness.plan(("r1",), "[] r1", ["region"], "(r1 || !r1)").success
+        assert _wait_steps(harness, 1, 8)
+        harness.pause_execution()
+        assert len(harness.states) >= 8
+        assert set(harness.states) == {("r1",)}
+        assert {item.next_action for item in harness.observations} == {"wait"}
         _assert_observation_pipeline(harness)
     finally:
         harness.stop()

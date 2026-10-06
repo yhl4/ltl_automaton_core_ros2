@@ -57,6 +57,7 @@ class AcceptedRunResolver:
         return ExecutionStep(
             planner_instance_id=observation.planner_instance_id,
             planning_generation=observation.planning_generation,
+            execution_step_seq=observation.execution_step_seq,
             action=observation.next_action,
             source_state=source_state,
             target_state=next(iter(target_states)),

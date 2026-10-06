@@ -63,6 +63,7 @@ class ExecutionObservation:
 
     planner_instance_id: str
     planning_generation: int
+    execution_step_seq: int
     possible_product_node_ids: tuple[int, ...]
     has_next_action: bool
     next_action: str
@@ -74,6 +75,7 @@ class ExecutionStep:
 
     planner_instance_id: str
     planning_generation: int
+    execution_step_seq: int
     action: str
     source_state: SymbolicState
     target_state: SymbolicState

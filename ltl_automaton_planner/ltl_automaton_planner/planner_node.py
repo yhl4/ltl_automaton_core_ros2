@@ -374,6 +374,7 @@ class PlannerNode(Node):
         self._planning_worker = None
         self._planner_instance_id = str(uuid.uuid4())
         self._planning_generation = 0
+        self._execution_step_seq = 0
         self._active_planning_graph_snapshot = None
         self._active_product_node_ids = None
         self._shutting_down = False
@@ -924,6 +925,7 @@ class PlannerNode(Node):
         )
         committed_snapshot.metadata.planning_generation = new_generation
         self._planning_generation = new_generation
+        self._execution_step_seq = 0
         self._active_planning_graph_snapshot = committed_snapshot
         if planning_graph.snapshot.metadata.available:
             self._active_product_node_ids = MappingProxyType(
@@ -1508,6 +1510,7 @@ class PlannerNode(Node):
             observation.planning_generation = (
                 snapshot.metadata.planning_generation
             )
+            observation.execution_step_seq = self._execution_step_seq
             observation.possible_product_node_ids = (
                 possible_product_node_ids
             )
@@ -1850,10 +1853,11 @@ class PlannerNode(Node):
 
         if (
             self.check_timestamp
-            and message_stamp == self._previous_state_stamp
+            and self._previous_state_stamp is not None
+            and message_stamp <= self._previous_state_stamp
         ):
             self.get_logger().warning(
-                "Ignoring TS state with a repeated timestamp: "
+                "Ignoring TS state with a repeated or older timestamp: "
                 f"{message_stamp}."
             )
             return
@@ -1933,6 +1937,9 @@ class PlannerNode(Node):
                 f"Failed to advance the plan: {error}"
             )
             return
+
+        with self._state_lock:
+            self._execution_step_seq += 1
 
         self.get_logger().info(
             f"Reached expected TS state: {reached_state}"

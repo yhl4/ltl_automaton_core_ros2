@@ -27,19 +27,19 @@ def _state(value):
 
 def _step():
     return ExecutionStep(
-        "planner-a", 1, "move", _state("r1"), _state("r2"), (1,), (2,)
+        "planner-a", 1, 0, "move", _state("r1"), _state("r2"), (1,), (2,)
     )
 
 
-def _observation(generation=1):
+def _observation(generation=1, sequence=0, instance="planner-a"):
     return ExecutionObservation(
-        "planner-a", generation, (1,), True, "move"
+        instance, generation, sequence, (1,), True, "move"
     )
 
 
-def _snapshot(generation=1):
+def _snapshot(generation=1, instance="planner-a"):
     return PlanningSnapshot(
-        "planner-a",
+        instance,
         generation,
         (ProductNode(1, _state("r1")), ProductNode(2, _state("r2"))),
         (ProductEdge(1, 2, "move"), ProductEdge(2, 2, "wait")),
@@ -124,6 +124,7 @@ def test_a5_failed_backend_does_not_change_or_observe_plant():
     assert plant.current_state == _state("r1")
     assert observed == []
     assert diagnostics == ["controller failed"]
+    assert not manager.dispatch(observation, _snapshot())
 
 
 def test_a6_observer_and_abstraction_work_without_execution():
@@ -186,6 +187,76 @@ def test_a8_in_flight_old_generation_still_updates_observed_plant():
     assert observed == [FakePlantObservation(_state("r2"))]
     assert not manager.is_current(first)
     assert manager.is_current(second)
+    assert not manager.in_flight
+
+
+def test_step_sequence_allows_repeated_action_after_completion():
+    backend = RecordingBackend()
+    manager = ExecutionManager(
+        AcceptedRunResolver(), backend, lambda _message: None
+    )
+    first = _observation(sequence=0)
+    second = _observation(sequence=1)
+    assert manager.observe_authority(first)
+    assert manager.dispatch(first, _snapshot())
+    backend.calls[0][1](ExecutionCompletion(True, "done"))
+    assert manager.observe_authority(second)
+    assert manager.dispatch(second, _snapshot())
+    assert [call[0].execution_step_seq for call in backend.calls] == [0, 1]
+
+
+def test_duplicate_and_reverse_step_sequences_are_rejected():
+    diagnostics = []
+    backend = RecordingBackend()
+    manager = ExecutionManager(
+        AcceptedRunResolver(), backend, diagnostics.append
+    )
+    current = _observation(sequence=2)
+    assert manager.observe_authority(current)
+    assert manager.dispatch(current, _snapshot())
+    backend.calls[0][1](ExecutionCompletion(True, "done"))
+    assert manager.observe_authority(_observation(sequence=2))
+    assert not manager.dispatch(_observation(sequence=2), _snapshot())
+    assert not manager.observe_authority(_observation(sequence=1))
+    assert len(backend.calls) == 1
+    assert "stale execution step" in diagnostics[-1]
+
+
+def test_epoch_change_resets_step_sequence_deduplication():
+    backend = RecordingBackend()
+    manager = ExecutionManager(
+        AcceptedRunResolver(), backend, lambda _message: None
+    )
+    first = _observation(generation=1, sequence=4)
+    second = _observation(
+        generation=1, sequence=0, instance="planner-b"
+    )
+    assert manager.observe_authority(first)
+    assert manager.dispatch(first, _snapshot())
+    backend.calls[0][1](ExecutionCompletion(True, "done"))
+    assert manager.observe_authority(second)
+    assert manager.dispatch(second, _snapshot(instance="planner-b"))
+    assert len(backend.calls) == 2
+
+
+def test_busy_manager_keeps_latest_sequence_and_ignores_duplicate_completion():
+    backend = RecordingBackend()
+    manager = ExecutionManager(
+        AcceptedRunResolver(), backend, lambda _message: None
+    )
+    first = _observation(sequence=0)
+    latest = _observation(sequence=1)
+    assert manager.observe_authority(first)
+    assert manager.dispatch(first, _snapshot())
+    old_completion = backend.calls[0][1]
+    assert manager.observe_authority(latest)
+    assert not manager.dispatch(latest, _snapshot())
+    old_completion(ExecutionCompletion(True, "done"))
+    assert manager.dispatch(latest, _snapshot())
+    assert manager.in_flight
+    old_completion(ExecutionCompletion(True, "duplicate"))
+    assert manager.in_flight
+    backend.calls[1][1](ExecutionCompletion(True, "done"))
     assert not manager.in_flight
 
 

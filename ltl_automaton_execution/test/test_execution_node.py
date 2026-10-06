@@ -59,9 +59,10 @@ class DelayedSnapshotClient:
 
     def __init__(self):
         self.future = Future()
+        self.ready = True
 
     def service_is_ready(self):
-        return True
+        return self.ready
 
     def call_async(self, _request):
         return self.future
@@ -93,10 +94,11 @@ def _fill_snapshot(snapshot, generation):
     snapshot.accepted_run.suffix_product_node_ids = [2]
 
 
-def _observation(generation):
+def _observation(generation, sequence=0):
     message = PlanningExecutionObservation()
     message.planner_instance_id = "planner-a"
     message.planning_generation = generation
+    message.execution_step_seq = sequence
     message.possible_product_node_ids = [1]
     message.has_next_action = True
     message.next_action = "move"
@@ -176,7 +178,7 @@ def test_delayed_snapshot_dispatches_latest_same_generation_observation():
     try:
         execution, backend, client = _delayed_execution(context)
         execution._on_observation(_observation(1))
-        latest = _observation(1)
+        latest = _observation(1, sequence=1)
         latest.possible_product_node_ids = [2]
         latest.next_action = "wait"
         execution._on_observation(latest)
@@ -200,7 +202,7 @@ def test_delayed_snapshot_latest_no_action_suppresses_old_dispatch():
     try:
         execution, backend, client = _delayed_execution(context)
         execution._on_observation(_observation(1))
-        latest = _observation(1)
+        latest = _observation(1, sequence=1)
         latest.possible_product_node_ids = []
         latest.has_next_action = False
         latest.next_action = ""
@@ -209,6 +211,43 @@ def test_delayed_snapshot_latest_no_action_suppresses_old_dispatch():
         _complete_snapshot(client)
 
         assert backend.calls == []
+    finally:
+        if execution is not None:
+            execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+def test_busy_observation_retries_latest_sequence_after_completion():
+    """Use the latest queued step after the previous backend call finishes."""
+    context = Context()
+    rclpy.init(context=context)
+    execution = None
+    try:
+        execution, backend, client = _delayed_execution(context)
+        execution._on_observation(_observation(1))
+        _complete_snapshot(client)
+        assert len(backend.calls) == 1
+
+        latest = _observation(1, sequence=1)
+        latest.possible_product_node_ids = [2]
+        latest.next_action = "wait"
+        execution._on_observation(latest)
+        assert len(backend.calls) == 1
+
+        newest = _observation(1, sequence=2)
+        newest.possible_product_node_ids = [2]
+        newest.next_action = "wait"
+        execution._on_observation(newest)
+        execution._on_observation(latest)
+        client.ready = False
+
+        backend.calls[0][1](ExecutionCompletion(True, "done"))
+        execution._retry_snapshot_discovery()
+
+        assert len(backend.calls) == 2
+        assert backend.calls[1][0].execution_step_seq == 2
+        assert backend.calls[1][0].action == "wait"
+        assert backend.calls[1][0].source_product_node_ids == (2,)
     finally:
         if execution is not None:
             execution.destroy_node()

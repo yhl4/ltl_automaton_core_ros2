@@ -40,10 +40,14 @@ def _snapshot():
     )
 
 
-def _observation(node_ids=(1,), action="prefix", instance="planner-a", generation=4):
+def _observation(
+    node_ids=(1,), action="prefix", instance="planner-a", generation=4,
+    sequence=0,
+):
     return ExecutionObservation(
         instance,
         generation,
+        sequence,
         tuple(node_ids),
         True,
         action,
@@ -66,6 +70,14 @@ def test_e1_matching_identity_is_accepted():
     step = AcceptedRunResolver().resolve(_observation(), _snapshot())
     assert step.planner_instance_id == "planner-a"
     assert step.planning_generation == 4
+    assert step.execution_step_seq == 0
+
+
+def test_step_sequence_is_carried_into_resolved_step():
+    step = AcceptedRunResolver().resolve(
+        _observation(sequence=9), _snapshot()
+    )
+    assert step.execution_step_seq == 9
 
 
 def test_e2_multiple_product_nodes_must_reduce_to_one_ts_state():

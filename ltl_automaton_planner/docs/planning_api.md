@@ -1,6 +1,6 @@
 # ROS 2 Planning API
 
-This document defines the Studio-facing ROS Planning Contract V0.1. Interface
+This document defines the Studio-facing ROS Planning Contract V0.2. Interface
 definitions are owned by `ltl_automaton_msgs`, their implementation is owned by
 `ltl_automaton_planner`, and the ROS-independent algorithm is owned by
 `ltl_automaton_planner_core`. Consumers must not depend on planner Python
@@ -53,7 +53,7 @@ Both tasks must be non-empty for compatibility with existing wrapper behavior.
 - Goals are rejected at the action transport level in `UNINITIALIZED` and
   `PLANNING`; rejected goals have no `PlanLTL.Result`.
 - Only one planning transaction can exist at a time.
-- V0.1 cancel requests are rejected and do not stop the search.
+- Cancel requests are rejected and do not stop the search.
 
 A successful accepted goal reaches the ROS action `SUCCEEDED` state and returns
 `success=true`, `ERROR_NONE`, prefix and suffix plans, total cost, and planning
@@ -140,11 +140,27 @@ transient-local, depth-1 QoS. Each message is a compact view of the active
 execution authority and carries the same `(planner_instance_id,
 planning_generation)` identity as its retained graph snapshot.
 
+`execution_step_seq` is a `uint64` sequence within that planning generation.
+Every successfully committed generation starts at sequence `0`. The planner
+increments it only after accepting the expected, timestamped TS feedback and
+advancing the execution cursor. A new timestamp for the same symbolic TS state
+can advance a self-loop; repeated publication does not increment the sequence.
+With the default `check_timestamp=true`, repeated or older TS timestamps are
+rejected. TS feedback must use the planner's configured clock consistently.
+The command identity is the triple
+`(planner_instance_id, planning_generation, execution_step_seq)`, while the
+snapshot identity remains the pair
+`(planner_instance_id, planning_generation)`.
+
 - `possible_product_node_ids` is the sorted, unique set of snapshot-local
   Product IDs currently possible for execution. It may contain zero, one, or
   many IDs.
 - `has_next_action` is authoritative. When false, `next_action` is empty; when
   true, `next_action` is the selected current planner action.
+- `execution_step_seq` distinguishes a later execution step from a repeated
+  publication of the same observation. Consumers must reject duplicate or older
+  sequences. A later sequence may carry the same Product IDs and action and is
+  still a new command.
 - Product IDs refer only to the graph returned by
   `/get_planning_graph_snapshot` for the same identity. Consumers should cache
   snapshots by the identity pair and discard an observation whose matching
@@ -158,9 +174,21 @@ topics. During `PLANNING` from `ACTIVE`, observations can continue to describe
 the previous active generation while its execution remains authoritative; an
 uncommitted candidate never publishes observations.
 
-## Known V0.1 Limitations
+While one backend command is in flight, consumers retain the newest observation
+and may coalesce intermediate commands. A failed or rejected step is not
+automatically retried at the same sequence. Backend completion contains only
+`success` and `message`; it does not establish TS state truth. Expected TS
+feedback remains the source of execution-state advancement. A delayed snapshot
+request may have captured an older sequence, but a response with the matching
+snapshot identity is resolved against the latest observation for that identity.
 
-V0.1 does not provide:
+All consumers must regenerate and rebuild the `ltl_automaton_msgs` interfaces
+before use. V0.2 provides no compatibility layer for the old observation
+message.
+
+## Known V0.2 Limitations
+
+V0.2 does not provide:
 
 - cooperative `PlanLTL` cancellation;
 - a planning time limit;
@@ -169,10 +197,9 @@ V0.1 does not provide:
 - runtime transition-system replacement while `ACTIVE`;
 - queued or concurrent planning goals.
 
-Execution observations also lack a step sequence within a generation. Consumers
-cannot reliably distinguish a repeated publication from a later cycle visit
-with the same Product state set and action. The current symbolic executor
-deduplicates that fingerprint, so continuous cyclic execution is not supported.
+The execution package remains a symbolic execution boundary. It does not provide
+Gazebo, Isaac Sim, kinematics, trajectory generation, collision checking,
+perception, hardware control, or physical-simulation validation.
 
 These are contract limitations, not indications that a request is malfunctioning.
 

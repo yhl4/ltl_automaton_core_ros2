@@ -507,6 +507,7 @@ def test_formal_observation_maps_zero_one_many_states_without_graph_walk():
             ("r1", "q0"): 3,
             ("r2", "q1"): 8,
         },
+        _execution_step_seq=6,
         ltl_planner=planner,
         planning_execution_observation_publisher=SimpleNamespace(
             publish=messages.append,
@@ -520,6 +521,7 @@ def test_formal_observation_maps_zero_one_many_states_without_graph_walk():
     assert list(messages[-1].possible_product_node_ids) == []
     assert not messages[-1].has_next_action
     assert messages[-1].next_action == ""
+    assert messages[-1].execution_step_seq == 6
 
     planner.product.possible_states = {("r2", "q1")}
     planner.next_move = "stay_r2"
@@ -533,6 +535,7 @@ def test_formal_observation_maps_zero_one_many_states_without_graph_walk():
     assert list(messages[-1].possible_product_node_ids) == [3, 8]
     assert messages[-1].planner_instance_id == "planner-instance"
     assert messages[-1].planning_generation == 4
+    assert messages[-1].execution_step_seq == 6
 
     planner.product.possible_states = {("outside", "q9")}
     message_count = len(messages)

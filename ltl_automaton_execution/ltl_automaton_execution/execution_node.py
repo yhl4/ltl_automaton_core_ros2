@@ -111,6 +111,7 @@ class ExecutionManagerNode(Node):
         return ExecutionObservation(
             message.planner_instance_id,
             int(message.planning_generation),
+            int(message.execution_step_seq),
             tuple(message.possible_product_node_ids),
             bool(message.has_next_action),
             message.next_action,
@@ -172,6 +173,8 @@ class ExecutionManagerNode(Node):
         if not observation.has_next_action:
             return
         if self._manager.in_flight:
+            self._pending_snapshot_observation = observation
+            self._snapshot_retry_timer.reset()
             return
         snapshot = self._snapshots.get(identity)
         if snapshot is not None:
@@ -198,7 +201,13 @@ class ExecutionManagerNode(Node):
         if observation is None or not self._manager.is_current(observation):
             self._pending_snapshot_observation = None
             self._snapshot_retry_timer.cancel()
-        elif self._snapshot_client.service_is_ready():
+        elif self._manager.in_flight:
+            self._snapshot_retry_timer.reset()
+        elif (
+            (observation.planner_instance_id, observation.planning_generation)
+            in self._snapshots
+            or self._snapshot_client.service_is_ready()
+        ):
             self._on_observation(observation)
 
     def _on_snapshot(self, observation, identity, future):
@@ -257,7 +266,11 @@ class ExecutionManagerNode(Node):
         self._expected_dimensions = expected_dimensions
         self._expected_schema_instance = snapshot.planner_instance_id
         if latest_observation.has_next_action:
-            self._manager.dispatch(latest_observation, snapshot)
+            if self._manager.in_flight:
+                self._pending_snapshot_observation = latest_observation
+                self._snapshot_retry_timer.reset()
+            else:
+                self._manager.dispatch(latest_observation, snapshot)
 
     @staticmethod
     def _snapshot_dimensions(snapshot):

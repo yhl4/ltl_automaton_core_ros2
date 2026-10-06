@@ -278,6 +278,7 @@ def publish_state(runtime, state):
     message.ts_state.states = [state]
     message.ts_state.state_dimension_names = ["region"]
     runtime.state_publisher.publish(message)
+    return message
 
 
 def activate(runtime, yaml_content=VALID_TS, goal=None):
@@ -1080,6 +1081,7 @@ def test_expected_state_does_not_change_snapshot_generation(action_runtime):
     """Keep the committed full run while the execution cursor advances."""
     activate(action_runtime)
     before = get_planning_graph_snapshot(action_runtime)
+    assert action_runtime.planner._execution_step_seq == 0
     publish_state(action_runtime, "r2")
     assert spin_until(
         action_runtime,
@@ -1087,3 +1089,34 @@ def test_expected_state_does_not_change_snapshot_generation(action_runtime):
     )
     after = get_planning_graph_snapshot(action_runtime)
     assert after.snapshot == before.snapshot
+    assert action_runtime.planner._execution_step_seq == 1
+
+
+def test_self_loop_step_republication_and_stale_feedback(action_runtime):
+    """Advance self-loops once per fresh feedback and preserve generation."""
+    activate(action_runtime)
+    before = get_planning_graph_snapshot(action_runtime)
+    first = publish_state(action_runtime, "r2")
+    assert spin_until(action_runtime, lambda: action_runtime.planner._execution_step_seq == 1)
+    second = publish_state(action_runtime, "r2")
+    assert spin_until(action_runtime, lambda: action_runtime.planner._execution_step_seq == 2)
+
+    action_runtime.planner._ts_state_callback(second)
+    action_runtime.planner._ts_state_callback(first)
+    action_runtime.planner._publish_planning_execution_observation()
+    assert action_runtime.planner._execution_step_seq == 2
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before.snapshot
+
+    failed = action_result(action_runtime, send_goal(
+        action_runtime, make_goal(state="r2", hard_task="<> r3"),
+    ))
+    assert failed.status == GoalStatus.STATUS_ABORTED
+    assert action_runtime.planner._execution_step_seq == 2
+    accepted = action_result(action_runtime, send_goal(
+        action_runtime, make_goal(state="r2", hard_task="[]<> r2"),
+    ))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED
+    assert action_runtime.planner._execution_step_seq == 0
+    assert get_planning_graph_snapshot(
+        action_runtime,
+    ).snapshot.metadata.planning_generation == before.snapshot.metadata.planning_generation + 1
