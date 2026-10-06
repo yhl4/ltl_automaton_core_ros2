@@ -3,6 +3,7 @@
 import time
 import unittest
 
+from action_msgs.msg import GoalStatus
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
@@ -14,8 +15,10 @@ from ltl_automaton_msgs.msg import (
     TransitionSystemState,
 )
 from ltl_automaton_msgs.srv import GetPlanningGraphSnapshot, TrapCheck
+from ltl_automaton_msgs.action import PlanLTL
 import pytest
 import rclpy
+from rclpy.action import ActionClient
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 
 
@@ -62,6 +65,7 @@ class TestTrapPluginService(unittest.TestCase):
             GetPlanningGraphSnapshot,
             "get_planning_graph_snapshot",
         )
+        cls.action_client = ActionClient(cls.node, PlanLTL, "plan_ltl")
         qos = QoSProfile(
             depth=1,
             reliability=ReliabilityPolicy.RELIABLE,
@@ -77,6 +81,7 @@ class TestTrapPluginService(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        cls.action_client.destroy()
         cls.node.destroy_node()
         rclpy.shutdown()
 
@@ -107,6 +112,42 @@ class TestTrapPluginService(unittest.TestCase):
         self._spin_until(future.done)
         self.assertTrue(future.result().success)
         return future.result().snapshot
+
+    def _replace_task(self, snapshot, hard_task):
+        self.assertTrue(self.action_client.wait_for_server(timeout_sec=3.0))
+        initial_id = snapshot.accepted_run.prefix_product_node_ids[0]
+        initial = next(node.ts_state for node in snapshot.product_nodes if node.id == initial_id)
+        goal = PlanLTL.Goal(
+            hard_task=hard_task, soft_task=snapshot.metadata.soft_task,
+            initial_state=initial, beta=1000.0, gamma=10.0,
+        )
+        goal_future = self.action_client.send_goal_async(goal)
+        self._spin_until(goal_future.done)
+        handle = goal_future.result()
+        self.assertTrue(handle.accepted)
+        result_future = handle.get_result_async()
+        self._spin_until(result_future.done)
+        result = result_future.result()
+        self.assertEqual(result.status, GoalStatus.STATUS_SUCCEEDED)
+        self.assertTrue(result.result.success)
+
+    def test_replacement_plan_changes_trap_diagnosis(self):
+        """Classify against the newly committed task without stale graph reuse."""
+        self._spin_until(lambda: self.client.service_is_ready())
+        self._spin_until(lambda: self.snapshot_client.service_is_ready())
+        before = self._snapshot()
+        self.assertFalse(self._call_trap("r2", "unloaded").is_trap)
+        try:
+            self._replace_task(before, "[] !r2")
+            after = self._snapshot()
+            self.assertGreater(
+                after.metadata.planning_generation, before.metadata.planning_generation,
+            )
+            diagnosed = self._call_trap("r2", "unloaded")
+            self.assertTrue(diagnosed.is_connected)
+            self.assertTrue(diagnosed.is_trap)
+        finally:
+            self._replace_task(before, before.metadata.hard_task)
 
     def test_trap_diagnosis_preserves_formal_identity(self):
         self._spin_until(

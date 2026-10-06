@@ -102,28 +102,31 @@ class TSModel(DiGraph):
 
         Needs to be called after composing nodes.
         """
-        # For each individual state model
-        for i in range(len(graph_list)):
-            # For each state in this model
-            for state in graph_list[i]:
-                # Look for node in the product which include this state
-                nodes = [elem for elem in self.nodes if elem[i] == state[0]]
-                for node in nodes:
+        # Enumerate each combined source node once, then expand only the
+        # actual successors of each factor state.  Keeping factors in order
+        # preserves the historical later-dimension overwrite for collisions.
+        for node in self.nodes:
+            for i, graph in enumerate(graph_list):
+                state = (node[i],)
+                for successor_state in graph.successors(state):
+                    edge_data = graph[state][successor_state]
+                    if not self.is_action_allowed(
+                        edge_data['guard'],
+                        self.nodes[node]['label'],
+                    ):
+                        continue
+
                     successor_state_node = list(node)
-                    for successor_state in graph_list[i].successors(state):
-                        # Create successor node by replacing one state by its successor
-                        successor_state_node[i] = successor_state[0]
-                        successor_node = tuple(successor_state_node)
-                        # Add edge using weight and action label from the state model
-                        if self.is_action_allowed(
-                            graph_list[i][state][successor_state]['guard'],
-                            self.nodes[node]['label'],
-                        ):
-                            self.add_edge(node, successor_node,
-                                          action=graph_list[i][state][successor_state]['action'],
-                                          guard=graph_list[i][state][successor_state]['guard'],
-                                          weight=graph_list[i][state][successor_state]['weight'],
-                                          marker='visited')
+                    successor_state_node[i] = successor_state[0]
+                    successor_node = tuple(successor_state_node)
+                    self.add_edge(
+                        node,
+                        successor_node,
+                        action=edge_data['action'],
+                        guard=edge_data['guard'],
+                        weight=edge_data['weight'],
+                        marker='visited',
+                    )
 
     def is_action_allowed(self, action_guard, ts_label):
         """Check action guard against the node label."""

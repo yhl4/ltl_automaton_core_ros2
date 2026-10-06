@@ -615,6 +615,17 @@ guard 检查复用、一次 SCC 遍历、已构建 TS 复用、反馈状态直�
 受上述缺陷影响的旧计划可能被拒绝或得到更低代价的正确计划。
 这些是定向正确性与通信验证结果，未开展性能 benchmark 或物理仿真实验。
 
+### 11.2 后续优化验证（2026-10-06）
+
+组合 TS 与 hard/soft Büchi 的构造改为直接枚举实际后继，减少无效节点扫描。
+以修改前实现为参考，对 KTH、Demo-D1 和自环/guard 小图比较全部节点、边、
+属性与初始集合；另对三组真实 `ltl2ba` 公式比较 Büchi 图及 guard 判定，均一致。
+这些检查证明本轮图构造等价，未测量端到端加速比。
+
+陷阱检测改为读取宿主当前提交的 planner，避免 `PlanLTL` 替换任务后继续使用旧图。
+相关三个包（planner core、planner、HIL）的 `colcon test` 通过，包括真实 Action
+重新规划后陷阱判定改变的 Launch 回归；未扩大到仿真或 benchmark。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照
@@ -641,9 +652,10 @@ ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。
 
 ## 13. 已知限制
 
-当前版本尚未完成以下 KTH ROS 1 功能的 ROS 2 等价迁移：
+当前版本的主要未完成项与限制：
 
 - `IRLPlugin` 尚未接入事务式 ROS 2 Planner contract；旧的原地 mutation 实现仅保留在 Git 历史中，不进入 canonical runtime；
+- 当前符号执行器按 planning generation 内的 Product 状态集与动作去重。接受环再次产生相同指纹时会停止派发；正式观测缺少执行步骤序号，循环执行修复仍待接口契约升级。静态 prefix–suffix 规划成功不能作为持续循环执行已完成的证据；
 - Ubuntu 24.04 / ROS 2 Jazzy 独立验证；
 
 此外，使用 Fast DDS 时可能出现共享内存端口警告：

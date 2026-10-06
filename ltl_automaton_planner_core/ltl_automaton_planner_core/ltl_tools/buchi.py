@@ -136,56 +136,44 @@ def duo_buchi_from_ltls(hard_spec, soft_spec):
     duo_buchi.graph["initial"] = initial_states
 
     for source_node in duo_buchi.nodes:
-        for target_node in duo_buchi.nodes:
-            source_hard, source_soft, source_level = check_duo_attributes(
-                duo_buchi,
-                source_node,
+        source_hard, source_soft, source_level = check_duo_attributes(
+            duo_buchi,
+            source_node,
+        )
+
+        if source_level == 1:
+            target_level = (
+                2
+                if source_hard in hard_buchi.graph["accept"]
+                else 1
             )
-            target_hard, target_soft, target_level = check_duo_attributes(
-                duo_buchi,
-                target_node,
+        else:
+            target_level = (
+                1
+                if source_soft in soft_buchi.graph["accept"]
+                else 2
             )
 
-            if (
-                target_hard not in hard_buchi.neighbors(source_hard)
-                or target_soft not in soft_buchi.neighbors(source_soft)
-            ):
-                continue
+        hard_successors = tuple(hard_buchi.successors(source_hard))
+        soft_successors = tuple(soft_buchi.successors(source_soft))
 
+        for target_hard in hard_successors:
             hard_guard = hard_buchi.edges[
                 source_hard,
                 target_hard,
             ]["guard"]
 
-            soft_guard = soft_buchi.edges[
-                source_soft,
-                target_soft,
-            ]["guard"]
+            for target_soft in soft_successors:
+                target_node = (
+                    target_hard,
+                    target_soft,
+                    target_level,
+                )
+                soft_guard = soft_buchi.edges[
+                    source_soft,
+                    target_soft,
+                ]["guard"]
 
-            valid_level_transition = (
-                (
-                    source_hard not in hard_buchi.graph["accept"]
-                    and source_level == 1
-                    and target_level == 1
-                )
-                or (
-                    source_hard in hard_buchi.graph["accept"]
-                    and source_level == 1
-                    and target_level == 2
-                )
-                or (
-                    source_soft not in soft_buchi.graph["accept"]
-                    and source_level == 2
-                    and target_level == 2
-                )
-                or (
-                    source_soft in soft_buchi.graph["accept"]
-                    and source_level == 2
-                    and target_level == 1
-                )
-            )
-
-            if valid_level_transition:
                 duo_buchi.add_edge(
                     source_node,
                     target_node,

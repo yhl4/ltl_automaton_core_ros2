@@ -16,6 +16,12 @@ latest current-authority observation and retries discovery. A newer observation
 replaces the pending one. Only the current accepted snapshot is cached, and
 dispatch deduplication records are cleared when planning authority advances.
 
+Within one generation, dispatch is deduplicated by Product state set and action.
+An accepting cycle that revisits the same fingerprint stops dispatching at that
+point. The V0.1 observation has no execution-step sequence to distinguish a
+retransmission from a new visit; continuous cyclic execution remains unresolved.
+Planning an accepted prefix/suffix alone does not verify continuous execution.
+
 An `ExecutionBackend` receives an `ExecutionStep` containing an action and exact
 symbolic source/target states. It completes asynchronously with an
 `ExecutionCompletion` containing only execution success and a message. Backend

@@ -169,6 +169,11 @@ V0.1 does not provide:
 - runtime transition-system replacement while `ACTIVE`;
 - queued or concurrent planning goals.
 
+Execution observations also lack a step sequence within a generation. Consumers
+cannot reliably distinguish a repeated publication from a later cycle visit
+with the same Product state set and action. The current symbolic executor
+deduplicates that fingerprint, so continuous cyclic execution is not supported.
+
 These are contract limitations, not indications that a request is malfunctioning.
 
 ## Compatibility

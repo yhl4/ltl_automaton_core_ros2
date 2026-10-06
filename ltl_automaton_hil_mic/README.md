@@ -44,6 +44,11 @@ plugins:
     args: {}
 ```
 
+Trap diagnosis reads the host's currently committed planner, so a successful
+`PlanLTL` replacement immediately changes the graph used by the existing
+service. An uncommitted candidate is never used; without an active planner,
+the service returns `is_connected=false` and `is_trap=false`.
+
 The legacy `IRLPlugin` is intentionally excluded from the canonical ROS 2
 runtime. It directly mutated the active planner in its ROS 1 form and remains
 deferred until candidate isolation, single-writer ownership, freshness, and

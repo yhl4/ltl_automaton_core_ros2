@@ -135,3 +135,25 @@ def test_trap_service_rejects_malformed_dimensions():
     assert response.is_connected is False
     assert response.is_trap is False
     assert node.logger.warnings
+
+
+def test_trap_diagnosis_uses_replacement_planner_authority():
+    """Read the active planner after PlanLTL replaces its planner object."""
+    plugin, node = _plugin()
+    before = plugin.trap_check_callback(_request("r_safe"), TrapCheck.Response())
+    assert not before.is_trap
+    replacement = FakeProduct()
+    replacement.remove_edge("safe", "accept")
+    node.ltl_planner = SimpleNamespace(product=replacement)
+    after = plugin.trap_check_callback(_request("r_safe"), TrapCheck.Response())
+    assert after.is_connected
+    assert after.is_trap
+
+
+def test_trap_diagnosis_has_no_authority_without_active_planner():
+    """Return a disconnected result while no committed planner exists."""
+    plugin, node = _plugin()
+    node.ltl_planner = None
+    response = plugin.trap_check_callback(_request("r_safe"), TrapCheck.Response())
+    assert not response.is_connected
+    assert not response.is_trap
