@@ -3,9 +3,10 @@
 import logging
 import time
 from collections import defaultdict
+from collections import deque
 
-from networkx import multi_source_dijkstra
-from networkx import single_source_dijkstra
+from networkx import multi_source_dijkstra_path_length
+from networkx import single_source_dijkstra_path_length
 
 from .product import ProdAut_Run
 
@@ -31,7 +32,7 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         _LOGGER.error("No accepting run found in NetworkX Dijkstra planning.")
         return None, None
 
-    prefix_dist, prefix_paths = multi_source_dijkstra(
+    prefix_dist = multi_source_dijkstra_path_length(
         product,
         sources=init_set,
         weight="weight",
@@ -43,17 +44,21 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
             continue
 
         cycle_costs: dict[object, float] = {}
-        loop_dist, loop_paths = single_source_dijkstra(
+        loop_dist = single_source_dijkstra_path_length(
             product,
             prod_target,
             weight="weight",
         )
 
         for target_pred in product.predecessors(prod_target):
-            if target_pred in loop_dist:
+            edge_weight = product.edges[target_pred, prod_target].get(
+                "weight",
+                1,
+            )
+            if target_pred in loop_dist and edge_weight is not None:
                 cycle_costs[target_pred] = (
                     loop_dist[target_pred]
-                    + product.edges[target_pred, prod_target]["weight"]
+                    + edge_weight
                 )
 
         if not cycle_costs:
@@ -63,15 +68,20 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
             cycle_costs,
             key=lambda node: cycle_costs[node],
         )
-        prefix = prefix_paths[prod_target]
         prefix_cost = prefix_dist[prod_target]
         suffix_cost = cycle_costs[optimal_predecessor]
-        suffix = loop_paths[optimal_predecessor]
-        candidate = (prefix, prefix_cost, suffix, suffix_cost)
+        candidate = (
+            prod_target,
+            optimal_predecessor,
+            prefix_cost,
+            suffix_cost,
+            loop_dist,
+        )
         if (
             best_plan is None
-            or prefix_cost + gamma * suffix_cost
-            < best_plan[1] + gamma * best_plan[3]
+            or prefix_cost + gamma * suffix_cost < (
+                best_plan[2] + gamma * best_plan[3]
+            )
         ):
             best_plan = candidate
 
@@ -81,7 +91,25 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         )
         return None, None
 
-    prefix, prefix_cost, suffix, suffix_cost = best_plan
+    (
+        prod_target,
+        optimal_predecessor,
+        prefix_cost,
+        suffix_cost,
+        loop_dist,
+    ) = best_plan
+    prefix = _restore_tight_path(
+        product,
+        prefix_dist,
+        init_set,
+        prod_target,
+    )
+    suffix = _restore_tight_path(
+        product,
+        loop_dist,
+        {prod_target},
+        optimal_predecessor,
+    )
     total_cost = prefix_cost + gamma * suffix_cost
 
     run = ProdAut_Run(
@@ -102,6 +130,57 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         suffix_cost,
     )
     return run, elapsed
+
+
+def _restore_tight_path(product, distances, sources, target):
+    """Recover one finite shortest path from a distance-only result."""
+    if target not in distances:
+        raise RuntimeError(
+            "Cannot recover a shortest path to a finite-distance target."
+        )
+
+    source_set = set(sources)
+    parent = {
+        source: None
+        for source in source_set
+        if source in distances
+    }
+    queue = deque(parent)
+
+    while queue:
+        current = queue.popleft()
+        if current == target:
+            break
+        current_distance = distances[current]
+        for successor in product.successors(current):
+            if successor in parent:
+                continue
+            edge_weight = product.edges[current, successor].get(
+                "weight",
+                1,
+            )
+            if edge_weight is None:
+                continue
+            if (
+                current_distance + edge_weight
+                != distances.get(successor)
+            ):
+                continue
+            parent[successor] = current
+            queue.append(successor)
+
+    if target not in parent:
+        raise RuntimeError(
+            "Cannot recover a tight shortest path to the selected target."
+        )
+
+    path = []
+    node = target
+    while node is not None:
+        path.append(node)
+        node = parent[node]
+    path.reverse()
+    return path
 
 
 def dijkstra_plan_optimal(product, gamma=10, start_set=None):

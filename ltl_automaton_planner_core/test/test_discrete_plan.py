@@ -134,7 +134,12 @@ def make_weighted_product(edges, initial="s0", accepting="s1"):
     """Build a one-state Büchi product for hand-computed cycle costs."""
     ts = DiGraph(initial={initial})
     for source, target, cost in edges:
-        ts.add_edge(source, target, weight=cost, action=f"{source}_to_{target}")
+        ts.add_edge(
+            source,
+            target,
+            weight=cost,
+            action=f"{source}_to_{target}",
+        )
     for state in ts:
         ts.nodes[state]["label"] = set()
     buchi = DiGraph(type="hard_buchi", initial={"q0"}, accept={"q0"})
@@ -177,8 +182,21 @@ def test_zero_cost_accepting_self_loop():
     assert run.suffix == [("s1", "q0")]
 
 
+def test_float_shortest_path_recovery_uses_exact_distances():
+    """Recover the strict Dijkstra path for 0.1 + 0.2 versus 0.3."""
+    product = make_weighted_product([
+        ("s0", "via", 0.1), ("via", "goal", 0.2),
+        ("s0", "goal", 0.3), ("goal", "goal", 1.0),
+    ], accepting="goal")
+    run, _ = dijkstra_plan_networkX(product)
+
+    assert run is not None
+    assert run.precost == 0.3
+    assert run.prefix == [("s0", "q0"), ("goal", "q0")]
+
+
 def test_accepting_dead_end_is_excluded_from_cycle_search(monkeypatch):
-    """Ignore a cheaper accepting dead end that only reaches a nonaccepting cycle."""
+    """Ignore an accepting dead end with no accepting cycle."""
     product = make_weighted_product([
         ("s0", "s1", 3), ("s1", "s1", 1),
         ("s0", "dead", 0), ("dead", "sink", 0), ("sink", "sink", 0),
@@ -186,13 +204,17 @@ def test_accepting_dead_end_is_excluded_from_cycle_search(monkeypatch):
     product.graph["accept"].add(("dead", "q0"))
     product.build_accept_with_cycle()
     searched_sources = []
-    original_search = discrete_plan.single_source_dijkstra
+    original_search = discrete_plan.single_source_dijkstra_path_length
 
     def record_search(graph, source, **kwargs):
         searched_sources.append(source)
         return original_search(graph, source, **kwargs)
 
-    monkeypatch.setattr(discrete_plan, "single_source_dijkstra", record_search)
+    monkeypatch.setattr(
+        discrete_plan,
+        "single_source_dijkstra_path_length",
+        record_search,
+    )
     run, _ = dijkstra_plan_networkX(product, gamma=10)
     assert (run.precost, run.sufcost, run.totalcost) == (3, 1, 13)
     assert ("dead", "q0") not in searched_sources
@@ -203,10 +225,20 @@ def test_no_accepting_cycle_returns_without_shortest_path_search(monkeypatch):
     product = make_weighted_product([("s0", "s1", 1)])
 
     def unexpected_search(*args, **kwargs):
-        raise AssertionError("A graph without an accepting cycle needs no path search.")
+        raise AssertionError(
+            "A graph without an accepting cycle needs no path search."
+        )
 
-    monkeypatch.setattr(discrete_plan, "single_source_dijkstra", unexpected_search)
-    monkeypatch.setattr(discrete_plan, "multi_source_dijkstra", unexpected_search)
+    monkeypatch.setattr(
+        discrete_plan,
+        "single_source_dijkstra_path_length",
+        unexpected_search,
+    )
+    monkeypatch.setattr(
+        discrete_plan,
+        "multi_source_dijkstra_path_length",
+        unexpected_search,
+    )
     assert dijkstra_plan_networkX(product) == (None, None)
 
 
@@ -239,8 +271,8 @@ def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
     }
     multi_calls = []
     suffix_sources = []
-    original_multi = discrete_plan.multi_source_dijkstra
-    original_single = discrete_plan.single_source_dijkstra
+    original_multi = discrete_plan.multi_source_dijkstra_path_length
+    original_single = discrete_plan.single_source_dijkstra_path_length
 
     def record_multi(graph, sources, **kwargs):
         multi_calls.append(set(sources))
@@ -250,8 +282,16 @@ def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
         suffix_sources.append(source)
         return original_single(graph, source, **kwargs)
 
-    monkeypatch.setattr(discrete_plan, "multi_source_dijkstra", record_multi)
-    monkeypatch.setattr(discrete_plan, "single_source_dijkstra", record_single)
+    monkeypatch.setattr(
+        discrete_plan,
+        "multi_source_dijkstra_path_length",
+        record_multi,
+    )
+    monkeypatch.setattr(
+        discrete_plan,
+        "single_source_dijkstra_path_length",
+        record_single,
+    )
     run, _ = dijkstra_plan_networkX(product, gamma=10)
 
     assert run is not None
@@ -262,8 +302,8 @@ def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
     assert suffix_sources == [("goal", "q0")]
 
 
-def test_networkx_dijkstra_skips_unreachable_accepting_cycle_suffix(monkeypatch):
-    """Do not run suffix search for an accepting cycle unreachable from starts."""
+def test_networkx_dijkstra_skips_unreachable_suffix(monkeypatch):
+    """Skip suffix search for accepting cycles unreachable from starts."""
     product = make_weighted_product([
         ("s0", "goal", 1), ("goal", "goal", 1),
         ("dead", "dead", 0),
@@ -271,13 +311,17 @@ def test_networkx_dijkstra_skips_unreachable_accepting_cycle_suffix(monkeypatch)
     product.graph["accept"].add(("dead", "q0"))
     product.build_accept_with_cycle()
     suffix_sources = []
-    original_single = discrete_plan.single_source_dijkstra
+    original_single = discrete_plan.single_source_dijkstra_path_length
 
     def record_single(graph, source, **kwargs):
         suffix_sources.append(source)
         return original_single(graph, source, **kwargs)
 
-    monkeypatch.setattr(discrete_plan, "single_source_dijkstra", record_single)
+    monkeypatch.setattr(
+        discrete_plan,
+        "single_source_dijkstra_path_length",
+        record_single,
+    )
     run, _ = dijkstra_plan_networkX(product)
 
     assert run is not None
@@ -285,7 +329,7 @@ def test_networkx_dijkstra_skips_unreachable_accepting_cycle_suffix(monkeypatch)
 
 
 def test_networkx_dijkstra_zero_cost_multi_source_prefix_is_finite():
-    """Keep a finite zero-cost cycle and begin the prefix at its explicit start."""
+    """Keep a finite zero-cost prefix from an explicit start."""
     product = make_weighted_product([
         ("i1", "goal", 0), ("goal", "i1", 0),
         ("i2", "goal", 0),
