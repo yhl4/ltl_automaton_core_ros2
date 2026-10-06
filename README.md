@@ -696,15 +696,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为混合大小写命题名解析。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 core 与 planner：247 tests、0 errors、0 failures、2 skipped，
-含四项新增检查、既有真实 translator/ROS 2 通信与 lint。
-小写字母开头的 `cargoReady1` 等名称在 guard 与命题元数据中完整保留。
-真实 Action 的手算代价为 23；仅大小写不同的缺失命题返回无接受计划，
-保留原 planner、generation 与完整快照。guard truth/distance、接受性与代价
-规则保持不变，README 和 API 文档说明名称范围及大小写敏感性。
-结合其他未改包保留结果，合计
-**504 tests, 0 errors, 0 failures, 4 skipped**。
+最近代码验证为守卫 token 队列消费。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，仅重跑受影响 core：141 tests、0 errors、0 failures、1 skipped，
+含三项新增语义保持检查、既有真实 translator 与 lint。
+新旧源码对照 10 个有效与 10 个错误守卫：AST/NNF、truth/distance、消费顺序
+及诊断一致。256 命题的 AND/OR 守卫各消费 511 个 token，消除原列表的
+130,305 次剩余元素搬移；此操作计数不作为端到端加速测量，递归深度限制未变。
+结合 planner 等未改包保留结果，合计
+**507 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

@@ -1,5 +1,7 @@
-from .lexer import get_lexer
 import itertools
+from collections import deque
+
+from .lexer import get_lexer
 
 
 class Expression(object):
@@ -203,7 +205,7 @@ class Parser(object):
         lexer = get_lexer()
         lexer.input(formula)
         self.formula = formula
-        self.tokens = list(lexer)
+        self.tokens = deque(lexer)
 
     def symbols(self):
         syms = list()
@@ -225,11 +227,11 @@ class Parser(object):
         if len(self.tokens) == 0 or self.tokens[0].type == "RPAREN":
             return lhs
         elif self.tokens[0].type == "OR":
-            self.tokens.pop(0)
+            self.tokens.popleft()
             rhs = self.andx()
             lhs = ORExpression(lhs, rhs)
             while len(self.tokens) > 0 and self.tokens[0].type == "OR":
-                self.tokens.pop(0)
+                self.tokens.popleft()
                 rhs = self.andx()
                 lhs = ORExpression(lhs, rhs)
             return lhs
@@ -241,11 +243,11 @@ class Parser(object):
         if len(self.tokens) == 0 or self.tokens[0].type in ["OR", "RPAREN"]:
             return lhs
         elif self.tokens[0].type == "AND":
-            self.tokens.pop(0)
+            self.tokens.popleft()
             rhs = self.notx()
             lhs = ANDExpression(lhs, rhs)
             while len(self.tokens) > 0 and self.tokens[0].type == "AND":
-                self.tokens.pop(0)
+                self.tokens.popleft()
                 rhs = self.notx()
                 lhs = ANDExpression(lhs, rhs)
             return lhs
@@ -256,7 +258,7 @@ class Parser(object):
         if not self.tokens:
             raise ValueError("Expected a guard operand.")
         if self.tokens[0].type == "NOT":
-            self.tokens.pop(0)
+            self.tokens.popleft()
             return NotExpression(self.notx())
         else:
             return self.parx()
@@ -265,17 +267,17 @@ class Parser(object):
         if not self.tokens:
             raise ValueError("Expected a guard operand.")
         if self.tokens[0].type == "LPAREN":
-            self.tokens.pop(0)
+            self.tokens.popleft()
             expr = self.orx()
             if not self.tokens or self.tokens[0].type != "RPAREN":
                 raise ValueError("Expected a closing guard parenthesis.")
-            self.tokens.pop(0)
+            self.tokens.popleft()
         elif self.tokens[0].type == "SYMBOL":
             expr = SymbolExpression(self.tokens[0].value)
-            self.tokens.pop(0)
+            self.tokens.popleft()
         elif self.tokens[0].type == "TRUE":
             expr = TrueExpression()
-            self.tokens.pop(0)
+            self.tokens.popleft()
         else:
             raise ValueError("Expected LPAREN or SYMBOL but got %s" % self.tokens[0])
         return expr

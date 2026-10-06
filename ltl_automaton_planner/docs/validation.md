@@ -850,3 +850,28 @@ ERROR_NO_ACCEPTING_PLAN，原 planner 对象、generation、ACTIVE 状态和完�
 结合其它未改包保留结果，合计 **504 tests, 0 errors, 0 failures, 4 skipped**，
 并非本轮重跑全部包。未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.39 守卫 token 队列消费（2026-10-06）
+
+以 `b845369` 为基线，Boolean Parser 原先通过 `list.pop(0)` 消费 token，
+每次搬移剩余元素。现在内部 token 集合使用 `collections.deque`，全部
+消费位置改用 `popleft()`。首项查看与剩余符号查询仍保持原顺序，语法、
+左结合构树、NNF、formula、truth/distance 及诊断不变。仓内没有调用方
+依赖内部 tokens 的 list 专有操作；本次不修改递归算法或其深度限制。
+
+三项新增检查在实际旧提交与新实现均通过，不作为 RED 错误证据。一项用
+手算 NNF 检查四个命题的全部 16 个标签组合、优先级及解析前后 symbols；
+另外两项检查 256 命题 AND/OR 的有序 AST、真值、距离与完整消费。
+
+外部临时 probe 加载实际旧源码与当前源码，以计数型 list/deque 记录真实
+解析方法的消费。10 个有效和 10 个错误守卫的新旧 AST/NNF、formula、
+truth/distance、精确错误信息、token 类型/值/行号/位置消费序列、剩余
+token 和 symbols 一致。256 命题 AND 与 OR 各消费 511 个 token，剩余
+元素搬移数各由 130,305 降为 0；未测端到端耗时、吞吐、RSS 或深层守卫容量。
+
+仅重跑受影响 core：**141 tests / 1 skipped**，**140 passed**，
+**0 errors / 0 failures**，含真实 translator、图构造、代价/接受性、IRL
+与 lint；Boolean 文件 **13 passed**，跳过项为原有版权头检查。结合
+planner 等其它未改包保留结果，合计
+**507 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+未进行本轮 ROS 通信重跑、物理仿真、实机或 Jazzy 独立验证。
+
