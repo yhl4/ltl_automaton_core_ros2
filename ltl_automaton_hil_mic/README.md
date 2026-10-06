@@ -148,6 +148,11 @@ All distinct history paths remain in the run set. This lookup is local to one
 update, so the next update reads changed Product edges; buffer limits and
 learning triggers retain their existing behavior.
 
+Diagnostic run publication reuses flattened TS values within one publication.
+Every state's `states` field still receives a separate list; the ordered runs,
+dimension names and Buchi fields retain their existing payloads. The next
+publication rebuilds the conversion lookup.
+
 The learner follows the legacy ROS 2 port's margin heuristic:
 
 - select the demonstrated path with the least adjacent-edge soft distance;

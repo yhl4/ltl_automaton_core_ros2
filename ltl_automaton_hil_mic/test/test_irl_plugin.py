@@ -128,6 +128,35 @@ def _fake_plugin(buffer_size=100):
 class TestIRLPluginFakeHost(unittest.TestCase):
     """Exercise plugin lifecycle rules without a planner process."""
 
+    def test_shared_composed_ts_values_keep_independent_published_lists(self):
+        """Preserve ordered two-dimensional payloads and separate ROS state lists."""
+        plugin, _, planner = _fake_plugin()
+        planner.product.graph["ts"].graph["ts_state_format"] = [["region"], ["load"]]
+        ts_state = (("hub",), ("empty",))
+        first, second = (ts_state, "q0"), (ts_state, "q1")
+        plugin.possible_runs = {(first, first), (first, second), (second, second)}
+        histories = set(plugin.possible_runs)
+        plugin.publish_possible_runs()
+        message = plugin.publisher.messages[-1]
+        self.assertEqual(
+            [[state.buchi_state for state in run.ltl_states] for run in message.runs],
+            [["q0", "q0"], ["q0", "q1"], ["q1", "q1"]],
+        )
+        states = [state for run in message.runs for state in run.ltl_states]
+        for state in states:
+            self.assertEqual(state.ts_state.states, ["hub", "empty"])
+            self.assertEqual(state.ts_state.state_dimension_names, ["region", "load"])
+        self.assertEqual(len({id(state.ts_state.states) for state in states}), len(states))
+        states[0].ts_state.states.append("caller_change")
+        for state in states[1:]:
+            self.assertEqual(state.ts_state.states, ["hub", "empty"])
+        self.assertEqual(plugin.possible_runs, histories)
+        plugin.publish_possible_runs()
+        self.assertTrue(all(
+            state.ts_state.states == ["hub", "empty"]
+            for run in plugin.publisher.messages[-1].runs for state in run.ltl_states
+        ))
+
     def test_converged_histories_keep_all_paths_and_read_changed_successors(self):
         """Keep distinct histories through a shared endpoint and fresh graph reads."""
         plugin, _, planner = _fake_plugin()

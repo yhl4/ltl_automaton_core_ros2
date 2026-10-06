@@ -137,11 +137,15 @@ class IRLPlugin:
             self.ltl_planner.product.graph["ts"].graph["ts_state_format"],
         )
         message = LTLStateRuns()
+        ts_value_cache = {}
         for run in sorted(self.possible_runs, key=repr):
             run_message = LTLStateArray()
             for product_state in run:
                 state = LTLState()
-                state.ts_state.states = _state_values(product_state[0])
+                ts_state = product_state[0]
+                if ts_state not in ts_value_cache:
+                    ts_value_cache[ts_state] = tuple(_state_values(ts_state))
+                state.ts_state.states = list(ts_value_cache[ts_state])
                 state.ts_state.state_dimension_names = dimensions
                 state.buchi_state = str(product_state[1])
                 run_message.ltl_states.append(state)
