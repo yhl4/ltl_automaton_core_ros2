@@ -80,6 +80,11 @@ Backend completion is not state truth and never publishes `/ts_state`.
 A dispatch exception is reported as a backend failure and releases the busy
 state. It does not fabricate observed state or automatically retry that command.
 
+If the fake backend's asynchronous plant update or observation delivery raises,
+it reports a failed completion before re-raising the error. The manager releases
+its busy state; an already applied plant update is preserved. The same command
+is not automatically retried, and failed delivery does not fabricate TS feedback.
+
 A generic `StateObserver[T]` reports raw plant, simulator, or robot observations
 independently of command execution. A matching `StateAbstraction[T]` converts a
 safe observation to ordered `SymbolicState`; only that pipeline may publish

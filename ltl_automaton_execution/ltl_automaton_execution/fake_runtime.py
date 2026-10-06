@@ -64,9 +64,16 @@ class FakeBackend:
         self._delay = delay
 
     def execute(self, step, completion):
-        """Schedule success without blocking the caller."""
+        """Schedule a plant update and report its completion without blocking."""
         def finish():
-            self._plant.set_state(step.target_state)
+            try:
+                self._plant.set_state(step.target_state)
+            except Exception as error:
+                completion(ExecutionCompletion(
+                    False,
+                    f"Fake execution state update failed: {error}",
+                ))
+                raise
             completion(ExecutionCompletion(
                 True,
                 f"Fake execution completed action {step.action}.",

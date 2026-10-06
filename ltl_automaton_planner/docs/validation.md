@@ -431,3 +431,26 @@ timer 数量从 4 回到 1，销毁后 Node timer 与执行 timer 集合均为 0
 **437 tests, 0 errors, 0 failures, 4 skipped**。
 timer 数量检查不构成 RSS 或性能测量；未进行物理仿真、实机或多线程执行器验证。
 
+### 11.23 fake 异步反馈异常后的忙碌状态（2026-10-06）
+
+以 `1cf767c` 为基线，注入一个抛异常的 plant listener 后，异步步骤已经将
+plant 从 `r1` 改为 `r2`，但没有调用 completion，manager 一直保持
+`in_flight=True`，下一序号被判为 busy。通过真实 ROS timer 和受控 TS publisher
+复现相同故障：timer 已释放，执行器仍忙碌。新增三个回归均在基线上失败；
+原有两项选中的故障检查通过。
+
+`FakeBackend` 仅在异步 `plant.set_state` 抛普通 `Exception` 时先报告一次失败
+completion，再重新抛出原错误，manager 因而释放忙碌状态并记录失败原因。
+已发生的 plant 更新保留，未成功交付的 TS 反馈不补造；不修改 listener fanout、
+执行身份、去重或观察管线。相同序号不自动重派；调用方处理异常、恢复观察端并
+接收新的有效步骤后可以继续派发。异常仍从 executor 抛出，本轮不增加顶层自动恢复。
+
+两个定向测试文件共 **41 passed**，含新增三项：一次失败 completion 与原错误、
+实际 plant 状态保留、manager 释放、旧步骤去重和新步骤执行；真实 Node 检查还
+验证 timer 资源已释放。故障 publisher 和快照 Future 为受控 fixture，并非真实
+DDS 网络故障测量。
+仅重跑受影响的执行包，含原有四项真实 DDS 符号执行闭环、快照恢复与 lint：
+**94 tests, 0 errors, 0 failures, 0 skipped**。与其他包保留结果合计
+**440 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或多线程执行器验证。
+

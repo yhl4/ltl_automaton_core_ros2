@@ -71,6 +71,43 @@ def test_callback_failure_still_releases_timer_and_propagates(timer_runtime):
     assert len(tuple(runtime.node.timers)) == baseline
 
 
+def test_fake_feedback_publish_failure_releases_dispatch_and_timer(timer_runtime):
+    """Keep publication errors visible and allow a later observed step to run."""
+    runtime = timer_runtime
+    client = DelayedSnapshotClient()
+    runtime.node._snapshot_client = client
+    publisher = runtime.node._state_publisher
+    diagnostics = []
+    runtime.node._manager._diagnostic = diagnostics.append
+
+    def fail(_message):
+        raise RuntimeError("Injected TS feedback publication failure.")
+
+    runtime.node._state_publisher = SimpleNamespace(publish=fail)
+    baseline = len(tuple(runtime.node.timers))
+    first = _observation(1)
+    runtime.node._on_observation(first)
+    client.future.set_result(_successful_response())
+    assert runtime.node._manager.in_flight
+    with pytest.raises(RuntimeError, match="Injected TS feedback publication failure"):
+        _spin_until(runtime.executor, lambda: not runtime.node._manager.in_flight)
+    assert not runtime.node._manager.in_flight
+    assert not runtime.node._execution_timers
+    assert len(tuple(runtime.node.timers)) == baseline
+    assert runtime.plant.current_state.states == ("r2", "empty")
+    assert "Injected TS feedback publication failure" in diagnostics[-1]
+    runtime.node._on_observation(first)
+    assert not runtime.node._execution_timers
+    runtime.node._state_publisher = publisher
+    latest = _observation(1, sequence=1)
+    latest.possible_product_node_ids = [2]
+    latest.next_action = "wait"
+    runtime.node._on_observation(latest)
+    assert runtime.node._manager.in_flight
+    assert _spin_until(runtime.executor, lambda: not runtime.node._manager.in_flight)
+    assert len(tuple(runtime.node.timers)) == baseline
+
+
 def test_teardown_clears_pending_steps_and_ignores_queued_callback(timer_runtime):
     """A cancelled fake step cannot later mutate the plant through its callback."""
     runtime = timer_runtime

@@ -103,6 +103,60 @@ def test_fake_backend_rejects_invalid_delay_before_scheduling(delay):
     assert scheduler.calls == []
 
 
+def test_fake_observer_failure_reports_completion_without_rolling_back_truth():
+    """Preserve an observer error and the actual plant update, but report failure."""
+    plant = FakePlant(_state("r1"))
+    scheduler = ManualScheduler()
+    completions = []
+    observed = []
+
+    def fail(observation):
+        observed.append(observation)
+        raise RuntimeError("Injected observation delivery failure.")
+
+    plant.add_listener(fail)
+    assert FakeBackend(plant, scheduler).execute(_step(), completions.append)
+    with pytest.raises(RuntimeError, match="Injected observation delivery failure"):
+        scheduler.calls[0][1]()
+    assert plant.current_state == _state("r2")
+    assert observed == [FakePlantObservation(_state("r2"))]
+    assert len(completions) == 1
+    assert not completions[0].success
+    assert "Injected observation delivery failure" in completions[0].message
+
+
+def test_fake_observer_failure_releases_manager_for_new_authority_step():
+    """An asynchronous observation error must not leave dispatch permanently busy."""
+    plant = FakePlant(_state("r1"))
+    scheduler = ManualScheduler()
+    diagnostics = []
+
+    def fail(_observation):
+        raise RuntimeError("Injected observation delivery failure.")
+
+    plant.add_listener(fail)
+    manager = ExecutionManager(
+        AcceptedRunResolver(), FakeBackend(plant, scheduler), diagnostics.append,
+    )
+    first = _observation()
+    assert manager.observe_authority(first)
+    assert manager.dispatch(first, _snapshot())
+    with pytest.raises(RuntimeError, match="Injected observation delivery failure"):
+        scheduler.calls[0][1]()
+    assert not manager.in_flight
+    assert "Injected observation delivery failure" in diagnostics[-1]
+    assert plant.current_state == _state("r2")
+    assert not manager.dispatch(first, _snapshot())
+    assert len(scheduler.calls) == 1
+    plant.remove_listener(fail)
+    latest = ExecutionObservation("planner-a", 1, 1, (2,), True, "wait")
+    assert manager.observe_authority(latest)
+    assert manager.dispatch(latest, _snapshot())
+    scheduler.calls[1][1]()
+    assert not manager.in_flight
+    assert plant.current_state == _state("r2")
+
+
 def test_a3_fake_state_observer_emits_exactly_once_per_plant_update():
     plant = FakePlant()
     observations = []
