@@ -183,6 +183,11 @@ generation at execution sequence zero; failure or a stale result preserves the
 active beta and plan. Deferred recovery from unexpected feedback may separately
 replace the old plan using its existing beta.
 
+Before an IRL candidate can commit, its prefix, suffix and total costs must
+convert to finite float64 values. Computed overflow fails the transaction
+internally and preserves the active authority, without clamping the learned
+beta or changing the learning rules.
+
 Startup ROS parameters are not rewritten by learning. The committed graph
 contains canonical weights `transition_cost + beta * soft_task_dist`, without
 the temporary learning margin, and the commit log reports the learned beta.

@@ -131,6 +131,25 @@ def serialize_planning_graph(planner, active_ts_sha256: str):
         )
 
 
+def _validate_candidate_run_costs(run):
+    """Reject a candidate run whose public costs are not finite."""
+    for attribute, field_name in (
+        ("precost", "prefix_cost"),
+        ("sufcost", "suffix_cost"),
+        ("totalcost", "total_cost"),
+    ):
+        try:
+            value = float(getattr(run, attribute))
+        except (TypeError, ValueError, OverflowError) as error:
+            raise ValueError(
+                f"Computed plan {field_name} must be finite."
+            ) from error
+        if not isfinite(value):
+            raise ValueError(
+                f"Computed plan {field_name} must be finite."
+            )
+
+
 def transition_state_mapping(state_message) -> dict[str, str]:
     """Convert a TS-state message into a validated dimension mapping."""
     states = list(state_message.states)
@@ -262,6 +281,14 @@ def compute_candidate_plan(request: PlanningRequest) -> PlanningOutcome:
             "No accepting LTL plan was found.",
         )
 
+    try:
+        _validate_candidate_run_costs(planner.run)
+    except ValueError as error:
+        return PlanningOutcome(
+            PlanLTL.Result.ERROR_INTERNAL,
+            str(error),
+        )
+
     planner.curr_ts_state = request.initial_state
     planning_graph = serialize_planning_graph(
         planner,
@@ -305,6 +332,7 @@ def compute_irl_candidate(request: IRLPlanningRequest) -> PlanningOutcome:
                 PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN,
                 "IRL replanning found no accepting executable run.",
             )
+        _validate_candidate_run_costs(candidate.run)
         candidate.curr_ts_state = request.planning.initial_state
         return PlanningOutcome(
             PlanLTL.Result.ERROR_NONE,

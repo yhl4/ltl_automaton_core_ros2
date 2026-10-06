@@ -1,6 +1,7 @@
 """Integration tests for the transactional PlanLTL action wrapper."""
 
 import hashlib
+from math import isfinite
 import os
 from threading import Event
 import time
@@ -336,6 +337,50 @@ def test_ready_action_success_returns_plan_and_activates(action_runtime):
     assert result.total_cost > 0.0
     assert result.planning_time >= 0.0
     assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+
+
+@pytest.mark.parametrize(
+    "weight_name, soft_task, cost_field",
+    [
+        ("gamma", "(r2 || ! r2)", "total_cost"),
+        ("beta", "(missing1 && missing2)", "prefix_cost"),
+    ],
+)
+def test_computed_cost_overflow_aborts_and_preserves_active_plan(
+    action_runtime, weight_name, soft_task, cost_field,
+):
+    """Reject non-finite computed costs while accepting large finite results."""
+    activate(action_runtime)
+    node = action_runtime.planner
+    old = node.ltl_planner
+    generation = node._planning_generation
+    sequence = node._execution_step_seq
+    snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    goal = make_goal(soft_task=soft_task)
+    setattr(goal, weight_name, 1e308)
+    if weight_name == "beta":
+        goal.gamma = 0.0
+    handle = send_goal(action_runtime, goal)
+    assert handle.accepted
+    response = action_result(action_runtime, handle)
+
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert not response.result.success
+    assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
+    assert response.result.message == f"Computed plan {cost_field} must be finite."
+    assert node.ltl_planner is old
+    assert node._planning_generation == generation
+    assert node._execution_step_seq == sequence
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert get_planning_graph_snapshot(action_runtime).snapshot == snapshot
+
+    setattr(goal, weight_name, 1e307)
+    accepted = action_result(action_runtime, send_goal(action_runtime, goal))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED
+    assert accepted.result.success and isfinite(accepted.result.total_cost)
+    assert accepted.result.total_cost >= 1e307
+    assert node._planning_generation == generation + 1
+    assert get_planning_graph_snapshot(action_runtime).snapshot.metadata.available
 
 
 def test_mixed_case_native_action_keeps_names_cost_and_case_sensitive_authority(action_runtime):
@@ -1331,6 +1376,30 @@ def test_irl_learning_failure_preserves_live_planner(action_runtime, monkeypatch
     assert old.beta == beta
     assert dict(((u, v), data["weight"]) for u, v, data in old.product.edges(data=True)) == weights
     assert action_runtime.planner._execution_step_seq == 1
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+
+def test_irl_computed_cost_overflow_preserves_live_authority(action_runtime, monkeypatch):
+    """Reject an overflowing injected learned beta after real candidate replanning."""
+    activate(action_runtime, goal=make_goal(soft_task="(missing1 && missing2)"))
+    publish_state(action_runtime, "r2")
+    node = action_runtime.planner
+    assert spin_until(action_runtime, lambda: node._execution_step_seq == 1)
+    old = node.ltl_planner
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    old_beta = old.beta
+    weights = {(u, v): edge["weight"] for u, v, edge in old.product.edges(data=True)}
+    monkeypatch.setattr(planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=1e308))
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+
+    assert node.start_irl_replan(_current_teaching_loop(old), identity)
+    assert spin_until(action_runtime, lambda: node._planning_token is None)
+
+    assert node.ltl_planner is old and old.beta == old_beta
+    assert {(u, v): edge["weight"] for u, v, edge in old.product.edges(data=True)} == weights
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._execution_step_seq == 1
+    assert node._planning_generation == before.metadata.planning_generation
     assert get_planning_graph_snapshot(action_runtime).snapshot == before
 
 

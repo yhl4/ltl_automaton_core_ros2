@@ -1109,3 +1109,48 @@ ResolutionError 诊断及缓存状态一致。覆盖 prefix、closing suffix、
 执行闭环。源码 py_compile/ament_flake8、测试文件 ament_flake8/pep257、
 README/执行说明/文档链接、45 节历史正文保留及 diff 检查通过。本轮
 未重跑整包、物理仿真、实机或 Jazzy。
+
+### 11.47 ROS 事务候选代价溢出拒绝（2026-10-06）
+
+以 `3476a0a` 为基线，有限输入的数学代价可能在浮点乘法或路径累加中
+溢出。真实 translator 的只读 probe 复现原 worker 返回 ERROR_NONE，
+且可用快照含 (prefix=3, suffix=2, total=inf)；循环 TS 每条边 1e308、
+gamma=0 时得到 (inf, inf, nan)。现在 PlanLTL 和 IRL worker 在确认
+可执行接受运行之后、设置当前状态或序列化成功候选之前，按 prefix、
+suffix、total 顺序检查 float 转换与有限性。非有限值或转换错误返回
+ERROR_INTERNAL，精确说明首个无效字段；转换异常保留原 cause。
+
+检查只作用于 ROS 事务候选，未修改 Core Dijkstra、source-label、数学
+代价、示范选择、IRL 更新/步长/停止规则或普通快照转换失败的 fallback。
+不钳制计算结果或权重，不设置 β/γ 的额外有限上限；直接 Core/legacy
+路径和所有 Product 边的序列化数值检查没有在本轮扩展。
+
+三个新增真实 ROS Action/反馈/快照检查在实际旧提交均失败：γ=1e308
+导致 total=inf 的 PlanLTL 仍 SUCCEEDED；β=1e308、soft=(missing1 &&
+missing2)、gamma=0 导致 prefix=inf 的 PlanLTL 仍 SUCCEEDED；受控
+学习返回 beta=1e308 后的真实 IRL 重规划替换了活动 planner。修复后
+两个 Action 为 ABORTED/ERROR_INTERNAL，精确报告 total_cost 或
+prefix_cost；IRL 失败保留活动 planner、β 和源边权重。三个场景都保留
+generation、execution_step_seq、ACTIVE 状态与完整服务快照。PlanLTL
+随后将对应参数降为 1e307，有限结果正常提交并只增加一个 generation。
+IRL 场景注入 learned beta 来验证候选边界，不作为原算法的实测学习结果。
+
+外部临时 probe 加载实际旧/新 worker 源码，六组有限候选的完整 ROS
+快照和 Product ID 映射相同：gamma=0、普通参数、beta=2.5/gamma=3、
+gamma=1e307、beta=1e307/gamma=0、beta=1e308 且软距离为零。
+对应 (prefix,suffix,total) 为 (3,2,3)、(3,2,23)、(8,2,14)、
+(3,2,2e307)、(2e307,2,2e307)、(3,2,3)。三个原有非有限结果
+(3,2,inf)、(inf,2,inf)、(inf,inf,nan) 现在都返回内部失败，outcome
+不携带 planner、TS 或快照，未替换为其它路径或放宽接受条件。
+
+另有十八项 helper 检查覆盖三个成本字段的 ±inf、nan、10**400、None
+和非法字符串，精确诊断/转换 cause 及源属性保持通过。五组有限值
+（int、float、Fraction、Decimal、数值字符串）保持原对象，不原地转换。
+超大整数是 Python 内部字段检查，不声称通过 ROS float64 传输该整数。
+
+仅重跑 `test_plan_ltl_action.py` 和 `test_planner_node.py`，合计
+**63 passed**，其中 Action 文件含三个新增检查和既有真实 translator /
+ROS 2 事务、IRL 提交、快照及转换失败 fallback 检查。源码 py_compile /
+ament_flake8、测试文件 ament_flake8/pep257、README/API/HIL 说明、
+文档链接/46 节历史正文保留及 diff 检查通过。本轮没有重跑整包、物理
+仿真、实机或 Jazzy，不作为性能、收敛或机器人示范效果测量。

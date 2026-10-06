@@ -77,6 +77,14 @@ Translator startup failures, timeouts and termination by a signal return
 translator error exit retains `ERROR_INVALID_GOAL` and its captured diagnostic.
 These failures preserve the active plan when a replacement is attempted.
 
+After candidate search, prefix, suffix and total costs must convert to finite
+float64 values. Finite input weights can still overflow during multiplication
+or path accumulation; this computed-cost failure returns `ERROR_INTERNAL` before
+the PlanLTL or IRL transaction can commit, preserving the active authority.
+Diagnostics name the first invalid cost in prefix/suffix/total order. Large
+finite results remain accepted. This ROS candidate check does not clamp weights,
+change the Core objective, or change the ordinary snapshot-conversion fallback.
+
 ## Execution During Planning
 
 Planning uses transactional replacement semantics. When a new goal starts from
