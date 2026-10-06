@@ -661,6 +661,7 @@ colcon test-result --verbose
 - planning graph snapshot 与 execution observation 的 identity contract；
 - 快照状态值列表的独立性，以及图属性变化后再次转换的正确性；
 - 快照复制期间的新代际提交、响应代际一致性及防御性副本；
+- 接受运行的缺边/缺节点拒绝顺序，以及索引重建失败后保留原有效缓存；
 - FakeBackend/FakeStateObserver 执行闭环及真实 ROS 2 DDS 通信边界；
 - 快照服务延迟发现后的命令恢复、执行后端异常后的忙碌状态释放；
 - 快照请求失败或超时后的最新命令恢复，以及节点销毁后晚到响应的抑制；
@@ -684,12 +685,13 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为服务快照副本与状态锁分离。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 planner 包：105 tests、0 errors、0 failures、1 skipped，
-含新增三项受控线程检查及既有 Action/Launch 回归；另四项真实 DDS 执行闭环通过。
-受控检查确认复制期间可提交新代际，而响应仍是完整捕获结果；不作为吞吐或实时性测量。
+最近代码验证为接受运行索引的单次边扫描。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 execution 包：97 tests、0 errors、0 failures、0 skipped，
+含缺边拒绝顺序、失败后的缓存保留、原有四项真实 DDS 符号执行闭环与 lint。
+11 个小快照的新旧执行步骤或异常完全相同；固定 16,384 边图的首次索引从两次
+完整边遍历降为一次，不作为端到端耗时或 RSS 测量。
 结合其他未改包保留结果，合计
-**447 tests, 0 errors, 0 failures, 4 skipped**。
+**449 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

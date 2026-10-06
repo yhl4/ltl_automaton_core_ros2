@@ -75,7 +75,24 @@ class AcceptedRunResolver:
             return self._nodes, self._retained_targets
 
         nodes = self._node_map(snapshot)
-        retained_pairs = set(self._retained_pairs(snapshot))
+        ordered_pairs = self._retained_pairs(snapshot)
+        retained_pairs = set(ordered_pairs)
+        matched_pairs = set()
+        retained_edges = []
+
+        for edge in snapshot.product_edges:
+            if (edge.source_id, edge.target_id) in retained_pairs:
+                matched_pairs.add((edge.source_id, edge.target_id))
+                retained_edges.append(edge)
+
+        missing = [
+            pair for pair in ordered_pairs if pair not in matched_pairs
+        ]
+        if missing:
+            raise ResolutionError(
+                f"Accepted run references missing Product edges: {missing}."
+            )
+
         retained_nodes = {
             node_id for pair in retained_pairs for node_id in pair
         }
@@ -86,9 +103,10 @@ class AcceptedRunResolver:
             )
 
         targets = {}
-        for edge in snapshot.product_edges:
-            if (edge.source_id, edge.target_id) in retained_pairs:
-                targets.setdefault((edge.source_id, edge.action), set()).add(edge.target_id)
+        for edge in retained_edges:
+            targets.setdefault(
+                (edge.source_id, edge.action), set()
+            ).add(edge.target_id)
 
         # PlanningSnapshot and its nested models are frozen. Object identity
         # prevents accidentally reusing indexes for a newly received graph.
@@ -134,13 +152,4 @@ class AcceptedRunResolver:
         pairs = list(zip(prefix, prefix[1:]))
         pairs.extend(zip(suffix, suffix[1:]))
         pairs.append((suffix[-1], suffix[0]))
-        available = {
-            (edge.source_id, edge.target_id)
-            for edge in snapshot.product_edges
-        }
-        missing = [pair for pair in pairs if pair not in available]
-        if missing:
-            raise ResolutionError(
-                f"Accepted run references missing Product edges: {missing}."
-            )
         return tuple(pairs)

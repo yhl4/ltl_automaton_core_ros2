@@ -160,12 +160,39 @@ def test_e8_distinct_retained_targets_are_ambiguous():
 
 def test_retained_run_with_missing_target_node_fails_closed():
     snapshot = _snapshot()
+    resolver = AcceptedRunResolver()
+    assert resolver.resolve(_observation(), snapshot).target_state == _state("r2")
     incomplete = replace(
         snapshot,
         product_nodes=tuple(node for node in snapshot.product_nodes if node.node_id != 3),
     )
     with pytest.raises(ResolutionError, match="missing Product nodes"):
-        AcceptedRunResolver().resolve(_observation(), incomplete)
+        resolver.resolve(_observation(), incomplete)
+    assert resolver._indexed_snapshot is snapshot
+
+
+@pytest.mark.parametrize("remove_node", [False, True])
+def test_missing_closing_edge_is_reported_before_missing_nodes(remove_node):
+    """Keep missing-edge diagnostics and the prior valid index on conversion failure."""
+    snapshot = _snapshot()
+    resolver = AcceptedRunResolver()
+    resolver.resolve(_observation(), snapshot)
+    incomplete = replace(
+        snapshot, planning_generation=5,
+        product_edges=tuple(
+            edge for edge in snapshot.product_edges
+            if (edge.source_id, edge.target_id) != (5, 3)
+        ),
+        product_nodes=tuple(
+            node for node in snapshot.product_nodes
+            if not remove_node or node.node_id != 3
+        ),
+    )
+    with pytest.raises(ResolutionError) as error:
+        resolver.resolve(_observation(generation=5), incomplete)
+    assert str(error.value) == "Accepted run references missing Product edges: [(5, 3)]."
+    assert resolver._indexed_snapshot is snapshot
+    assert resolver.resolve(_observation(), snapshot).target_state == _state("r2")
 
 
 def test_resolver_reuses_one_snapshot_then_switches_generation():

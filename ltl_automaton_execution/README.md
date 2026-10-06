@@ -23,7 +23,9 @@ this V0.2 field; there is no compatibility layer for the old message.
 
 The resolver indexes only one immutable snapshot at a time and reuses its
 node and retained-action lookup for subsequent commands. A replacement snapshot
-rebuilds the index. Missing accepted-run nodes are rejected as resolution errors.
+rebuilds the index with one full Product-edge scan, retaining only edges used by
+the accepted run. Missing run edges are reported before missing run nodes; a
+failed rebuild leaves the prior valid index intact.
 
 Duplicate or older execution sequences are not dispatched. A later sequence may
 dispatch even when its Product IDs and action match the previous step. While a
