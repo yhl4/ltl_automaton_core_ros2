@@ -1,6 +1,8 @@
 """Tests for discrete prefix-suffix planning."""
 
 from networkx import DiGraph
+from networkx import single_source_dijkstra_path_length
+import pytest
 
 from ltl_automaton_planner_core.boolean_formulas.parser import (
     parse as parse_guard,
@@ -180,6 +182,39 @@ def test_zero_cost_accepting_self_loop():
     assert run.totalcost == 0
     assert run.prefix == [("s1", "q0")]
     assert run.suffix == [("s1", "q0")]
+
+
+@pytest.mark.parametrize("target_first", [True, False])
+def test_tight_recovery_keeps_path_with_target_first_or_last(target_first):
+    """Recover the same direct path independently of sibling adjacency order."""
+    graph = DiGraph()
+    edges = [("source", "branch", 1), ("branch", "tail", 1)]
+    edges.insert(0 if target_first else 1, ("source", "target", 1))
+    graph.add_weighted_edges_from(edges)
+    distances = single_source_dijkstra_path_length(graph, "source")
+    before = [(source, target, dict(data)) for source, target, data in graph.edges(data=True)]
+    assert discrete_plan._restore_tight_path(
+        graph, distances, {"source"}, "target",
+    ) == ["source", "target"]
+    assert list(graph.edges(data=True)) == before
+    assert distances == {"source": 0, "branch": 1, "target": 1, "tail": 2}
+
+
+def test_tight_recovery_preserves_first_parent_through_zero_cost_ties():
+    """Keep the original BFS parent choice even with later equal paths and cycles."""
+    graph = DiGraph()
+    graph.add_weighted_edges_from([
+        ("source", "a", 0), ("source", "b", 0),
+        ("a", "b", 0), ("b", "a", 0),
+        ("a", "target", 1), ("b", "target", 1),
+    ])
+    distances = single_source_dijkstra_path_length(graph, "source")
+    assert discrete_plan._restore_tight_path(
+        graph, distances, {"source"}, "target",
+    ) == ["source", "a", "target"]
+    assert discrete_plan._restore_tight_path(
+        graph, distances, {"source", "target"}, "target",
+    ) == ["target"]
 
 
 def test_float_shortest_path_recovery_uses_exact_distances():

@@ -996,3 +996,32 @@ Action/Bool/DDS 示范记录与提交检查。源码 py_compile/ament_flake8、
 测试文件 ament_flake8/pep257、文档链接/42 节历史正文保留及 diff 检查
 通过。本轮未重跑整包、物理仿真、实机或 Jazzy，不作为 IRL 收敛证明。
 
+### 11.44 tight 路径恢复在目标发现时停止（2026-10-06）
+
+以 `da1e449` 为基线，距离搜索后的 `_restore_tight_path` 原先在发现
+目标后仍扫描当前节点其余后继及此前排队的兄弟节点，直到弹出目标。
+现在在首次设置目标的 parent 后结束 BFS；首次发现已经确定完整父节点
+链，后续访问不会覆盖它。保留起点顺序、邻接顺序、严格浮点 tight-edge
+判断、None 隐藏边、零代价环处理、缺失目标诊断和原始路径重建。
+距离搜索、接受性、目标函数及 IRL 学习规则不变；不改并列路径选择。
+
+三项新增检查在实际旧提交和新实现均通过，不作为 RED 错误证据。
+覆盖目标位于邻接首位/末位、零代价并列父节点与环、目标本身作为显式
+起点；手算路径分别为 source→target、source→a→target 和单节点 target。
+图边属性及距离表不变。外部临时 probe 加载实际旧/新源码，七组 helper
+调用的完整路径或精确 RuntimeError 诊断一致；含缺失/不一致距离和
+严格浮点距离及 None 隐藏边。两个真实 translator KTH Product 查询
+（gamma=0/10）的全部接受运行字段与输入图一致，总代价仍为 10/210。
+
+计数型 DiGraph 使用 32 个兄弟分支及各自尾节点。目标在 source 邻接
+首位时，恢复后继枚举调用 **1→1**、枚举项 **33→1**；目标在末位时，
+调用 **33→1**、枚举项 **65→33**。零代价并列图为调用 **3→2**、项
+**6→4**。显式目标起点、缺失目标和不可恢复距离的计数保持原样。
+计数仅覆盖路径恢复 helper，不包括 Dijkstra、SCC 或 Product 构建，
+不作为端到端耗时、吞吐、RSS、规划或学习效果测量。
+
+仅重跑相关 `test_discrete_plan.py`、`test_ltl_planner.py` 和 `test_irl.py`，
+分别 **19 passed**、**26 passed**、**19 passed**，合计 **64 passed**，
+含既有真实 translator 与 IRL 检查。源码 py_compile/ament_flake8、
+测试文件 ament_flake8/pep257、文档链接/43 节历史正文保留及 diff 检查
+通过。本轮未重跑整包、ROS 通信、物理仿真、实机或 Jazzy。

@@ -201,6 +201,10 @@ def _restore_tight_path(product, distances, sources, target):
             ):
                 continue
             parent[successor] = current
+            if successor == target:
+                # The BFS parent chain is fixed when the target is found.
+                queue.clear()
+                break
             queue.append(successor)
 
     if target not in parent:
