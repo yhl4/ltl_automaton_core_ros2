@@ -164,6 +164,7 @@ ltl_automaton_hil_mic/
 - trap 服务不可用、TS 未连通或人工输入超时时安全回退到导航命令；
 - 通过异步 ROS 2 service client 查询 `check_for_trap`，避免阻塞控制回调；
 - 安全查询用 `safety_check_timeout` 限时，过期响应不覆盖新状态或命令；
+- TrapDetection 对当前 Product 的候选状态到接受环的可达性进行一次反向搜索；
 - Velocity 人工输入的 ROS 时间年龄必须非负且小于 `timeout`；已失效输入清除后须重新接收；
 - 非有限速度/服务距离回退到最后有效导航命令，无有效缓存时输出零速度；
 - 可选 IRL 插件从示范 Product 轨迹学习软任务权重 β，并事务式提交重规划结果。
@@ -673,6 +674,7 @@ colcon test-result --verbose
 - fake 异步观测或反馈发布异常后的忙碌状态释放，以及相同序号的去重；
 - 观测管线销毁后已排队回调的丢弃，避免访问已销毁的 ROS publisher；
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
+- TrapDetection 多候选/多接受环可达性、空集合边界与同一图更新后的重新判定；
 - 标准 TS 无效位姿/关节反馈的丢弃与恢复，以及有限大数的 6D 距离计算；
 - HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
 - HIL 人工输入在 ROS 时间回退或过期后不会复活，以及零时刻/零 timeout 的边界；
@@ -690,13 +692,13 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为显式执行组件的选择。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 execution 包：102 tests、0 errors、0 failures、0 skipped，
-含五项新增注入检查、原有四项真实 DDS 符号执行闭环与 lint。
-布尔值为 False 的合法组件保留自己的分派、观测与 plant；默认对象仅在参数
-为 `None` 时创建。新增检查使用真实 Node 与受控客户端/发布记录，不作为实机验证。
+最近代码验证为 TrapDetection 单次反向可达搜索。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 HIL 包：103 tests、0 errors、0 failures、1 skipped，
+含十四项新增语义保持检查、既有控制器/TrapDetection/IRL 通信及 lint。
+固定五节点图的新旧判定相同，六次路径查询合并为一次反向遍历，两个接受
+节点各展开一次。此计数不作为端到端性能或多线程一致性测量。
 结合其他未改包保留结果，合计
-**460 tests, 0 errors, 0 failures, 4 skipped**。
+**474 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

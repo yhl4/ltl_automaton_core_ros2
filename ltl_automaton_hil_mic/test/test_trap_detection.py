@@ -2,7 +2,8 @@ from types import SimpleNamespace
 
 from ltl_automaton_msgs.msg import TransitionSystemState
 from ltl_automaton_msgs.srv import TrapCheck
-from networkx import DiGraph
+from networkx import DiGraph, NodeNotFound, has_path
+import pytest
 
 from ltl_automaton_hil_mic.trap_detection import (
     TrapDetectionPlugin,
@@ -157,3 +158,71 @@ def test_trap_diagnosis_has_no_authority_without_active_planner():
     response = plugin.trap_check_callback(_request("r_safe"), TrapCheck.Response())
     assert not response.is_connected
     assert not response.is_trap
+
+
+@pytest.mark.parametrize(
+    "edges, possible, accepting, expected",
+    [
+        ([(0, 1), (1, 2), (2, 2)], {0}, {2}, False),
+        ([(0, 1), (1, 0), (2, 2)], {0, 1}, {2}, True),
+        ([(0, 1), (1, 2), (2, 2), (3, 3)], {0, 3}, {2}, False),
+        ([(0, 1), (2, 2), (3, 3)], {0}, {2, 3}, True),
+        ([(0, 1), (1, 1), (2, 2)], {0}, {1, 2}, False),
+        ([(2, 2)], {2}, {2}, False),
+        ([(2, 2)], set(), {2}, True),
+        ([(0, 1)], {0}, set(), True),
+        ([(2, 0), (2, 2)], {0}, {2}, True),
+    ],
+)
+def test_trap_reachability_uses_any_candidate_and_accepting_cycle(
+    edges, possible, accepting, expected
+):
+    """Preserve reachability direction, mixed candidates, cycles and empty boundaries."""
+    plugin, _ = _plugin()
+    product = DiGraph()
+    product.add_nodes_from(range(4))
+    product.add_edges_from(edges)
+    product.graph["accept"] = {1, 2}
+    product.graph["accept_with_cycle"] = accepting
+    assert plugin._all_are_traps(possible, product) is expected
+
+
+@pytest.mark.parametrize("source, target", [("missing", "accept"), ("safe", "missing")])
+def test_missing_trap_graph_node_preserves_path_diagnostic(source, target):
+    """A missing query endpoint must retain the original NetworkX exception."""
+    plugin, _ = _plugin()
+    product = FakeProduct()
+    product.graph["accept_with_cycle"] = {target}
+    with pytest.raises(NodeNotFound) as expected:
+        has_path(product, source, target)
+    with pytest.raises(NodeNotFound) as actual:
+        plugin._all_are_traps({source}, product)
+    assert str(actual.value) == str(expected.value)
+
+
+@pytest.mark.parametrize(
+    "possible, accepting",
+    [
+        (["safe", "missing"], ["accept"]),
+        (["safe"], ["accept", "missing"]),
+    ],
+)
+def test_safe_path_still_short_circuits_later_missing_graph_nodes(possible, accepting):
+    """An earlier valid witness must keep the original successful short circuit."""
+    plugin, _ = _plugin()
+    product = FakeProduct()
+    product.graph["accept_with_cycle"] = accepting
+    assert plugin._all_are_traps(possible, product) is False
+
+
+def test_trap_reachability_is_recomputed_after_graph_and_cycle_set_changes():
+    """Repeated queries must see changes even when the Product object stays the same."""
+    plugin, _ = _plugin()
+    product = FakeProduct()
+    assert plugin._all_are_traps({"safe"}, product) is False
+    product.remove_edge("safe", "accept")
+    assert plugin._all_are_traps({"safe"}, product) is True
+    product.add_edge("safe", "accept")
+    assert plugin._all_are_traps({"safe"}, product) is False
+    product.graph["accept_with_cycle"] = set()
+    assert plugin._all_are_traps({"safe"}, product) is True

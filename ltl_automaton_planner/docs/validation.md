@@ -606,3 +606,29 @@ observer 注册/停止与 abstraction 的独立观测转换正常；默认 fake 
 结合其他包保留结果，合计 **460 tests, 0 errors, 0 failures, 4 skipped**。
 未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.30 TrapDetection 单次反向可达搜索（2026-10-06）
+
+以 `84b1399` 为基线，TrapDetection 对每个候选 Product 状态和接受环节点逐对
+调用 `has_path`，只要任一候选能到达 `accept_with_cycle` 中的任一节点便为
+非 trap。现在对端点完整的正常 directed Product/set 输入，从接受节点进行
+一次反向多源 BFS，遇到候选便短路；仅使用本次查询的 visited/deque。
+其它输入保留原始逐对查询，以保持列表/迭代器顺序、缺失节点的异常及成功
+短路行为。连通性判定、接受环集合定义、边权与只读服务权威不变。
+
+新增十四项语义保持检查，含搜索方向、多候选/多接受节点、混合 safe/trap、
+自身可达、空集合、缺失端点的精确诊断、较早成功路径避开后续缺失节点，
+以及同一 Product 对象的边/接受集合变化。旧实现与新实现的 trap 文件均为
+**20 passed**，不作为原有算法出错的 RED 证据。
+
+外部新旧对照使用固定 **5 nodes / 5 self-loop edges / 3 candidates /
+2 accepting nodes** 图：判定均为 trap；旧实现调用 `has_path` **6 次**，
+新实现一次反向遍历，仅两个接受节点各展开 **1 次**，其余三个节点未展开。
+添加可达边后两版均为非 trap，移除该边并清空接受集合后均为 trap；空集合、
+缺失端点及有序短路的返回值或异常类型/精确消息相同。此计数不是整体耗时、
+吞吐或 RSS 测量；不进行跨请求图缓存，也不增加服务的并发锁保证。
+
+重跑受影响的 HIL 包，含既有控制器、TrapDetection 任务替换/只读身份检查、
+IRL 通信及 lint：**103 tests, 0 errors, 0 failures, 1 skipped**。
+结合其他包保留结果，合计 **474 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+

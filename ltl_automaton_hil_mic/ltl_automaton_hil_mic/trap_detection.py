@@ -1,5 +1,8 @@
 """ROS 2 planner plugin providing connected trap-state checks."""
 
+from collections import deque
+
+from networkx import DiGraph
 from networkx import has_path
 
 from ltl_automaton_msgs.srv import TrapCheck
@@ -98,6 +101,29 @@ class TrapDetectionPlugin:
 
     def _all_are_traps(self, possible_states, product):
         accepting_cycles = product.graph["accept_with_cycle"]
+        if (
+            isinstance(possible_states, (set, frozenset))
+            and isinstance(accepting_cycles, (set, frozenset))
+            and isinstance(product, DiGraph)
+            and all(state in product for state in possible_states)
+            and all(state in product for state in accepting_cycles)
+        ):
+            if not possible_states:
+                return True
+            visited = set(accepting_cycles)
+            if possible_states & visited:
+                return False
+            pending = deque(accepting_cycles)
+            while pending:
+                target = pending.popleft()
+                for predecessor in product.predecessors(target):
+                    if predecessor in visited:
+                        continue
+                    if predecessor in possible_states:
+                        return False
+                    visited.add(predecessor)
+                    pending.append(predecessor)
+            return True
         for state in possible_states:
             if any(
                 has_path(product, state, accepting_state)
