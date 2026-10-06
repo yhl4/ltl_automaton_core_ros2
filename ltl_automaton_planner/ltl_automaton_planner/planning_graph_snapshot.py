@@ -107,9 +107,13 @@ def _serialize_buchi(buchi):
     graph_type = _buchi_type(buchi)
     initial = _membership(buchi, "initial")
     accepting = _membership(buchi, "accept")
+    identities = {
+        node: _buchi_identity(buchi, node)
+        for node in buchi.nodes
+    }
     ordered_nodes = sorted(
         buchi.nodes,
-        key=lambda node: _buchi_identity(buchi, node),
+        key=identities.__getitem__,
     )
     node_ids = {
         node: identifier
@@ -118,7 +122,7 @@ def _serialize_buchi(buchi):
     messages = []
 
     for node in ordered_nodes:
-        identity = _buchi_identity(buchi, node)
+        identity = identities[node]
         message = BuchiGraphNode()
         message.id = node_ids[node]
         message.initial = node in initial
@@ -189,14 +193,30 @@ def _serialize_product(product, buchi, buchi_ids):
     )
     initial = _membership(product, "initial")
     accepting = _membership(product, "accept")
+    # Product attributes retain the referenced objects throughout this build.
+    # Cache immutable conversion values locally, never across graph generations.
+    ts_values_cache = {}
+    buchi_identity_cache = {}
+
+    def cached_ts_values(ts_node):
+        key = id(ts_node)
+        if key not in ts_values_cache:
+            ts_values_cache[key] = tuple(
+                serialize_transition_state_values(ts_node)
+            )
+        return ts_values_cache[key]
+
+    def cached_buchi_identity(buchi_node):
+        key = id(buchi_node)
+        if key not in buchi_identity_cache:
+            buchi_identity_cache[key] = _buchi_identity(buchi, buchi_node)
+        return buchi_identity_cache[key]
 
     def product_identity(node):
         attributes = product.nodes[node]
-        ts_node = attributes["ts"]
-        buchi_node = attributes["buchi"]
         return (
-            tuple(serialize_transition_state_values(ts_node)),
-            _buchi_identity(buchi, buchi_node),
+            cached_ts_values(attributes["ts"]),
+            cached_buchi_identity(attributes["buchi"]),
         )
 
     ordered_nodes = sorted(product.nodes, key=product_identity)
@@ -208,7 +228,7 @@ def _serialize_product(product, buchi, buchi_ids):
 
     for node in ordered_nodes:
         attributes = product.nodes[node]
-        ts_values = serialize_transition_state_values(attributes["ts"])
+        ts_values = list(cached_ts_values(attributes["ts"]))
 
         if len(ts_values) != len(dimension_names):
             raise ValueError(

@@ -659,6 +659,7 @@ colcon test-result --verbose
 - `/replanning` 服务调用；
 - `PlanLTL` Action 的接受、失败和事务式替换；
 - planning graph snapshot 与 execution observation 的 identity contract；
+- 快照状态值列表的独立性，以及图属性变化后再次转换的正确性；
 - FakeBackend/FakeStateObserver 执行闭环及真实 ROS 2 DDS 通信边界；
 - 快照服务延迟发现后的命令恢复、执行后端异常后的忙碌状态释放；
 - 快照请求失败或超时后的最新命令恢复，以及节点销毁后晚到响应的抑制；
@@ -682,11 +683,13 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为观测管线销毁后的晚到回调抑制。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，仅重跑受影响的执行包：95 tests、0 errors、0 failures、0 skipped，
-包含新增的关闭边界检查、原有四项真实 DDS 符号执行闭环及 lint。
+最近代码验证为快照构造内的重复转换优化。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 planner 包：102 tests、0 errors、0 failures、1 skipped，
+含新增三项隔离/刷新检查及既有 Action/Launch 回归；另四项真实 DDS 执行闭环通过。
+三个小图的新旧消息、ID 映射及真实编解码结果相同；KTH 例子的 TS 值转换从
+48 次降为 10 次，Büchi 身份计算从 32 次降为 11 次，不作为整体耗时测量。
 结合其他未改包保留结果，合计
-**441 tests, 0 errors, 0 failures, 4 skipped**。
+**444 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

@@ -473,3 +473,36 @@ was requested`。同一新增回归在基线上失败。
 **441 tests, 0 errors, 0 failures, 4 skipped**。
 未进行物理仿真、实机或多线程执行器验证。
 
+### 11.25 快照构造内的重复转换（2026-10-06）
+
+以 `b1aa31e` 为基线，快照服务已经保留提交时的完整消息并返回防御性副本；
+重复开销位于一次构造内部。Büchi 排序及消息填充重复计算 identity，Product
+排序和消息填充重复转换 TS 值，并在多个 Product 节点中重复计算同一 Büchi
+对象的 identity。本轮保留服务防御性复制，只在一次转换中复用不可变 tuple。
+Product 属性持有 TS/Büchi 对象，局部缓存以对象身份为键，结束构造后释放；
+每个 Product 消息的 `states` 仍创建新 list，不跨图或 generation 保留缓存。
+结构化排序、公开 ID、边/接受运行验证及 flatten 规则保持不变。
+
+同一批三个既有小图上加载旧版 serializer，与新版完整消息、Product ID 映射
+以及实际 `serialize_message` / `deserialize_message` 结果对照，均相同。
+下表计数每次构造的 helper 调用，采用相同 planner 对象和 active TS hash：
+
+| fixture | B/P 节点数 | Büchi identity 旧→新 | TS 值转换旧→新 | 新旧 CDR 长度 |
+|---|---:|---:|---:|---:|
+| MINIMAL，hard `<> r2`，soft 空 | 2/4 | 8→5 | 8→2 | 836/836 |
+| MINIMAL，soft `(r2 || ! r2)` | 4/8 | 16→11 | 16→3 | 1588/1588 |
+| KTH，hard `<> r3`，同一 soft | 4/24 | 32→11 | 48→10 | 4868/4868 |
+
+本机对相等旧版消息的重复序列化曾出现原始 CDR 字节差异；本轮报告完整字段、
+ID 映射和实际编解码结果相等，不宣称原始字节逐一相同。helper 调用数不作为
+整体规划耗时、吞吐或 RSS 测量。
+
+两个定向文件共 **12 passed**，新增三项检查覆盖 single/safe Büchi 的状态值
+列表独立性、重新构造不受先前消息修改影响，以及 Büchi 属性改变后新构造
+读取新 identity、ID 映射正确且旧消息保持不变。既有 shape mismatch 仍拒绝。
+仅重跑受影响的 planner 包：**102 tests, 0 errors, 0 failures, 1 skipped**，
+含 Action、Launch、事务与 lint；另重跑执行包原有四项真实 DDS 闭环，**4 passed**。
+与其他包保留的 colcon 结果合计 **444 tests, 0 errors, 0 failures, 4 skipped**；
+额外直接运行的 DDS 检查不再次累计到这一总数。
+未进行物理仿真、实机或 Jazzy 独立验证。
+

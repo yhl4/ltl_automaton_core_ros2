@@ -1,5 +1,6 @@
 """Tests for deterministic formal planning graph serialization."""
 
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -294,6 +295,48 @@ def test_product_state_shape_mismatch_remains_a_conversion_failure():
         match="Product TS state does not match ts_state_format",
     ):
         build_planning_graph_snapshot(planner, active_hash)
+
+
+@pytest.mark.parametrize("soft_task", ["", "(r2 || ! r2)"])
+def test_reused_ts_values_keep_message_state_arrays_independent(soft_task):
+    """Editing one returned node must not alter sibling or subsequent state values."""
+    planner, active_hash = build_planner(MINIMAL_TS, "<> r2", soft_task)
+    first = build_planning_graph_snapshot(planner, active_hash)
+    expected = deepcopy(first.snapshot)
+    nodes = [
+        node for node in first.snapshot.product_nodes
+        if list(node.ts_state.states) == ["r1"]
+    ]
+    assert len(nodes) > 1
+    nodes[0].ts_state.states[0] = "changed-only-in-this-message"
+    assert all(list(node.ts_state.states) == ["r1"] for node in nodes[1:])
+    second = build_planning_graph_snapshot(planner, active_hash)
+    assert second.snapshot == expected
+    assert second.product_node_ids == first.product_node_ids
+
+
+def test_new_build_reads_updated_buchi_identity_without_stale_cache():
+    """Each conversion must reflect graph attributes and preserve earlier messages."""
+    planner, active_hash = build_planner(MINIMAL_TS, "<> r2", "(r2 || ! r2)")
+    first = build_planning_graph_snapshot(planner, active_hash)
+    expected_first = deepcopy(first.snapshot)
+    buchi = planner.product.graph["buchi"]
+    node = next(iter(buchi.nodes))
+    buchi.nodes[node]["hard"] = "changed-hard-identity"
+    second = build_planning_graph_snapshot(planner, active_hash)
+    assert {buchi_identity(node) for node in second.snapshot.buchi_nodes} == {
+        core_buchi_identity(buchi, node) for node in buchi.nodes
+    }
+    snapshot_ids = {
+        product_identity(node, second.snapshot.buchi_nodes): node.id
+        for node in second.snapshot.product_nodes
+    }
+    assert dict(second.product_node_ids) == {
+        node: snapshot_ids[core_product_identity(planner.product, node)]
+        for node in planner.product.nodes
+    }
+    assert first.snapshot == expected_first
+    assert second.snapshot != first.snapshot
 
 
 def test_unavailable_snapshot_is_an_atomic_empty_payload():
