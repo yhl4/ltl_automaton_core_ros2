@@ -13,12 +13,18 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def dijkstra_plan_networkX(product, gamma=10):
-    """Find an accepting run with NetworkX Dijkstra search."""
+    """Find an accepting run in a fully built Product with Dijkstra search."""
     start = time.perf_counter()
     runs = {}
     loops = {}
+    accepting_cycles = product.graph["accept"] & product.graph["accept_with_cycle"]
+    if not accepting_cycles:
+        _LOGGER.error("No accepting run found in NetworkX Dijkstra planning.")
+        return None, None
 
     for prod_target in product.graph["accept"]:
+        if prod_target not in accepting_cycles:
+            continue
         cycle_costs: dict[object, float] = {}
         loop_dist, loop_paths = single_source_dijkstra(
             product,

@@ -1,5 +1,6 @@
 """Integration tests for the ROS-independent LTL planner."""
 
+from copy import deepcopy
 import shutil
 from io import StringIO
 
@@ -84,6 +85,21 @@ def create_transition_system():
         ts_dict
     )
     return TSModel(state_models)
+
+
+def create_transition_system_with_isolated_r3():
+    """Add an unreachable r3 self-loop to the two-region TS."""
+    transition_system = create_transition_system()
+    transition_system.build_full()
+    transition_system.add_node(("r3",), label={"r3"})
+    transition_system.add_edge(
+        ("r3",),
+        ("r3",),
+        action="stay_r3",
+        guard="1",
+        weight=1.0,
+    )
+    return transition_system
 
 
 def create_branching_transition_system():
@@ -204,14 +220,21 @@ def test_failed_task_replanning_restores_previous_planner_state():
         soft_spec="(r2 || ! r2)",
     )
     assert planner.optimal(style="static") is True
+    assert planner.update_possible_states(planner.run.line[1]) is True
 
     planner.curr_ts_state = ("r1",)
+    external_ts = planner.ts
+    external_product = planner.product
+    external_run = planner.run
     previous_run = (
         list(planner.run.pre_plan),
         list(planner.run.suf_plan),
     )
     previous_initial = set(
         planner.product.graph["ts"].graph["initial"]
+    )
+    previous_possible_states = deepcopy(
+        planner.product.possible_states
     )
     previous_cursor = (
         planner.segment,
@@ -228,6 +251,13 @@ def test_failed_task_replanning_restores_previous_planner_state():
 
     assert planner.hard_spec == "<> r2"
     assert planner.soft_spec == "(r2 || ! r2)"
+    assert planner.ts is external_ts
+    assert planner.product is external_product
+    assert planner.run is external_run
+    assert external_product.graph["ts"] is external_ts
+    assert external_ts.graph["initial"] == previous_initial
+    assert external_product.graph["ts"].graph["initial"] == previous_initial
+    assert external_product.possible_states == previous_possible_states
     assert planner.product.graph["ts"].graph["initial"] == previous_initial
     assert (
         list(planner.run.pre_plan),
@@ -260,6 +290,37 @@ def test_unknown_state_replanning_preserves_current_plan():
     assert planner.next_move == previous_next_move
 
 
+def test_failed_ts_state_replanning_preserves_external_references():
+    """Keep active objects when a new initial state is infeasible."""
+    planner = LTLPlanner(
+        create_transition_system_with_isolated_r3(),
+        hard_spec="<> r2",
+        soft_spec="(r2 || ! r2)",
+    )
+    assert planner.optimal(style="static") is True
+    assert planner.update_possible_states(planner.run.line[1]) is True
+
+    external_ts = planner.ts
+    external_product = planner.product
+    external_run = planner.run
+    previous_initial = set(
+        external_ts.graph["initial"]
+    )
+    previous_possible_states = deepcopy(
+        external_product.possible_states
+    )
+
+    assert planner.replan_from_ts_state(("r3",)) is False
+
+    assert planner.ts is external_ts
+    assert planner.product is external_product
+    assert planner.run is external_run
+    assert external_product.graph["ts"] is external_ts
+    assert external_ts.graph["initial"] == previous_initial
+    assert external_product.graph["ts"].graph["initial"] == previous_initial
+    assert external_product.possible_states == previous_possible_states
+
+
 def test_replanning_exception_restores_previous_state(monkeypatch):
     """Restore the active planner before propagating an internal error."""
     planner = LTLPlanner(
@@ -269,6 +330,9 @@ def test_replanning_exception_restores_previous_state(monkeypatch):
     )
     assert planner.optimal(style="static") is True
 
+    external_ts = planner.ts
+    external_product = planner.product
+    external_run = planner.run
     previous_run = (
         list(planner.run.pre_plan),
         list(planner.run.suf_plan),
@@ -295,6 +359,12 @@ def test_replanning_exception_restores_previous_state(monkeypatch):
 
     assert planner.hard_spec == "<> r2"
     assert planner.soft_spec == "(r2 || ! r2)"
+    assert planner.ts is external_ts
+    assert planner.product is external_product
+    assert planner.run is external_run
+    assert external_product.graph["ts"] is external_ts
+    assert external_ts.graph["initial"] == previous_initial
+    assert external_product.graph["ts"].graph["initial"] == previous_initial
     assert planner.product.graph["ts"].graph["initial"] == previous_initial
     assert (
         list(planner.run.pre_plan),

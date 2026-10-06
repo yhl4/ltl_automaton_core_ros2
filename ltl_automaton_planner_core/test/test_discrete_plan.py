@@ -8,6 +8,7 @@ from ltl_automaton_planner_core.boolean_formulas.parser import (
 from ltl_automaton_planner_core.ltl_tools.discrete_plan import (
     dijkstra_plan_networkX,
 )
+from ltl_automaton_planner_core.ltl_tools import discrete_plan
 from ltl_automaton_planner_core.ltl_tools.product import ProdAut
 
 
@@ -172,3 +173,35 @@ def test_zero_cost_accepting_self_loop():
     assert run.totalcost == 0
     assert run.prefix == [("s1", "q0")]
     assert run.suffix == [("s1", "q0")]
+
+
+def test_accepting_dead_end_is_excluded_from_cycle_search(monkeypatch):
+    """Ignore a cheaper accepting dead end that only reaches a nonaccepting cycle."""
+    product = make_weighted_product([
+        ("s0", "s1", 3), ("s1", "s1", 1),
+        ("s0", "dead", 0), ("dead", "sink", 0), ("sink", "sink", 0),
+    ])
+    product.graph["accept"].add(("dead", "q0"))
+    product.build_accept_with_cycle()
+    searched_sources = []
+    original_search = discrete_plan.single_source_dijkstra
+
+    def record_search(graph, source, **kwargs):
+        searched_sources.append(source)
+        return original_search(graph, source, **kwargs)
+
+    monkeypatch.setattr(discrete_plan, "single_source_dijkstra", record_search)
+    run, _ = dijkstra_plan_networkX(product, gamma=10)
+    assert (run.precost, run.sufcost, run.totalcost) == (3, 1, 13)
+    assert ("dead", "q0") not in searched_sources
+
+
+def test_no_accepting_cycle_returns_without_shortest_path_search(monkeypatch):
+    """Reject an acyclic accepting graph before attempting prefix search."""
+    product = make_weighted_product([("s0", "s1", 1)])
+
+    def unexpected_search(*args, **kwargs):
+        raise AssertionError("A graph without an accepting cycle needs no path search.")
+
+    monkeypatch.setattr(discrete_plan, "single_source_dijkstra", unexpected_search)
+    assert dijkstra_plan_networkX(product) == (None, None)

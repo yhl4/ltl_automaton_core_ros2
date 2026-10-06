@@ -554,6 +554,9 @@ success: true
 
 任务不可行、初始 TS 状态未知或规划内部抛出异常时，Planner 会保留调用前的
 hard/soft task、TS 初始状态、Product、run 和执行游标；失败请求不会留下半更新状态。
+Core 在隔离副本中重规划，失败时原 TS、Product 和 run 的对象引用也保持不变。
+成功后安装候选图；直接使用 Core API 的调用方应从当前 planner 获取 TS/Product，
+ROS consumer 则按新的 generation 获取正式快照。
 
 ---
 
@@ -636,6 +639,18 @@ guard 检查复用、一次 SCC 遍历、已构建 TS 复用、反馈状态直�
 本轮重跑 execution 包 `colcon test`，包括三个可控延迟响应节点回归、
 解析与 generation 切换、已有真实 DDS/FakeBackend 场景和 lint，全部通过。
 这项修复未解决第 13 节所列的持续循环执行限制。
+
+### 11.4 重规划隔离与搜索优化（2026-10-06）
+
+重规划改为在候选 planner 副本中计算，成功才提交；未知状态在复制前拒绝。
+回归覆盖不可行任务、Büchi 构造异常和隔离状态重规划失败，检查原 TS、Product、
+run 引用以及初始集、possible states、游标均保持不变。
+
+完整 Product 的 Dijkstra 搜索复用已计算的 SCC 接受环集合，跳过不在环上的接受
+节点；没有接受环时直接返回无解。小图中总代价仍为手算的 13，且不再对只能
+到达非接受环的接受节点启动搜索。该结果不代表端到端加速比。
+本轮重跑 Core 与 ROS planner 两包的 `colcon test`，包括重规划、Action、
+快照 generation 和 lint 回归，全部通过。
 
 ---
 
