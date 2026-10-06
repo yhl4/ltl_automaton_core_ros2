@@ -113,9 +113,10 @@ graph, and complete accepted prefix-suffix run with snapshot-local IDs.
 
 `planning_generation` starts at zero and increments once when startup planning,
 `PlanLTL`, legacy task replanning, or state-based replanning successfully
-replaces the accepted run. Planning attempts, failures, stale candidates,
-transition-system loading, service requests, and ordinary execution-cursor
-progress do not increment it.
+replaces the accepted run. A successful optional IRL beta-learning commit also
+replaces the run and increments the generation. Planning attempts, failures,
+stale candidates, transition-system loading, service requests, and ordinary
+execution-cursor progress do not increment it.
 
 `metadata.planner_instance_id` is a non-empty opaque UUID created once for a
 `PlannerNode` lifetime. Snapshot identity is the pair
@@ -185,6 +186,27 @@ snapshot identity is resolved against the latest observation for that identity.
 All consumers must regenerate and rebuild the `ltl_automaton_msgs` interfaces
 before use. V0.2 provides no compatibility layer for the old observation
 message.
+
+## Optional IRL Transactions
+
+The HIL package can explicitly enable `IRLPlugin` through `plugin_config_path`.
+It records demonstrations using `/irl_trigger` and `/possible_runs`, then asks
+the planner host to learn beta and replan on an isolated candidate. It uses the
+same single planning transaction as `PlanLTL`; concurrent requests are rejected.
+The previous plan remains authoritative while learning runs.
+
+IRL commit requires the captured instance, generation, execution sequence, and
+accepted TS-feedback revision to remain current, in addition to the source hash
+and canonical-state checks. Even an observed departure and return to the same
+state invalidates the learning candidate. Successful commit publishes a new
+snapshot and resets execution sequence to zero. Failure or stale input leaves
+the active beta and plan unchanged; deferred unexpected-state recovery can
+subsequently replace the run using the old beta.
+
+The original beta-only learning heuristic is retained, without convergence or
+inverse-optimality guarantees. See the [HIL documentation](../../ltl_automaton_hil_mic/README.md#optional-irl-beta-learning)
+for recording settings and the learning rule. Startup task and weight ROS
+parameters do not track subsequent Action or IRL commits.
 
 ## Known V0.2 Limitations
 

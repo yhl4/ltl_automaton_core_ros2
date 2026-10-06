@@ -149,7 +149,8 @@ ltl_automaton_hil_mic/
 - Bool 命令仲裁：规划器命令直接通过，人工命令仅在 TS 连通且非 trap 时通过；
 - Velocity 命令仲裁：依据 trap 距离平滑混合人工与导航速度；
 - trap 服务不可用、TS 未连通或状态超时时安全回退到导航命令；
-- 通过异步 ROS 2 service client 查询 `check_for_trap`，避免阻塞控制回调。
+- 通过异步 ROS 2 service client 查询 `check_for_trap`，避免阻塞控制回调；
+- 可选 IRL 插件从示范 Product 轨迹学习软任务权重 β，并事务式提交重规划结果。
 
 ---
 
@@ -350,6 +351,9 @@ ros2 param get /ltl_planner plugin_config_path
 Action 切换任务并取得结构化结果；旧 `/replanning` 服务继续兼容。
 两者均保证新任务成功规划后才替换当前计划。
 
+`hard_task`、`soft_task`、`beta` 与 `gamma` 参数表示启动配置；Action 或 IRL
+提交后的活动计划以当前 generation 的快照和执行观测为准，参数查询不会随之更新。
+
 ### 7.1 TS 输入约束
 
 Planner 接受的 TS YAML 必须满足以下结构约束：
@@ -519,6 +523,38 @@ class ExamplePlugin:
 
 ROS 1 插件若仍直接导入 `rospy`，必须先把通信接口迁移到 `rclpy`；加载契约兼容
 不代表 ROS 1 插件源码可不经修改直接运行。
+
+### 9.1 可选 IRL 示范学习
+
+原项目的 β 学习模块已恢复，默认插件配置仍只启用 trap 查询。显式启用 IRL：
+
+```bash
+ros2 launch ltl_automaton_planner planner.launch.py \
+  transition_system_path:=/path/to/transition_system.yaml \
+  plugin_config_path:="$(ros2 pkg prefix ltl_automaton_hil_mic)/share/ltl_automaton_hil_mic/config/irl_plugin.yaml" \
+  replan_on_unplanned_move:=false
+```
+
+在已有活动计划时发布 `True` 开始记录，提供带新时间戳的 `/ts_state` 示范反馈，
+再发布 `False` 结束并学习：
+
+```bash
+ros2 topic pub --once /irl_trigger std_msgs/msg/Bool '{data: true}'
+# 提供真实示范状态反馈后结束记录
+ros2 topic pub --once /irl_trigger std_msgs/msg/Bool '{data: false}'
+```
+
+`/possible_runs` 发布与示范一致的 Product 路径。`max_run_buffer_size` 默认 100，
+所有候选路径的节点总数超过该值时自动结束并提交一次学习请求。
+替代路线示范需要关闭 `replan_on_unplanned_move`，其状态仍须匹配实际 Product
+后继；切换任务或自动重规划产生新 generation 时，旧示范会清空。
+可在自己的插件 YAML 中同时配置 `IRLPlugin` 和 `TrapDetectionPlugin`。
+
+学习只修改 β，保留 hard/soft task 与 γ。宿主在隔离副本上学习并从当前 TS 状态
+重新规划，校验身份、执行序号与状态反馈版本后才提交新 generation，序号重置为 0。
+失败或过期学习不改写活动 β 与计划。该模块沿用原项目的 margin 学习启发式，
+不保证收敛、逆最优性或新计划完全复现示范；具体规则见
+[HIL README](ltl_automaton_hil_mic/README.md#optional-irl-beta-learning)。
 
 ## 10. Services
 
@@ -746,6 +782,22 @@ Future 异常、空响应与 `success=False` 均通过现有 0.1 秒 timer 重�
 本轮 `ltl_automaton_execution` 包 `colcon test` 通过（含原有四项执行闭环与 lint），
 与其他包保留结果合计为 **267 tests, 0 errors, 0 failures, 4 skipped**。
 
+### 11.10 可选 IRL 恢复（2026-10-06）
+
+恢复原项目从示范轨迹学习 β 的范围，保持原 margin 启发式、步长与停止条件。
+默认关闭；示范记录、隔离学习与接受计划提交由 ROS 2 插件和宿主分别承担。
+增加反馈版本校验，学习期间离开再返回同一状态也会拒绝过期结果。
+关闭非计划状态自动重规划后，Product belief 按实际后继更新，避免旧计划的接受
+边界误删合法替代路线；默认计划反馈的接受边界检查保持原行为。
+
+Core 的 11 项学习检查与两项替代路线检查通过；宿主六项 IRL 事务检查覆盖提交、
+失败隔离、过期执行序号、旧 generation、离开再返回、销毁后晚到结果。
+真实 ROS 2 Action、Bool trigger 与 DDS 状态反馈验证了 β 从 1 增大、新 generation
+序号归零、旧 planner 未被学习改写及快照边权恢复为规范代价；不将该小图结果作为
+收敛或机器人示范效果证明。另验证 buffer 超限仅学习一次及任务替换后的插件身份。
+本轮构建 core、planner 与 HIL 三包，重跑 core、planner、HIL 与 execution 四包测试；
+与其他包保留结果合计为 **288 tests, 0 errors, 0 failures, 4 skipped**。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照
@@ -766,6 +818,7 @@ Future 异常、空响应与 `success=False` 均通过现有 0.1 秒 timer 重�
 | `BoolCmdMixer` | `bool_cmd_hil_mic` | 保留 Bool 仲裁语义，trap 查询改为异步 ROS 2 service client |
 | `VelCmdMixer` | `vel_cmd_hil_mic` | 保留速度混合语义，增加服务不可用与状态超时的安全回退 |
 | `TrapDetectionPlugin` | `ltl_automaton_hil_mic.trap_detection` | 只读查询，不修改 active plan、generation 或 execution state |
+| `IRLPlugin` | `ltl_automaton_hil_mic.inverse_reinforcement_learning` | 可选 β 学习；隔离候选并由宿主事务式重规划提交 |
 | `catkin_make` | `colcon build --symlink-install` | 构建与测试命令见第 5、11 节 |
 
 ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。
@@ -774,7 +827,7 @@ ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。
 
 当前版本的主要未完成项与限制：
 
-- `IRLPlugin` 尚未接入事务式 ROS 2 Planner contract；旧的原地 mutation 实现仅保留在 Git 历史中，不进入 canonical runtime；
+- 可选 IRL 沿用原项目 β 学习启发式，尚无收敛或逆最优性保证，也未进行机器人示范实验；
 - `ltl_automaton_execution` 仍是符号级执行包，尚未提供 Gazebo、Isaac Sim、运动学、轨迹、碰撞检查、感知或真实机器人控制，也没有物理仿真验证；
 - Ubuntu 24.04 / ROS 2 Jazzy 独立验证；
 
@@ -790,7 +843,5 @@ RTPS_TRANSPORT_SHM Error: Failed init_port ...
 
 ## 14. 后续计划
 
-建议按以下顺序继续迁移：
-
-1. 在候选状态隔离、单一写入者、freshness 与 generation identity contract 明确后，重新设计并迁移 `IRLPlugin`；
-2. 在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证。
+在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证；真实机器人示范与物理执行验证
+需使用对应环境另行开展。

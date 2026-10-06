@@ -204,7 +204,7 @@ class LTLPlanner:
         )
         return False
 
-    def update_possible_states(self, ts_node):
+    def update_possible_states(self, ts_node, *, enforce_accepting_boundary=True):
         """Update possible product states after observing a TS state."""
         if self.product is None:
             _LOGGER.error(
@@ -216,7 +216,7 @@ class LTLPlanner:
             self.product.get_possible_states(ts_node)
         )
 
-        if self._reaches_accepting_boundary():
+        if enforce_accepting_boundary and self._reaches_accepting_boundary():
             self.product.possible_states = self.intersect_accept(
                 self.product.possible_states,
                 ts_node,

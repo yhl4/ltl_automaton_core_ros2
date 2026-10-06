@@ -1120,3 +1120,204 @@ def test_self_loop_step_republication_and_stale_feedback(action_runtime):
     assert get_planning_graph_snapshot(
         action_runtime,
     ).snapshot.metadata.planning_generation == before.snapshot.metadata.planning_generation + 1
+
+
+def _current_teaching_loop(planner):
+    for source in planner.product.possible_states:
+        for target in planner.product.successors(source):
+            if source[0] == target[0] == planner.curr_ts_state:
+                return ((source, target),)
+    raise AssertionError("Fixture requires a current-state teaching transition.")
+
+
+def _activate_at_self_loop(runtime):
+    activate(runtime)
+    publish_state(runtime, "r2")
+    assert spin_until(runtime, lambda: runtime.planner._execution_step_seq == 1)
+    return runtime.planner.ltl_planner
+
+
+def test_irl_commit_updates_beta_snapshot_and_resets_step(action_runtime, monkeypatch):
+    """Install an injected learning result through the real candidate planner."""
+    old = _activate_at_self_loop(action_runtime)
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    beta = old.beta
+    monkeypatch.setattr(
+        planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=beta + 7),
+    )
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+    assert action_runtime.planner.start_irl_replan(_current_teaching_loop(old), identity)
+    assert spin_until(
+        action_runtime,
+        lambda: action_runtime.planner._planning_token is None,
+    )
+    current = action_runtime.planner.ltl_planner
+    after = get_planning_graph_snapshot(action_runtime).snapshot
+    assert current is not old
+    assert old.beta == beta
+    assert current.beta == beta + 7
+    assert current.product.graph["beta"] == beta + 7
+    assert (current.hard_spec, current.soft_spec, current.gamma) == (
+        old.hard_spec, old.soft_spec, old.gamma,
+    )
+    assert after.metadata.available
+    assert after.metadata.planning_generation == before.metadata.planning_generation + 1
+    assert action_runtime.planner._execution_step_seq == 0
+    assert current.run.prefix[-1] in current.product.graph["accept"]
+
+
+def test_irl_learning_failure_preserves_live_planner(action_runtime, monkeypatch):
+    """A worker-local weight mutation cannot damage the active run on failure."""
+    old = _activate_at_self_loop(action_runtime)
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    old_product, old_run = old.product, old.run
+    weights = dict(((u, v), data["weight"]) for u, v, data in old.product.edges(data=True))
+    beta = old.beta
+
+    def failed_learning(product, *_args):
+        first = next(iter(product.edges))
+        product.edges[first]["weight"] = 99999
+        raise RuntimeError("Controlled IRL failure")
+
+    monkeypatch.setattr(planner_module, "learn_beta", failed_learning)
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+    assert action_runtime.planner.start_irl_replan(_current_teaching_loop(old), identity)
+    assert spin_until(action_runtime, lambda: action_runtime.planner._planning_token is None)
+    assert action_runtime.planner.ltl_planner is old
+    assert old.product is old_product and old.run is old_run
+    assert old.beta == beta
+    assert dict(((u, v), data["weight"]) for u, v, data in old.product.edges(data=True)) == weights
+    assert action_runtime.planner._execution_step_seq == 1
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+
+def _block_irl_candidate(monkeypatch):
+    started, release = Event(), Event()
+    original = planner_module.compute_irl_candidate
+
+    def controlled(request):
+        started.set()
+        if not release.wait(timeout=8.0):
+            return planner_module.PlanningOutcome(
+                PlanLTL.Result.ERROR_INTERNAL, "Controlled IRL candidate was not released.",
+            )
+        return original(request)
+
+    monkeypatch.setattr(planner_module, "compute_irl_candidate", controlled)
+    return started, release
+
+
+def test_irl_new_execution_step_rejects_candidate_and_concurrent_goal(
+    action_runtime, monkeypatch,
+):
+    """A self-loop is new execution even though its TS state is unchanged."""
+    old = _activate_at_self_loop(action_runtime)
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    beta = old.beta
+    monkeypatch.setattr(
+        planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=beta + 7),
+    )
+    started, release = _block_irl_candidate(monkeypatch)
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+    try:
+        assert action_runtime.planner.start_irl_replan(_current_teaching_loop(old), identity)
+        assert spin_until(action_runtime, started.is_set)
+        assert not action_runtime.planner.start_irl_replan(_current_teaching_loop(old), identity)
+        assert not send_goal(action_runtime, make_goal(state="r2")).accepted
+        publish_state(action_runtime, "r2")
+        assert spin_until(action_runtime, lambda: action_runtime.planner._execution_step_seq == 2)
+        release.set()
+        assert spin_until(action_runtime, lambda: action_runtime.planner._planning_token is None)
+        assert action_runtime.planner.ltl_planner is old
+        assert old.beta == beta
+        assert action_runtime.planner._canonical_ts_state == ("r2",)
+        assert action_runtime.planner._execution_step_seq == 2
+        assert get_planning_graph_snapshot(action_runtime).snapshot == before
+    finally:
+        release.set()
+
+
+def test_irl_stale_teaching_identity_is_rejected_before_worker(action_runtime):
+    """Teaching from an old generation cannot start a new learning transaction."""
+    old = _activate_at_self_loop(action_runtime)
+    node = action_runtime.planner
+    assert not node.start_irl_replan(
+        _current_teaching_loop(old), (node._planner_instance_id, node._planning_generation - 1),
+    )
+    assert node._planning_token is None
+    assert node.ltl_planner is old
+
+
+def test_irl_unplanned_return_to_start_still_invalidates_learning(action_runtime, monkeypatch):
+    """An unplanned A-to-B-to-A word is newer even with an unchanged cursor."""
+    branching = """state_dim: [region]
+state_models:
+  region:
+    initial: r1
+    nodes:
+      r1: {connected_to: {r2: to_r2, r3: to_r3}}
+      r2: {connected_to: {r1: back}}
+      r3: {connected_to: {r1: back}}
+actions:
+  to_r2: {guard: '1', weight: 1.0}
+  to_r3: {guard: '1', weight: 2.0}
+  back: {guard: '1', weight: 1.0}
+"""
+    activate(action_runtime, branching, make_goal(hard_task="[]<> r1"))
+    node = action_runtime.planner
+    node.replan_on_unplanned_move = False
+    old = node.ltl_planner
+    beta = old.beta
+    runs = {
+        (source, middle, end)
+        for source in old.product.possible_states
+        for middle in old.product.successors(source) if middle[0] == ("r2",)
+        for end in old.product.successors(middle) if end[0] == ("r1",)
+    }
+    assert runs
+    monkeypatch.setattr(
+        planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=beta + 7),
+    )
+    started, release = _block_irl_candidate(monkeypatch)
+    identity = (node._planner_instance_id, node._planning_generation)
+    revision = node._ts_state_revision
+    try:
+        assert node.start_irl_replan(runs, identity)
+        assert spin_until(action_runtime, started.is_set)
+        publish_state(action_runtime, "r3")
+        assert spin_until(action_runtime, lambda: node._canonical_ts_state == ("r3",))
+        publish_state(action_runtime, "r1")
+        assert spin_until(action_runtime, lambda: node._canonical_ts_state == ("r1",))
+        assert node._execution_step_seq == 0
+        assert node._ts_state_revision == revision + 2
+        release.set()
+        assert spin_until(action_runtime, lambda: node._planning_token is None)
+        assert node.ltl_planner.beta == beta
+        assert node._planner_state == PlannerStatus.ACTIVE
+    finally:
+        release.set()
+
+
+def test_irl_late_worker_after_shutdown_cannot_commit(action_runtime, monkeypatch):
+    """Complete a daemon IRL worker after teardown without publishing a new run."""
+    old = _activate_at_self_loop(action_runtime)
+    node = action_runtime.planner
+    generation = node._planning_generation
+    started, release = _block_irl_candidate(monkeypatch)
+    try:
+        assert node.start_irl_replan(
+            _current_teaching_loop(old), (node._planner_instance_id, generation),
+        )
+        assert spin_until(action_runtime, started.is_set)
+        worker = node._planning_worker
+        node.destroy_node()
+        action_runtime.planner_destroyed = True
+        release.set()
+        worker.join(timeout=3.0)
+        assert not worker.is_alive()
+        action_runtime.executor.spin_once(timeout_sec=0.05)
+        assert node._planning_generation == generation
+        assert node.ltl_planner is old
+        assert node._planning_token is None
+    finally:
+        release.set()

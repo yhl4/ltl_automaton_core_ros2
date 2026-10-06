@@ -214,6 +214,30 @@ def test_possible_states_survive_suffix_cycle_boundaries():
             planner.find_next_move()
 
 
+def test_unplanned_word_does_not_use_selected_run_accepting_boundary():
+    """Track a reachable alternative word without borrowing the plan cursor."""
+    planner = LTLPlanner(
+        create_branching_transition_system(), "[]<> r1", "[] !r3", beta=1, gamma=1,
+    )
+    assert planner.optimal()
+    for reached in (("r3",), ("r1",)):
+        expected = planner.product.get_possible_states(reached)
+        assert expected
+        assert planner.update_possible_states(reached, enforce_accepting_boundary=False)
+        assert planner.product.possible_states == expected
+
+
+def test_unplanned_word_still_rejects_a_violated_hard_guard():
+    """Skipping a selected boundary never creates forbidden Product edges."""
+    planner = LTLPlanner(
+        create_branching_transition_system(), "[] !r3", "(r1 || !r1)", gamma=1,
+    )
+    assert planner.optimal()
+    # Product guards consume the source label: r3 invalidates the next edge.
+    assert planner.update_possible_states(("r3",), enforce_accepting_boundary=False)
+    assert not planner.update_possible_states(("r1",), enforce_accepting_boundary=False)
+
+
 def test_history_replanning_starts_from_latest_reached_state():
     """Do not replay the source of an action that already completed."""
     planner = LTLPlanner(create_transition_system(), "<> r2", "(r2 || !r2)", gamma=3)

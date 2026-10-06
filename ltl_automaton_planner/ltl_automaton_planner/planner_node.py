@@ -6,6 +6,7 @@ import subprocess
 import uuid
 from copy import deepcopy
 from dataclasses import dataclass
+from functools import partial
 from math import isfinite
 from pathlib import Path
 from threading import RLock, Thread
@@ -49,6 +50,7 @@ from ltl_automaton_planner_core.ltl_tools.ltl_planner import (
     LTLPlanner,
 )
 from ltl_automaton_planner_core.ltl_tools.ltl2ba import LTL2BAError
+from ltl_automaton_planner_core.ltl_tools.irl import learn_beta
 from ltl_automaton_planner_core.ltl_tools.ts import TSModel
 
 from .planning_graph_snapshot import (
@@ -94,6 +96,17 @@ class PlanningGraphSerialization:
 
     snapshot: PlanningGraphSnapshot
     product_node_ids: Mapping[object, int] | None
+
+
+@dataclass(frozen=True)
+class IRLPlanningRequest:
+    """Bind isolated teaching input to one committed execution step."""
+
+    planning: PlanningRequest
+    identity: tuple[str, int, int]
+    state_revision: int
+    candidate: LTLPlanner
+    possible_runs: tuple[tuple[object, ...], ...]
 
 
 def serialize_planning_graph(planner, active_ts_sha256: str):
@@ -268,6 +281,50 @@ def run_candidate_worker(
     future.set_result(compute_candidate_plan(request))
 
 
+def compute_irl_candidate(request: IRLPlanningRequest) -> PlanningOutcome:
+    """Learn beta and replan using only a worker-owned planner copy."""
+    candidate = request.candidate
+    try:
+        learned = learn_beta(
+            candidate.product,
+            request.possible_runs,
+            candidate.beta,
+            candidate.gamma,
+        )
+        candidate.beta = learned.beta
+        planned = candidate.replan_task(
+            candidate.hard_spec,
+            candidate.soft_spec,
+            request.planning.initial_state,
+        )
+        if not planned or candidate.run is None or candidate.next_move is None:
+            return PlanningOutcome(
+                PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN,
+                "IRL replanning found no accepting executable run.",
+            )
+        candidate.curr_ts_state = request.planning.initial_state
+        return PlanningOutcome(
+            PlanLTL.Result.ERROR_NONE,
+            "IRL learning and replanning succeeded.",
+            transition_system=candidate.ts,
+            planner=candidate,
+            planning_graph=serialize_planning_graph(
+                candidate, request.planning.source_hash,
+            ),
+        )
+    except Exception as error:
+        return PlanningOutcome(PlanLTL.Result.ERROR_INTERNAL, str(error))
+
+
+def run_irl_worker(future: Future, request: IRLPlanningRequest) -> None:
+    """Complete the executor-bound Future even after an unexpected failure."""
+    try:
+        outcome = compute_irl_candidate(request)
+    except Exception as error:
+        outcome = PlanningOutcome(PlanLTL.Result.ERROR_INTERNAL, str(error))
+    future.set_result(outcome)
+
+
 def load_plugin_specs(config_path) -> dict:
     """Load and validate a ROS2 planner-plugin configuration file."""
     path = Path(config_path).expanduser()
@@ -375,6 +432,7 @@ class PlannerNode(Node):
         self._planner_instance_id = str(uuid.uuid4())
         self._planning_generation = 0
         self._execution_step_seq = 0
+        self._ts_state_revision = 0
         self._active_planning_graph_snapshot = None
         self._active_product_node_ids = None
         self._shutting_down = False
@@ -940,6 +998,7 @@ class PlannerNode(Node):
         token,
         error_code: int,
         message: str,
+        operation: str = "PlanLTL",
     ):
         """Abort an accepted goal without rolling back live execution."""
         pending_divergence = None
@@ -954,17 +1013,21 @@ class PlannerNode(Node):
                 if origin_state == PlannerStatus.ACTIVE:
                     self._set_planner_status(
                         PlannerStatus.ACTIVE,
-                        "PlanLTL failed; the previous run remains active.",
+                        f"{operation} failed; the previous run remains active.",
                     )
                 else:
                     self._set_planner_status(
                         PlannerStatus.READY,
-                        "PlanLTL failed; the transition system remains ready.",
+                        f"{operation} failed; the transition system remains ready.",
                     )
 
         result = self._plan_ltl_result(error_code, message)
 
-        if not self._shutting_down and goal_handle.is_active:
+        if (
+            not self._shutting_down
+            and goal_handle is not None
+            and goal_handle.is_active
+        ):
             goal_handle.abort()
 
         if pending_divergence is not None and not self._shutting_down:
@@ -977,6 +1040,10 @@ class PlannerNode(Node):
         goal_handle,
         request: PlanningRequest,
         outcome: PlanningOutcome,
+        *,
+        expected_identity=None,
+        expected_state_revision=None,
+        operation: str = "PlanLTL",
     ):
         """Atomically install a fresh candidate after freshness checks."""
         if (
@@ -989,6 +1056,7 @@ class PlannerNode(Node):
                 request.token,
                 PlanLTL.Result.ERROR_INTERNAL,
                 "Candidate planning returned no planner.",
+                operation,
             )
 
         with self._state_lock:
@@ -996,6 +1064,18 @@ class PlannerNode(Node):
                 request.token is not self._planning_token
                 or self._planner_state != PlannerStatus.PLANNING
                 or request.source_hash != self._active_ts_sha256
+                or (
+                    expected_state_revision is not None
+                    and expected_state_revision != self._ts_state_revision
+                )
+                or (
+                    expected_identity is not None
+                    and expected_identity != (
+                        self._planner_instance_id,
+                        self._planning_generation,
+                        self._execution_step_seq,
+                    )
+                )
                 or (
                     request.origin_state == PlannerStatus.ACTIVE
                     and request.initial_state != self._canonical_ts_state
@@ -1014,7 +1094,7 @@ class PlannerNode(Node):
                 self._clear_planning_transaction()
                 self._set_planner_status(
                     PlannerStatus.ACTIVE,
-                    "The PlanLTL accepted run is active.",
+                    f"The {operation} accepted run is active.",
                 )
 
         if not commit_is_current:
@@ -1023,6 +1103,7 @@ class PlannerNode(Node):
                 request.token,
                 PlanLTL.Result.ERROR_NOT_READY,
                 "Execution state changed during planning.",
+                operation,
             )
 
         stamp = self.get_clock().now().to_msg()
@@ -1047,8 +1128,111 @@ class PlannerNode(Node):
         result.planning_time = float(
             outcome.planner.planning_time or 0.0
         )
-        goal_handle.succeed()
+        if goal_handle is not None:
+            goal_handle.succeed()
         return result
+
+    def start_irl_replan(self, possible_runs, identity) -> bool:
+        """Reserve one optional IRL transaction against teaching authority."""
+        with self._state_lock:
+            if (
+                self._shutting_down
+                or self.executor is None
+                or self._planning_token is not None
+                or self._planner_state != PlannerStatus.ACTIVE
+                or identity != (
+                    self._planner_instance_id, self._planning_generation,
+                )
+                or self.ltl_planner is None
+                or self.ltl_planner.product is None
+                or self._canonical_ts_state is None
+                or self.ltl_planner.curr_ts_state != self._canonical_ts_state
+            ):
+                self.get_logger().warning("IRL teaching authority is not ready.")
+                return False
+            try:
+                runs = tuple(tuple(run) for run in possible_runs)
+                if not runs or any(
+                    len(run) < 2 or run[-1][0] != self._canonical_ts_state
+                    for run in runs
+                ):
+                    raise ValueError("IRL requires teaching paths ending at the current state.")
+                candidate = deepcopy(self.ltl_planner)
+            except Exception as error:
+                self.get_logger().warning(f"Cannot isolate IRL teaching input: {error}")
+                return False
+            token = object()
+            planning = PlanningRequest(
+                token=token,
+                origin_state=PlannerStatus.ACTIVE,
+                transition_system_yaml=self._active_ts_yaml,
+                source_hash=self._active_ts_sha256,
+                initial_states=tuple(zip(
+                    self._planner_dimension_names(candidate), self._canonical_ts_state,
+                )),
+                initial_state=self._canonical_ts_state,
+                hard_task=candidate.hard_spec,
+                soft_task=candidate.soft_spec,
+                beta=candidate.beta,
+                gamma=candidate.gamma,
+            )
+            request = IRLPlanningRequest(
+                planning=planning,
+                identity=(
+                    self._planner_instance_id, self._planning_generation,
+                    self._execution_step_seq,
+                ),
+                state_revision=self._ts_state_revision,
+                candidate=candidate,
+                possible_runs=runs,
+            )
+            self._planning_token = token
+            self._planning_origin_state = PlannerStatus.ACTIVE
+            self._planning_source_yaml = self._active_ts_yaml
+            self._planning_source_hash = self._active_ts_sha256
+            self._pending_divergence = None
+            future = Future(executor=self.executor)
+            future.add_done_callback(partial(self._finish_irl_replan, request))
+            worker = Thread(
+                target=run_irl_worker, args=(future, request),
+                name="irl_worker", daemon=True,
+            )
+            self._planning_worker = worker
+            self._set_planner_status(PlannerStatus.PLANNING, "IRL learning is in progress.")
+        try:
+            worker.start()
+        except RuntimeError as error:
+            self._finish_plan_ltl_failure(
+                None, token, PlanLTL.Result.ERROR_INTERNAL, str(error), "IRL",
+            )
+            return False
+        return True
+
+    def _finish_irl_replan(self, request, future) -> None:
+        """Commit an IRL outcome on the executor after strict freshness checks."""
+        if self._shutting_down:
+            return
+        try:
+            outcome = future.result()
+        except Exception as error:
+            outcome = PlanningOutcome(PlanLTL.Result.ERROR_INTERNAL, str(error))
+        if outcome.error_code != PlanLTL.Result.ERROR_NONE:
+            self.get_logger().warning(f"IRL learning failed: {outcome.message}")
+            self._finish_plan_ltl_failure(
+                None, request.planning.token, outcome.error_code, outcome.message, "IRL",
+            )
+            return
+        result = self._commit_plan_ltl_candidate(
+            None, request.planning, outcome,
+            expected_identity=request.identity,
+            expected_state_revision=request.state_revision, operation="IRL",
+        )
+        if result.success:
+            self.get_logger().info(
+                f"IRL committed beta {request.planning.beta} -> {outcome.planner.beta}."
+            )
+        else:
+            self.get_logger().warning(f"IRL result rejected: {result.message}")
 
     def _initialize_plugins(self) -> None:
         """Load configured planner plugins after planning is available."""
@@ -1528,6 +1712,8 @@ class PlannerNode(Node):
     def _update_possible_states(
         self,
         ts_state: tuple[str, ...],
+        *,
+        enforce_accepting_boundary=True,
     ) -> bool:
         """Update and publish product states matching a TS state."""
         if self.ltl_planner is None:
@@ -1539,7 +1725,7 @@ class PlannerNode(Node):
 
         states_available = (
             self.ltl_planner.update_possible_states(
-                ts_state
+                ts_state, enforce_accepting_boundary=enforce_accepting_boundary,
             )
         )
 
@@ -1730,7 +1916,11 @@ class PlannerNode(Node):
         if not self.replan_on_unplanned_move:
             self.ltl_planner.curr_ts_state = reached_state
 
-            if self._update_possible_states(reached_state):
+            # The planned cursor does not constrain an alternative observed
+            # word. Product successors still enforce its hard guards.
+            if self._update_possible_states(
+                reached_state, enforce_accepting_boundary=False,
+            ):
                 self._publish_planning_execution_observation()
                 self._run_plugins(reached_state)
                 self.get_logger().warning(
@@ -1880,6 +2070,9 @@ class PlannerNode(Node):
                 f"Ignoring repeated TS state: {reached_state}"
             )
             return
+
+        with self._state_lock:
+            self._ts_state_revision += 1
 
         active_transaction = (
             self._planner_state == PlannerStatus.PLANNING
