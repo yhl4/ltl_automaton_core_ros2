@@ -139,11 +139,15 @@ class VelocityCommandMixer(Node):
         self.last_human_input = self._now_seconds()
 
     def _human_is_recent(self):
-        return (
-            self.human_command is not None
-            and self.last_human_input is not None
-            and self._now_seconds() - self.last_human_input < self.timeout
-        )
+        if self.human_command is None or self.last_human_input is None:
+            return False
+        age = self._now_seconds() - self.last_human_input
+        if 0.0 <= age < self.timeout:
+            return True
+        # An invalid or expired sample must not revive when ROS time catches up.
+        self.human_command = None
+        self.last_human_input = None
+        return False
 
     def _latest_navigation(self):
         if self._latest_navigation_command is None:

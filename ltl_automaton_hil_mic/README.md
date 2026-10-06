@@ -43,6 +43,13 @@ Async results use the latest accepted navigation and current human commands, wit
 freshness checked again when each response arrives. An expired human input,
 changed TS state, or failed service falls back to the latest valid navigation command.
 
+Human-input age uses the node's ROS clock and must satisfy `0 <= age < timeout`.
+When a check finds a negative age after clock reversal or an expired sample, it
+clears that human input. Returning ROS time to the old window cannot revive the
+sample; another human input is required. Receipt at ROS time zero remains valid
+for a positive timeout, and `timeout=0` disables human input. The safety-query
+deadline continues to use steady time.
+
 All six `Twist` components must be finite. Invalid human input clears the manual
 input and cancels its pending query; invalid navigation input leaves the last
 valid navigation cache intact. Both reject the sample, log a warning and publish

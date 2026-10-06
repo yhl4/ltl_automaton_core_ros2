@@ -162,6 +162,7 @@ ltl_automaton_hil_mic/
 - trap 服务不可用、TS 未连通或人工输入超时时安全回退到导航命令；
 - 通过异步 ROS 2 service client 查询 `check_for_trap`，避免阻塞控制回调；
 - 安全查询用 `safety_check_timeout` 限时，过期响应不覆盖新状态或命令；
+- Velocity 人工输入的 ROS 时间年龄必须非负且小于 `timeout`；已失效输入清除后须重新接收；
 - 非有限速度/服务距离回退到最后有效导航命令，无有效缓存时输出零速度；
 - 可选 IRL 插件从示范 Product 轨迹学习软任务权重 β，并事务式提交重规划结果。
 
@@ -671,6 +672,7 @@ colcon test-result --verbose
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
 - 标准 TS 无效位姿/关节反馈的丢弃与恢复，以及有限大数的 6D 距离计算；
 - HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
+- HIL 人工输入在 ROS 时间回退或过期后不会复活，以及零时刻/零 timeout 的边界；
 - HIL 非有限速度/距离的丢弃与恢复、三轴限幅和小安全区增益的数值稳定性；
 - HIL、标准 TS 和执行节点的启动参数只读拒绝、启动覆盖及公开参数服务原子更新；
 - Launch 测试结束时的干净退出。
@@ -685,13 +687,13 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为接受运行索引的单次边扫描。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 execution 包：97 tests、0 errors、0 failures、0 skipped，
-含缺边拒绝顺序、失败后的缓存保留、原有四项真实 DDS 符号执行闭环与 lint。
-11 个小快照的新旧执行步骤或异常完全相同；固定 16,384 边图的首次索引从两次
-完整边遍历降为一次，不作为端到端耗时或 RSS 测量。
+最近代码验证为 HIL 人工输入的 ROS 时间年龄判定。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 HIL 包：89 tests、0 errors、0 failures、1 skipped，
+含六项新增时间边界检查、既有控制器/IRL 通信及 lint。
+负年龄或过期样本失效后，ROS 时间返回旧窗口不会让旧人工输入复活；
+时间边界使用受控 ROS 时间与独立 steady 时间，不作为 DDS 时钟分发或实机验证。
 结合其他未改包保留结果，合计
-**449 tests, 0 errors, 0 failures, 4 skipped**。
+**455 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

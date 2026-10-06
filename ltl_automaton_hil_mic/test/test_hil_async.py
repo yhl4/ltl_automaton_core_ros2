@@ -262,6 +262,76 @@ def test_velocity_human_expiry_uses_latest_navigation(velocity_runtime):
     assert [message.linear.x for message in runtime.messages] == [0.8, 0.8]
 
 
+@pytest.mark.parametrize("stage", ["closest", "trap"])
+def test_velocity_clock_reversal_rejects_pending_reply(
+    velocity_runtime, monkeypatch, stage
+):
+    """Negative input age cannot authorize either stage's delayed safety reply."""
+    runtime = velocity_runtime
+    ros_time = [10.0]
+    monkeypatch.setattr(runtime.node, "_now_seconds", lambda: ros_time[0])
+    start_check(runtime, finish_closest=stage == "trap")
+    runtime.node._navigation_callback(velocity(0.8))
+    future = (
+        runtime.closest.futures[-1] if stage == "closest"
+        else runtime.trap.futures[-1]
+    )
+    ros_time[0] = 5.0
+    response = (
+        ClosestState.Response() if stage == "closest"
+        else TrapCheck.Response(is_connected=True)
+    )
+    future.complete(response)
+    assert [message.linear.x for message in runtime.messages] == [0.8, 0.8]
+    assert runtime.node.human_command is None
+    assert runtime.node.last_human_input is None
+    assert runtime.node._safety_request_context is None
+    assert not runtime.node._safety_check_in_flight
+
+
+@pytest.mark.parametrize("invalid_time", [5.0, 12.0])
+def test_velocity_invalid_age_cannot_revive_cached_input(
+    velocity_runtime, monkeypatch, invalid_time
+):
+    """Once invalidated, a sample stays absent even if ROS time returns to its window."""
+    runtime = velocity_runtime
+    ros_time = [10.0]
+    monkeypatch.setattr(runtime.node, "_now_seconds", lambda: ros_time[0])
+    runtime.node._human_callback(velocity(0.3))
+    ros_time[0] = invalid_time
+    runtime.node._navigation_callback(velocity(0.1))
+    assert not runtime.closest.futures
+    assert runtime.node.human_command is None
+    ros_time[0] = 10.1
+    runtime.node._navigation_callback(velocity(0.2))
+    assert not runtime.closest.futures
+    assert [message.linear.x for message in runtime.messages] == [0.1, 0.2]
+    runtime.node._human_callback(velocity(0.4))
+    runtime.node._navigation_callback(velocity(0.2))
+    assert len(runtime.closest.futures) == 1
+    runtime.closest.futures[-1].complete(ClosestState.Response())
+    assert [message.linear.x for message in runtime.messages] == [0.1, 0.2, 0.4]
+
+
+@pytest.mark.parametrize("timeout", [0.0, 2.0])
+def test_velocity_zero_ros_time_respects_freshness_window(
+    velocity_runtime, monkeypatch, timeout
+):
+    """Time zero is a valid receipt time, while a zero timeout disables human input."""
+    runtime = velocity_runtime
+    runtime.node.timeout = timeout
+    monkeypatch.setattr(runtime.node, "_now_seconds", lambda: 0.0)
+    runtime.node._human_callback(velocity(0.3))
+    runtime.node._navigation_callback(velocity(0.1))
+    if timeout == 0.0:
+        assert not runtime.closest.futures
+        assert [message.linear.x for message in runtime.messages] == [0.1]
+    else:
+        assert len(runtime.closest.futures) == 1
+        runtime.closest.futures[-1].complete(ClosestState.Response())
+        assert [message.linear.x for message in runtime.messages] == [0.3]
+
+
 def test_velocity_empty_closest_after_state_change_uses_navigation(velocity_runtime):
     """Even the no-neighbor branch must reject stale source-state safety data."""
     runtime = velocity_runtime

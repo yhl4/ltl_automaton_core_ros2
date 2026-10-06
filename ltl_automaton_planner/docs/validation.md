@@ -559,3 +559,27 @@ Python 分配峰值，未包括图构造，不代表 RSS、一般规划规模或
 **449 tests, 0 errors, 0 failures, 4 skipped**。
 未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.28 HIL 人工输入的 ROS 时间年龄（2026-10-06）
+
+以 `65792ae` 为基线，Velocity 控制器只检查 `age < timeout`。人工输入于
+ROS 时间 10 接收、时间回退到 5 后，负年龄仍被判为新鲜；closest 与 trap
+两阶段的晚到响应均输出旧人工速度 0.3，而非最新导航速度 0.8。另一个问题
+是已观察到过期的样本仍留在缓存，时间返回原窗口后可以重新成为人工输入。
+
+现在 freshness 仅接受 `0 <= age < timeout`；检测到负年龄或过期时清空人工
+命令与接收时间，之后必须接收新输入。保持 ROS 时间口径、严格上界、ROS
+零时刻的有效接收、零 timeout 禁用人工输入，以及独立 steady 查询截止时间。
+混合曲线、限幅、TS 状态版本与异步请求身份规则不变。
+
+新增六项定向检查，在旧源码上为 **4 failed / 2 passed**，修复后均通过：
+两阶段异步回复在负年龄时回退导航并释放查询；负年龄与 timeout 边界失效后
+不能随时间返回而复活，新人工输入可恢复正常查询；零时刻接收在正 timeout
+下有效，零 timeout 下只通过导航。受控 fixture 使用真实 Node 与消息、记录型
+publisher 和 Future，ROS 时间与 steady 请求时间分开控制；不作为真实 DDS
+`/clock` 分发、机器人安全或实机测量。
+
+重跑受影响的 HIL 包，含既有控制器、TrapDetection/IRL 通信与 lint：
+**89 tests, 0 errors, 0 failures, 1 skipped**，其中 async 文件 **43 passed**。
+结合其他包保留结果，合计 **455 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
