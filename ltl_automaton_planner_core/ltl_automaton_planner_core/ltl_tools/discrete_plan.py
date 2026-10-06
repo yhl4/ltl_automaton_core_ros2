@@ -7,6 +7,7 @@ from collections import deque
 
 from networkx import multi_source_dijkstra_path_length
 from networkx import single_source_dijkstra_path_length
+from networkx import strongly_connected_components
 
 from .product import ProdAut_Run
 
@@ -37,6 +38,23 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         sources=init_set,
         weight="weight",
     )
+    reachable_accepting = {
+        target
+        for target in accepting_cycles
+        if target in prefix_dist
+    }
+    if not reachable_accepting:
+        _LOGGER.error(
+            "No accepting run found in NetworkX Dijkstra planning."
+        )
+        return None, None
+
+    target_components = {}
+    for component in strongly_connected_components(product):
+        reachable_targets = component & reachable_accepting
+        for target in reachable_targets:
+            target_components[target] = component
+
     best_plan = None
 
     for prod_target in accepting_cycles:
@@ -44,10 +62,19 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
             continue
 
         cycle_costs: dict[object, float] = {}
+
+        component = target_components[prod_target]
+
+        def component_weight(source, successor, data):
+            """Hide exits because a valid accepting cycle cannot leave."""
+            if successor not in component:
+                return None
+            return data.get("weight", 1)
+
         loop_dist = single_source_dijkstra_path_length(
             product,
             prod_target,
-            weight="weight",
+            weight=component_weight,
         )
 
         for target_pred in product.predecessors(prod_target):

@@ -798,6 +798,22 @@ Core 的 11 项学习检查与两项替代路线检查通过；宿主六项 IRL 
 本轮构建 core、planner 与 HIL 三包，重跑 core、planner、HIL 与 execution 四包测试；
 与其他包保留结果合计为 **288 tests, 0 errors, 0 failures, 4 skipped**。
 
+### 11.11 接受环搜索范围优化（2026-10-06）
+
+prefix 仍在完整 Product 上搜索；suffix 只搜索接受点所属的强连通分量。
+离开该分量的路径无法返回接受点，因此不可能参与接受循环。分量在本次搜索内
+计算，不写入 Product 缓存；目标函数、闭环边计费、严格浮点路径恢复与零代价环
+处理保持不变。所有接受点均不可达时不执行额外 SCC 遍历。
+
+以 `b1b97ce` 为旧实现，KTH、Demo-D1 导航及取放三个真实 Product，默认与三起点、
+γ=0/1/10 共 18 组总代价差均为 0，路径合法且 initial/possible states 未变。
+固定 1,003 节点 Product 包含两节点接受环与 1,000 节点单向尾，suffix 搜索得到有限
+距离的节点从 **1,002 个降至 2 个**；前后总代价均为 51，输入边权和状态集合不变。
+这是定向搜索范围检查，不表示端到端加速比。
+
+本轮重跑 core、planner、HIL 与 execution 四包，覆盖可选 IRL 示范学习及真实执行
+闭环回归；与其他包保留结果合计为 **288 tests, 0 errors, 0 failures, 4 skipped**。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照

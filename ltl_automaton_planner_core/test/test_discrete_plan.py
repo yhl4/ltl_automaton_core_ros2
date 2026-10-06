@@ -303,19 +303,24 @@ def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
 
 
 def test_networkx_dijkstra_skips_unreachable_suffix(monkeypatch):
-    """Skip suffix search for accepting cycles unreachable from starts."""
+    """Restrict suffix search to the accepting target's SCC."""
     product = make_weighted_product([
         ("s0", "goal", 1), ("goal", "goal", 1),
+        ("goal", "cycle", 2), ("cycle", "goal", 2),
+        ("goal", "tail", 0), ("tail", "tail2", 0),
         ("dead", "dead", 0),
     ], accepting="goal")
     product.graph["accept"].add(("dead", "q0"))
     product.build_accept_with_cycle()
     suffix_sources = []
+    suffix_distances = {}
     original_single = discrete_plan.single_source_dijkstra_path_length
 
     def record_single(graph, source, **kwargs):
         suffix_sources.append(source)
-        return original_single(graph, source, **kwargs)
+        distances = original_single(graph, source, **kwargs)
+        suffix_distances[source] = distances
+        return distances
 
     monkeypatch.setattr(
         discrete_plan,
@@ -325,7 +330,35 @@ def test_networkx_dijkstra_skips_unreachable_suffix(monkeypatch):
     run, _ = dijkstra_plan_networkX(product)
 
     assert run is not None
+    assert run.precost == 1
     assert suffix_sources == [("goal", "q0")]
+    assert ("cycle", "q0") in suffix_distances[("goal", "q0")]
+    assert ("tail", "q0") not in suffix_distances[("goal", "q0")]
+    assert ("tail2", "q0") not in suffix_distances[("goal", "q0")]
+
+    previous_initial = set(product.graph["initial"])
+    previous_possible_states = set(
+        getattr(product, "possible_states", set())
+    )
+
+    def unexpected_scc(*args, **kwargs):
+        raise AssertionError(
+            "An unreachable accepting target must skip SCC construction."
+        )
+
+    monkeypatch.setattr(
+        discrete_plan,
+        "strongly_connected_components",
+        unexpected_scc,
+    )
+    assert dijkstra_plan_networkX(
+        product,
+        start_set={("tail", "q0")},
+    ) == (None, None)
+    assert product.graph["initial"] == previous_initial
+    assert set(getattr(product, "possible_states", set())) == (
+        previous_possible_states
+    )
 
 
 def test_networkx_dijkstra_zero_cost_multi_source_prefix_is_finite():
