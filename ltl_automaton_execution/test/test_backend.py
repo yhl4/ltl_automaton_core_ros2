@@ -72,21 +72,35 @@ def test_a1_backend_completion_has_no_symbolic_state_authority():
     ]
 
 
-def test_a2_fake_execution_updates_plant_only_after_delay():
+@pytest.mark.parametrize("delay", [0.0, 0.25, 1e10])
+def test_a2_fake_execution_updates_plant_only_after_delay(delay):
     plant = FakePlant(_state("r1"))
     scheduler = ManualScheduler()
     completions = []
-    backend = FakeBackend(plant, scheduler, execution_delay_sec=0.25)
+    backend = FakeBackend(plant, scheduler, execution_delay_sec=delay)
 
     assert backend.execute(_step(), completions.append)
     assert plant.current_state == _state("r1")
     assert completions == []
-    assert scheduler.calls[0][0] == 0.25
+    assert scheduler.calls[0][0] == delay
     scheduler.calls[0][1]()
     assert plant.current_state == _state("r2")
     assert completions == [ExecutionCompletion(
         True, "Fake execution completed action move."
     )]
+
+
+@pytest.mark.parametrize(
+    "delay", [-1.0, float("nan"), float("inf"), -float("inf"), True, "0.5", None],
+)
+def test_fake_backend_rejects_invalid_delay_before_scheduling(delay):
+    """Reject malformed delays without executing or observing a state change."""
+    plant = FakePlant(_state("r1"))
+    scheduler = ManualScheduler()
+    with pytest.raises(ValueError, match="execution_delay_sec"):
+        FakeBackend(plant, scheduler, execution_delay_sec=delay)
+    assert plant.current_state == _state("r1")
+    assert scheduler.calls == []
 
 
 def test_a3_fake_state_observer_emits_exactly_once_per_plant_update():

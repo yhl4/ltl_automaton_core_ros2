@@ -1,6 +1,7 @@
 """In-memory plant, execution, observation, and abstraction runtime."""
 
 from dataclasses import dataclass
+import math
 
 from ltl_automaton_execution.models import ExecutionCompletion
 from ltl_automaton_execution.models import SymbolicState
@@ -49,11 +50,18 @@ class FakeBackend:
     """Complete one accepted symbolic step after a configured delay."""
 
     def __init__(self, plant, scheduler, execution_delay_sec=0.5):
-        if execution_delay_sec < 0.0:
-            raise ValueError("Execution delay must be non-negative.")
+        error_message = "execution_delay_sec must be finite and non-negative."
+        try:
+            if isinstance(execution_delay_sec, (bool, str, bytes)):
+                raise TypeError("Execution delay must be numeric.")
+            delay = float(execution_delay_sec)
+        except (TypeError, ValueError, OverflowError) as error:
+            raise ValueError(error_message) from error
+        if not math.isfinite(delay) or delay < 0.0:
+            raise ValueError(error_message)
         self._plant = plant
         self._scheduler = scheduler
-        self._delay = float(execution_delay_sec)
+        self._delay = delay
 
     def execute(self, step, completion):
         """Schedule success without blocking the caller."""

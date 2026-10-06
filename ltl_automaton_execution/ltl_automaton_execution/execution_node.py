@@ -7,6 +7,7 @@ from time import monotonic
 import rclpy
 from rclpy.clock import Clock
 from rclpy.clock import ClockType
+from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy
 from rclpy.qos import QoSProfile
@@ -79,6 +80,13 @@ class ExecutionManagerNode(Node):
         selected_backend = backend or FakeBackend(
             self._fake_plant, self._schedule, delay
         )
+        if not backend:
+            try:
+                Duration(seconds=max(float(delay), 0.001))
+            except (OverflowError, TypeError, ValueError) as error:
+                raise ValueError(
+                    "execution_delay_sec is outside the ROS timer range."
+                ) from error
         self._state_observer = state_observer or FakeStateObserver(
             self._fake_plant
         )
@@ -121,13 +129,20 @@ class ExecutionManagerNode(Node):
         self._state_observer.start(self._on_state_observation)
 
     def _schedule(self, delay, callback):
+        if self._shutting_down:
+            return False
         holder = {}
 
         def fire():
             timer = holder["timer"]
+            if self._shutting_down or timer not in self._execution_timers:
+                return
             timer.cancel()
             self._execution_timers.discard(timer)
-            callback()
+            try:
+                callback()
+            finally:
+                self.destroy_timer(timer)
 
         timer = self.create_timer(max(float(delay), 0.001), fire)
         holder["timer"] = timer
@@ -465,6 +480,11 @@ class ExecutionManagerNode(Node):
         self._pending_snapshot_observation = None
         self._cancel_snapshot_requests()
         self._snapshot_retry_timer.cancel()
+        execution_timers = tuple(self._execution_timers)
+        self._execution_timers.clear()
+        for timer in execution_timers:
+            timer.cancel()
+            self.destroy_timer(timer)
         self._state_observer.stop()
         return super().destroy_node()
 

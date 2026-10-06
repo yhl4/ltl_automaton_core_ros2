@@ -64,6 +64,14 @@ read-only startup parameters. Startup overrides are applied before constructing
 requests and the backend; runtime writes are rejected instead of reporting
 values that were not applied. The inherited `use_sim_time` remains dynamic.
 
+`FakeBackend` requires a finite, non-negative numeric execution delay. The default
+ROS-backed node also rejects delays outside the native timer range at startup.
+Zero delay keeps the existing asynchronous 1-millisecond minimum and ROS clock.
+Each one-shot timer is destroyed after its callback, including when that callback
+raises. Teardown clears pending execution timers and ignores already queued
+callbacks, so they cannot mutate the fake plant after shutdown. A supplied backend
+retains its own scheduling contract.
+
 An `ExecutionBackend` receives an `ExecutionStep` containing the command identity,
 action, and exact symbolic source/target states. It completes asynchronously with
 an `ExecutionCompletion` containing only execution success and a message.

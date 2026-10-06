@@ -406,3 +406,28 @@ TrapDetection、monitor Launch、真实 DDS 符号执行闭环及 lint。
 与其他包保留结果合计 **418 tests, 0 errors, 0 failures, 4 skipped**。
 这些检查不构成实机、物理仿真或机器人示范验证。
 
+### 11.22 fake 执行延迟与 timer 生命周期（2026-10-06）
+
+以 `bd13d7f` 为基线，默认执行 Node 启动时接受 NaN、Inf 和 `1e10` 秒延迟，
+却在首次调度时分别触发浮点转换或原生 timer 范围异常。真实 ROS probe 同时
+复现三个 one-shot 完成后 `Node.timers` 仍为 4（初始为 1），节点销毁后
+`_execution_timers` 仍保留一个已销毁的 timer 引用。
+
+`FakeBackend` 现在构造时拒绝非数值、非有限和负延迟；默认 ROS Node 额外
+使用 `Duration` 检查与原生 timer 相同的纳秒表示范围，错误提前发生在启动时。
+通用 scheduler 和自定义 backend 不额外受 ROS 范围约束。零延迟仍使用原有
+1 毫秒异步 timer，执行延迟仍使用 ROS clock；快照重试的 steady clock 不变。
+
+one-shot 回调结束后通过 `finally` 销毁 timer，保留回调异常的传播。销毁节点
+时先清空执行 timer 集合，再取消并释放资源；已排队回调与后续调度均受关闭
+状态保护，不能再修改 fake plant。修复后的真实 probe 显示三个步骤完成后
+timer 数量从 4 回到 1，销毁后 Node timer 与执行 timer 集合均为 0。
+
+两个定向测试文件共 **38 passed**，较基线新增 **19** 项检查，覆盖纯 backend
+延迟、默认 Node 启动拒绝、原生 timer 释放、回调异常后的释放与继续调度、
+销毁后已排队回调、零延迟及自定义 backend 的独立调度契约。
+仅重跑受影响的执行包，含原有四项真实 DDS 符号执行闭环、快照恢复与 lint：
+**91 tests, 0 errors, 0 failures, 0 skipped**。与其他包保留结果合计
+**437 tests, 0 errors, 0 failures, 4 skipped**。
+timer 数量检查不构成 RSS 或性能测量；未进行物理仿真、实机或多线程执行器验证。
+
