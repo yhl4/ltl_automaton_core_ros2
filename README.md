@@ -838,6 +838,23 @@ prefix 与闭合 suffix 合法，初始与 possible states 保持不变。这里
 本轮重跑 core、planner、HIL 与 execution 四包，含 IRL 示范学习与真实执行闭环；
 与其他包保留结果合计为 **289 tests, 0 errors, 0 failures, 4 skipped**。
 
+### 11.13 完整命题名与不可满足任务解析（2026-10-06）
+
+修复 `cargo_ready1`、`danger_zone2` 等命题被符号提取正则拆分的问题，
+hard/soft 原始 Büchi 与组合图现在记录完整名称；`true`、`false` 作为原生 LTL
+常量，不列入原子命题清单，`true_value0`、`false_alarm1` 等普通名称仍保留。
+
+原生 ltl2ba 对不可满足任务生成带 `false;` 的无出边初始状态。解析器现在接受
+该输出并保留声明节点，Büchi 工厂使用这些节点构图，不添加虚构转移。
+`parse_ltl` 仍返回 transition dictionary；缺失 never header 会明确报解析错误。
+真实 `false` hard-task Action 在 READY 与 ACTIVE 下均返回
+`ERROR_NO_ACCEPTING_PLAN`，ACTIVE 的 planner/run、快照及执行序号保持不变。
+命题 guard、source-label 与代价语义保持不变。
+
+定向检查覆盖完整名称、常量清单、死端状态与缺失 header，并使用原生 ltl2ba
+验证原始/组合 Büchi 图与 `parse_ltl` 返回接口。本轮重跑 core、planner、HIL 与
+execution 四包；与其他包保留结果合计为 **297 tests, 0 errors, 0 failures, 4 skipped**。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照

@@ -16,13 +16,17 @@ class Parser:
 
     # Expressions describing the input language.
     vertex_regex = re.compile(r"(?P<name>\w+_\w+):\s*")
-    never_regex = re.compile(r"never \{ /\*(?P<formula>.+)\*/")
+    never_regex = re.compile(
+        r"never\s*\{\s*/\*(?P<formula>.*?)\*/",
+        re.DOTALL,
+    )
     if_regex = re.compile(r"if")
     edge_regex = re.compile(
         r":: (?P<cond>\(.*\)) -> goto (?P<dest>\w+_\w+)"
     )
     fi_regex = re.compile(r"fi;")
     skip_regex = re.compile(r"skip")
+    false_regex = re.compile(r"false;")
     end_regex = re.compile(r"\}")
 
     def __init__(self, instring):
@@ -30,6 +34,7 @@ class Parser:
         self.instring = instring
         self.pos = 0
         self.formula = None
+        self.states = set()
 
     def eat_whitespace(self):
         """Consume whitespace from the current parser position."""
@@ -57,12 +62,15 @@ class Parser:
         edges = {}
 
         never_claim = self.accept(self.never_regex)
+        if never_claim is None:
+            raise ParseException("Expected a never claim header.")
         self.formula = never_claim["formula"]
 
         vertex = self.accept(self.vertex_regex)
 
         while vertex is not None:
             vertex_name = vertex["name"]
+            self.states.add(vertex_name)
 
             if self.accept(self.if_regex) is not None:
                 edge = self.accept(self.edge_regex)
@@ -76,6 +84,10 @@ class Parser:
             elif self.accept(self.skip_regex) is not None:
                 # A skip statement represents a self-loop.
                 edges[(vertex_name, vertex_name)] = "1"
+
+            elif self.accept(self.false_regex) is not None:
+                # A false statement declares an isolated blocking state.
+                pass
 
             else:
                 remainder = self.instring[self.pos:]
@@ -103,9 +115,9 @@ def parse(promela):
     return parser.parse()
 
 
-def find_states(edges):
+def find_states(edges, declared_states=()):
     """Return all, initial, and accepting Büchi states."""
-    states = set()
+    states = set(declared_states)
     initial_states = set()
     accepting_states = set()
 
@@ -129,7 +141,7 @@ def find_states(edges):
 
 def find_symbols(formula):
     """Return the sorted atomic propositions found in a formula."""
-    symbol_regex = re.compile(r"[a-z]+[a-z0-9]*")
-    symbols = set(symbol_regex.findall(formula))
+    symbol_regex = re.compile(r"[a-z]+[a-z0-9_]*")
+    symbols = set(symbol_regex.findall(formula)) - {"true", "false"}
 
     return sorted(symbols)

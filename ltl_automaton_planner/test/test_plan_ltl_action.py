@@ -550,6 +550,39 @@ def test_no_accepting_plan_aborts_with_specific_error(action_runtime):
     assert action_runtime.planner._planner_state == PlannerStatus.READY
 
 
+def test_native_false_task_returns_no_plan_and_preserves_authority(action_runtime):
+    """Treat a native blocking automaton as infeasible in READY and ACTIVE."""
+    assert load_transition_system(action_runtime, VALID_TS).success
+    ready_result = action_result(
+        action_runtime, send_goal(action_runtime, make_goal(hard_task="false")),
+    )
+    assert ready_result.status == GoalStatus.STATUS_ABORTED
+    assert not ready_result.result.success
+    assert ready_result.result.error_code == PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN
+    assert action_runtime.planner._planner_state == PlannerStatus.READY
+    assert action_runtime.planner._planning_generation == 0
+
+    accepted = action_result(action_runtime, send_goal(action_runtime, make_goal()))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED
+    assert accepted.result.success
+    active_planner = action_runtime.planner.ltl_planner
+    active_run = active_planner.run
+    active_snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    active_seq = action_runtime.planner._execution_step_seq
+
+    failed = action_result(
+        action_runtime, send_goal(action_runtime, make_goal(hard_task="false")),
+    )
+    assert failed.status == GoalStatus.STATUS_ABORTED
+    assert not failed.result.success
+    assert failed.result.error_code == PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN
+    assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+    assert action_runtime.planner.ltl_planner is active_planner
+    assert action_runtime.planner.ltl_planner.run is active_run
+    assert action_runtime.planner._execution_step_seq == active_seq
+    assert get_planning_graph_snapshot(action_runtime).snapshot == active_snapshot
+
+
 def test_invalid_and_stale_initial_states_do_not_start_worker(
     action_runtime,
     monkeypatch,

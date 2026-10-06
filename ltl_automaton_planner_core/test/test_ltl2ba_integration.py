@@ -9,6 +9,7 @@ from ltl_automaton_planner_core.ltl_tools.ltl2ba import (
     run_ltl2ba,
 )
 from ltl_automaton_planner_core.ltl_tools.promela import (
+    Parser,
     find_states,
 )
 
@@ -41,3 +42,21 @@ def test_real_ltl2ba_output_parsing() -> None:
     assert states
     assert initial_states
     assert accepting_states
+
+
+def test_real_ltl2ba_false_claim_preserves_isolated_initial_state() -> None:
+    """Parse native false output without inventing an outgoing edge."""
+    output = run_ltl2ba("<> (false)")
+    parser = Parser(output)
+
+    assert parser.parse() == {}
+    assert parser.states == {"T0_init"}
+    assert parse_ltl("<> (false)") == {}
+
+    states, initial_states, accepting_states = find_states(
+        {},
+        parser.states,
+    )
+    assert set(states) == {"T0_init"}
+    assert set(initial_states) == {"T0_init"}
+    assert accepting_states == []

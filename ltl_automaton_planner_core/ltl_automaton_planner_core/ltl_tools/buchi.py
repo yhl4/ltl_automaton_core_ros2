@@ -6,8 +6,8 @@ from itertools import product as cartesian_product
 from networkx import DiGraph
 
 from ..boolean_formulas.parser import parse as parse_guard
-from .ltl2ba import parse_ltl
-from .promela import find_states, find_symbols
+from .ltl2ba import run_ltl2ba
+from .promela import Parser, find_states, find_symbols
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -15,9 +15,13 @@ _LOGGER = logging.getLogger(__name__)
 
 def buchi_from_ltl(formula, buchi_type):
     """Construct a Büchi automaton from an LTL formula."""
-    edges = parse_ltl(formula)
+    parser = Parser(run_ltl2ba(formula))
+    edges = parser.parse()
     symbols = find_symbols(formula)
-    states, initial_states, accepting_states = find_states(edges)
+    states, initial_states, accepting_states = find_states(
+        edges,
+        parser.states,
+    )
 
     buchi = DiGraph(
         type=buchi_type,
