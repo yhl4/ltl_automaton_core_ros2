@@ -887,6 +887,26 @@ transition-dictionary 与 DiGraph 接口不变；soft distance 仍沿用现有 O
 本轮重跑 core 与 planner 两包；与其他包保留结果合计为
 **313 tests, 0 errors, 0 failures, 4 skipped**。
 
+### 11.16 组合 TS 节点逐项构造（2026-10-06）
+
+组合 TS 节点与初始状态现在用 `itertools.product` 逐项枚举，避免先物化完整组合
+列表；初始状态直接加入已有集合，避免额外的临时集合。公共 `node_product()`
+仍返回原顺序的扁平 tuple 列表，零维输入为 `[()]`，空因子返回 `[]`。
+节点 label/marker、guard、边覆盖规则与单维分支保持不变。
+
+以 `9b4466a` 为旧实现对照，KTH、Demo-D1 导航与取放的 TS 节点/边顺序及属性、
+初始集合和对应 Product 完整值一致，输入因子未被修改。默认及三起点、γ=0/1/10
+共 18 组规划总代价差均为 0，prefix 与闭合 suffix 合法，initial/possible states 不变。
+
+固定 64×64×4 无边因子、各因子所有状态均为初始的 fixture 共生成 16,384 个
+TS 节点与初始状态。构造期间的 tracemalloc Python 分配峰值为
+**11,590,949 → 10,294,820 bytes**，图值与顺序一致；该结果不代表进程总内存
+或端到端规划加速。七项 TS 检查覆盖原有 guard 行为、三因子顺序、多个初始状态
+及公共列表接口。
+
+本轮重跑 core 与 planner 两包；与其他包保留结果合计为
+**316 tests, 0 errors, 0 failures, 4 skipped**。
+
 ---
 
 ## 12. ROS 1 到 ROS 2 迁移对照

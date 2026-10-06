@@ -109,3 +109,70 @@ def test_single_dimension_guard_is_enforced():
     model = TSModel([region])
     model.build_full()
     assert not model.has_edge(("r1",), ("r2",))
+
+
+def make_factor_model(states, initial):
+    """Create an edgeless factor for Cartesian composition checks."""
+    graph = DiGraph(initial=set(initial))
+    graph.graph["ts_state_format"] = "factor"
+    for state in states:
+        graph.add_node(state)
+    return graph
+
+
+def test_three_factor_composition_preserves_order_and_node_metadata():
+    """Compose factors lazily while preserving tuple order and metadata."""
+    factors = [
+        make_factor_model([("a",), ("b",)], {("a",)}),
+        make_factor_model([("x",), ("y",)], {("x",)}),
+        make_factor_model([("0",), ("1",)], {("0",)}),
+    ]
+    model = TSModel(factors)
+    model.compose_nodes(factors)
+
+    assert list(model.nodes) == [
+        ("a", "x", "0"),
+        ("a", "x", "1"),
+        ("a", "y", "0"),
+        ("a", "y", "1"),
+        ("b", "x", "0"),
+        ("b", "x", "1"),
+        ("b", "y", "0"),
+        ("b", "y", "1"),
+    ]
+    assert model.nodes[("a", "x", "0")]["label"] == (
+        "a", "x", "0"
+    )
+    assert model.nodes[("a", "x", "0")]["marker"] == "unvisited"
+
+
+def test_composed_initial_states_use_all_factor_initials():
+    """Update initial states from the Cartesian product of factor initials."""
+    factors = [
+        make_factor_model([("a",), ("b",)], {("a",), ("b",)}),
+        make_factor_model([("x",), ("y",)], {("x",), ("y",)}),
+    ]
+    model = TSModel(factors)
+    model.compose_initial(factors)
+
+    assert model.graph["initial"] == {
+        ("a", "x"),
+        ("a", "y"),
+        ("b", "x"),
+        ("b", "y"),
+    }
+
+
+def test_node_product_public_list_contract_including_empty_factors():
+    """Keep the public list helper behavior for zero and empty inputs."""
+    assert TSModel.node_product() == [()]
+    assert TSModel.node_product([("a",)], []) == []
+    assert TSModel.node_product(
+        [("a",), ("b",)],
+        [("x",), ("y",)],
+    ) == [
+        ("a", "x"),
+        ("a", "y"),
+        ("b", "x"),
+        ("b", "y"),
+    ]

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from itertools import product as cartesian_product
 
 from networkx.classes.digraph import DiGraph
 
@@ -80,9 +81,9 @@ class TSModel(DiGraph):
 
         """
         initial_states = [list(graph.graph['initial']) for graph in graph_list]
-        init_nodes = self.node_product(*initial_states)
-
-        self.graph['initial'].update(set(init_nodes))
+        self.graph['initial'].update(
+            self._iter_node_product(*initial_states)
+        )
 
     def compose_nodes(self, graph_list):
         """
@@ -90,8 +91,7 @@ class TSModel(DiGraph):
 
         Nodes are products of nodes from the input graph list.
         """
-        node_product = self.node_product(*graph_list)
-        for node in node_product:
+        for node in self._iter_node_product(*graph_list):
             self.add_node(node, label=node, marker='unvisited')
 
     def compose_edges(self, graph_list):
@@ -135,6 +135,16 @@ class TSModel(DiGraph):
         return self._guard_cache[action_guard].check(ts_label)
 
     @staticmethod
+    def _iter_node_product(*args):
+        """Yield flattened product nodes without materializing the product."""
+        for combination in cartesian_product(*args):
+            yield tuple(
+                value
+                for node in combination
+                for value in node
+            )
+
+    @staticmethod
     def node_product(*args):
         """
         Return a list of product nodes.
@@ -142,9 +152,4 @@ class TSModel(DiGraph):
         Take as input lists of nodes.
 
         """
-        node_pools = [list(pool) for pool in args]
-        product_pool = [tuple()]
-        for node_pool in node_pools:
-            product_pool = [x+y for x in product_pool for y in node_pool]
-
-        return product_pool
+        return list(TSModel._iter_node_product(*args))
