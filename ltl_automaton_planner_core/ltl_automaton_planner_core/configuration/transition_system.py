@@ -97,10 +97,16 @@ def state_models_from_ts(ts_dict, initial_states_dict=None):
                 action_data = actions[action]
                 if action not in validated_actions:
                     weight = action_data["weight"]
-                    if (
-                        isinstance(weight, bool) or not isinstance(weight, Real)
-                        or not isfinite(weight) or weight < 0
-                    ):
+                    try:
+                        invalid_weight = (
+                            isinstance(weight, bool)
+                            or not isinstance(weight, Real)
+                            or not isfinite(weight)
+                            or weight < 0
+                        )
+                    except OverflowError:
+                        invalid_weight = True
+                    if invalid_weight:
                         raise ValueError(
                             f"Action {action!r} weight must be finite and nonnegative."
                         )

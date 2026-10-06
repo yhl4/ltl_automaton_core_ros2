@@ -761,3 +761,28 @@ translator、ROS 2 Action 通信与 lint；跳过项为原有版权头检查。�
 未改包保留结果，合计 **493 tests, 0 errors, 0 failures, 4 skipped**，
 并非本轮重跑全部包。未进行物理仿真、实机或 Jazzy 独立验证。
 
+### 11.36 TS 代价转换溢出诊断（2026-10-06）
+
+以 `b01d08f` 为基线，动作代价 `±10**400` 在 `math.isfinite` 中触发
+`OverflowError`，核心 helper 泄漏原异常，真实加载服务将其报告为
+`Unexpected transition-system loading failure`。现在只在既有权重验证内
+将该溢出视为无效，返回同一条 `ValueError` 权重诊断。bool/Real、有限性和
+非负性规则、有效代价的原类型和值、guard 与图构造不变；服务的其它异常
+分类及允许加载的生命周期状态不变。API 文档同步说明该无效权重诊断。
+
+三项新增检查在旧实现均失败：两个核心参数分别覆盖正/负超大整数，另一项
+通过真实 ROS 2 LoadTransitionSystem 服务加载含正超大整数代价的 YAML。
+修复后，核心两项均为 `ValueError`；服务明确返回
+`Action 'goto_r2' weight must be finite and nonnegative.`，保留已验证 TS
+对象、active hash 和 READY 状态，随后加载有效 TS B 成功并更新 hash。
+该场景在 READY 下没有活动计划，不作为 ACTIVE 计划替换、网络故障或
+机器人安全测量；没有扩大已接受数值范围或钳制权重。
+
+重跑受影响 core 与 planner：分别为 **131 tests / 1 skipped** 与
+**108 tests / 1 skipped**，均为 **0 errors / 0 failures**，合计
+**237 passed / 2 skipped**；TS 配置文件 **18 passed**，planner node 文件
+**27 passed**。含既有真实 translator、ROS 2 Action/服务通信与 lint；
+跳过项为原有版权头检查。结合其它未改包保留结果，合计
+**496 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+未进行物理仿真、实机或 Jazzy 独立验证。
+

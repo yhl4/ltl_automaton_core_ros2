@@ -695,14 +695,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为 Product 的 TS 后继复用。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，重跑 core 与 planner：236 tests、0 errors、0 failures、2 skipped，
-含四项新增语义保持检查、既有真实 translator/ROS 2 Action 通信与 lint。
-每个 TS 源状态在本次构建内复用有序后继与原边属性引用；保持 Product 顺序、
-source-label、接受条件与代价。三个 9 nodes 小图的新旧接受运行字段一致，
-TS 后继枚举调用及枚举项均为 9→3；该计数不作为端到端耗时或 RSS 测量。
+最近代码验证为 TS 代价转换溢出诊断。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，重跑 core 与 planner：239 tests、0 errors、0 failures、2 skipped，
+含三项新增检查、既有真实 translator/ROS 2 通信与 lint。
+超大整数动作代价在有限性检查中发生的溢出统一为无效权重错误；真实加载服务
+保留已验证 TS、hash 与 READY 状态，随后有效请求仍可正常加载。
+有效代价的原值、类型、guard 和图构造规则保持不变。
 结合其他未改包保留结果，合计
-**493 tests, 0 errors, 0 failures, 4 skipped**。
+**496 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

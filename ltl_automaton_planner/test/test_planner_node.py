@@ -437,6 +437,30 @@ def test_invalid_load_preserves_active_ts(planner_runtime, invalid_yaml):
     assert planner_runtime.planner._planner_state == PlannerStatus.READY
 
 
+def test_oversized_action_cost_is_reported_as_invalid_input(planner_runtime):
+    """Reject an overflowing integer cost through the real ROS service."""
+    first_response = call_load_transition_system(planner_runtime, VALID_TS_A)
+    active_ts = planner_runtime.planner._active_transition_system
+    invalid_yaml = VALID_TS_A.replace("weight: 2.0", "weight: " + str(10 ** 400))
+
+    response = call_load_transition_system(planner_runtime, invalid_yaml)
+
+    assert not response.success
+    assert response.message == (
+        "Action 'goto_r2' weight must be finite and nonnegative."
+    )
+    assert response.active_ts_sha256 == first_response.active_ts_sha256
+    assert planner_runtime.planner._active_transition_system is active_ts
+    assert planner_runtime.planner._active_ts_sha256 == first_response.active_ts_sha256
+    assert planner_runtime.planner._planner_state == PlannerStatus.READY
+
+    recovery = call_load_transition_system(planner_runtime, VALID_TS_B)
+    assert recovery.success
+    assert recovery.active_ts_sha256 == hashlib.sha256(VALID_TS_B.encode("utf-8")).hexdigest()
+    assert planner_runtime.planner._active_transition_system is not active_ts
+    assert planner_runtime.planner._planner_state == PlannerStatus.READY
+
+
 def test_ready_transition_system_can_be_replaced(planner_runtime):
     """Replace TS A atomically with TS B while the planner is READY."""
     first_response = call_load_transition_system(

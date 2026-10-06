@@ -128,7 +128,11 @@ def test_undefined_transition_target_is_rejected():
         state_models_from_ts(data)
 
 
-@pytest.mark.parametrize("weight", [-1, float("nan"), float("inf"), True, "1"])
+@pytest.mark.parametrize("weight", [
+    -1, float("nan"), float("inf"), True, "1",
+    pytest.param(10 ** 400, id="positive_overflow"),
+    pytest.param(-(10 ** 400), id="negative_overflow"),
+])
 def test_invalid_action_cost_is_rejected(weight):
     """Require finite nonnegative numeric costs for shortest-path search."""
     data = import_ts_from_file(TS_YAML)

@@ -31,6 +31,8 @@ UTF-8 YAML content, not a file path.
 - A valid request atomically replaces the current transition system and leaves
   the planner in `READY`.
 - Invalid input preserves the previous validated transition system.
+- Referenced action weights must be finite and nonnegative. Numeric overflow
+  during this validation is reported as an invalid action weight.
 - Loading is rejected in `PLANNING` and `ACTIVE`.
 - `active_ts_sha256` is the lowercase SHA-256 digest of the exact UTF-8 YAML
   payload that is active. It identifies the payload; it is not a semantic TS
