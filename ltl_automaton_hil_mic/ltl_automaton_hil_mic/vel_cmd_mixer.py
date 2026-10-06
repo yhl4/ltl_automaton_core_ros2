@@ -55,8 +55,8 @@ class VelocityCommandMixer(Node):
                 f"Unsupported state dimension {self.state_dimension_name!r}."
             )
         self.timeout = float(self.get_parameter("timeout").value)
-        if self.timeout < 0.0:
-            raise ValueError("timeout must be non-negative.")
+        if not math.isfinite(self.timeout) or self.timeout < 0.0:
+            raise ValueError("timeout must be finite and non-negative.")
         self.safety_check_timeout = float(
             self.get_parameter("safety_check_timeout").value
         )
@@ -121,6 +121,16 @@ class VelocityCommandMixer(Node):
             self.current_state = state
 
     def _human_callback(self, message):
+        if self._closed:
+            return
+        try:
+            self.policy.validate_command(message)
+        except ValueError as error:
+            self.get_logger().warning(f"Rejecting human velocity: {error}")
+            self.human_command = None
+            self.last_human_input = None
+            self._publish_latest_navigation()
+            return
         self.human_command = VelocityCommandPolicy._clone(message)
         self.last_human_input = self._now_seconds()
 
@@ -157,8 +167,12 @@ class VelocityCommandMixer(Node):
                 pass
         return True
 
-    def _publish_latest_navigation(self, context):
-        if not self._clear_safety_request(context):
+    def _publish_latest_navigation(self, context=None):
+        if self._closed:
+            return
+        if context is None:
+            context = self._safety_request_context
+        if context is not None and not self._clear_safety_request(context):
             return
         self.publisher.publish(self._latest_navigation())
 
@@ -168,11 +182,25 @@ class VelocityCommandMixer(Node):
             return
         human = VelocityCommandPolicy._clone(self.human_command)
         navigation = self._latest_navigation()
+        try:
+            command = self.policy.mix(human, navigation, distance)
+        except ValueError as error:
+            self.get_logger().warning(f"Velocity mixing failed: {error}")
+            self._publish_latest_navigation(context)
+            return
         if not self._clear_safety_request(context, cancel=False):
             return
-        self.publisher.publish(self.policy.mix(human, navigation, distance))
+        self.publisher.publish(command)
 
     def _navigation_callback(self, navigation):
+        if self._closed:
+            return
+        try:
+            self.policy.validate_command(navigation)
+        except ValueError as error:
+            self.get_logger().warning(f"Rejecting navigation velocity: {error}")
+            self._publish_latest_navigation()
+            return
         navigation = VelocityCommandPolicy._clone(navigation)
         self._latest_navigation_command = VelocityCommandPolicy._clone(
             navigation
@@ -244,6 +272,10 @@ class VelocityCommandMixer(Node):
                 self.get_logger().warning(
                     "Using navigation command because the safety query is stale."
                 )
+            self._publish_latest_navigation(context)
+            return
+        if not math.isfinite(response.metric):
+            self.get_logger().warning("closest_region returned a non-finite metric.")
             self._publish_latest_navigation(context)
             return
         if not response.closest_state:

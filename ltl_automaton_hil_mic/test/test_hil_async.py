@@ -1,6 +1,7 @@
 """Exercise HIL callback ordering with real nodes and controlled futures."""
 
 from contextlib import contextmanager
+import math
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -326,3 +327,113 @@ def test_real_steady_timer_cancels_unanswered_query(kind, monkeypatch):
 
         start_check(runtime, finish_closest=False)
         assert len(client.futures) == 2
+
+
+def test_invalid_human_cancels_pending_query_and_valid_input_can_retry(velocity_runtime):
+    """Invalid human input cannot become a saturated command or revive old work."""
+    runtime = velocity_runtime
+    start_check(runtime, finish_closest=False)
+    old = runtime.closest.futures[-1]
+    runtime.node._human_callback(velocity(float("nan")))
+    assert old.cancelled
+    assert runtime.node.human_command is None
+    assert [message.linear.x for message in runtime.messages] == [0.1]
+    start_check(runtime, finish_closest=False)
+    old.complete(ClosestState.Response(closest_state="r2", metric=0.5))
+    assert not runtime.trap.futures
+    assert len(runtime.closest.futures) == 2
+    runtime.closest.futures[-1].complete(ClosestState.Response())
+    assert [message.linear.x for message in runtime.messages] == [0.1, 0.3]
+
+
+def test_invalid_navigation_preserves_valid_cache_and_allows_retry(velocity_runtime):
+    """A malformed navigation sample cannot replace the valid fallback."""
+    runtime = velocity_runtime
+    start_check(runtime, finish_closest=False)
+    old = runtime.closest.futures[-1]
+    runtime.node._navigation_callback(velocity(float("inf")))
+    assert old.cancelled
+    assert [message.linear.x for message in runtime.messages] == [0.1]
+    assert runtime.node._latest_navigation_command.linear.x == 0.1
+    runtime.node._navigation_callback(velocity(0.2))
+    assert len(runtime.closest.futures) == 2
+    runtime.closest.futures[-1].complete(ClosestState.Response())
+    assert [message.linear.x for message in runtime.messages] == [0.1, 0.3]
+
+
+def test_invalid_first_navigation_falls_back_to_zero(velocity_runtime):
+    """Before any valid navigation sample, rejection publishes finite zero velocity."""
+    runtime = velocity_runtime
+    navigation = velocity(0.1)
+    navigation.angular.z = float("nan")
+    runtime.node._navigation_callback(navigation)
+    assert runtime.messages == [Twist()]
+    assert runtime.node._latest_navigation_command is None
+    assert not runtime.closest.futures
+
+
+@pytest.mark.parametrize(
+    "closest_state, metric",
+    [
+        ("r2", float("nan")),
+        ("r2", float("inf")),
+        ("r2", -float("inf")),
+        ("", float("nan")),
+    ],
+)
+def test_invalid_closest_metric_uses_latest_navigation_and_releases_query(
+    velocity_runtime, closest_state, metric
+):
+    """Invalid safety distance cannot activate human gain or block another query."""
+    runtime = velocity_runtime
+    start_check(runtime, finish_closest=False)
+    runtime.node._navigation_callback(velocity(0.8))
+    runtime.closest.futures[-1].complete(
+        ClosestState.Response(closest_state=closest_state, metric=metric),
+    )
+    assert [message.linear.x for message in runtime.messages] == [0.8, 0.8]
+    assert not runtime.trap.futures
+    assert all(math.isfinite(message.linear.x) for message in runtime.messages)
+    start_check(runtime, finish_closest=False)
+    assert len(runtime.closest.futures) == 2
+
+
+@pytest.mark.parametrize("value, all_axes", [(1e200, False), (1.5e308, True)])
+def test_large_finite_human_velocity_is_bounded_without_callback_error(
+    velocity_runtime, value, all_axes
+):
+    """The magnitude check must not overflow before manual speed limits apply."""
+    runtime = velocity_runtime
+    human = velocity(value)
+    if all_axes:
+        human.linear.y = value
+        human.linear.z = value
+    runtime.node._human_callback(human)
+    runtime.node._navigation_callback(velocity(0.1))
+    runtime.closest.futures[-1].complete(ClosestState.Response())
+    assert [message.linear.x for message in runtime.messages] == [1.0]
+    assert runtime.messages[0].linear.y == (0.5 if all_axes else 0.0)
+    assert runtime.messages[0].linear.z == (0.5 if all_axes else 0.0)
+
+
+def test_destroyed_velocity_node_ignores_new_input_callbacks(velocity_runtime):
+    """New input callbacks cannot publish even a fallback after destruction."""
+    runtime = velocity_runtime
+    runtime.node.destroy_node()
+    runtime.node._human_callback(velocity(float("nan")))
+    runtime.node._navigation_callback(velocity(float("nan")))
+    assert runtime.messages == []
+
+
+@pytest.mark.parametrize("timeout", [".nan", ".inf", "-.inf"])
+def test_velocity_node_rejects_nonfinite_human_timeout(timeout):
+    """A non-finite freshness window must be rejected during initialization."""
+    rclpy.init(args=["--ros-args", "-p", f"timeout:={timeout}"])
+    node = None
+    try:
+        with pytest.raises(ValueError, match="finite"):
+            node = velocity_module.VelocityCommandMixer()
+    finally:
+        if node is not None:
+            node.destroy_node()
+        rclpy.shutdown()

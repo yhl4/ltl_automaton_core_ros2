@@ -39,16 +39,31 @@ ros2 launch ltl_automaton_hil_mic vel_cmd_hil_mic.launch.py
 
 The ROS 1 topics remain `ts_state`, `key_vel`, `nav_vel`, and `cmd_vel`.
 
-Async results use the latest navigation and human commands, with human-input
+Async results use the latest accepted navigation and current human commands, with human-input
 freshness checked again when each response arrives. An expired human input,
-changed TS state, or failed service falls back to the latest navigation command.
+changed TS state, or failed service falls back to the latest valid navigation command.
+
+All six `Twist` components must be finite. Invalid human input clears the manual
+input and cancels its pending query; invalid navigation input leaves the last
+valid navigation cache intact. Both reject the sample, log a warning and publish
+the latest valid navigation command, or a zero `Twist` before any valid navigation
+has arrived. A non-finite `closest_region` metric also releases the query and
+falls back to valid navigation. Subsequent valid input can start another query.
+
+`ds`, `epsilon`, `deadband`, human-input `timeout` and all axis limits must be
+finite. `epsilon` must be positive; the other values are non-negative. Policy API
+`max_linear` and `max_angular` each contain exactly three values; zero disables
+that manual axis. These limits apply to human input; valid navigation commands
+keep their existing passthrough behavior. Magnitude and smooth gain use stable
+calculations to handle large finite components and tiny positive `epsilon`
+without changing the mathematical deadband, safety-zone or blending rules.
 
 Both launch files accept `safety_check_timeout` (default `1.0` seconds, finite
 and positive). It bounds the complete safety query; the velocity controller's
 closest-region and trap requests share that deadline. A 0.1-second steady-clock
 timer expires pending queries and cancels their futures at its next callback;
 response callbacks also reject expired queries. Bool drops the pending
-human command; velocity publishes the latest navigation command. Late replies
+human command; velocity publishes the latest valid navigation command. Late replies
 cannot affect a newer query or publish after node teardown. The existing velocity
 `timeout` remains the human-input freshness window, separate from this query limit.
 

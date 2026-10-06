@@ -79,17 +79,48 @@ class VelocityCommandPolicy:
         max_linear=(0.5, 0.5, 0.5),
         max_angular=(2.0, 2.0, 2.0),
     ):
+        for name, value in (
+            ("safety distance", safety_distance),
+            ("epsilon", epsilon),
+            ("deadband", deadband),
+        ):
+            try:
+                finite = math.isfinite(value)
+            except TypeError as error:
+                raise ValueError(f"{name} must be finite.") from error
+            if not finite:
+                raise ValueError(f"{name} must be finite.")
         if safety_distance < 0.0:
             raise ValueError("safety distance must be non-negative.")
         if epsilon <= 0.0:
             raise ValueError("epsilon must be positive.")
         if deadband < 0.0:
             raise ValueError("deadband must be non-negative.")
+        limits = []
+        for name, values in (
+            ("max_linear", max_linear),
+            ("max_angular", max_angular),
+        ):
+            try:
+                values = tuple(values)
+            except TypeError as error:
+                raise ValueError(f"{name} must contain exactly three values.") from error
+            if len(values) != 3:
+                raise ValueError(f"{name} must contain exactly three values.")
+            for value in values:
+                try:
+                    finite = math.isfinite(value)
+                except TypeError as error:
+                    raise ValueError(f"{name} values must be finite.") from error
+                if not finite or value < 0.0:
+                    raise ValueError(
+                        f"{name} values must be finite and non-negative."
+                    )
+            limits.append(values)
         self.safety_distance = safety_distance
         self.epsilon = epsilon
         self.deadband = deadband
-        self.max_linear = max_linear
-        self.max_angular = max_angular
+        self.max_linear, self.max_angular = limits
 
     @staticmethod
     def _clone(command):
@@ -103,11 +134,33 @@ class VelocityCommandPolicy:
         return result
 
     @staticmethod
+    def validate_command(command):
+        """Validate all six finite components of a Twist command."""
+        try:
+            values = (
+                command.linear.x,
+                command.linear.y,
+                command.linear.z,
+                command.angular.x,
+                command.angular.y,
+                command.angular.z,
+            )
+        except AttributeError as error:
+            raise ValueError("Command must provide six Twist components.") from error
+        try:
+            finite = all(math.isfinite(value) for value in values)
+        except TypeError as error:
+            raise ValueError("Twist components must be finite numbers.") from error
+        if not finite:
+            raise ValueError("Twist components must be finite numbers.")
+
+    @staticmethod
     def _bound(value, maximum):
         return max(-maximum, min(maximum, value))
 
     def bound(self, command):
         """Return a saturated copy of a velocity command."""
+        self.validate_command(command)
         result = self._clone(command)
         for name, maximum in zip(("x", "y", "z"), self.max_linear):
             setattr(
@@ -121,45 +174,63 @@ class VelocityCommandPolicy:
                 name,
                 self._bound(getattr(result.angular, name), maximum),
             )
+        self.validate_command(result)
         return result
 
     @staticmethod
     def magnitude(command):
         """Return the larger linear or angular Euclidean magnitude."""
-        linear = math.sqrt(
-            command.linear.x**2
-            + command.linear.y**2
-            + command.linear.z**2
+        VelocityCommandPolicy.validate_command(command)
+        linear = math.hypot(
+            command.linear.x, command.linear.y, command.linear.z
         )
-        angular = math.sqrt(
-            command.angular.x**2
-            + command.angular.y**2
-            + command.angular.z**2
+        angular = math.hypot(
+            command.angular.x, command.angular.y, command.angular.z
         )
         return max(linear, angular)
 
-    @staticmethod
-    def _rho(value):
-        return math.exp(-1.0 / value) if value > 0.0 else 0.0
-
     def human_gain(self, distance_to_trap):
         """Return the smooth human-command gain in the safety buffer."""
+        try:
+            finite = math.isfinite(distance_to_trap)
+        except TypeError as error:
+            raise ValueError("Distance to trap must be finite.") from error
+        if not finite:
+            raise ValueError("Distance to trap must be finite.")
         if distance_to_trap <= self.safety_distance:
             return 0.0
-        if distance_to_trap >= self.safety_distance + self.epsilon:
+        offset = distance_to_trap - self.safety_distance
+        if offset >= self.epsilon:
             return 1.0
-        from_safety = self._rho(distance_to_trap - self.safety_distance)
-        from_human = self._rho(
-            self.epsilon + self.safety_distance - distance_to_trap
+        remaining = self.epsilon - offset
+        exp_mag = (
+            abs(remaining - offset)
+            / max(offset, remaining)
+            / min(offset, remaining)
         )
-        return from_safety / (from_safety + from_human)
+        tail = math.exp(-exp_mag)
+        if offset < remaining:
+            return tail / (1.0 + tail)
+        return 1.0 / (1.0 + tail)
 
     def mix(self, human, navigation, distance_to_trap=None):
         """Choose or blend commands for the current trap distance."""
-        if self.magnitude(human) < self.deadband:
-            return self._clone(navigation)
+        human_magnitude = self.magnitude(human)
+        self.validate_command(navigation)
+        if distance_to_trap is not None:
+            try:
+                finite = math.isfinite(distance_to_trap)
+            except TypeError as error:
+                raise ValueError("Distance to trap must be finite.") from error
+            if not finite:
+                raise ValueError("Distance to trap must be finite.")
+        if human_magnitude < self.deadband:
+            result = self._clone(navigation)
+            self.validate_command(result)
+            return result
         bounded_human = self.bound(human)
         if distance_to_trap is None:
+            self.validate_command(bounded_human)
             return bounded_human
         gain = self.human_gain(distance_to_trap)
         result = Twist()
@@ -174,4 +245,5 @@ class VelocityCommandPolicy:
                     (1.0 - gain) * getattr(navigation_vector, axis)
                     + gain * getattr(human_vector, axis),
                 )
+        self.validate_command(result)
         return result

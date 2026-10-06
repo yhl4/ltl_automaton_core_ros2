@@ -162,6 +162,7 @@ ltl_automaton_hil_mic/
 - trap 服务不可用、TS 未连通或人工输入超时时安全回退到导航命令；
 - 通过异步 ROS 2 service client 查询 `check_for_trap`，避免阻塞控制回调；
 - 安全查询用 `safety_check_timeout` 限时，过期响应不覆盖新状态或命令；
+- 非有限速度/服务距离回退到最后有效导航命令，无有效缓存时输出零速度；
 - 可选 IRL 插件从示范 Product 轨迹学习软任务权重 β，并事务式提交重规划结果。
 
 控制器启动参数和仲裁规则见 [HIL README](ltl_automaton_hil_mic/README.md)。
@@ -660,6 +661,7 @@ colcon test-result --verbose
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
 - 标准 TS 无效位姿/关节反馈的丢弃与恢复，以及有限大数的 6D 距离计算；
 - HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
+- HIL 非有限速度/距离的丢弃与恢复、三轴限幅和小安全区增益的数值稳定性；
 - Launch 测试结束时的干净退出。
 - 不可行任务、未知状态与内部异常下的事务式重规划回滚。
 - 完整 Product 上的历史重规划、最新到达状态、代价参数与新任务历史隔离。
@@ -672,11 +674,11 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证为标准 TS 输入边界修复。在 Ubuntu 22.04 / ROS 2 Humble /
-Python 3.10 下，标准 TS 包重跑为 34 tests、0 errors、0 failures、1 skipped，
-包含新增的 22 项检查及原有 2D/6D monitor Launch 通信回归。
+最近代码验证为 HIL 速度数值边界修复。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，HIL 包重跑为 81 tests、0 errors、0 failures、1 skipped，
+包含新增的 36 项检查及原有 controller/TrapDetection/IRL 通信回归。
 结合其他未改包保留结果，合计
-**360 tests, 0 errors, 0 failures, 4 skipped**。
+**396 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
