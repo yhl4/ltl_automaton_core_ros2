@@ -1,9 +1,13 @@
 """ROS 2 velocity-command mixed-initiative controller."""
 
+import math
+from time import monotonic
+
 import rclpy
 from geometry_msgs.msg import Twist
 from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import ClosestState, TrapCheck
+from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 
 from .policies import (
@@ -31,6 +35,7 @@ class VelocityCommandMixer(Node):
             "ds": 1.2,
             "deadband": 0.2,
             "timeout": 0.2,
+            "safety_check_timeout": 1.0,
             "max_linear_x_vel": 0.5,
             "max_linear_y_vel": 0.5,
             "max_linear_z_vel": 0.5,
@@ -52,6 +57,14 @@ class VelocityCommandMixer(Node):
         self.timeout = float(self.get_parameter("timeout").value)
         if self.timeout < 0.0:
             raise ValueError("timeout must be non-negative.")
+        self.safety_check_timeout = float(
+            self.get_parameter("safety_check_timeout").value
+        )
+        if (
+            not math.isfinite(self.safety_check_timeout)
+            or self.safety_check_timeout <= 0.0
+        ):
+            raise ValueError("safety_check_timeout must be finite and positive.")
         self.policy = VelocityCommandPolicy(
             safety_distance=float(self.get_parameter("ds").value),
             epsilon=float(self.get_parameter("epsilon").value),
@@ -66,9 +79,17 @@ class VelocityCommandMixer(Node):
             ),
         )
         self.current_state = None
+        self._state_revision = 0
         self.human_command = None
         self.last_human_input = None
+        self._latest_navigation_command = None
         self._safety_check_in_flight = False
+        self._safety_request_context = None
+        self._closed = False
+        self._steady_clock = Clock(clock_type=ClockType.STEADY_TIME)
+        self._safety_timeout_timer = self.create_timer(
+            0.1, self._check_safety_timeout, clock=self._steady_clock
+        )
         self.publisher = self.create_publisher(Twist, "cmd_vel", 50)
         self.closest_client = self.create_client(
             ClosestState, "closest_region"
@@ -94,20 +115,69 @@ class VelocityCommandMixer(Node):
         except ValueError as error:
             self.get_logger().warning(str(error))
             return
-        self.current_state = clone_ts_state(message.ts_state)
+        state = clone_ts_state(message.ts_state)
+        if self.current_state != state:
+            self._state_revision += 1
+            self.current_state = state
 
     def _human_callback(self, message):
         self.human_command = VelocityCommandPolicy._clone(message)
         self.last_human_input = self._now_seconds()
 
-    def _navigation_callback(self, navigation):
-        navigation = VelocityCommandPolicy._clone(navigation)
-        human_is_recent = (
+    def _human_is_recent(self):
+        return (
             self.human_command is not None
             and self.last_human_input is not None
             and self._now_seconds() - self.last_human_input < self.timeout
         )
-        if not human_is_recent or self.current_state is None:
+
+    def _latest_navigation(self):
+        if self._latest_navigation_command is None:
+            return Twist()
+        return VelocityCommandPolicy._clone(self._latest_navigation_command)
+
+    def _query_is_current(self, context):
+        return (
+            self.current_state is not None
+            and self.current_state == context["source_state"]
+            and self._state_revision == context["source_revision"]
+            and self._human_is_recent()
+        )
+
+    def _clear_safety_request(self, context, cancel=True):
+        if self._safety_request_context is not context:
+            return False
+        self._safety_request_context = None
+        self._safety_check_in_flight = False
+        future = context.get("future")
+        if cancel and future is not None:
+            try:
+                future.cancel()
+            except Exception:
+                pass
+        return True
+
+    def _publish_latest_navigation(self, context):
+        if not self._clear_safety_request(context):
+            return
+        self.publisher.publish(self._latest_navigation())
+
+    def _publish_policy_result(self, context, distance=None):
+        if not self._query_is_current(context):
+            self._publish_latest_navigation(context)
+            return
+        human = VelocityCommandPolicy._clone(self.human_command)
+        navigation = self._latest_navigation()
+        if not self._clear_safety_request(context, cancel=False):
+            return
+        self.publisher.publish(self.policy.mix(human, navigation, distance))
+
+    def _navigation_callback(self, navigation):
+        navigation = VelocityCommandPolicy._clone(navigation)
+        self._latest_navigation_command = VelocityCommandPolicy._clone(
+            navigation
+        )
+        if not self._human_is_recent() or self.current_state is None:
             self.publisher.publish(navigation)
             return
         if self._safety_check_in_flight:
@@ -124,78 +194,133 @@ class VelocityCommandMixer(Node):
             return
 
         source_state = clone_ts_state(self.current_state)
-        human = VelocityCommandPolicy._clone(self.human_command)
+        context = {
+            "future": None,
+            "deadline": monotonic() + self.safety_check_timeout,
+            "source_state": source_state,
+            "source_revision": self._state_revision,
+        }
+        self._safety_request_context = context
         self._safety_check_in_flight = True
-        future = self.closest_client.call_async(ClosestState.Request())
-        future.add_done_callback(
-            lambda completed: self._closest_result(
-                completed, source_state, human, navigation
+        try:
+            future = self.closest_client.call_async(ClosestState.Request())
+            if future is None:
+                raise RuntimeError("closest_region returned no Future.")
+            context["future"] = future
+            future.add_done_callback(
+                lambda completed: self._closest_result(completed, context)
             )
-        )
+        except Exception as error:
+            self.get_logger().error(f"closest_region failed: {error}")
+            self._publish_latest_navigation(context)
 
-    def _closest_result(self, future, source_state, human, navigation):
+    def _check_safety_timeout(self):
+        if self._closed:
+            return
+        context = self._safety_request_context
+        if context is not None and monotonic() >= context["deadline"]:
+            self._publish_latest_navigation(context)
+
+    def _closest_result(self, future, context):
+        if (
+            self._closed
+            or self._safety_request_context is not context
+            or context.get("future") is not future
+        ):
+            return
+        if monotonic() >= context["deadline"]:
+            self._publish_latest_navigation(context)
+            return
         try:
             response = future.result()
         except Exception as error:
             self.get_logger().error(f"closest_region failed: {error}")
-            self._publish_and_finish(navigation)
+            self._publish_latest_navigation(context)
+            return
+        if response is None or not self._query_is_current(context):
+            if response is None:
+                self.get_logger().error("closest_region returned no response.")
+            else:
+                self.get_logger().warning(
+                    "Using navigation command because the safety query is stale."
+                )
+            self._publish_latest_navigation(context)
             return
         if not response.closest_state:
-            self._publish_and_finish(self.policy.mix(human, navigation))
+            self._publish_policy_result(context)
             return
 
-        potential_state = clone_ts_state(source_state)
+        potential_state = clone_ts_state(context["source_state"])
         index = potential_state.state_dimension_names.index(
             self.state_dimension_name
         )
         potential_state.states[index] = response.closest_state
         request = TrapCheck.Request(ts_state=potential_state)
-        trap_future = self.trap_client.call_async(request)
-        trap_future.add_done_callback(
-            lambda completed: self._trap_result(
-                completed,
-                response.metric,
-                source_state,
-                human,
-                navigation,
+        try:
+            trap_future = self.trap_client.call_async(request)
+            if trap_future is None:
+                raise RuntimeError("check_for_trap returned no Future.")
+            context["future"] = trap_future
+            trap_future.add_done_callback(
+                lambda completed: self._trap_result(
+                    completed, response.metric, context
+                )
             )
-        )
+        except Exception as error:
+            self.get_logger().error(f"check_for_trap failed: {error}")
+            self._publish_latest_navigation(context)
 
     def _trap_result(
         self,
         future,
         distance,
-        source_state,
-        human,
-        navigation,
+        context,
     ):
+        if (
+            self._closed
+            or self._safety_request_context is not context
+            or context.get("future") is not future
+        ):
+            return
+        if monotonic() >= context["deadline"]:
+            self._publish_latest_navigation(context)
+            return
         try:
             response = future.result()
         except Exception as error:
             self.get_logger().error(f"check_for_trap failed: {error}")
-            self._publish_and_finish(navigation)
+            self._publish_latest_navigation(context)
             return
-        if self.current_state != source_state:
+        if response is None:
+            self.get_logger().error("check_for_trap returned no response.")
+            self._publish_latest_navigation(context)
+            return
+        if not self._query_is_current(context):
             self.get_logger().warning(
-                "Using navigation command because the TS state changed."
+                "Using navigation command because the safety query is stale."
             )
-            self._publish_and_finish(navigation)
+            self._publish_latest_navigation(context)
             return
         if not response.is_connected:
             self.get_logger().warning(
                 "Using navigation command because the closest region is "
                 "not connected."
             )
-            self._publish_and_finish(navigation)
+            self._publish_latest_navigation(context)
             return
         trap_distance = distance if response.is_trap else None
-        self._publish_and_finish(
-            self.policy.mix(human, navigation, trap_distance)
-        )
+        self._publish_policy_result(context, trap_distance)
 
-    def _publish_and_finish(self, command):
-        self._safety_check_in_flight = False
-        self.publisher.publish(command)
+    def destroy_node(self):
+        """Cancel safety work before destroying the ROS node."""
+        self._closed = True
+        context = self._safety_request_context
+        if context is not None:
+            self._clear_safety_request(context)
+        timer = getattr(self, "_safety_timeout_timer", None)
+        if timer is not None:
+            timer.cancel()
+        super().destroy_node()
 
 
 def main(args=None):

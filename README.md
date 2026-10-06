@@ -155,9 +155,12 @@ ltl_automaton_hil_mic/
 
 - Bool 命令仲裁：规划器命令直接通过，人工命令仅在 TS 连通且非 trap 时通过；
 - Velocity 命令仲裁：依据 trap 距离平滑混合人工与导航速度；
-- trap 服务不可用、TS 未连通或状态超时时安全回退到导航命令；
+- trap 服务不可用、TS 未连通或人工输入超时时安全回退到导航命令；
 - 通过异步 ROS 2 service client 查询 `check_for_trap`，避免阻塞控制回调；
+- 安全查询用 `safety_check_timeout` 限时，过期响应不覆盖新状态或命令；
 - 可选 IRL 插件从示范 Product 轨迹学习软任务权重 β，并事务式提交重规划结果。
+
+控制器启动参数和仲裁规则见 [HIL README](ltl_automaton_hil_mic/README.md)。
 
 ---
 
@@ -651,6 +654,7 @@ colcon test-result --verbose
 - 快照服务延迟发现后的命令恢复、执行后端异常后的忙碌状态释放；
 - 快照请求失败后的最新命令恢复，以及节点销毁后晚到响应的抑制；
 - 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
+- HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
 - Launch 测试结束时的干净退出。
 - 不可行任务、未知状态与内部异常下的事务式重规划回滚。
 - 完整 Product 上的历史重规划、最新到达状态、代价参数与新任务历史隔离。
@@ -663,9 +667,11 @@ git diff --check
 
 ### 最新验证摘要（2026-10-06）
 
-最近代码验证对应 `d121ecb`。在 Ubuntu 22.04 / ROS 2 Humble / Python 3.10 下，
-core 与 planner 完成重跑；结合其他未改包保留结果，合计
-**316 tests, 0 errors, 0 failures, 4 skipped**。
+最近代码验证为 HIL 异步安全查询修复。在 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10 下，HIL 包重跑为 45 tests、0 errors、0 failures、1 skipped，包含
+新增的 22 项检查（其中两项使用真实 ROS 定时器）及原有通信回归。
+结合其他未改包保留结果，合计
+**338 tests, 0 errors, 0 failures, 4 skipped**。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
@@ -689,7 +695,7 @@ Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 | `region_6d_jointspace_monitor.py` | `region_6d_jointspace_monitor` | 迁移旧仓库中未安装的 6D monitor |
 | `region_2d_pose_definition.py` | `region_2d_pose_definition` | 显式输出路径，生成 planner-compatible TS |
 | `BoolCmdMixer` | `bool_cmd_hil_mic` | 保留 Bool 仲裁语义，trap 查询改为异步 ROS 2 service client |
-| `VelCmdMixer` | `vel_cmd_hil_mic` | 保留速度混合语义，增加服务不可用与状态超时的安全回退 |
+| `VelCmdMixer` | `vel_cmd_hil_mic` | 保留速度混合语义，服务失败、查询过期或人工输入超时时回退到最新导航命令 |
 | `TrapDetectionPlugin` | `ltl_automaton_hil_mic.trap_detection` | 只读查询，不修改 active plan、generation 或 execution state |
 | `IRLPlugin` | `ltl_automaton_hil_mic.inverse_reinforcement_learning` | 可选 β 学习；隔离候选并由宿主事务式重规划提交 |
 | `catkin_make` | `colcon build --symlink-install` | 构建与测试命令见第 5、11 节 |

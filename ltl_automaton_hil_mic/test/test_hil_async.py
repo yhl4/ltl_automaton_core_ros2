@@ -1,0 +1,328 @@
+"""Exercise HIL callback ordering with real nodes and controlled futures."""
+
+from contextlib import contextmanager
+from pathlib import Path
+from types import SimpleNamespace
+
+from geometry_msgs.msg import Twist
+from ltl_automaton_hil_mic import bool_cmd_mixer as bool_module
+from ltl_automaton_hil_mic import vel_cmd_mixer as velocity_module
+from ltl_automaton_msgs.msg import TransitionSystemStateStamped
+from ltl_automaton_msgs.srv import ClosestState, TrapCheck
+import pytest
+import rclpy
+from std_msgs.msg import Bool
+from time import monotonic as real_monotonic
+
+
+class DeferredFuture:
+    """Hold completed callbacks so tests can deliver them after cancellation."""
+
+    def __init__(self):
+        """Initialize a reply with no queued completion."""
+        self.callbacks = []
+        self.response = None
+        self.error = None
+        self.cancelled = False
+
+    def add_done_callback(self, callback):
+        """Queue a callback for explicit delivery."""
+        self.callbacks.append(callback)
+
+    def result(self):
+        """Return the recorded response or raise its recorded failure."""
+        if self.error is not None:
+            raise self.error
+        return self.response
+
+    def cancel(self):
+        """Record cancellation without removing an already queued callback."""
+        self.cancelled = True
+
+    def complete(self, response=None, error=None):
+        """Complete and deliver callbacks in the test's chosen order."""
+        self.response = response
+        self.error = error
+        for callback in self.callbacks:
+            callback(self)
+
+
+class ControlledClient:
+    """Return controlled futures or fail the next request synchronously."""
+
+    def __init__(self):
+        """Initialize an available client with no requests."""
+        self.futures = []
+        self.fail_next = False
+
+    def service_is_ready(self):
+        """Keep discovery available to isolate request and callback faults."""
+        return True
+
+    def call_async(self, request):
+        """Record each submitted request's future."""
+        del request
+        if self.fail_next:
+            self.fail_next = False
+            raise RuntimeError("injected request failure")
+        future = DeferredFuture()
+        self.futures.append(future)
+        return future
+
+
+def velocity(value):
+    """Create a one-axis command whose selected value is easy to verify."""
+    message = Twist()
+    message.linear.x = value
+    return message
+
+
+def state(kind, changed=False):
+    """Create a valid source or alternate state for the selected controller."""
+    message = TransitionSystemStateStamped()
+    message.ts_state.state_dimension_names = [
+        "load" if kind == "bool" else "2d_pose_region",
+    ]
+    message.ts_state.states = [
+        ("loaded" if changed else "empty")
+        if kind == "bool" else ("r2" if changed else "r1"),
+    ]
+    return message
+
+
+@contextmanager
+def controller_runtime(
+    kind, monkeypatch, safety_check_timeout=1.0, patch_monotonic=True
+):
+    """Create a real controller while controlling its service completions."""
+    config = Path(__file__).resolve().parents[1] / "config/example_bool_ts.yaml"
+    rclpy.init(args=[
+        "--ros-args", "-p", f"transition_system_path:={config}",
+        "-p", f"safety_check_timeout:={safety_check_timeout}",
+        "-p", "timeout:=2.0",
+        "-p", "max_linear_x_vel:=1.0", "-p", "deadband:=0.05",
+        "-p", "ds:=1.0", "-p", "epsilon:=1.0",
+    ])
+    module = bool_module if kind == "bool" else velocity_module
+    clock = [10.0]
+    if patch_monotonic:
+        monkeypatch.setattr(module, "monotonic", lambda: clock[0])
+    node = module.BoolCommandMixer() if kind == "bool" else module.VelocityCommandMixer()
+    messages = []
+    monkeypatch.setattr(node, "publisher", SimpleNamespace(publish=messages.append))
+    trap = ControlledClient()
+    closest = ControlledClient()
+    monkeypatch.setattr(node, "trap_client", trap)
+    if kind == "velocity":
+        monkeypatch.setattr(node, "closest_client", closest)
+        monkeypatch.setattr(node, "_now_seconds", lambda: clock[0])
+    node._state_callback(state(kind))
+    value = SimpleNamespace(
+        node=node, kind=kind, clock=clock, messages=messages,
+        trap=trap, closest=closest,
+    )
+    try:
+        yield value
+    finally:
+        if not node._closed:
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+@pytest.fixture(params=["bool", "velocity"])
+def runtime(request, monkeypatch):
+    """Run common safety checks against each controller."""
+    with controller_runtime(request.param, monkeypatch) as value:
+        yield value
+
+
+@pytest.fixture
+def velocity_runtime(monkeypatch):
+    """Run velocity-specific checks without empty Boolean test cases."""
+    with controller_runtime("velocity", monkeypatch) as value:
+        yield value
+
+
+def start_check(runtime, finish_closest=True):
+    """Start a human query, optionally advance velocity to its trap stage."""
+    if runtime.kind == "bool":
+        runtime.node._human_callback(Bool(data=True))
+    else:
+        runtime.node._human_callback(velocity(0.3))
+        runtime.node._navigation_callback(velocity(0.1))
+        if finish_closest:
+            runtime.closest.futures[-1].complete(
+                ClosestState.Response(closest_state="r2", metric=0.5),
+            )
+
+
+def test_departure_and_return_rejects_old_trap_decision(runtime):
+    """An A-B-A state history must not authorize a decision captured at A."""
+    start_check(runtime)
+    runtime.node._state_callback(state(runtime.kind, changed=True))
+    runtime.node._state_callback(state(runtime.kind))
+    runtime.trap.futures[-1].complete(TrapCheck.Response(is_connected=True))
+    if runtime.kind == "bool":
+        assert runtime.messages == []
+    else:
+        assert [message.linear.x for message in runtime.messages] == [0.1]
+
+
+def test_duplicate_state_still_permits_current_decision(runtime):
+    """Repeated identical symbolic state does not invalidate a pending query."""
+    start_check(runtime)
+    runtime.node._state_callback(state(runtime.kind))
+    runtime.trap.futures[-1].complete(TrapCheck.Response(is_connected=True))
+    if runtime.kind == "bool":
+        assert [message.data for message in runtime.messages] == [True]
+    else:
+        assert [message.linear.x for message in runtime.messages] == [0.3]
+
+
+def test_synchronous_request_failure_allows_next_check(runtime):
+    """A failed submission must not leave the controller permanently busy."""
+    client = runtime.trap if runtime.kind == "bool" else runtime.closest
+    client.fail_next = True
+    start_check(runtime, finish_closest=False)
+    assert not client.futures
+    start_check(runtime, finish_closest=False)
+    assert len(client.futures) == 1
+
+
+@pytest.mark.parametrize("failure", [None, RuntimeError("injected response failure")])
+def test_failed_trap_response_allows_next_check(runtime, failure):
+    """Missing or failed replies cannot publish a human command or block retry."""
+    start_check(runtime)
+    runtime.trap.futures[-1].complete(error=failure)
+    if runtime.kind == "bool":
+        assert runtime.messages == []
+    else:
+        assert [message.linear.x for message in runtime.messages] == [0.1]
+    start_check(runtime)
+    assert len(runtime.trap.futures) == 2
+
+
+def test_timeout_releases_query_and_old_reply_cannot_release_new_one(runtime):
+    """Expire an unanswered query and preserve the identity of its successor."""
+    start_check(runtime, finish_closest=False)
+    client = runtime.trap if runtime.kind == "bool" else runtime.closest
+    old = client.futures[-1]
+    runtime.clock[0] += 1.1
+    runtime.node._check_safety_timeout()
+    assert old.cancelled
+    start_check(runtime, finish_closest=False)
+    assert len(client.futures) == 2
+    response = TrapCheck.Response(is_connected=True) if runtime.kind == "bool" else (
+        ClosestState.Response(closest_state="r2", metric=0.5)
+    )
+    old.complete(response)
+    if runtime.kind == "bool":
+        assert runtime.messages == []
+    else:
+        assert [message.linear.x for message in runtime.messages] == [0.1]
+        assert not runtime.trap.futures
+    start_check(runtime, finish_closest=False)
+    assert len(client.futures) == 2
+
+
+def test_destroyed_node_ignores_pending_reply(runtime):
+    """A completion queued before teardown cannot publish after teardown."""
+    start_check(runtime)
+    old = runtime.trap.futures[-1]
+    runtime.node.destroy_node()
+    assert old.cancelled
+    old.complete(TrapCheck.Response(is_connected=True))
+    assert runtime.messages == []
+
+
+@pytest.mark.parametrize("is_trap, expected", [(True, 0.8), (False, 0.9)])
+def test_velocity_reply_uses_latest_commands(velocity_runtime, is_trap, expected):
+    """Resolve an old query against the newest human and navigation commands."""
+    runtime = velocity_runtime
+    start_check(runtime)
+    runtime.node._human_callback(velocity(0.9))
+    runtime.node._navigation_callback(velocity(0.8))
+    runtime.trap.futures[-1].complete(
+        TrapCheck.Response(is_connected=True, is_trap=is_trap),
+    )
+    assert [message.linear.x for message in runtime.messages] == [0.8, expected]
+
+
+def test_velocity_human_expiry_uses_latest_navigation(velocity_runtime):
+    """A fresh query does not revive a human input that has since expired."""
+    runtime = velocity_runtime
+    runtime.node.timeout = 0.2
+    start_check(runtime)
+    runtime.node._navigation_callback(velocity(0.8))
+    runtime.clock[0] += 0.3
+    runtime.trap.futures[-1].complete(TrapCheck.Response(is_connected=True))
+    assert [message.linear.x for message in runtime.messages] == [0.8, 0.8]
+
+
+def test_velocity_empty_closest_after_state_change_uses_navigation(velocity_runtime):
+    """Even the no-neighbor branch must reject stale source-state safety data."""
+    runtime = velocity_runtime
+    start_check(runtime, finish_closest=False)
+    runtime.node._state_callback(state("velocity", changed=True))
+    runtime.node._navigation_callback(velocity(0.8))
+    runtime.closest.futures[-1].complete(ClosestState.Response())
+    assert [message.linear.x for message in runtime.messages] == [0.8, 0.8]
+    assert not runtime.trap.futures
+
+
+def test_velocity_trap_submission_failure_uses_navigation(velocity_runtime):
+    """Release the two-stage query when its second request fails to start."""
+    runtime = velocity_runtime
+    start_check(runtime, finish_closest=False)
+    runtime.node._navigation_callback(velocity(0.8))
+    runtime.trap.fail_next = True
+    runtime.closest.futures[-1].complete(
+        ClosestState.Response(closest_state="r2", metric=0.5),
+    )
+    assert [message.linear.x for message in runtime.messages] == [0.8, 0.8]
+    start_check(runtime, finish_closest=False)
+    assert len(runtime.closest.futures) == 2
+
+
+def test_velocity_query_stages_share_one_deadline(velocity_runtime):
+    """Starting trap lookup does not restart the closest-query time budget."""
+    runtime = velocity_runtime
+    start_check(runtime, finish_closest=False)
+    runtime.clock[0] += 0.8
+    runtime.closest.futures[-1].complete(
+        ClosestState.Response(closest_state="r2", metric=0.5),
+    )
+    runtime.node._navigation_callback(velocity(0.8))
+    runtime.clock[0] += 0.3
+    runtime.trap.futures[-1].complete(TrapCheck.Response(is_connected=True))
+    assert [message.linear.x for message in runtime.messages] == [0.8, 0.8]
+
+
+@pytest.mark.parametrize("kind", ["bool", "velocity"])
+def test_real_steady_timer_cancels_unanswered_query(kind, monkeypatch):
+    """A real steady timer releases an unanswered safety query."""
+    with controller_runtime(
+        kind,
+        monkeypatch,
+        safety_check_timeout=0.05,
+        patch_monotonic=False,
+    ) as runtime:
+        start_check(runtime, finish_closest=False)
+        client = runtime.trap if kind == "bool" else runtime.closest
+        old = client.futures[-1]
+        if kind == "velocity":
+            runtime.node._navigation_callback(velocity(0.8))
+
+        deadline = real_monotonic() + 1.0
+        while not old.cancelled and real_monotonic() < deadline:
+            rclpy.spin_once(runtime.node, timeout_sec=0.01)
+
+        assert old.cancelled
+        if kind == "bool":
+            assert runtime.messages == []
+        else:
+            assert [message.linear.x for message in runtime.messages] == [0.8, 0.8]
+
+        start_check(runtime, finish_closest=False)
+        assert len(client.futures) == 2

@@ -17,6 +17,11 @@ ros2 launch ltl_automaton_hil_mic bool_cmd_hil_mic.launch.py \
 The ROS 1 topic and service names are preserved: `ts_state`, `key_cmd`,
 `planner_cmd`, `mix_cmd`, and `check_for_trap`.
 
+Pending decisions track changes of symbolic TS state, so leaving and returning
+to the same state does not revive an old response. Repeated identical state
+messages keep a current query valid. Failed requests release the query without
+publishing a human command; another human command can then start a fresh query.
+
 ## Velocity command controller
 
 `vel_cmd_hil_mic` passes navigation commands through when human input is stale,
@@ -33,6 +38,24 @@ ros2 launch ltl_automaton_hil_mic vel_cmd_hil_mic.launch.py
 ```
 
 The ROS 1 topics remain `ts_state`, `key_vel`, `nav_vel`, and `cmd_vel`.
+
+Async results use the latest navigation and human commands, with human-input
+freshness checked again when each response arrives. An expired human input,
+changed TS state, or failed service falls back to the latest navigation command.
+
+Both launch files accept `safety_check_timeout` (default `1.0` seconds, finite
+and positive). It bounds the complete safety query; the velocity controller's
+closest-region and trap requests share that deadline. A 0.1-second steady-clock
+timer expires pending queries and cancels their futures at its next callback;
+response callbacks also reject expired queries. Bool drops the pending
+human command; velocity publishes the latest navigation command. Late replies
+cannot affect a newer query or publish after node teardown. The existing velocity
+`timeout` remains the human-input freshness window, separate from this query limit.
+
+```bash
+ros2 launch ltl_automaton_hil_mic vel_cmd_hil_mic.launch.py \
+  safety_check_timeout:=1.0
+```
 
 The controller package consumes the `check_for_trap` service. The read-only
 ROS 2 `TrapDetectionPlugin` provides it when the planner loads:

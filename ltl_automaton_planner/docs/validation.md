@@ -263,3 +263,29 @@ TS 节点与初始状态。构造期间的 tracemalloc Python 分配峰值为
 本轮重跑 core 与 planner 两包；与其他包保留结果合计为
 **316 tests, 0 errors, 0 failures, 4 skipped**。
 
+### 11.17 HIL 异步安全查询（2026-10-06）
+
+受控回调复现了两个控制器的过期结果问题：状态从 A 离开后回到 A，旧 trap
+响应仍可能放行人工命令；Velocity 的响应使用查询开始时捕获的输入，可能覆盖
+最新导航或人工输入。请求同步抛错会留下 busy 标记，服务不返回也没有查询截止时间。
+
+现在按有效符号 TS 内容变化递增版本，重复相同状态消息不使当前查询失效。
+查询保存独立上下文与 Future 身份；异常、缺失响应和超时均释放查询，先脱离上下文
+再取消 Future，晚到响应不能影响新查询。新增 `safety_check_timeout`（默认 1 秒，
+有限正值），Velocity 的 closest/trap 两阶段共享截止时间。0.1 秒 steady-clock
+timer 在下一次回调清理过期请求，响应回调也检查截止时间；不作为严格实时调度保证。
+Bool 丢弃过期人工命令，Velocity 回退到最新导航；正常响应也重新检查人工输入
+时效并读取最新输入。仲裁公式与速度边界保持不变，销毁节点后抑制晚到服务回调。
+
+新增 22 项检查通过：20 项使用真实 Node 与受控 Future 检查 A→B→A、重复状态、
+请求/响应失败、晚到回调、新查询身份、销毁边界、最新输入、人工输入过期和共享
+截止时间；另两项通过真实 `monotonic`、steady timer 与 `rclpy.spin_once` 验证未返回
+请求的取消和重试。故障用例采用受控服务替身，不声称其为真实 DDS 故障测量。
+两个已安装 launch 入口的 `--show-args` 均暴露新参数及默认值。
+
+本轮仅重跑 HIL 包 `colcon test`，含原有 controller、TrapDetection 和 IRL Launch
+通信回归及 lint，pytest 为 **45 tests, 0 errors, 0 failures, 1 skipped**；
+与其他包保留结果合计为
+**338 tests, 0 errors, 0 failures, 4 skipped**。
+这些检查不构成硬件安全、机器人示范效果或多线程执行器的验证。
+
