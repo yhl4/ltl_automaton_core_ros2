@@ -3170,3 +3170,62 @@ README/HIL README 同步，前 87 节正文保留。本轮未重跑七包，
 e5a663c 的 656 项与 90ccd8e 的快照 23 项保留各自资格，不相加
 为当前结果。验证使用真实 ROS 节点和受控 Future，没有实机、
 LLM、benchmark、物理仿真或 Jazzy 验证，也未改变 IRL 学习范围。
+
+### 11.89 快照隔离与 HIL 校验后的七包组合资格（2026-10-07）
+
+干净源码资格为 aa7acf862749651b3e2b7eaaba70e1b6cff029d0，
+将 11.87 的快照维度列表隔离和 11.88 的 HIL 重复维度校验纳入
+完整组合。本轮只更新 README 与验证记录，源码、测试、domains
+和验收条件保持。测试前固定预期 JUnit 660 项、4 项 copyright
+跳过；四个新增 HIL 参数使该包从 103 到 107，快照扩展既有
+两参数不增加人口。此前 85 文件冻结闭包和 529 份历史哈希
+核对，加入最近整包与两轮局部证据后预先固定 625 份历史哈希。
+
+沿用 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4 及 /home/yuhling/.local/bin/ltl2ba。七包 build
+使用 executor sequential、symlink install、既有隔离 build/
+install、packages-up-to ltl_automaton_core 与 BUILD_TESTING=ON；
+test 使用完整七包默认并行及 --return-code-on-test-failure，
+没有筛选、重跑、缩时或改变测试条件。执行代理 build session
+27747 和 test session 75846 各启动一次并等待原 handle 至实际
+exit 0，耗时分别 42.331240952 / 81.227143791 秒，不作为性能
+测量。主代理实际从 /proc 观测 build runner/colcon PID
+11213/11234 及 test runner/colcon PID 11703/11733。
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 191 | 190 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 107 | 106 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+六份 test_start_ns 之后的新鲜 JUnit 合计
+**660 tests = 656 passed + 4 skipped**，0 errors/failures，跳过均为既有 copyright。
+接口 CTest wrapper 另有一项通过；主代理对实际隔离 build 的
+colcon 查询一次 exit 0：661 tests、0 errors/failures、4 skipped。
+14 份历史 CTest XML 按开始时间排除，不与当前人口或 wrapper
+重复累加。快照两个列表隔离参数、原子服务复制三参数、HIL
+validator 和新增四回调参数均执行；IRL 完整二十步、四个 overflow
+参数、IRL commit/step reset、四个真实 DDS 场景，以及 Studio、
+fallback、原生 ltl2ba/POSIX、HIL、monitor、launch 和 lint 均执行。
+
+启动门槛核对十四项源码 import 和隔离生成消息；十二模块完整
+源码字节与 Git 资格版本绑定，含 snapshot、IRL、resolver 和
+HIL policies/两个 mixer。主代理 collector、独立 fresh/live/
+frozen audit、query 及完整日志 receipt 检查各一次实际 exit 0。
+保留 np.int/SelectableGroups 弃用警告，五包 stderr 非空；完整
+stderr 未见未读取 Future 诊断。新 XML、原命令 receipt、源码
+导入和完整构建/测试/查询实体日志冻结为 85 文件 SHA256 闭包，
+625 份历史哈希保持。记录为既有隔离目录的
+verification_aa7acf8.json、verified_summary_aa7acf8.json、
+verified_changed_imports_aa7acf8.json、colcon_query_aa7acf8.json、
+inspected_combo_receipts_aa7acf8.json 及
+verified_results_aa7acf8/sha256_manifest.json。
+
+README 同步，前 88 节正文保留；旧局部 23/78 项及 e5a663c
+整包 656 项保留各自源码资格，不相加为本轮人口。IRL 沿用原
+示范学习 β 范围，默认关闭；执行验证仍为符号级 FakeBackend，
+没有 LLM、benchmark、完整演示、物理仿真、实机示范或 Jazzy
+验证。通过不证明整体加速、IRL 收敛、逆最优性或机器人效果。

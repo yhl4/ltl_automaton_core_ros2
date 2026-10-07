@@ -681,28 +681,11 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前 HIL 状态校验验证（2026-10-07）
+### 最新七包组合验证（源码 aa7acf8，2026-10-07）
 
-Bool/Velocity 控制器现在拒绝重复维度名的 TS 消息，保留最后合法状态及
-进行中的查询；无合法状态时不建立安全查询，后续合法输入可恢复。
-两份相关测试共 **78 passed**，包含四个新增回调场景；合法不可哈希
-字符串维度仍按值校验。完整记录见
-[validation.md 第 11.88 节](ltl_automaton_planner/docs/validation.md)。
-
-### 最近快照修复验证（源码 90ccd8e，2026-10-07）
-
-修复 Python 构造快照中 Product 节点共享可变维度名列表的问题。
-既有两个参数用例修复前均失败，修复后两份快照测试共 **23 passed**；
-原生 single、safe、KTH 对照中完整消息字段、ID、次序和代价保持一致，
-编辑一个节点的列表不再影响其他节点或后续构建。完整记录见
-[validation.md 第 11.87 节](ltl_automaton_planner/docs/validation.md)。
-
-### 最近七包组合验证（历史源码 e5a663c，2026-10-07）
-
-将最近 IRL 示范评分复用与执行索引键复用一起纳入完整组合。
-干净源码 `e5a663c` 的七包构建和默认并行整包测试各执行一次，
-均 exit 0。以下结果属于该历史源码；后续修复按上面的局部验证分别计数，
-没有重跑七包组合。
+将快照节点维度列表隔离和 HIL 重复维度校验纳入完整组合。
+干净源码 `aa7acf8` 的七包构建和默认并行整包测试各执行一次，
+均 exit 0；本次文档更新没有修改该资格版本的源码或测试。
 
 | 包 | tests | passed | skipped |
 | --- | ---: | ---: | ---: |
@@ -710,17 +693,17 @@ Bool/Velocity 控制器现在拒绝重复维度名的 TS 消息，保留最后�
 | ltl_automaton_planner_core | 191 | 190 | 1 |
 | ltl_automaton_planner | 159 | 158 | 1 |
 | ltl_automaton_execution | 143 | 143 | 0 |
-| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_hil_mic | 107 | 106 | 1 |
 | ltl_automaton_std_transition_systems | 49 | 48 | 1 |
 
-合计 **656 tests = 652 passed / 4 skipped**，0 errors、0 failures。
+合计 **660 tests = 656 passed / 4 skipped**，0 errors、0 failures。
 四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
-对实际隔离 build 的 colcon 查询为 657 tests。保留 np.int/
+对实际隔离 build 的 colcon 查询为 661 tests。保留 np.int/
 SelectableGroups 依赖弃用警告，五包 stderr 非空；历史 XML
 按测试开始时间排除。完整记录见
-[validation.md 第 11.86 节](ltl_automaton_planner/docs/validation.md)。
+[validation.md 第 11.89 节](ltl_automaton_planner/docs/validation.md)。
 
-IRL 示范评分与执行索引的局部对照、旧版本资格、原始失败，以及
+快照隔离/HIL 恢复、IRL 与执行索引的局部对照、旧版本资格、原始失败，以及
 命令、日志和冻结哈希清单的位置见同一验证记录，按源码版本分别计数。
 符号级组合通过不证明整体加速、IRL 科学效果或实机效果。
 
