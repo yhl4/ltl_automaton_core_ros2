@@ -2009,3 +2009,55 @@ Python 3.10.12 / NetworkX 2.4 隔离 overlay，未更换依赖。
 本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
 机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
 README、66 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.68 KTH 演示驱动延迟参数的有限性与 timer 范围（2026-10-07）
+
+初始基线为 `ad0340847713acc82bd30529f5be545ce68242da`。KTH driver
+此前仅检查 step_delay <= 0，NaN/+inf 和有限的 1e10 均会进入
+ROS timer 创建。现在保留 scenario、非正延迟和 max_steps 的原
+检查/诊断顺序，之后验证延迟有限，并使用当前 Humble Duration
+检查纳秒表示范围；超范围统一返回 step_delay 的 ValueError，保留
+原 OverflowError cause。检查位于演示 pub/sub/client/timer 创建前。
+负值、零与 -inf 仍为原精确 Parameter 'step_delay' must be positive.
+诊断；NaN/+inf 为 step_delay must be finite.；超范围为
+step_delay is outside the ROS timer range.。没有新常量上限、最小
+延迟或构造签名改动，实际传给 timer 的原 delay 保持。
+
+test_kth_demo_driver.py 原有九项动作转换与新增九项参数 case 合计
+**18 passed**，无 pytest warnings。验收后补强参数 case，仅重跑
+该子集：**9 passed / 9 deselected**，不累计为 27。参数测试实际
+构造独立 rclpy Node/Context，演示 pub/sub/client 使用 spy，timer
+调用委托原生 Node.create_timer。无效值断言演示实体调用列表为空；
+1e10 还核对 ValueError 的 OverflowError cause。有效 0.25 秒的
+timer_period_ns 为 250000000，1e-12 秒保持原截断结果 0 ns。
+NaN 与 max_steps=0 同时给定时，保留 max_steps 的原诊断优先级。
+全部节点/Context 在正常及异常路径销毁/关闭，未做 DDS 通信集成。
+源码/测试 py_compile、ament_flake8 --linelength 99、测试 pep257 与
+diff 检查通过；补强后仅重新检查修改过的测试文件。
+
+最初新增参数测试在生产修复前为 **3 failed / 6 passed / 9 deselected**，
+当时 timer 使用 spy；输出保留在工具 stdout。补强后主代理另加载
+逐字匹配 git show 的完整旧模块，收集时断言所有 case 的
+KthDemoDriver 绑定该旧类；仍为 **3 failed / 6 passed / 9 deselected**，
+实际 pytest exit 1。NaN 在原生 timer 整数转换处泄漏普通 ValueError，
++inf 泄漏 OverflowError，1e10 在 C timer 构造处泄漏 TypeError。
+这三个失败均为参数拒绝 case；原非正值、max_steps 优先级及两个
+有效原生 timer case 在旧版也通过。失败没有过滤或混入 PASS。
+独立重放脚本为 Windows Temp/replay_kth_demo_delay_ad034084.py；
+完整旧源码保留于隔离目录 kth_demo_baseline_ad034084.py，重放的
+kth_delay_old_ad034084.xml 和 kth_delay_old_ad034084.log 也保留。
+当前源码 resolve 路径绑定本 checkout，旧源码字节与基线一致。
+
+使用既有 WSL Ubuntu-22.04-D、ROS 2 Humble 和隔离 overlay：
+source /opt/ros/humble/setup.bash 与
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash。
+测试命令为 python3 -m pytest -q ltl_automaton_planner/test/test_kth_demo_driver.py；
+补强子集使用 -k 'step_delay or max_steps_error'。以上两次 PASS 为
+工具 stdout，没有新增 PASS JUnit；旧模块重放有独立 JUnit/log。
+范围转换依据当前已安装代码及
+[rclpy Humble Duration](https://github.com/ros2/rclpy/blob/humble/rclpy/rclpy/duration.py)，
+未更换依赖。launch、反馈间隔的有效值、max_steps、场景/阶段、
+动作转换与规划/代价/IRL 代码保持。本轮没有整包、完整闭环场景、
+LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy 验证；七包
+组合结果仍属于 11.63 的 6cbfd39 基线。README 与 KTH 演示说明
+同步输入约束，前 67 节历史正文保持，本地链接/锚点与 diff 检查通过。

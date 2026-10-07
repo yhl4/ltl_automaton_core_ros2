@@ -1,6 +1,9 @@
 """Drive the KTH ROS2 planner demo with deterministic TS feedback."""
 
+import math
+
 import rclpy
+from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import (
     DurabilityPolicy,
@@ -97,6 +100,16 @@ class KthDemoDriver(Node):
 
         if self.max_steps <= 0:
             raise ValueError("Parameter 'max_steps' must be positive.")
+
+        if not math.isfinite(self.step_delay):
+            raise ValueError("step_delay must be finite.")
+
+        try:
+            Duration(seconds=self.step_delay)
+        except OverflowError as error:
+            raise ValueError(
+                "step_delay is outside the ROS timer range."
+            ) from error
 
         state_qos = QoSProfile(
             depth=10,
