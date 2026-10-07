@@ -43,8 +43,8 @@ class Region6DJointspaceModel:
         if not finite:
             raise ValueError("JointState positions must be finite numbers.")
 
-    def is_in_region(self, position, region, hysteresis=0.0):
-        self._validate_position(position)
+    def _contains_position(self, position, region, hysteresis=0.0):
+        """Return membership for an already validated position."""
         attr = self.region_dict["nodes"][region]["attr"]
         center = attr["position"]
         distance = math.hypot(
@@ -52,9 +52,13 @@ class Region6DJointspaceModel:
         )
         return distance < attr["radius"] + hysteresis
 
+    def is_in_region(self, position, region, hysteresis=0.0):
+        self._validate_position(position)
+        return self._contains_position(position, region, hysteresis)
+
     def _find(self, position, names):
         for name in names:
-            if self.is_in_region(position, name):
+            if self._contains_position(position, name):
                 self.state = name
                 return name
         return None

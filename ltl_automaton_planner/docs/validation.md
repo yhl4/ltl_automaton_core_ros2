@@ -3501,3 +3501,44 @@ trap_disjoint_inspected_9d2eca3.json 位于 /tmp/ltl_ros2_completion_20261006，
 helper 位于主机临时目录，XML 如上。README/HIL 说明同步；此前93节正文
 保持。本轮未重跑七包，11.93 的673项资格仍属于0beaa3e历史源码。
 没有 LLM、benchmark、物理仿真、实机或 Jazzy 验证。
+
+### 11.95 6D monitor 搜索复用入口位置校验（2026-10-07）
+
+基线为干净 93841ea9a52acb5285a5c9d1c4c127dcb03d77d1。旧版 update
+在入口校验位置后，_find 通过 is_in_region 为每个候选区域重复校验。
+本轮把几何主体提取为私有 _contains_position，内部 _find 复用 update
+入口校验；公开 is_in_region 仍先独立校验。不返回或缓存新坐标对象，
+保留 math.hypot、严格 <、额外关节忽略、候选与连接优先级、状态更新及
+错误优先级。_find 的现有调用均来自已校验的 update。
+
+WSL Ubuntu-22.04-D 中 source Humble 与既有隔离 install/setup.bash 后，
+一次运行三个完整现有测试文件，实际 exit 0：46 passed，0 errors、
+failures 或 skipped；两项警告为既有 NetworkX np.int 弃用，终端4.27秒，
+无持续 session。37项模型、8项节点输入、1项 launch_testing 聚合入口；
+聚合内部两 monitor 的通信及关闭检查不另计数。没有增改测试或运行 RED。
+
+```bash
+python3 -m pytest ltl_automaton_std_transition_systems/test/test_region_models.py \
+  ltl_automaton_std_transition_systems/test/test_monitor_inputs.py \
+  ltl_automaton_std_transition_systems/test/test_monitor_launch.py \
+  --junitxml=/tmp/joint_validation_green_93841ea.xml
+```
+
+静态 session 29716 沿原 handle 等待至实际 exit 0：改动源码 py_compile、
+flake8 --linelength 99、pep257 与 git diff --check 通过。根代理逐项核对
+新鲜 XML 的数量、入口与 SHA256；JUnit suite time 为4.25秒，XML SHA256为
+cea8150f23023aef2538ba4832b5a02e08ceae550838055b0f0e5066ae8dc578。
+最终源码 SHA256 为
+19544ada9177b6fa934d9850c0fd94c6f5d527456af1d6586c395f02f23d8508。
+
+完整旧模块与当前 import 独立对照43格，返回、错误类型/文本/cause、状态
+及输入/配置不变性一致。包含连通/断连回退、未命中、后续恢复、额外关节、
+tuple/bool、首末坐标的非有限值/溢出/非数字、未知区域、严格半径相邻浮点
+与直接调用 hysteresis。初次/连通/断连三种 update 校验由2/3/6次变1次，
+每格仍执行一次输入校验；计数不证明整体加速，不加入46项pytest人口。
+
+完整旧模块 joint_validation_baseline_93841ea.py、baseline/compare JSON 与
+joint_validation_inspected_93841ea.json 位于 /tmp/ltl_ros2_completion_20261006，
+helper 位于主机临时目录，XML 如上。README/标准 TS 说明同步，前94节正文
+保持。11.93 的673项组合与11.94的trap局部资格保留原源码版本，本轮未重跑
+七包。没有 LLM、benchmark、物理仿真、实机或 Jazzy 验证。

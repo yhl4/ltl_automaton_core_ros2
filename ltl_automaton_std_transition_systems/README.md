@@ -56,6 +56,9 @@ ignored. Invalid feedback is logged without changing or publishing the last
 valid region. Region membership retains the strict distance `< radius` rule.
 Programmatic model calls report invalid first-six coordinates as `ValueError`,
 including numeric overflow during their finite-value check.
+Each model update validates the input once before searching candidate regions.
+Direct `is_in_region` calls independently apply the same validation before
+looking up a region.
 
 The monitors' `transition_system_path` and the 2D monitor's `pose_message_type`
 are startup-only, read-only parameters. Configure them through launch arguments
