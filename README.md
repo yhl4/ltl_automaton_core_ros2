@@ -697,37 +697,30 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前冻结状态集合的快照转换验证（2026-10-07）
+### 当前七包组合验证（源码 6ce560f，2026-10-07）
 
-快照转换支持 Büchi/Product 初始及接受集合使用 frozenset，保留已有节点
-匹配优先级、完整消息字段、ID 排序与输入只读行为。两个完整相关测试文件
-**31 passed**，包括八种单/双任务、图类型和成员字段组合；编译、flake8、
-pep257 与差异检查通过。15 种独立成员输入对照及两份真实核心快照核对
-原结果/诊断、全部字段与代价，单独计数。命令、日志和源码绑定见
-[validation.md 第 11.99 节](ltl_automaton_planner/docs/validation.md)。
-单维 TS 初始状态隔离的 74 项资格保留在第 11.98 节，按源码 a25622f 记录。
-
-### 最近七包组合验证（历史源码 9c9a80d，2026-10-07）
-
-将 trap 布尔相交、6D monitor 入口校验复用和 2D station yaw 差值复用
-纳入完整组合。干净源码 `9c9a80d` 的七包构建和默认并行整包测试
-各执行一次，均 exit 0；此前 IRL、HIL Future 与 driver 修复同时覆盖。
+干净源码 `6ce560f` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
+单维 TS 初始容器隔离与 frozenset 初始/接受集合快照转换纳入完整组合，
+新增两项 TS、八项完整快照回归均执行；此前 Trap、2D/6D monitor、IRL、
+HIL Future 与 driver 修复同时覆盖。
 
 | 包 | tests | passed | skipped |
 | --- | ---: | ---: | ---: |
 | ltl_automaton_msgs | 11 | 11 | 0 |
-| ltl_automaton_planner_core | 191 | 190 | 1 |
-| ltl_automaton_planner | 160 | 159 | 1 |
+| ltl_automaton_planner_core | 193 | 192 | 1 |
+| ltl_automaton_planner | 168 | 167 | 1 |
 | ltl_automaton_execution | 143 | 143 | 0 |
 | ltl_automaton_hil_mic | 119 | 118 | 1 |
 | ltl_automaton_std_transition_systems | 49 | 48 | 1 |
 
-合计 **673 tests = 669 passed / 4 skipped**，0 errors、0 failures。
+合计 **683 tests = 679 passed / 4 skipped**，0 errors、0 failures。
 四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
-对实际隔离 build 的 colcon 查询为 674 tests。保留 np.int/
+对实际隔离 build 的 colcon 查询为 684 tests。保留 np.int/
 SelectableGroups 依赖弃用警告，五包 stderr 非空；历史 XML
 按测试开始时间排除。完整记录见
-[validation.md 第 11.97 节](ltl_automaton_planner/docs/validation.md)。
+[validation.md 第 11.100 节](ltl_automaton_planner/docs/validation.md)。
+旧源码的 673 项组合和 TS/快照局部资格保留在第 11.97–11.99 节，
+独立旧新对照与局部重复运行不累加到本轮测试人口。
 
 快照隔离/HIL 恢复、IRL 与执行索引的局部对照、旧版本资格、原始失败，以及
 命令、日志和冻结哈希清单的位置见同一验证记录，按源码版本分别计数。
