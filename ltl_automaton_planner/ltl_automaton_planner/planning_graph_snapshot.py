@@ -43,7 +43,7 @@ def _membership(graph, key: str) -> set:
     except TypeError:
         pass
 
-    if isinstance(value, (set, list, tuple)):
+    if isinstance(value, (set, frozenset, list, tuple)):
         return set(value)
 
     raise ValueError(f"Buchi/Product graph {key!r} is not a membership set.")

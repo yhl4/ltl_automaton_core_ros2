@@ -3685,3 +3685,51 @@ ts_initial_green_run2_d843104.xml、ts_initial_green_run3_d843104.xml。
 最终XML SHA为 3f417326b6e5dc1acbccdd4a6700f6fb80e3f55d7104a041dc5699335bc42ad0。
 README同步，前97节正文保持；673项组合保留为9c源码历史资格。
 本轮未重跑七包、调用LLM、跑benchmark/物理仿真/实机或Jazzy。
+
+### 11.99 冻结成员集合的完整快照转换（2026-10-07）
+
+基线 a25622f0b7dd8ed41803abe8509ccd3294f407a8 的 _membership 支持
+set/list/tuple，却拒绝同值frozenset。真实single/safe Core计划冻结
+Büchi/Product initial及accept后Dijkstra仍给出原代价，但转换报类型错误。
+修复只在既有容器判断中加入frozenset；整个value作为已有图节点时仍优先
+匹配，成员标记、ID、公式、代价、运行边界及输入图保持原行为。
+源SHA从 4c7e2a654cd60a5c0cb04bb01d4315f9cc2d5d20bd3750f2e583528aa903c8c5
+变为 45dda1335c5c229671b0cf875af0ee2d9fffeae1096a03169ff7ae24f092dc3b。
+
+新增single/safe任务 × Product/Büchi × initial/accept八格完整消息回归。
+RED实际exit1，8 failed/20 deselected，JUnit2.021秒；原错误为membership
+拒绝。随后三次启动各有2/2/1个collection error，分别为源目录遮蔽生成
+消息、缺rosidl_parser和缺core.configuration，没有完成测试人口。
+三份失败XML保留。第四次实际exit0，31 passed（28项snapshot、3项服务
+复制），pytest1.92秒、JUnit1.894秒，保留两项np.int依赖警告。
+这些子代理运行未单独保存stdout/receipt，绑定输出不含当时完整SHA。
+
+根代理针对运行绑定/记录缺口，沿已验证ROS overlay保存一次相同两文件
+完整运行：六个生产模块resolve路径及完整字节与checkout/Git核对，另有
+一个生成消息模块和两份测试SHA。先绑定模块再调用pytest.main，无filter、
+timeout或验收变化。原工具chunk c33bb4实际exit0，receipt5.496040565秒；
+**31 passed**，0 errors/failures/skipped，pytest1.25秒、JUnit1.228秒，
+输出未列pytest警告汇总。命令、环境、原stdout/stderr、import证明均保存。
+首个结果检查器误要求此前警告文本，实际人口和状态已通过；读取原日志
+后修正该文本检查，未重跑测试，最终证据检查实际exit0。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_frozen_membership_a25622f.py
+```
+
+wrapper子进程在隔离workspace执行pytest.main，参数为两个checkout完整
+测试路径，XML=/tmp/frozen_membership_green_root_a25622f.xml。静态session
+23654实际exit0：py_compile、ament_flake8 --linelength 99、ament_pep257、diff。
+根代理15种独立输入中既有13格结果/错误保持，含tuple/frozenset节点优先级；
+空/非空冻结集合恢复。两份真实single/safe ROS消息及ID表逐字段与set基准
+相等，run与冻结成员对象保持，Core代价不变。独立对照不累加JUnit人口。
+
+证据在 /tmp/ltl_ros2_completion_20261006：frozen_membership_baseline_a25622f.py、
+frozen_membership_{baseline,compare,root_run,root_imports,inspected}_a25622f.json，
+原日志frozen_membership_root_run_a25622f.log。六份XML在/tmp，原RED、
+GREEN、GREEN_run2/3/4及GREEN_root分别冻结，文件名见inspected清单。
+根代理最终XML SHA为 243982ff3389f4e92c6b75569387956e03a2dfd038f875ec5a3ce1760d36b446。
+README同步，前98节正文保持；本轮未重跑七包或做LLM/benchmark/物理仿真/
+实机/Jazzy验证，不改变消息schema、算法、IRL范围或学习规则。

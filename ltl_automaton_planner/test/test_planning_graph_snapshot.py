@@ -534,6 +534,42 @@ def _control_run_state(run):
     )
 
 
+@pytest.mark.parametrize(
+    "hard_task, soft_task, graph_name, field_name",
+    [
+        ("<> r2", "", "product", "initial"),
+        ("<> r2", "", "product", "accept"),
+        ("<> r2", "", "buchi", "initial"),
+        ("<> r2", "", "buchi", "accept"),
+        ("<> r2", "(r2 || ! r2)", "product", "initial"),
+        ("<> r2", "(r2 || ! r2)", "product", "accept"),
+        ("<> r2", "(r2 || ! r2)", "buchi", "initial"),
+        ("<> r2", "(r2 || ! r2)", "buchi", "accept"),
+    ],
+)
+def test_frozenset_memberships_preserve_complete_snapshot(
+    hard_task, soft_task, graph_name, field_name,
+):
+    """Serialize frozenset graph memberships without mutating the planner."""
+    planner, active_hash = build_planner(MINIMAL_TS, hard_task, soft_task)
+    baseline = build_planning_graph_snapshot(planner, active_hash)
+    run_before = _control_run_state(planner.run)
+    graph = (
+        planner.product
+        if graph_name == "product"
+        else planner.product.graph["buchi"]
+    )
+    frozen_membership = frozenset(graph.graph[field_name])
+    graph.graph[field_name] = frozen_membership
+
+    converted = build_planning_graph_snapshot(planner, active_hash)
+
+    assert converted.snapshot == baseline.snapshot
+    assert converted.product_node_ids == baseline.product_node_ids
+    assert graph.graph[field_name] is frozen_membership
+    assert _control_run_state(planner.run) == run_before
+
+
 @pytest.mark.parametrize("container", [list, tuple])
 @pytest.mark.parametrize("single_node", [False, True])
 def test_accepted_run_path_order_and_single_node_cycle(container, single_node):

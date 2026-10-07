@@ -697,14 +697,15 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前单维 TS 初始状态隔离验证（2026-10-07）
+### 当前冻结状态集合的快照转换验证（2026-10-07）
 
-单维 TS 构建复制初始状态容器，输入 state model、组合 TS 和兄弟实例的
-就地成员修改相互隔离；重建重新读取输入。容器类型、节点、边与 guard
-保持。三个完整相关测试文件 **74 passed**，保留两项 np.int 依赖警告；
-编译、flake8、pep257 与差异检查通过。六个独立旧新场景核对双向隔离、
-set/list/tuple/frozenset 值及类型、set_initial 拒绝和重建行为，单独计数。
-详见 [validation.md 第 11.98 节](ltl_automaton_planner/docs/validation.md)。
+快照转换支持 Büchi/Product 初始及接受集合使用 frozenset，保留已有节点
+匹配优先级、完整消息字段、ID 排序与输入只读行为。两个完整相关测试文件
+**31 passed**，包括八种单/双任务、图类型和成员字段组合；编译、flake8、
+pep257 与差异检查通过。15 种独立成员输入对照及两份真实核心快照核对
+原结果/诊断、全部字段与代价，单独计数。命令、日志和源码绑定见
+[validation.md 第 11.99 节](ltl_automaton_planner/docs/validation.md)。
+单维 TS 初始状态隔离的 74 项资格保留在第 11.98 节，按源码 a25622f 记录。
 
 ### 最近七包组合验证（历史源码 9c9a80d，2026-10-07）
 
