@@ -2061,3 +2061,65 @@ source /tmp/ltl_ros2_completion_20261006/install/setup.bash。
 LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy 验证；七包
 组合结果仍属于 11.63 的 6cbfd39 基线。README 与 KTH 演示说明
 同步输入约束，前 67 节历史正文保持，本地链接/锚点与 diff 检查通过。
+
+### 11.69 近期改动后的当前七包组合验证（2026-10-07）
+
+资格基线为干净提交 `4817dd4939c04d14a479f3bb1ef1105eb5c478a1`。
+自 6cbfd39 上次整包结果以来，代码已修改快照、IRL 相邻遍历、
+2D 初始边界及 KTH driver 参数处理，因此本轮重新执行组合检查。
+colcon list 的全部七包与 aggregate 的六个 exec_depend 一致。
+使用既有 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4，build/install 仍为 /tmp/ltl_ros2_completion_20261006
+隔离路径，translator 为原 /home/yuhling/.local/bin/ltl2ba。
+构建显式使用 --executor sequential、--symlink-install、
+--packages-up-to ltl_automaton_core 与 -DBUILD_TESTING=ON；
+测试选择全部七包，默认并行并启用 --return-code-on-test-failure，
+没有 pytest 筛选或修改条件/时限。包级测试 domain 215/216/217/218
+保留，未更换依赖或修改运行代码。构建 exit 0、实际 35.729804081 秒；
+测试 exit 0、实际 61.438237663 秒，各只执行一次。
+
+独立核对测试开始时间之后的六份 JUnit 与当前接口 CTest wrapper：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 185 | 184 | 1 |
+| ltl_automaton_planner | 148 | 147 | 1 |
+| ltl_automaton_execution | 124 | 124 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **620 tests = 616 passed + 4 skipped，0 errors，0 failures**。
+四项跳过仍为已有 copyright。接口 CTest wrapper 一项通过，实际
+colcon test-result --verbose 返回 **621 tests，0 errors，0 failures，4 skipped**。
+八份历史 CTest XML 按时间排除，不与 JUnit 重复计数。aggregate
+本身没有独立 pytest case，其七包依赖覆盖已核对。
+自 6cbfd39 后新增 23 项逐包核对实际执行且未跳过：快照 3、IRL 4、
+2D 生成器边界 7、KTH 参数 9。四个真实 DDS 执行场景、Studio
+consumer、快照转换 fallback、IRL commit/step reset，以及既有
+接受环/结果转换、native translator/POSIX、HIL、monitor、launch
+与 lint 回归也核对。保留 NetworkX/NumPy np.int 及 SelectableGroups
+的既有弃用警告；测试日志有五包 stderr，不作为零警告结果。
+
+Core TS/planner/Product/discrete-plan、ROS planner/snapshot、execution
+models/resolver 及 2D monitor 的实际导入绑定 checkout，消息为隔离
+build 生成接口。主代理另以同一 overlay 核对 IRL、2D generator 与
+KTH driver 三个当前模块的 resolve 路径和完整源字节，均与资格
+提交相同。构建/测试前后的 HEAD 与清洁树核对，文档提交前源码/
+测试保持该基线；本次仓库只改 README 和此验证记录。
+
+本轮 verification_4817dd4.json、verified_summary_4817dd4.json、
+verified_results_4817dd4 与 log_combo_4817dd4 均在隔离路径下。
+collector 只执行一次，将六份新 JUnit/当前 CTest、receipt/summary、
+三模块导入记录、旧证据哈希清单与完整 colcon 实体日志冻结为
+83 个文件，sha256_manifest.json 清单逐项通过；日志便利 symlink
+不复制，不影响实体日志内容。冻结副本与当前六份 JUnit 字节一致。
+先前 verified_results_c70d38d、verified_results_6cbfd39 与
+failed_results_2c52c71_run1/原 receipt 共 26 份冻结文件，在本轮前后
+SHA256 保持；没有覆盖历史通过、最初五项失败或旧模块重放证据。
+新增辅助脚本均使用 4817dd4 独立名字，旧执行脚本没有重跑。
+
+本轮没有 LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy
+验证；该耗时是资格命令时间，不是规划性能/加速比，组合通过也不
+证明 IRL 收敛或逆最优性。README 刷新为当前资格结果，前 68 节
+正文完整保留，本地链接/锚点及 diff 检查通过。

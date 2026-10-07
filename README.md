@@ -709,33 +709,23 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-本轮补齐 KTH 驱动的延迟参数校验：非有限或超范围值在演示接口
-创建前拒绝，保留原有非正值诊断、有效延迟和场景步数。
-演示驱动测试 **18 passed**；补强后九项参数子集再次通过。
-原生 timer 的 0.25 秒与正亚纳秒值保持原周期，完整旧模块重放
-三项失败、六项通过，失败日志和 JUnit 保留。本轮没有整包或
-DDS 通信集成验证；实际构造了独立 ROS Node/Context 和 timer。
-
-上一轮 `ad03408` 快照导出在单次调用内复用 Product 边的必需字段集合，省去
-逐边重复构造。快照与服务复制回归共 **18 passed**；补充 ID 恢复
-断言后，对应两项再通过，属于前述子集。三个原生图的完整旧/新
-消息与 ID 相同，实际校验集合数量从 5/10/44 个分别降为 1 个。
-每次导出仍创建新集合，字段诊断、fallback 与读取顺序保持；该轮
-未重跑整包或 DDS，未测量整体耗时、RSS 或加速比。
-
-此前代码基线 `6cbfd39` 的 aggregate 七包构建与整包测试全部完成。
-六份该轮新 JUnit 合计 **597 tests = 593 passed / 4 skipped**，
+当前代码基线 `4817dd4` 的 aggregate 七包构建与默认并行整包测试
+均 exit 0。六份本轮新 JUnit 合计 **620 tests = 616 passed / 4 skipped**，
 0 errors、0 failures；四个跳过项均为已有 copyright 检查。
-标准 colcon 汇总含一项通过的接口 CTest wrapper，共 598 tests。
-近期 25 个接受环/结果转换/边对/快照导出新增 case 均通过；原生
-ltl2ba、POSIX 故障、IRL/HIL、真实 DDS、launch、monitor 与 lint
-也执行，七份历史 XML 排除，失败与历史基线均未混入通过统计。
-实际导入绑定当前源码与隔离生成接口；环境为 Ubuntu 22.04 /
-ROS 2 Humble / Python 3.10.12，保留既有依赖与弃用警告。
-该整包结果属于 `6cbfd39`，本轮结果限于上述定向检查。此前并行
-测试的 5 项失败完整保留；planner/execution/HIL/标准 TS 的包级
-测试 domain 215/216/217/218 隔离串扰后，同样默认并行全部通过。
-组合验证不证明 IRL 收敛或机器人示范效果。
+标准 colcon 汇总含一项通过的接口 CTest wrapper，共 621 tests。
+自 `6cbfd39` 后新增的 23 项快照、IRL、2D 边界及 KTH 参数 case
+均执行且未跳过。四个真实 DDS 场景、Studio consumer、快照 fallback、
+IRL commit/step reset、原生 ltl2ba/POSIX、HIL、monitor、launch 与 lint
+也完成整包检查。八份历史 XML 按时间排除，未计入本轮通过统计。
+
+实际导入绑定本 checkout 与隔离生成接口，改过的 IRL/生成器/驱动
+源码字节与该基线一致；环境仍为 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10.12 / NetworkX 2.4，保留依赖与弃用警告。
+本轮结果、receipt、完整日志及哈希清单已冻结，83 份文件校验通过；
+26 份旧冻结证据的 SHA256 保持。此前 `6cbfd39` 的 597 项历史结果
+与 `2c52c71` 的五项失败均保留，未混入本轮统计。此次仅更新文档，
+源码/测试保持该资格基线。组合验证不证明 IRL 收敛、机器人示范
+效果或整体加速。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
