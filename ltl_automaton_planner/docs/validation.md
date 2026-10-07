@@ -4127,3 +4127,72 @@ exit0，核对原失败文本、人口、时序、新鲜度、完整import字节
 README同步自动恢复契约和当前局部资格，前105节正文保持；11.103的685项
 仍属于0b6源码基线，未重跑七包或推算新组合人口。IRL仍仅学习beta且默认
 关闭；未做LLM、benchmark、完整演示、物理仿真、实机/机器人示范或Jazzy验证。
+
+### 11.107 近期重规划改动的七包组合资格（2026-10-07）
+
+资格源码917c4cc8c4f6ed9e5fcdaa14d476e8cc96e4b652。本轮在既有隔离WSL
+Ubuntu-22.04-D/ROS2 Humble、Python3.10.12、NetworkX2.4环境运行；原生
+ltl2ba路径/home/yuhling/.local/bin/ltl2ba及SHA保持。启动前核对干净
+HEAD、包列表、环境和近期两个生产模块/Action测试完整Git字节及SHA。
+人口从11.103的685项加11.105/11.106各3项新回归固定为691，planner174；
+既有延迟恢复用例的修改不增加人口。required cases在观察结果前固定，未按
+结果缩减测试或调整配置、期限、验收条件。
+
+唯一七包构建session88111沿原handle等待至实际exit0，receipt47.507938646秒。
+唯一默认并行完整测试session25292沿原handle等待至实际exit0，receipt
+91.177000534秒；主代理在运行中读/proc确认build wrapper/colcon PID47177/
+47190与test wrapper/colcon PID47627/47648，未启动替代运行。保存完整原命令、
+起止时序、stdout/stderr及terminal receipt。构建仍为sequential、symlink-install、
+packages-up-to ltl_automaton_core、BUILD_TESTING=ON；测试不设置sequential或
+单独pytest参数，七包保持默认并行和return-code-on-test-failure。
+
+六份新鲜JUnit：**691 tests = 687 passed + 4 skipped**，0 errors/failures。
+msgs11/11/0、core195/194/1、planner174/173/1、execution143/143/0、
+HIL119/118/1、std TS49/48/1（tests/passed/skipped）。四项跳过均为既有
+copyright。接口CTest wrapper另有1项通过，实际隔离build的colcon查询为
+692 tests；19份历史CTest XML按测试开始时间排除，旧结果不计入新人口。
+query、collector、独立audit和receipt检查均实际exit0。
+
+历史遍历、旧服务与状态恢复的六项新事务回归、既有延迟恢复及两个Core
+history用例明确执行。四个真实DDS执行场景、Studio consumer、IRL完整二十步/
+β偏好/overflow/commit、HIL十二项Future及其余查询/状态恢复、driver、
+Trap/monitor、snapshot/服务复制、resolver/timeout、参数、launch、原生
+ltl2ba/POSIX及lint同时通过。局部50/93/96项、聚合内部检查和独立旧新对照
+均不重复计入本轮JUnit。
+
+构建后、测试前再次核对18条源码import路径及生成消息路径；主gate为17个
+完整生产模块，新加入discrete_plan，另有TS完整字节补证，合计18模块与Git
+资格字节一致。八十七文件的新冻结结果/receipt/import/完整日志闭包通过
+SHA核对，1177份历史哈希保持，包括0b6闭包与后来三个局部阶段的原始证据。
+五包stderr各923字节，保留np.int/SelectableGroups依赖弃用警告；本次日志
+未见未读取Future异常诊断。没有以空stderr或警告过滤冒充通过。
+
+临时helper在任何正式运行前经主代理审阅，修正历史manifest锚点与模块数
+断言，并补齐人口来源、源码/测试SHA和历史闭包87项检查；未因此产生新的
+build/test失败或改变生产/测试字节。本轮仓库只更新README与本节，前106节
+正文、原始失败与版本资格保持。
+
+```bash
+source /opt/ros/humble/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/snapshot_history_before_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/prepare_full_package_verification_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_build_917c4cc.py
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_changed_imports_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_ts_import_bytes_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/start_full_package_tests_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_test_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/query_full_results_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/check_full_package_results_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/audit_full_results_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/inspect_combo_receipts_917c4cc.py
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：verification_917c4cc.json、
+verified_changed_imports_917c4cc.json、verified_ts_import_bytes_917c4cc.json、
+verified_summary_917c4cc.json、colcon_query_917c4cc.json、
+historical_hashes_before_917c4cc.json、inspected_combo_receipts_917c4cc.json
+及verified_results_917c4cc/sha256_manifest.json；原始日志在log_combo_917c4cc/
+log_query_917c4cc，helper在主机临时目录。IRL仍仅学习β且默认关闭，执行
+仍为符号级FakeBackend；未做LLM、benchmark、完整演示、物理仿真、实机/
+机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。

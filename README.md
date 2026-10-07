@@ -706,7 +706,32 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前局部验证：意外状态恢复的事务提交（2026-10-07）
+### 当前七包组合验证（源码 917c4cc，2026-10-07）
+
+干净源码 `917c4cc` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
+历史遍历、旧 `/replanning` 和意外状态恢复的近期改动纳入完整组合；
+六项新增事务回归、延迟恢复及两个历史规划用例均执行。
+
+| 包 | tests | passed | skipped |
+| --- | ---: | ---: | ---: |
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 195 | 194 | 1 |
+| ltl_automaton_planner | 174 | 173 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 119 | 118 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **691 tests = 687 passed / 4 skipped**，0 errors、0 failures。
+四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
+对实际隔离 build 的 colcon 查询为 692 tests。四个真实 DDS 场景、Studio consumer、
+IRL 完整二十步与事务提交、HIL 及标准 TS/monitor 同时覆盖。
+18 个生产模块的完整字节与资格提交一致，生成消息路径及原生 `ltl2ba` 已核对。
+保留 np.int/SelectableGroups 依赖弃用警告，五包 stderr 非空；
+19 份历史 CTest XML 按测试开始时间排除。完整记录见
+[validation.md 第 11.107 节](ltl_automaton_planner/docs/validation.md)。
+符号级组合通过不证明整体加速、IRL 科学效果或实机效果。
+
+### 此前局部验证：意外状态恢复的事务提交（2026-10-07）
 
 修复自动恢复在快照准备失败后泄漏异常、或接受非有限候选代价的问题。
 失败保留原计划和执行身份，同时保留最新观测状态；成功只提交一次新 generation。
@@ -714,7 +739,7 @@ git diff --check
 相关测试文件 **96 passed**，包括准备失败后恢复和有限代价的有效恢复。
 源码和测试编译、flake8、pep257 通过；详见
 [validation.md 第 11.106 节](ltl_automaton_planner/docs/validation.md)。
-本轮仅执行相关验证，以下七包结果仍属于所列基线，不叠加局部计数。
+该次仅执行相关验证，局部计数不与七包结果相加。
 
 ### 此前局部验证：旧重规划服务的事务提交（2026-10-07）
 
@@ -723,7 +748,7 @@ git diff --check
 **93 passed**，包含失败后的旧 authority 保持及有效服务请求恢复。
 源码和测试编译、flake8、pep257 通过；详见
 [validation.md 第 11.105 节](ltl_automaton_planner/docs/validation.md)。
-本轮仅执行相关验证，以下七包结果仍属于所列基线，不叠加局部计数。
+该次仅执行相关验证，局部计数不与七包结果相加。
 
 ### 此前局部验证：历史重规划遍历（2026-10-07）
 
@@ -734,23 +759,14 @@ git diff --check
 包括 4097 状态的历史。切片计数由 1 降为 0，未测量整体加速。
 编译及源码 lint 通过，详见
 [validation.md 第 11.104 节](ltl_automaton_planner/docs/validation.md)。
-本轮仅执行相关验证，以下七包结果仍属于所列基线，不叠加局部计数。
+该次仅执行相关验证，局部计数不与七包结果相加。
 
-### 七包组合基线（源码 0b6b7eb，2026-10-07）
+### 此前七包组合基线（源码 0b6b7eb，2026-10-07）
 
 干净源码 `0b6b7eb` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
 Product 权重更新与 TS 维度名容器隔离纳入完整组合，新单维/双维回归均执行；
 此前初始容器隔离、frozenset 快照、Trap、2D/6D monitor、IRL、HIL Future
 与 driver 修复同时覆盖。
-
-| 包 | tests | passed | skipped |
-| --- | ---: | ---: | ---: |
-| ltl_automaton_msgs | 11 | 11 | 0 |
-| ltl_automaton_planner_core | 195 | 194 | 1 |
-| ltl_automaton_planner | 168 | 167 | 1 |
-| ltl_automaton_execution | 143 | 143 | 0 |
-| ltl_automaton_hil_mic | 119 | 118 | 1 |
-| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
 
 合计 **685 tests = 681 passed / 4 skipped**，0 errors、0 failures。
 四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
