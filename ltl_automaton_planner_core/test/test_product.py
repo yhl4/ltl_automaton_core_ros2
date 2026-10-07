@@ -148,6 +148,89 @@ def test_accepting_cycle_cache_is_rebuilt_after_edge_removal():
     assert product.graph["accept_with_cycle"] == set()
 
 
+@pytest.mark.parametrize("with_nodes, accept_type", [(False, set), (True, frozenset)])
+def test_empty_acceptance_resets_cycles_without_scc_and_recomputes_when_restored(
+    with_nodes, accept_type, monkeypatch,
+):
+    """Skip an empty acceptance set and reread restored accepting self-loops."""
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    if with_nodes:
+        product.build_full()
+    product.graph["accept"] = accept_type()
+    empty_acceptance = product.graph["accept"]
+    previous_cycles = {"stale"}
+    product.graph["accept_with_cycle"] = previous_cycles
+    before_nodes = [(node, dict(data)) for node, data in product.nodes(data=True)]
+    before_edges = [(source, target, dict(data)) for source, target, data
+                    in product.edges(data=True)]
+    initial = set(product.graph["initial"])
+    possible = set(product.possible_states) if with_nodes else None
+    scc_calls = []
+    original_scc = product_module.strongly_connected_components
+
+    def record_scc(graph):
+        scc_calls.append(graph)
+        return original_scc(graph)
+
+    monkeypatch.setattr(product_module, "strongly_connected_components", record_scc)
+    product.build_accept_with_cycle()
+    assert scc_calls == []
+    assert product.graph["accept_with_cycle"] == set()
+    assert product.graph["accept_with_cycle"] is not previous_cycles
+    assert previous_cycles == {"stale"}
+    assert product.graph["accept"] is empty_acceptance
+    assert list(product.nodes(data=True)) == before_nodes
+    assert list(product.edges(data=True)) == before_edges
+    assert product.graph["initial"] == initial
+    if with_nodes:
+        assert product.possible_states == possible
+        goal = ("s1", "q1")
+        product.graph["accept"] = {goal}
+        product.build_accept_with_cycle()
+        assert scc_calls == [product]
+        assert product.graph["accept_with_cycle"] == {goal}
+        product.remove_edge(goal, goal)
+        product.build_accept_with_cycle()
+        assert scc_calls == [product, product]
+        assert product.graph["accept_with_cycle"] == set()
+        assert product.graph["initial"] == initial
+        assert product.possible_states == possible
+
+
+@pytest.mark.parametrize("self_loop", [False, True])
+def test_missing_acceptance_keeps_original_scc_diagnostics(self_loop, monkeypatch):
+    """Preserve acyclic fallback and exact cyclic error when accept is absent."""
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    product.add_node("plain")
+    if self_loop:
+        product.add_edge("plain", "plain")
+    del product.graph["accept"]
+    previous_cycles = {"stale"}
+    product.graph["accept_with_cycle"] = previous_cycles
+    scc_calls = []
+    original_scc = product_module.strongly_connected_components
+
+    def record_scc(graph):
+        scc_calls.append(graph)
+        return original_scc(graph)
+
+    monkeypatch.setattr(product_module, "strongly_connected_components", record_scc)
+    if self_loop:
+        with pytest.raises(KeyError) as caught:
+            product.build_accept_with_cycle()
+        assert caught.value.args == ("accept",)
+        assert product.graph["accept_with_cycle"] is previous_cycles
+    else:
+        product.build_accept_with_cycle()
+        assert product.graph["accept_with_cycle"] == set()
+        assert product.graph["accept_with_cycle"] is not previous_cycles
+    assert scc_calls == [product]
+    assert "accept" not in product.graph
+    assert previous_cycles == {"stale"}
+    assert list(product) == ["plain"]
+    assert list(product.edges) == ([("plain", "plain")] if self_loop else [])
+
+
 def test_full_product_rebuild_discards_removed_ts_edges():
     """Remove stale Product edges when rebuilding a changed source graph."""
     ts = create_test_ts()

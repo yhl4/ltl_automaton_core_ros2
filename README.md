@@ -703,13 +703,12 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-本轮优化运行结果转换：每条 prefix/suffix TS 边只定位一次原属性
-字典，再按原次序读取 action 与 weight。重复动作、自环、空 prefix、
-原 zip 行为及精确异常保持，下一次转换仍读取当前 TS 属性。
-product、discrete-plan、planner、IRL 四个相关文件 **97 passed**，
-源码/测试 lint 与实际旧版对照通过；重复路径与单节点 suffix 的
-TS 图访问计数分别从 8→4、2→1。本轮未重跑整包，不作为整体
-加速或总内存测量，不改变路径搜索、执行身份或 IRL 规则。
+本轮在接受集合为空时清除旧接受环标记，省去无用 SCC 遍历；恢复
+接受节点或改变自环后仍按原结构环规则重新计算，没有跨调用缓存。
+product、discrete-plan、planner、IRL 四个相关文件 **101 passed**，
+源码/测试 lint 与实际旧版对照通过；空集合的 SCC 调用从 1 次变为
+0 次，缺失 accept 字段保留原结果/诊断。本轮未重跑整包，不作为
+整体加速或总内存测量，不改变代价、执行身份或 IRL 规则。
 
 此前代码基线 `c70d38d` 的 aggregate 七包构建与整包测试全部完成。
 六份本轮新 JUnit 合计 **572 tests = 568 passed / 4 skipped**，

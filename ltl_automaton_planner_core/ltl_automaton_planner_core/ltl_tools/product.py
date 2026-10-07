@@ -204,6 +204,9 @@ class ProdAut(DiGraph):
     def build_accept_with_cycle(self):
         """Find accepting states on a cycle in one SCC traversal."""
         accepting_cycles = set()
+        if self.graph.get('accept') == accepting_cycles:
+            self.graph['accept_with_cycle'] = accepting_cycles
+            return
         for component in strongly_connected_components(self):
             if len(component) > 1 or any(
                 self.has_edge(state, state) for state in component

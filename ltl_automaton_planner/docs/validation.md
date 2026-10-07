@@ -1639,3 +1639,45 @@ ROS 2 Humble / Python 3.10.12 隔离 overlay，保留 NumPy/NetworkX
 或机器人示范学习；11.57 整包证据仍属于其原代码基线。README、
 58 节历史正文保留、本地链接/锚点与 diff 检查通过。图访问计数只
 证明这些边处理的重复定位被省去，不作为整体加速或总内存测量。
+
+### 11.60 空接受集合跳过 SCC 遍历（2026-10-07）
+
+以 `c749780` 为基线，ProdAut.build_accept_with_cycle 对空接受集合
+仍遍历全部 Product SCC。现在与本次已创建的空 accepting_cycles
+集合比较，确认空 set/frozenset 时将该新集合写入 accept_with_cycle
+并返回。没有将任意 falsey 值或缺失键视为空接受集合；用 graph.get
+保留原 missing-key 路径。非空分支的 SCC、结构环、自环与交集规则
+逐字未变，没有跨调用缓存，不改变权重、Dijkstra、接受运行、执行
+身份、ROS 字段或 IRL 规则。
+
+四个新增 case：空图/空 set 与已构图/空 frozenset 均清除 stale
+环标记，保留旧标记对象、原接受集合身份、节点/边、initial 与已有
+possible_states；空集合时 SCC 调用为 0。已构图案例恢复非空接受
+集合后调用 SCC 并标记自环，移除自环后再次调用并清除标记。另两个
+受控 missing-accept 案例仍调用 SCC：无环时输出新空标记，有自环
+时抛原精确 KeyError('accept') 并保持旧标记，不补造 accept 字段。
+
+独立进程加载 git show 导出的完整旧 product.py 后，四个新增检查
+为 **2 failed / 2 passed**，两项仅在 SCC 调用次数 1 vs 0 失败，
+两项 missing-key 诊断通过。原始 JUnit 保留在既有隔离目录的
+`empty_acceptance_baseline_c749780.xml`。旧行为的结果正确，只存在
+这次省去的无用遍历，不将旧版计数失败作为接受性错误。
+
+另用原生 `/home/yuhling/.local/bin/ltl2ba` 做旧/当前完整模块对照。
+初始数字 `0` 被工具拒绝，诊断为 `expected predicate, saw '0'`，
+没有计为通过，也未修改库代码使其自动替换公式。一个额外矛盾公式
+`p && !p` 产生空接受集合；最终按主代理确认采用仓内已有的
+`<> (false)` 常量 false fixture：Büchi 仅孤立 T0_init、0 边、空
+accept/symbols；两状态循环 TS 生成 Product 2 节点/0 边，initial 与
+possible_states 均为 {('s0', 'T0_init')}。两版节点/边/属性及集合快照
+一致，TS/Büchi 输入快照保持，SCC 调用旧版 1 次、新版 0 次。
+旧源逐字节匹配 git 导出，当前导入与 translator 路径核对。此样例
+只有 2 个 Product 节点，不外推大图收益、整体加速或总内存变化。
+
+仅重跑 test_product.py、test_discrete_plan.py、test_irl.py 与
+test_ltl_planner.py，合计 **101 passed**。源码 py_compile/ament_flake8、
+测试 py_compile/ament_flake8/pep257 通过。使用既有 WSL Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12 隔离 overlay，保留 NumPy/NetworkX
+弃用警告。未重跑整包/ROS 通信、LLM、benchmark、物理仿真、实机、
+Jazzy 或机器人示范；11.57 整包证据仍属于原代码基线。README、
+59 节历史正文保留、本地链接/锚点与 diff 检查通过。
