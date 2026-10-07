@@ -74,6 +74,10 @@ ros2 run ltl_automaton_std_transition_systems \
 
 Generated actions include planner guards and the initial grid cell is derived
 from the entered initial position.
+Place the initial x/y position strictly inside one grid cell. Shared cell edges,
+outer edges and corners are rejected, matching the monitor's initial membership
+rule. Positive hysteresis still retains an occupied region near its boundary
+during movement.
 Cell side length must be positive. Grid/station geometry, the initial x/y
 position and derived cell centers must be finite. Violations of these geometry
 checks raise `ValueError` before a TS file is written.

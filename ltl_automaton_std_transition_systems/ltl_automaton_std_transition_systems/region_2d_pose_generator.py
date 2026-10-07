@@ -133,8 +133,8 @@ def generate_regions_and_actions(definition):
         center = centers[cell_name]
         half = grid["cell_side_length"] / 2.0
         if (
-            abs(initial_position[0] - center[0]) <= half
-            and abs(initial_position[1] - center[1]) <= half
+            abs(initial_position[0] - center[0]) < half
+            and abs(initial_position[1] - center[1]) < half
         ):
             initial = cell_name
             break

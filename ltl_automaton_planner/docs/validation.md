@@ -1913,3 +1913,48 @@ ROS 2 Humble / Python 3.10.12 / NetworkX 2.4 隔离 overlay，未更换依赖。
 本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
 机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
 README、64 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.66 2D 生成器初始 cell 与严格区域规则一致（2026-10-07）
+
+初始基线为 `9cc30324e924532efc52516c10dad60d3fb80a1e`。2D 生成器
+用 <= half 选择初始 cell，Region2DPoseModel 初次观测则用 < half；
+model 初始 state=None，不能用已有区域的滞回规则补偿。2×1 网格、
+边长 1、无 station、初始位置 (1, 0.5) 会生成 initial=r1，但 fresh
+monitor 在同一位置无法识别任何区域。仅将生成器初始 x/y 比较改为
+严格内部规则，边界输入现在抛出既有精确 ValueError：
+Initial position is outside the generated grid. 运行时 square/station
+几何、正滞回、TS 边/动作/固定代价、搜索/接受性和 IRL 均未修改。
+
+新增四个边界回归，分别为共享边 (1, 0.5)、外边 (0, 0.5)、水平外边
+(0.5, 0)、角点 (0, 0)。旧源码在修复前实际 **4 failed / 33 deselected**，
+均未抛出预期 ValueError。另两项用 math.nextafter(1, 0) 与
+math.nextafter(1, 2) 检查边界两侧内点各自选择 r1/r2，并与 fresh
+monitor 一致；一项检查先进入 r1 后，正滞回仍保留共享边状态。
+修改后 test_region_models.py 与 test_monitor_inputs.py 合计
+**45 passed**，保留两项既有警告。源码/测试 py_compile、ament_flake8、
+测试 pep257 与 diff 检查通过，没有修改 monitor 或放宽边界验收。
+RED 使用 -k test_generator_rejects_exact_grid_boundaries，只选择四个
+新触发场景；PASS 未过滤这两个文件的既有用例。失败与通过输出
+保留在本轮工具 stdout，未生成额外 JUnit 或独立日志文件。
+
+独立探针加载逐字匹配 git show 9cc3032 的完整旧生成器，与当前实际
+导入对照。四个边界输入的旧输出均为 r1，fresh monitor 返回 None；
+新输出均为上述精确 ValueError。四个内点（两 cell 中心及 nextafter
+两侧）的完整旧/新 TS 字典相同、initial 与 fresh monitor 相同，输入
+定义前后 pickle 字节一致。以正滞回先进入 r1 后移动到共享边，仍
+返回 r1；同点的 fresh model 仍返回 None，保持运行时严格规则。
+
+普通内点生成的旧/新 TS 继续通过实际 Core YAML 入口、原生 ltl2ba
+规划 <> r2；完整运行字段、生成 ROS 快照及公开 Product ID 均相同。
+source-label 规则下 prefix=20、suffix=10、gamma=10、total=120，保留
+原固定动作代价 10。此检查不启动 ROS Node 或 DDS，不作为实机/物理
+观测证明。未更换边界为闭集，也未修改已有 YAML 或冻结实验数据。
+
+探针为 Windows Temp/probe_initial_cell_boundary_9cc3032.py，完整旧源码
+保留于隔离目录 generator_baseline_9cc3032.py。旧源码字节、当前生成器
+及 monitor 实际导入的 resolve 路径、原 /home/yuhling/.local/bin/ltl2ba
+均核对。环境仍为 WSL Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4 隔离 overlay，build 路径经 symlink 绑定当前 checkout。
+本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
+机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
+两份 README、65 节历史正文保留、本地链接/锚点与 diff 检查通过。

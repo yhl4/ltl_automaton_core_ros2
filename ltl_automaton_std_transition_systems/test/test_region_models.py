@@ -1,3 +1,4 @@
+import math
 from types import SimpleNamespace
 
 from geometry_msgs.msg import (
@@ -57,6 +58,21 @@ def _definition():
     }
 
 
+def _two_cell_definition(initial_position, hysteresis=0.0):
+    """Create the two-cell fixture used for exact grid-boundary checks."""
+    return {
+        "grid": {
+            "origin": {"x": 0.0, "y": 0.0},
+            "cell_side_length": 1.0,
+            "cell_hysteresis": hysteresis,
+            "number_of_cells_x": 2,
+            "number_of_cells_y": 1,
+        },
+        "stations": [],
+        "initial_position": list(initial_position),
+    }
+
+
 def test_generated_ts_is_accepted_by_planner_core():
     transition_system = generate_regions_and_actions(_definition())
 
@@ -75,6 +91,49 @@ def test_generator_rejects_initial_position_outside_grid():
 
     with pytest.raises(ValueError, match="outside"):
         generate_regions_and_actions(definition)
+
+
+@pytest.mark.parametrize(
+    "initial_position",
+    [(1.0, 0.5), (0.0, 0.5), (0.5, 0.0), (0.0, 0.0)],
+)
+def test_generator_rejects_exact_grid_boundaries(initial_position):
+    """Reject initial points excluded by strict monitor square membership."""
+    with pytest.raises(ValueError, match="outside"):
+        generate_regions_and_actions(_two_cell_definition(initial_position))
+
+
+@pytest.mark.parametrize(
+    "initial_position, expected",
+    [
+        ((math.nextafter(1.0, 0.0), 0.5), "r1"),
+        ((math.nextafter(1.0, 2.0), 0.5), "r2"),
+    ],
+)
+def test_generator_and_fresh_monitor_agree_just_inside_cells(
+    initial_position, expected
+):
+    """Keep generator and fresh monitor classification aligned near a boundary."""
+    transition_system = generate_regions_and_actions(
+        _two_cell_definition(initial_position)
+    )
+    assert transition_system["state_models"]["2d_pose_region"]["initial"] == expected
+    model = Region2DPoseModel(
+        transition_system["state_models"]["2d_pose_region"]
+    )
+    assert model.update(_pose(*initial_position)) == expected
+
+
+def test_positive_hysteresis_keeps_shared_boundary_in_current_cell():
+    """Preserve existing hysteresis behavior after entering the first cell."""
+    definition = _two_cell_definition((0.5, 0.5), hysteresis=0.05)
+    transition_system = generate_regions_and_actions(definition)
+    assert transition_system["state_models"]["2d_pose_region"]["initial"] == "r1"
+    model = Region2DPoseModel(
+        transition_system["state_models"]["2d_pose_region"]
+    )
+    assert model.update(_pose(0.5, 0.5)) == "r1"
+    assert model.update(_pose(1.0, 0.5)) == "r1"
 
 
 @pytest.mark.parametrize("side", [0.0, -1.0])
