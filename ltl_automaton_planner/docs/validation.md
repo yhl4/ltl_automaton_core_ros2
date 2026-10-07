@@ -2328,3 +2328,53 @@ KTH 旧模块三项失败或原生对照源码/证据，也没有重跑旧执行
 逆最优性。本次仓库只更新 README 与此记录，源码/测试保持
 be23c75。前 72 节历史正文完整保留，13 个本地链接/锚点及
 doc-only diff 检查通过。
+
+### 11.74 Planner 初始状态等待配置的只读启动契约（2026-10-07）
+
+基线为干净 `81cc78afde35f3e03bf930a04df40073aabdfdb0`。
+源码审阅确认 initial_ts_state_from_agent 仅在构造时读取为内部
+_waiting_for_initial_state；后者随后由生命周期更新，不是动态
+参数的回调。更改前用真实 Node/Context、空 TS 路径和独立 domain
+229 观察：默认参数/等待缓存均 False，运行时写入 True 返回成功，
+参数变为 True 但缓存仍 False。启动 True override 能应用。两个
+行为开关和 use_sim_time 的原子更新成功，确认它们仍应保持动态。
+
+生产修改仅为该声明添加独立 ParameterDescriptor(read_only=True)
+及既有 rcl_interfaces.msg 的 import。启动 override 保留；运行时
+单项及含该项的原子更新由 ROS 参数 API 拒绝。replan_on_unplanned_move、
+check_timestamp 的已有回调和 use_sim_time 保持；任务、权重、TS/
+插件配置在后续初始化时读取的路径不变。没有修改生命周期、规划、
+代价、接受性、IRL 学习范围/启用配置、接口定义、依赖或 launch。
+
+复用现有 test_planner_node.py，只新增两个函数、三个 case：
+False/True 启动覆盖分别检查参数/缓存一致，直接反向写入被拒绝；
+将三个可变参数置前、只读参数置后的 mixed atomic batch 拒绝后，
+参数与缓存保持，随后 mutable-only 更新成功。第三项通过真实
+SetParametersAtomically RPC 检查同样的拒绝、完整性及可变更新；
+沿用 2 秒 discovery / 3 秒 future 上限，finally 清理 client。
+节点/Context/executor 清理保留。最终整文件 **30 passed，exit 0**，
+两条既有 NetworkX/NumPy np.int 弃用警告。此前拆分为四新增 case
+的草稿整文件为 31 passed，不与最终结果累计。最终两文件
+py_compile、ament_flake8 --linelength 99、测试 pep257 和 diff 通过。
+
+主代理在修改后加载 git show 81cc78a 的完整旧 planner_node.py，
+核对完整字节、当前 checkout import resolve 和所收集测试绑定
+旧 PlannerNode。第一次 helper 的 collection hook 早于 pytest
+筛选，断言 3 项时收到 30 项，实际 INTERNAL_ERROR，未运行测试；
+原日志保留，不作为回归失败证据。修正为筛选完成后核对，使用
+新 run2 XML/log，旧源码不覆盖。实际 pytest **exit 1：3 failed /
+27 deselected**，无 errors/skips；两项 direct API 与一项公开 RPC
+均先执行写入，再因旧 successful=True 失败，早于 descriptor 检查。
+helper 核对预期失败后自身 exit 0；这不是更改前的新用例 RED。
+
+旧源码为隔离目录 planner_node_baseline_81cc78a.py；结果为
+planner_initial_param_old_81cc78a_run2.xml/.log，对照脚本为 Windows
+Temp/replay_planner_initial_param_81cc78a_run2.py；第一次 .log 与
+脚本亦保留。环境仍为既有 WSL Ubuntu-22.04-D / ROS 2 Humble /
+Python 3.10.12 隔离 overlay，新测试与旧重放使用包测试 domain 215。
+新增 case 使用真实节点及其原生通信实体、公开参数 RPC，空 TS
+路径不创建 planner；不构成有效规划、执行/时钟反馈闭环或 IRL
+效果验证。没有七包、LLM、benchmark、仿真、实机/机器人示范或
+Jazzy 验证；11.73 的 631 项只属于 be23c75 历史资格。
+README/API 同步；前 73 节正文完整保留，本地链接/锚点和五文件
+范围/diff 检查通过。

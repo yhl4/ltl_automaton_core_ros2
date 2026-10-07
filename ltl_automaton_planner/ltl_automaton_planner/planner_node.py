@@ -15,7 +15,7 @@ from typing import Mapping
 
 import rclpy
 import yaml
-from rcl_interfaces.msg import SetParametersResult
+from rcl_interfaces.msg import ParameterDescriptor, SetParametersResult
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.node import Node
 from rclpy.qos import (
@@ -432,6 +432,7 @@ class PlannerNode(Node):
         self.declare_parameter(
             "initial_ts_state_from_agent",
             False,
+            ParameterDescriptor(read_only=True),
         )
         self.declare_parameter(
             "replan_on_unplanned_move",

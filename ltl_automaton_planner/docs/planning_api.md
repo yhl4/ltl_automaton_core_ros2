@@ -21,6 +21,14 @@ transient-local, depth-1 QoS. A late subscriber receives the latest state.
 The topic is the authoritative lifecycle signal. Action feedback text is only
 informational.
 
+`initial_ts_state_from_agent` is a read-only startup parameter. Set it through
+launch or a startup parameter override; runtime writes are rejected. Its value
+selects the initial-state waiting behavior when the node is constructed, while
+the lifecycle may subsequently advance that waiting state. The runtime
+parameters `replan_on_unplanned_move`, `check_timestamp`, and inherited
+`use_sim_time` remain mutable. An atomic parameter batch containing the read-only
+parameter is rejected without applying the mutable entries.
+
 ## Loading a Transition System
 
 `/load_transition_system` uses

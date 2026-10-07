@@ -10,6 +10,7 @@ import pytest
 import rclpy
 from rclpy.context import Context
 from rclpy.executors import SingleThreadedExecutor
+from rclpy.parameter import Parameter
 from rclpy.qos import (
     DurabilityPolicy,
     QoSProfile,
@@ -23,6 +24,7 @@ from ltl_automaton_msgs.msg import (
     TransitionSystemStateStamped,
 )
 from ltl_automaton_msgs.srv import LoadTransitionSystem
+from rcl_interfaces.srv import SetParametersAtomically
 from ltl_automaton_planner.planner_node import (
     PlannerNode,
     initial_states_from_message,
@@ -163,6 +165,159 @@ def wait_for_message(runtime, messages, timeout=3.0):
         runtime.executor.spin_once(timeout_sec=0.1)
 
     return bool(messages)
+
+
+@pytest.mark.parametrize("initial", [False, True])
+def test_initial_state_parameter_startup_and_runtime(initial):
+    """Keep the cached initial-state lifecycle flag read-only at runtime."""
+    context = Context()
+    rclpy.init(context=context)
+    planner = PlannerNode(
+        context=context,
+        parameter_overrides=[
+            Parameter("initial_ts_state_from_agent", value=initial),
+        ],
+    )
+    try:
+        assert planner.get_parameter("initial_ts_state_from_agent").value is initial
+        assert planner._waiting_for_initial_state is initial
+
+        result = planner.set_parameters([
+            Parameter("initial_ts_state_from_agent", value=not initial),
+        ])[0]
+
+        assert not result.successful
+        assert planner.get_parameter("initial_ts_state_from_agent").value is initial
+        assert planner._waiting_for_initial_state is initial
+        assert planner.describe_parameter(
+            "initial_ts_state_from_agent"
+        ).read_only
+        before_parameters = {
+            name: planner.get_parameter(name).value
+            for name in (
+                "initial_ts_state_from_agent",
+                "replan_on_unplanned_move",
+                "check_timestamp",
+                "use_sim_time",
+            )
+        }
+        before_cache = (
+            planner._waiting_for_initial_state,
+            planner.replan_on_unplanned_move,
+            planner.check_timestamp,
+        )
+
+        result = planner.set_parameters_atomically([
+            Parameter("check_timestamp", value=False),
+            Parameter("replan_on_unplanned_move", value=False),
+            Parameter("use_sim_time", value=True),
+            Parameter("initial_ts_state_from_agent", value=not initial),
+        ])
+
+        assert not result.successful
+        assert {
+            name: planner.get_parameter(name).value
+            for name in before_parameters
+        } == before_parameters
+        assert (
+            planner._waiting_for_initial_state,
+            planner.replan_on_unplanned_move,
+            planner.check_timestamp,
+        ) == before_cache
+
+        result = planner.set_parameters_atomically([
+            Parameter("check_timestamp", value=False),
+            Parameter("replan_on_unplanned_move", value=False),
+            Parameter("use_sim_time", value=True),
+        ])
+
+        assert result.successful
+        assert planner.get_parameter("use_sim_time").value is True
+        assert planner.replan_on_unplanned_move is False
+        assert planner.check_timestamp is False
+        assert planner.get_parameter(
+            "initial_ts_state_from_agent"
+        ).value is initial
+        assert planner._waiting_for_initial_state is initial
+    finally:
+        planner.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+def test_public_parameter_service_preserves_initial_state_configuration(
+    planner_runtime,
+):
+    """Exercise the native atomic parameter service boundary."""
+    planner = planner_runtime.planner
+    client = planner_runtime.client_node.create_client(
+        SetParametersAtomically,
+        "ltl_planner/set_parameters_atomically",
+    )
+    try:
+        assert client.wait_for_service(timeout_sec=2.0)
+        request = SetParametersAtomically.Request()
+        request.parameters = [
+            Parameter("check_timestamp", value=False).to_parameter_msg(),
+            Parameter(
+                "replan_on_unplanned_move",
+                value=False,
+            ).to_parameter_msg(),
+            Parameter("use_sim_time", value=True).to_parameter_msg(),
+            Parameter(
+                "initial_ts_state_from_agent",
+                value=True,
+            ).to_parameter_msg(),
+        ]
+        future = client.call_async(request)
+        planner_runtime.executor.spin_until_future_complete(
+            future,
+            timeout_sec=3.0,
+        )
+        assert future.done()
+        response = future.result().result
+        assert not response.successful
+        assert planner.describe_parameter(
+            "initial_ts_state_from_agent"
+        ).read_only
+        assert planner.get_parameter("use_sim_time").value is False
+        assert planner.get_parameter("check_timestamp").value is True
+        assert planner.get_parameter(
+            "replan_on_unplanned_move"
+        ).value is True
+        assert planner.get_parameter(
+            "initial_ts_state_from_agent"
+        ).value is False
+        assert planner.check_timestamp is True
+        assert planner.replan_on_unplanned_move is True
+        assert planner._waiting_for_initial_state is False
+
+        mutable = SetParametersAtomically.Request()
+        mutable.parameters = [
+            Parameter("check_timestamp", value=False).to_parameter_msg(),
+            Parameter(
+                "replan_on_unplanned_move",
+                value=False,
+            ).to_parameter_msg(),
+            Parameter("use_sim_time", value=True).to_parameter_msg(),
+        ]
+        future = client.call_async(mutable)
+        planner_runtime.executor.spin_until_future_complete(
+            future,
+            timeout_sec=3.0,
+        )
+        assert future.done()
+        response = future.result().result
+        assert response.successful
+        assert planner.get_parameter("check_timestamp").value is False
+        assert planner.get_parameter(
+            "replan_on_unplanned_move"
+        ).value is False
+        assert planner.get_parameter("use_sim_time").value is True
+        assert planner.check_timestamp is False
+        assert planner.replan_on_unplanned_move is False
+        assert planner._waiting_for_initial_state is False
+    finally:
+        planner_runtime.client_node.destroy_client(client)
 
 
 def make_state_message(states, dimensions):

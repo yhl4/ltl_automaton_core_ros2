@@ -353,7 +353,7 @@ Published next move: ...
 | `soft_task` | string | 用于软约束或偏好的 LTL 任务 |
 | `beta` | double | soft-task 边惩罚权重 |
 | `gamma` | double | suffix 代价乘数 |
-| `initial_ts_state_from_agent` | bool | 是否等待首个 `/ts_state` 作为规划初始状态 |
+| `initial_ts_state_from_agent` | bool | 只读启动配置：是否等待首个 `/ts_state` 作为规划初始状态 |
 | `replan_on_unplanned_move` | bool | 收到非计划下一状态时是否自动重规划 |
 | `check_timestamp` | bool | 是否丢弃重复或倒序时间戳的状态反馈 |
 | `plugin_config_path` | string | ROS 2 Planner 插件 YAML 配置文件路径 |
@@ -372,7 +372,9 @@ ros2 param get /ltl_planner check_timestamp
 ros2 param get /ltl_planner plugin_config_path
 ```
 
-两个行为参数支持通过 `ros2 param set` 动态修改。新 consumer 使用 `/plan_ltl`
+`initial_ts_state_from_agent` 通过 launch 或启动 ROS 参数设定，运行时写入会被拒绝。
+`replan_on_unplanned_move` 与 `check_timestamp` 支持通过 `ros2 param set`
+动态修改，继承的 `use_sim_time` 也保持动态。新 consumer 使用 `/plan_ltl`
 Action 切换任务并取得结构化结果；旧 `/replanning` 服务继续兼容。
 两者均保证新任务成功规划后才替换当前计划。
 
@@ -711,7 +713,15 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-代码资格基线 `be23c75` 的 aggregate 七包构建与默认并行整包测试
+本轮将 Planner 的 `initial_ts_state_from_agent` 明确为只读启动配置，
+避免运行时参数写入成功、内部等待状态却未更新。最终
+`test_planner_node.py` 整文件 **30 passed**，保留两条既有 NumPy 弃用警告。
+三个新增 case 覆盖 False/True 启动覆盖、本地与公开参数服务拒绝、
+混合原子更新无部分生效及动态参数单独更新成功。完整旧节点模块
+重放这三个 case 为 **3 failed / 27 deselected**，均检出错误的 successful=true。
+本轮未重跑七包；新用例使用真实节点和参数 RPC，但不执行规划或机器人反馈闭环。
+
+历史七包资格基线 `be23c75` 的 aggregate 构建与默认并行整包测试
 均 exit 0，各执行一次。六份本轮新 JUnit 合计
 **631 tests = 627 passed / 4 skipped**，
 0 errors、0 failures；四个跳过项均为已有 copyright 检查。
@@ -730,7 +740,7 @@ Python 3.10.12 / NetworkX 2.4，保留依赖与弃用警告。
 本轮结果、receipt、构建/测试完整日志与哈希清单已冻结，83 份文件
 校验通过；119 份历史证据的 SHA256 保持。此前 `4817dd4` 的 620 项、
 `6cbfd39` 的 597 项和 `2c52c71` 的五项失败均保留，不并入本轮统计。
-本次仓库只刷新 README 与验证记录，源码/测试保持 `be23c75`。
+以上整包统计只属于 `be23c75`，未覆盖本轮 Planner 启动参数修正。
 组合验证不证明 IRL 收敛、逆最优性、机器人示范效果或整体加速。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
