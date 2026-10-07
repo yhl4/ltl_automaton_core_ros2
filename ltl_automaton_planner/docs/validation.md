@@ -2625,3 +2625,75 @@ resolver_state_equality_87ac8d5_tool_results.json；旧七包冻结证据不改�
 11.76 的 634 项仍只属于 b555100 历史源码；11.77 的 76 项属于
 87ac8d5 局部资格，不作本轮整包通过声明。README 同步，前 77 节
 正文完整保留，五文件范围、本地链接/锚点与 diff 检查通过。
+
+### 11.79 执行快照与状态解析改动后的七包组合资格（2026-10-07）
+
+资格源码为干净 `d6f49838c2fba0f7e96bd7faf03fbd53f187b9be`。
+11.77 的单次状态转换复用与 11.78 的不可哈希合法字符串值解析
+本轮纳入整包组合。七包 inventory 与 aggregate 的六个 exec_depend
+一致，使用既有 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4 隔离 build/install，原 translator 保持
+/home/yuhling/.local/bin/ltl2ba。
+
+build 使用 --executor sequential、--symlink-install、
+--packages-up-to ltl_automaton_core、-DBUILD_TESTING=ON；执行代理
+实际 session 34300 terminal exit 0，耗时 28.852778987 秒。
+test 选择全部七包、默认并行、--return-code-on-test-failure；实际
+session 19272 terminal exit 0，耗时 51.195945840 秒。各执行一次，
+没有重启或重跑；新 helper 使用 exclusive run marker，工具 yield
+仅等待原句柄。主代理本轮没有独立观察运行中的 PID，不把旧轮 PID
+或完成 marker 作为该项证据。测试 domain 215/216/217/218 保持，
+无 pytest 筛选、缩时或修改条件。
+
+主代理独立解析实际 test_start_ns 之后的六份新 JUnit，核对 testcase
+数量、错误/失败/跳过及冻结副本与当前 XML 的完整字节：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 188 | 187 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 134 | 134 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **644 tests = 640 passed + 4 skipped，0 errors，0 failures**。
+四项跳过均为已有 copyright；接口 CTest wrapper 一项通过，实际
+colcon test-result --verbose 汇总 **645 tests，0 errors，0 failures，
+4 skipped**。11 份历史 CTest XML 按时间排除，不混入本轮
+JUnit 或重复计数，aggregate 没有独立 pytest case。
+新增六项快照转换 case 均执行：重复状态与输入次序、跨消息不复用、
+合法不可哈希 str 子类、三个畸形输入的原校验顺序。解析器完整六项
+多候选参数 case（两种次序 × 普通/source/target 不可哈希位置）均
+执行，其中四项为 11.78 净新增；相对 b555100 总数净增十项。
+近期 Planner 参数、TS 缺 action/weight 与剩余 zip 隔离、其它已列
+回归、四个真实 DDS 场景、Studio consumer、快照 fallback、IRL
+commit/step reset、native translator/POSIX、HIL、monitor、launch
+与 lint 亦核对。保留 np.int 和 SelectableGroups 弃用警告，五包
+有 stderr，不作为零警告结果。
+
+构建/测试前后 HEAD 与清洁树核对。start gate 实际核对十个源码
+模块 resolve 与隔离生成接口；主代理另核对执行节点、解析器、
+Planner、Product、snapshot、IRL、2D generator、KTH driver 八模块
+resolve、SHA256 及完整 git 源字节，均绑定资格源码。
+collector 只执行一次，verification_d6f4983.json、
+verified_summary_d6f4983.json、verified_changed_imports_d6f4983.json、
+historical_hashes_before_d6f4983.json 与新 JUnit/当前 CTest、完整
+构建/测试实体日志冻结于 verified_results_d6f4983；清单 83 文件
+逐项 SHA256 通过，无便利 symlink。正确查询使用独立 log_query_d6f4983_correct，
+不改冻结闭包。执行代理首次查询遗漏隔离 test-result-base，读到工作
+目录旧 build 的 86 项；原 log_query_d6f4983.txt 保留且不参与资格。
+主代理显式指定 /tmp/ltl_ros2_completion_20261006/build 只读查询，
+实际 exit 0、645 项；没有重跑构建/测试或改写新 XML。
+
+执行前先校验 b555100 的 83 文件闭包与此前 213 份选择清单，再将
+该闭包及近期独立 receipts、旧模块、三份 RED/首版/最终 XML 等
+共 314 份历史证据固定哈希；本轮前后完整保持。b555100 等旧资格、
+最初五项失败、11.77/11.78 的 helper 失败与最终成功分别保留，
+没有重跑旧 helper 或覆盖旧证据，局部测试人口不累加到本轮。
+
+仓库本次只更新 README 与本记录，源码/测试保持 d6f4983，前 78 节
+历史正文完整保留。未运行 LLM、benchmark、完整演示、物理仿真、
+实机/机器人示范或 Jazzy；执行仍为符号级 FakeBackend。IRL 按用户
+选择保留原示范学习 β 范围，默认关闭。命令耗时不是规划性能，
+组合通过不证明 IRL 收敛、逆最优性、示范效果或整体加速。

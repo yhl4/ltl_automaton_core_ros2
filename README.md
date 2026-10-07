@@ -711,46 +711,36 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 最新验证摘要（2026-10-07）
+### 最新七包验证摘要（源码 d6f4983，2026-10-07）
 
-本轮修复接受运行解析器对合法不可哈希字符串子类的 TypeError：
-状态分组改用值比较，保留全部候选 ID、歧义判定、原错误优先次序
-及索引提交规则。四个新增 source/target 场景先复现失败；最终
-解析器与执行节点两个现有文件 **63 passed**，无跳过或警告，
-静态检查通过。首版 63 项记录与最终 63 项分别保留，不相加。
-完整旧/新模块的三个原生 single/safe/KTH 符号派发与成本一致；
-解析过程的状态哈希调用实测 **6/8/8 -> 0/0/0**，九种错误与缓存
-阶段对照保持。这是局部调用数量对照，不是耗时或整体加速测量。
-上一轮快照状态复用的 **4/8/24 -> 2/2/6** 对象结果属于 `87ac8d5`；
-该转换源码本轮未改动。未重跑七包；本轮证据与限制见 11.78。
+本轮将执行快照的单次状态复用及合法不可哈希字符串值解析修复
+纳入完整组合。干净源码基线 `d6f4983` 的 aggregate 七包构建和默认
+并行整包测试各执行一次，均 exit 0。六份本轮新 JUnit 合计
+**644 tests = 640 passed / 4 skipped**，0 errors、0 failures；
+四项跳过均为已有 copyright 检查。标准 colcon 汇总含一项通过的
+接口 CTest wrapper，共 645 tests。构建/测试命令实际耗时约
+28.85/51.20 秒，不作为规划性能或加速比。
 
-### 最近七包历史资格（源码 b555100，2026-10-07）
+新增的六项快照转换 case 和解析器全部六项多候选参数 case 均执行；
+此前 Planner 参数、TS 动作转换、四个真实 DDS 场景、Studio consumer、
+快照 fallback、IRL commit/step reset、原生 ltl2ba/POSIX、HIL、
+monitor、launch 与 lint 也完成组合检查。11 份历史 CTest XML 按时间
+排除，不与本轮 JUnit 混用。IRL 保持原示范学习 β 范围、默认关闭。
 
-代码资格基线 `b555100` 的 aggregate 七包构建与默认并行整包测试
-均 exit 0，各执行一次。六份本轮新 JUnit 合计
-**634 tests = 630 passed / 4 skipped**，
-0 errors、0 failures；四个跳过项均为已有 copyright 检查。
-标准 colcon 汇总含一项通过的接口 CTest wrapper，共 635 tests。
-构建/测试命令实际耗时约 28.07/54.44 秒，不作为规划性能或加速比。
+实际导入来自本 checkout 与隔离生成接口，执行节点/解析器、Planner、
+Product、快照、IRL、2D 生成器及 KTH 驱动八模块完整源码字节与该
+基线一致。环境为 Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4；保留依赖弃用警告，五包有 stderr。本轮结果、receipts、
+完整构建/测试实体日志及哈希清单已冻结，83 份文件校验通过；
+314 份选定历史证据 SHA256 保持。本次只刷新 README 与验证记录，
+源码/测试保持 `d6f4983`，详细证据见 11.79。
 
-近期三个 Planner 启动覆盖/运行时拒绝/参数 RPC case 和两个补强的
-TS 动作转换错误/迭代器快照 case 均执行且未跳过；此前新增的
-KTH 只读参数、快照相邻校验、Core 边转换及其它回归也完成组合检查。
-四个真实 DDS 场景、Studio consumer、快照 fallback、
-IRL commit/step reset、原生 ltl2ba/POSIX、HIL、monitor、launch 与 lint
-亦执行。十份历史 XML 按时间排除，未混入本轮统计。
-
-实际导入绑定本 checkout 与隔离生成接口，Planner/Product/快照/IRL/
-生成器/驱动六模块源码字节与该基线一致。环境仍为 Ubuntu 22.04 /
-ROS 2 Humble / Python 3.10.12 / NetworkX 2.4，保留依赖与弃用警告；
-五包有 stderr。本轮结果、receipt、构建/测试完整日志与哈希清单已
-冻结，83 份文件校验通过；213 份选定历史证据的 SHA256 保持。
-此前 `be23c75` 的 631 项、`4817dd4` 的 620 项、`6cbfd39` 的 597 项、
-`2c52c71` 的五项失败与旧模块重放均保留，不并入本轮统计。
-该轮只刷新 README 与验证记录，源码/测试保持 `b555100`；
-634 项是该历史源码的组合资格，不作为本轮修改后的整包通过声明。
-组合验证不证明 IRL 收敛、逆最优性、机器人示范效果或整体加速。
-Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
+`b555100` 的 634 项、`be23c75` 的 631 项、`4817dd4` 的 620 项、
+`6cbfd39` 的 597 项，以及 `2c52c71` 的五项失败和旧模块重放均保留，
+不并入本轮统计。前两轮局部的 76/63 项及对象/哈希调用数量对照
+独立保留在 11.77–11.78，不累加为测试总数或整体加速证据。
+执行场景仍为符号级 FakeBackend；组合验证不证明 IRL 收敛、逆最优性
+或机器人示范效果。物理验证与 Ubuntu 24.04 / ROS 2 Jazzy 验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
 [validation.md](ltl_automaton_planner/docs/validation.md)。
