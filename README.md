@@ -710,7 +710,31 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前局部验证：启动规划的准备与提交（2026-10-07）
+### 当前七包组合验证（源码 02d426f，2026-10-07）
+
+干净源码 `02d426f` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
+启动规划的八项新增回归及此前重规划修复纳入完整组合；两种初始化方式的
+准备失败、真实代价溢出和有效重试均执行。
+
+| 包 | tests | passed | skipped |
+| --- | ---: | ---: | ---: |
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 195 | 194 | 1 |
+| ltl_automaton_planner | 182 | 181 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 119 | 118 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **699 tests = 695 passed / 4 skipped**，0 errors、0 failures。
+四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
+对实际隔离 build 的 colcon 查询为 700 tests。四个真实 DDS 场景、Studio consumer、
+IRL 完整二十步与事务提交、HIL 及标准 TS/monitor 同时覆盖。
+18 个生产模块的完整字节、近期源码及测试 SHA、生成消息路径和原生 `ltl2ba` 已核对。
+完整原命令、时序、日志与历史结果保留；详细记录见
+[validation.md 第 11.109 节](ltl_automaton_planner/docs/validation.md)。
+符号级组合通过不证明整体加速、IRL 科学效果或实机效果。
+
+### 此前局部验证：启动规划的准备与提交（2026-10-07）
 
 初始规划在候选代价、快照和计划消息全部准备成功后才提交。准备失败返回 READY，
 保留有效 TS，无活动计划、快照或执行身份；有效重试只开启一次新 generation。
@@ -719,32 +743,16 @@ git diff --check
 更正调用后，三个完整相关测试文件 **104 passed**（节点 38、Action 52、序列化 14）。
 原失败记录保留；测试字节和验收条件保持。编译、flake8、pep257 通过，详见
 [validation.md 第 11.108 节](ltl_automaton_planner/docs/validation.md)。
-本轮仅执行相关验证；下列 691 项是此前源码 917c4cc 的七包基线，不与 104 项相加。
+该次仅执行相关验证，104 项局部资格不与各版七包结果相加。
 
-### 最近七包组合基线（源码 917c4cc，2026-10-07）
+### 此前七包组合基线（源码 917c4cc，2026-10-07）
 
 干净源码 `917c4cc` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
-历史遍历、旧 `/replanning` 和意外状态恢复的近期改动纳入完整组合；
-六项新增事务回归、延迟恢复及两个历史规划用例均执行。
-
-| 包 | tests | passed | skipped |
-| --- | ---: | ---: | ---: |
-| ltl_automaton_msgs | 11 | 11 | 0 |
-| ltl_automaton_planner_core | 195 | 194 | 1 |
-| ltl_automaton_planner | 174 | 173 | 1 |
-| ltl_automaton_execution | 143 | 143 | 0 |
-| ltl_automaton_hil_mic | 119 | 118 | 1 |
-| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
-
-合计 **691 tests = 687 passed / 4 skipped**，0 errors、0 failures。
-四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
-对实际隔离 build 的 colcon 查询为 692 tests。四个真实 DDS 场景、Studio consumer、
-IRL 完整二十步与事务提交、HIL 及标准 TS/monitor 同时覆盖。
-18 个生产模块的完整字节与资格提交一致，生成消息路径及原生 `ltl2ba` 已核对。
-保留 np.int/SelectableGroups 依赖弃用警告，五包 stderr 非空；
-19 份历史 CTest XML 按测试开始时间排除。完整记录见
-[validation.md 第 11.107 节](ltl_automaton_planner/docs/validation.md)。
-符号级组合通过不证明整体加速、IRL 科学效果或实机效果。
+历史遍历、旧 `/replanning` 和意外状态恢复纳入完整组合；合计
+**691 tests = 687 passed / 4 skipped**，0 errors、0 failures。
+接口 CTest wrapper 另有一项通过，实际隔离 build 查询为 692 tests。
+完整记录保留在 [validation.md 第 11.107 节](ltl_automaton_planner/docs/validation.md)。
+该基线与局部 50/93/96/104 项分别计数，不累加到当前组合人口。
 
 ### 此前局部验证：意外状态恢复的事务提交（2026-10-07）
 
