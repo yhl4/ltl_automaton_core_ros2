@@ -211,7 +211,9 @@ Published next move: goto_r1
 | `deviation` | 第一条 `goto_r2` 改为合法分支 `r3` |
 | `full` | 正常推进、任务切换、合法偏离和恢复 |
 
-可调参数：
+以下 Driver 参数在启动时设置，运行时只读；`use_sim_time` 仍可动态修改。
+`kth_demo.launch.py` 暴露 `scenario`、`step_delay` 和 `max_steps`，
+完整六项也可通过 `ros2 run ... --ros-args -p 名称:=值` 在节点启动时覆盖。
 
 | 参数 | 默认值 | 说明 |
 |---|---:|---|
@@ -219,6 +221,8 @@ Published next move: goto_r1
 | `step_delay` | `1.0` | 每次状态反馈间隔，单位秒；须为有限正数且在 ROS 定时器范围内 |
 | `max_steps` | `8` | 最多发布的状态数 |
 | `replanning_after_steps` | `3` | 切换任务前的正常反馈数 |
+| `replanning_hard_task` | `<> r3` | 切换时请求的 hard task |
+| `replanning_soft_task` | `(r3 \|\| ! r3)` | 切换时请求的 soft task |
 
 NaN、无穷和超出定时器范围的 `step_delay` 在创建驱动通信接口前返回
 参数错误。有效延迟与场景步数保持原规则；此校验不改变规划或任务切换。

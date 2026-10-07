@@ -2123,3 +2123,58 @@ SHA256 保持；没有覆盖历史通过、最初五项失败或旧模块重放�
 验证；该耗时是资格命令时间，不是规划性能/加速比，组合通过也不
 证明 IRL 收敛或逆最优性。README 刷新为当前资格结果，前 68 节
 正文完整保留，本地链接/锚点及 diff 检查通过。
+
+### 11.70 KTH driver 缓存启动配置的只读参数契约（2026-10-07）
+
+初始基线为干净 `a27c17de5ac20b95d232a33d62771a2857ff7a19`，
+其源码与 4817dd4 组合资格相同。driver 仅在启动时缓存 scenario、
+step_delay、max_steps、replanning_after_steps、replanning_hard_task、
+replanning_soft_task，原先却允许运行时成功写入这六项。真实节点
+复现六项 set_parameters 都返回 successful=True，但各缓存仍为原
+值；例如 step_delay 写入后 self.step_delay 仍为 1.0、timer 仍为
+1000000000 ns。该复现保留在工具 stdout，未生成额外 JUnit。
+
+现在分别声明六个独立的 ParameterDescriptor(read_only=True)，
+运行时写入拒绝，启动 override 仍应用于缓存和原生 timer。
+不共享可变 descriptor，不增加动态重配置或自定义 callback。
+继承的 use_sim_time 仍可动态写入；已有 rcl_interfaces 直接依赖
+保持，无 package/launch/构造签名、延迟校验/异常优先级、反馈
+阶段/步数或规划/代价/IRL 改动。ROS 参数服务的拒绝是本轮可见
+接口变化，KTH 文档明确启动设置并补齐两个任务参数。
+
+test_kth_demo_driver.py 初次完整运行 **20 passed**（原 18 项及
+两个启动/本地 API case）。随后加入原生公开 SetParametersAtomically
+服务 case，单独 **1 passed / 20 deselected**。验收补强两个原子场景，
+仅重跑 **2 passed / 19 deselected**；这些属于同一文件的重叠子集，
+未重跑最终 21 项整文件，不累计为 23。以上均无 pytest warnings。
+完整启动覆盖核对全部六个缓存/参数/descriptor，并确认 0.25 秒
+timer 保持 250000000 ns。本地 API 六项分别拒绝且参数/缓存/timer
+保持；原子请求先给可写的 use_sim_time、再给只读项，整批拒绝
+且 use_sim_time 保持 False，单独 use_sim_time 设置仍成功。
+
+公开 case 使用真实 native Node.create_client 与同 Context 的
+SingleThreadedExecutor，服务发现和 Future 等待各沿用 2 秒。
+use_sim_time 在前、step_delay 在后的请求被拒绝，无部分写入；
+随后独立 use_sim_time 请求成功。此 case 确实经过公开参数 RPC，
+driver 演示 pub/sub/client 仍为 spy，timer 和基础参数服务为原生；
+不作为完整演示、TS/规划执行闭环或 clock 反馈验证。正常及测试
+异常路径清理 client/executor/node/context。源码/测试 py_compile、
+ament_flake8 --linelength 99、测试 pep257 与 diff 检查通过，测试
+补强后只重新检查已修改的测试文件。
+
+生产修改前未执行两个新增测试，不补称前置 RED。主代理在最终
+测试补强后独立加载逐字匹配 git show 的完整旧 driver，收集时
+断言 KthDemoDriver 确实绑定旧类。三个新增 case 为
+**3 failed / 18 deselected**，实际 pytest exit 1：启动 case 的只读
+descriptor 缺失，本地 runtime 和公开 RPC 均实际返回错误的
+successful=True，后两项不是被提前 descriptor 断言阻断。
+失败 JUnit/log 单独保留，未混入 PASS。完整旧源码保留于隔离
+目录 kth_demo_baseline_a27c17d.py，重放脚本为 Windows Temp/
+replay_kth_params_a27c17d.py，产物为 kth_params_old_a27c17d.xml 与
+kth_params_old_a27c17d.log。当前源码 resolve 与旧字节已核对。
+
+环境仍为 WSL Ubuntu-22.04-D / ROS 2 Humble 及既有隔离 overlay，
+未更换依赖。本轮没有七包组合重跑、完整场景、LLM、benchmark、
+物理仿真、实机/机器人示范或 Jazzy 验证；11.69 的 620 项结果仍
+属于 4817dd4 原资格基线。README/KTH 演示说明同步，前 69 节
+历史正文完整保留，本地链接/锚点与 diff 检查通过。

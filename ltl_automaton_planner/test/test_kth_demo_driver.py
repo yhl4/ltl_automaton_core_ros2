@@ -6,8 +6,10 @@ from types import MethodType
 import rclpy
 import pytest
 from rclpy.context import Context
+from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.parameter import Parameter
+from rcl_interfaces.srv import SetParametersAtomically
 
 from ltl_automaton_planner.kth_demo_driver import KthDemoDriver
 from ltl_automaton_planner.kth_demo_driver import next_state_for_action
@@ -43,7 +45,9 @@ def test_next_state_for_action_rejects_invalid_transition(state, action):
         next_state_for_action(state, action)
 
 
-def _construct_driver(monkeypatch, step_delay, max_steps=8, calls=None):
+def _construct_driver(
+    monkeypatch, step_delay, max_steps=8, calls=None, extra_parameters=None
+):
     """Construct the demo with isolated ROS context and entity spies."""
     context = Context()
     rclpy.init(context=context)
@@ -51,13 +55,15 @@ def _construct_driver(monkeypatch, step_delay, max_steps=8, calls=None):
         calls = []
     captured = {}
     original_init = Node.__init__
+    if extra_parameters is None:
+        extra_parameters = []
 
     def patched_init(node, node_name, *args, **kwargs):
         kwargs["context"] = context
         kwargs["parameter_overrides"] = [
             Parameter("step_delay", value=step_delay),
             Parameter("max_steps", value=max_steps),
-        ]
+        ] + list(extra_parameters)
         original_init(node, node_name, *args, **kwargs)
         captured["node"] = node
 
@@ -138,3 +144,141 @@ def test_valid_step_delay_preserves_timer_value(monkeypatch, step_delay, expecte
         assert driver.step_timer.timer_period_ns == expected_nanoseconds
     finally:
         _close_driver(driver, context)
+
+
+def test_startup_overrides_populate_all_cached_configuration(monkeypatch):
+    """Apply all startup-only overrides before caching the demo configuration."""
+    driver, context, calls = _construct_driver(
+        monkeypatch,
+        0.25,
+        max_steps=12,
+        extra_parameters=[
+            Parameter("scenario", value="full"),
+            Parameter("replanning_after_steps", value=6),
+            Parameter("replanning_hard_task", value="<> r1"),
+            Parameter("replanning_soft_task", value="[]!r1"),
+        ],
+    )
+    try:
+        expected = {
+            "scenario": "full",
+            "step_delay": 0.25,
+            "max_steps": 12,
+            "replanning_after_steps": 6,
+            "replanning_hard_task": "<> r1",
+            "replanning_soft_task": "[]!r1",
+        }
+        for name, value in expected.items():
+            assert driver.get_parameter(name).value == value
+            assert driver.describe_parameter(name).read_only
+            assert getattr(driver, name) == value
+        assert driver.step_timer.timer_period_ns == 250000000
+        assert [value for kind, value in calls if kind == "timer"] == [0.25]
+    finally:
+        _close_driver(driver, context)
+
+
+def test_readonly_runtime_updates_are_atomic_and_use_sim_time_remains_dynamic(
+    monkeypatch,
+):
+    """Reject cached-configuration writes while allowing use_sim_time changes."""
+    driver, context, calls = _construct_driver(monkeypatch, 0.25, max_steps=8)
+    readonly = {
+        "scenario": "full",
+        "step_delay": 0.5,
+        "max_steps": 12,
+        "replanning_after_steps": 6,
+        "replanning_hard_task": "<> r1",
+        "replanning_soft_task": "[]!r1",
+    }
+    names = tuple(readonly)
+    try:
+        before_parameters = {
+            name: driver.get_parameter(name).value for name in names
+        }
+        before_cached = {
+            name: getattr(driver, name) for name in names
+        }
+        before_timer = driver.step_timer.timer_period_ns
+
+        for name, value in readonly.items():
+            result = driver.set_parameters([Parameter(name, value=value)])[0]
+            assert not result.successful
+            assert driver.describe_parameter(name).read_only
+            assert driver.get_parameter(name).value == before_parameters[name]
+            assert getattr(driver, name) == before_cached[name]
+            assert driver.step_timer.timer_period_ns == before_timer
+
+        result = driver.set_parameters_atomically(
+            [
+                Parameter("use_sim_time", value=True),
+                Parameter("scenario", value="full"),
+            ]
+        )
+        assert not result.successful
+        assert driver.get_parameter("use_sim_time").value is False
+        assert {
+            name: driver.get_parameter(name).value for name in names
+        } == before_parameters
+        assert {name: getattr(driver, name) for name in names} == before_cached
+        assert driver.step_timer.timer_period_ns == before_timer
+
+        result = driver.set_parameters(
+            [Parameter("use_sim_time", value=True)]
+        )[0]
+        assert result.successful
+        assert driver.get_parameter("use_sim_time").value is True
+    finally:
+        _close_driver(driver, context)
+
+
+def test_public_parameter_service_enforces_readonly_and_allows_use_sim_time(
+    monkeypatch,
+):
+    """Exercise the native atomic parameter service boundary."""
+    driver, context, calls = _construct_driver(monkeypatch, 0.25, max_steps=8)
+    executor = SingleThreadedExecutor(context=context)
+    client = Node.create_client(
+        driver,
+        SetParametersAtomically,
+        "kth_demo_driver/set_parameters_atomically",
+    )
+    executor.add_node(driver)
+    try:
+        assert driver.get_parameter("use_sim_time").value is False
+        before_cache = {
+            "step_delay": driver.step_delay,
+            "timer_ns": driver.step_timer.timer_period_ns,
+        }
+
+        mixed = SetParametersAtomically.Request()
+        mixed.parameters = [
+            Parameter("use_sim_time", value=True).to_parameter_msg(),
+            Parameter("step_delay", value=0.5).to_parameter_msg(),
+        ]
+        assert client.wait_for_service(timeout_sec=2.0)
+        future = client.call_async(mixed)
+        executor.spin_until_future_complete(future, timeout_sec=2.0)
+        assert future.done()
+        assert not future.result().result.successful
+        assert driver.describe_parameter("step_delay").read_only
+        assert driver.get_parameter("step_delay").value == 0.25
+        assert driver.get_parameter("use_sim_time").value is False
+        assert driver.step_delay == before_cache["step_delay"]
+        assert driver.step_timer.timer_period_ns == before_cache["timer_ns"]
+
+        dynamic = SetParametersAtomically.Request()
+        dynamic.parameters = [
+            Parameter("use_sim_time", value=True).to_parameter_msg(),
+        ]
+        future = client.call_async(dynamic)
+        executor.spin_until_future_complete(future, timeout_sec=2.0)
+        assert future.done()
+        assert future.result().result.successful
+        assert driver.get_parameter("use_sim_time").value is True
+    finally:
+        driver.destroy_client(client)
+        executor.remove_node(driver)
+        executor.shutdown()
+        driver.destroy_node()
+        rclpy.shutdown(context=context)

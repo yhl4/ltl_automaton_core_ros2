@@ -14,6 +14,7 @@ from std_msgs.msg import String
 
 from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import TaskPlanning
+from rcl_interfaces.msg import ParameterDescriptor
 
 
 STATE_DIMENSIONS = [
@@ -60,14 +61,35 @@ class KthDemoDriver(Node):
         """Initialize demo parameters and ROS interfaces."""
         super().__init__("kth_demo_driver")
 
-        self.declare_parameter("scenario", "normal")
-        self.declare_parameter("step_delay", 1.0)
-        self.declare_parameter("max_steps", 8)
-        self.declare_parameter("replanning_after_steps", 3)
-        self.declare_parameter("replanning_hard_task", "<> r3")
+        self.declare_parameter(
+            "scenario",
+            "normal",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "step_delay",
+            1.0,
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "max_steps",
+            8,
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "replanning_after_steps",
+            3,
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "replanning_hard_task",
+            "<> r3",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
         self.declare_parameter(
             "replanning_soft_task",
             "(r3 || ! r3)",
+            descriptor=ParameterDescriptor(read_only=True),
         )
 
         self.scenario = str(
