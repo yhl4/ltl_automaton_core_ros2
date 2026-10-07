@@ -4381,3 +4381,65 @@ Action测试SHA为a552f57541c9c1bbe6154be55963fed76ebf6b6286e92bc27aaa753bc50d63
 README同步当前局部范围，前109节正文与原始失败保留。未重跑七包，699项仍
 属于02d426f组合基线，局部110项不相加；IRL仅学习β且默认关闭，执行仍为
 符号级FakeBackend，未运行LLM、benchmark、物理仿真、实机或Jazzy验证。
+
+### 11.111 Action/IRL 消息准备修复的七包组合资格（2026-10-07）
+
+资格源码d5f2faa28837bfe8d077e7af1492bc0d5ff59f0e。复用既有WSL Ubuntu-22.04-D/ROS2 Humble、
+Python3.10.12、NetworkX2.4与原生ltl2ba，未安装或更换依赖。启动前核对
+干净HEAD、七包列表、近期源码/测试完整Git字节及历史冻结闭包。人口由
+11.109的699项加11.110六项消息准备回归固定为705（planner188）；
+六个plans/result × action_ready/action_active/irl参数名、八个startup参数名
+及required cases均在结果前固定。准备helper的旧HEAD引用在运行前纠正，
+保留草案，旧helper与原始失败未覆盖；十二个最终入口静态编译通过。
+
+七包构建session97855与默认并行完整测试session7350各执行一次，沿各自原
+handle至实际exit0。完整命令、stdout/stderr和起止receipt保留；build为
+37.853319897秒，test为74.570586708秒，不用于性能比较。
+构建保持sequential/symlink-install/packages-up-to ltl_automaton_core及
+BUILD_TESTING=ON；测试保持默认并行、七包select与return-code-on-test-failure。
+/proc确认实际wrapper/colcon：build PID60397/60410，test PID60875/60909，
+没有以marker推断进程存活或因观察超时启动替代运行。
+
+六份新鲜JUnit：**705 tests = 701 passed + 4 skipped**，0 errors/failures。
+msgs11/11/0、core195/194/1、planner188/187/1、execution143/143/0、
+HIL119/118/1、std TS49/48/1（tests/passed/skipped）。四项跳过均为既有
+copyright；接口CTest wrapper另有1项通过，实际隔离build查询为706 tests。
+21份历史CTest XML按开始时间排除，旧结果未计入新人口。query、collector、
+独立audit与receipt检查均实际exit0。
+
+六项payload、八项startup、旧服务/状态恢复六项事务回归、延迟恢复与两个
+Core history均执行。四个真实DDS、Studio consumer、IRL完整二十步/β偏好/
+溢出/事务提交、HIL十二项Future、driver、Trap/monitor、snapshot/服务隔离、
+resolver/timeout、参数、launch、原生ltl2ba/POSIX/lint同时覆盖。110及此前
+各版局部资格不重复相加；11.110原收集错误与旧代码RED仍按原源码保留。
+
+17个主gate模块加TS补证共18个完整生产模块字节与资格Git提交一致，生成
+消息路径和原生译器SHA核对通过。新冻结闭包87文件、历史1392份SHA保持。
+五包stderr各923bytes，保留np.int/SelectableGroups弃用提示；未发现未读取
+Future异常诊断，未过滤warning。生产代码与测试本轮未改，README同步当前
+组合表和历史范围，前110节正文完整保留。
+
+```bash
+source /opt/ros/humble/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/snapshot_history_before_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/prepare_full_package_verification_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_build_d5f2faa.py
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_changed_imports_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_ts_import_bytes_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/start_full_package_tests_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_test_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/query_full_results_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/check_full_package_results_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/audit_full_results_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/inspect_combo_receipts_d5f2faa.py
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：verification_d5f2faa.json、
+verified_changed_imports_d5f2faa.json、verified_ts_import_bytes_d5f2faa.json、
+verified_summary_d5f2faa.json、colcon_query_d5f2faa.json、
+historical_hashes_before_d5f2faa.json、inspected_combo_receipts_d5f2faa.json及
+verified_results_d5f2faa/sha256_manifest.json；原始日志在log_combo_d5f2faa/
+log_query_d5f2faa，helper在主机临时目录。IRL仍仅学习β且默认关闭，执行仍
+为符号级FakeBackend。未做LLM、benchmark、完整演示、物理仿真、实机/
+机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。
