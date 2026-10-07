@@ -697,7 +697,15 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前 Product 权重更新验证（2026-10-07）
+### 当前 TS 维度名容器隔离验证（2026-10-07）
+
+TS 构建复制单维格式列表及多维组合的每个来源列表，编辑模型、来源或
+兄弟模型的维度名不会互相污染；显式重建读取来源最新格式。保留格式
+类型/形状、节点、边、guard、initial 和代价。单维/双维回归先复现旧错误，
+三个完整相关文件 **61 passed**，编译、flake8、pep257 与差异检查通过。
+完整记录见 [validation.md 第 11.102 节](ltl_automaton_planner/docs/validation.md)。
+
+### Product 权重更新验证（历史源码 a152954，2026-10-07）
 
 `update_beta` 直接读取每条边的属性，省去每边三次邻接查找，保留
 `transition_cost + beta * soft_task_dist`、边与属性引用、遍历顺序、

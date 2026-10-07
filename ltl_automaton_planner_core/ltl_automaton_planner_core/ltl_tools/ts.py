@@ -29,7 +29,9 @@ class TSModel(DiGraph):
             DiGraph.__init__(self,
                              incoming_graph_data=self.state_models[0],
                              initial=copy(self.state_models[0].graph['initial']),
-                             ts_state_format=self.state_models[0].graph['ts_state_format'])
+                             ts_state_format=copy(
+                                 self.state_models[0].graph['ts_state_format']
+                             ))
             disallowed = [
                 (source, target) for source, target, data in self.edges(data=True)
                 if not self.is_action_allowed(
@@ -44,7 +46,8 @@ class TSModel(DiGraph):
             DiGraph.__init__(self,
                              initial=set(),
                              ts_state_format=[
-                                 model.graph['ts_state_format'] for model in self.state_models]
+                                 copy(model.graph['ts_state_format'])
+                                 for model in self.state_models]
                              )
             # Compose and add nodes
             self.compose_nodes(self.state_models)

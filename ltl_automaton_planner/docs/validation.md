@@ -3854,3 +3854,50 @@ README同步当前局部资格，前100节正文保持；11.100的683项组合�
 6ce源码保留，本轮未重跑七包或推算新组合人口。IRL仍仅学习beta且默认
 关闭，执行仍为符号级FakeBackend；未做LLM、benchmark、完整演示、
 物理仿真、实机/机器人示范或Jazzy验证。
+
+### 11.102 TS 维度名容器与来源/兄弟实例隔离（2026-10-07）
+
+基线a152954be18540fa8552e7b8c542a23b36e1a638。配置加载器生成合法
+ts_state_format=[维度名]，单维TSModel直接引用该列表，多维组合的每个
+内部列表也共享来源；编辑成品会污染来源/兄弟，来源修改也污染已有成品。
+修复仅用既有copy浅复制这两处格式容器，保留格式类型/形状与值；
+显式build_full重新读取来源最新格式。节点、边、guard、initial、
+算法、IRL与消息schema不变，不深拷贝其它图属性或嵌套任意对象。
+源SHA从3b8c4f8ff2fc67be00a87d12dff750ac0229d047a5a0795af478f1fd6f159d44
+变为786d6366a3d0eb880a185fca872a687dec4f2a3905ccdf042c56e97e0d2938fd。
+
+新增真实state_models_from_ts配置的单维/双维两例，验证双向及兄弟隔离、
+显式重建刷新、再次隔离与节点/边/initial不变。初稿RED session53031
+实际exit1，2 failed/15 deselected；其列表比较把维度字符串拆成字符，
+另有修改成品后错误要求恢复原值的未执行断言。修正预期后RED2实际exit1，
+2 failed/15 deselected，来源实得['model_only']而非['region']，明确复现
+共享列表污染；生产源码当时仍与Git基线完全相同。两次原XML/日志保留。
+
+开始前从旧XML固定相关文件59项加新两例为61项。修复后一次完整GREEN
+session59543沿原handle等待至实际exit0：**61 passed**，0 errors/failures/
+skipped；TS17、configuration18、LTLPlanner26，pytest1.43秒、JUnit1.406秒，
+测试子进程receipt4.761738248秒。五生产模块真实import/完整字节与测试SHA
+记录，未改模块与基线Git字节一致；ltl2ba真实路径及原二进制SHA核对通过。
+先绑定模块再pytest.main，无额外警告过滤，输出未列pytest警告汇总。
+编译、源码和新测试flake8 --linelength 99、源码pep257、diff检查通过。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_ts_format_a152954.py \
+  green 786d6366a3d0eb880a185fca872a687dec4f2a3905ccdf042c56e97e0d2938fd
+```
+
+worker在隔离workspace运行checkout绝对路径的test_ts.py、
+test_transition_system.py、test_ltl_planner.py完整文件；XML位于
+/tmp/ltl_ros2_completion_20261006/ts_format_green_a152954.xml，SHA为
+e2c154a3cfe042195901e3c71360277c659880d37da55250cfcdbcf1911aac78。
+同目录保存ts_format_{red,red2,green}_run_a152954.json/.log、三份imports
+证明、三份XML、ts_format_population_a152954.json和ts_format_inspected_a152954.json。
+根代理结果检查实际exit0，核对原始失败/人口/入口/新鲜度/源码/日志哈希；
+只两处格式复制变化。helper位于主机临时目录，所有尝试按原版本分别计数。
+
+README同步当前局部资格，前101节正文保持；57项权重更新资格按a152源码、
+683项组合按6ce源码保留，本轮未重跑七包或推算新组合人口。验证为
+WSL Ubuntu-22.04-D/ROS2 Humble符号级；未做LLM、benchmark、完整演示、
+物理仿真、实机/机器人示范或Jazzy验证，不作为整体加速或IRL科学效果证据。

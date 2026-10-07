@@ -1,7 +1,10 @@
+from copy import deepcopy
+
 from networkx import DiGraph
 from networkx import NetworkXError
 import pytest
 
+from ltl_automaton_planner_core.configuration.transition_system import state_models_from_ts
 from ltl_automaton_planner_core.ltl_tools.ts import TSModel
 
 
@@ -43,6 +46,96 @@ def make_load_model() -> DiGraph:
     )
 
     return model
+
+
+def make_ownership_ts(dimensions):
+    """Build a small configuration accepted by state_models_from_ts."""
+    state_models = {
+        "region": {
+            "initial": "r1",
+            "nodes": {
+                "r1": {"connected_to": {"r2": "move"}},
+                "r2": {"connected_to": {}},
+            },
+        },
+    }
+    actions = {"move": {"guard": "1", "weight": 1.0}}
+    if len(dimensions) == 2:
+        state_models["load"] = {
+            "initial": "empty",
+            "nodes": {
+                "empty": {"connected_to": {"loaded": "move"}},
+                "loaded": {"connected_to": {}},
+            },
+        }
+    return {
+        "state_dim": list(dimensions),
+        "state_models": state_models,
+        "actions": actions,
+    }
+
+
+def _graph_semantics(graph):
+    return (
+        tuple(graph.nodes),
+        tuple(
+            (source, target, dict(data))
+            for source, target, data in graph.edges(data=True)
+        ),
+        frozenset(graph.graph["initial"]),
+    )
+
+
+@pytest.mark.parametrize(
+    "dimensions", [("region",), ("region", "load")],
+    ids=["one_dimension", "two_dimensions"],
+)
+def test_ts_state_format_isolated_across_models_and_rebuilds(dimensions):
+    """Keep configured dimension metadata independent across TSModel builds."""
+    factors = state_models_from_ts(make_ownership_ts(dimensions))
+    model = TSModel(factors)
+    sibling = TSModel(factors)
+    model.build_full()
+    sibling.build_full()
+
+    expected_format = deepcopy(model.graph["ts_state_format"])
+    factor_formats = [list(factor.graph["ts_state_format"]) for factor in factors]
+    model_semantics = _graph_semantics(model)
+    sibling_semantics = _graph_semantics(sibling)
+    factor_semantics = [_graph_semantics(factor) for factor in factors]
+
+    if len(dimensions) == 1:
+        model.graph["ts_state_format"][0] = "model_only"
+    else:
+        model.graph["ts_state_format"][0][0] = "model_only"
+
+    assert factors[0].graph["ts_state_format"] == factor_formats[0]
+    assert sibling.graph["ts_state_format"] == expected_format
+    assert _graph_semantics(model) == model_semantics
+    assert _graph_semantics(sibling) == sibling_semantics
+    assert [_graph_semantics(factor) for factor in factors] == factor_semantics
+
+    changed_format = deepcopy(model.graph["ts_state_format"])
+    factors[0].graph["ts_state_format"][0] = "source_only"
+    assert model.graph["ts_state_format"] == changed_format
+    assert sibling.graph["ts_state_format"] == expected_format
+
+    model.build_full()
+    expected_rebuilt_format = (
+        factors[0].graph["ts_state_format"]
+        if len(dimensions) == 1
+        else [
+            factors[0].graph["ts_state_format"],
+            factors[1].graph["ts_state_format"],
+        ]
+    )
+    assert model.graph["ts_state_format"] == expected_rebuilt_format
+    if len(dimensions) == 1:
+        model.graph["ts_state_format"][0] = "rebuilt_model_only"
+    else:
+        model.graph["ts_state_format"][0][0] = "rebuilt_model_only"
+    assert factors[0].graph["ts_state_format"][0] == "source_only"
+    assert _graph_semantics(model) == model_semantics
 
 
 def test_build_full_composes_nodes_and_initial_state() -> None:
