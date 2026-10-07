@@ -697,7 +697,16 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 最近七包组合验证（源码 9c9a80d，2026-10-07）
+### 当前单维 TS 初始状态隔离验证（2026-10-07）
+
+单维 TS 构建复制初始状态容器，输入 state model、组合 TS 和兄弟实例的
+就地成员修改相互隔离；重建重新读取输入。容器类型、节点、边与 guard
+保持。三个完整相关测试文件 **74 passed**，保留两项 np.int 依赖警告；
+编译、flake8、pep257 与差异检查通过。六个独立旧新场景核对双向隔离、
+set/list/tuple/frozenset 值及类型、set_initial 拒绝和重建行为，单独计数。
+详见 [validation.md 第 11.98 节](ltl_automaton_planner/docs/validation.md)。
+
+### 最近七包组合验证（历史源码 9c9a80d，2026-10-07）
 
 将 trap 布尔相交、6D monitor 入口校验复用和 2D station yaw 差值复用
 纳入完整组合。干净源码 `9c9a80d` 的七包构建和默认并行整包测试

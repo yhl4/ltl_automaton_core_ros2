@@ -3642,3 +3642,46 @@ README改为当前组合表，前96节正文保持。旧0be/AA组合、各版局
 原始失败仍按原源码保留。IRL仅学习β、默认关闭，执行仍为符号级FakeBackend；
 没有LLM、benchmark、完整演示、物理仿真、实机/机器人示范或Jazzy验证。
 通过不证明整体加速、IRL收敛/逆最优性或机器人效果。
+
+### 11.98 单维 TS 初始状态容器隔离（2026-10-07）
+
+基线为 d8431042334fb325f93e7fdc705691c811a3ae6c。单维 build_full 直接
+引用输入 initial 容器，导致组合 TS、输入与兄弟实例的成员修改互相污染；
+多维组合原本生成独立集合。修复用 copy.copy 复制单维 initial 容器，
+保留 set/list/tuple/frozenset 类型和值，其他图属性、guard、节点和边不变。
+源ts.py SHA从 f6a235c1c3b10972d3ceb9afea397d9b31eb528d43d6ff31a6e16ceaf05453f4
+变为 3b8c4f8ff2fc67be00a87d12dff750ac0229d047a5a0795af478f1fd6f159d44。
+
+新增 set/list 两个行为回归：组合/输入双向隔离、兄弟实例、有效及未知
+set_initial、重建读取当前输入且再次隔离，保留边值。初稿RED实际exit1，
+2 failed/13 deselected（0.88秒；JUnit0.835秒），第120行输入被污染断言失败。
+前两次完整尝试均72 passed/2 failed：初稿先向model添加r2，后来却要求
+model只含r1，错误预期在第124行失败；对应JUnit3.286/2.901秒。修正用例
+使用clear并核对空集合与来源后，第三次完整运行实际exit0，**74 passed**
+（15项TS、33项Product、26项LTLPlanner），0 errors/failures/skipped；
+pytest3.06秒、JUnit3.030秒，保留两项np.int依赖警告。
+
+```bash
+export PYTHONPATH=/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core:$PYTHONPATH
+python3 -m pytest ltl_automaton_planner_core/test/test_ts.py \
+  ltl_automaton_planner_core/test/test_product.py \
+  ltl_automaton_planner_core/test/test_ltl_planner.py \
+  --junitxml=/tmp/ts_initial_green_run3_d843104.xml
+```
+
+环境沿用11.97；最终import明确绑定当前checkout，源与测试SHA核对。
+第一次尝试只记录build路径而未保存当时源SHA，对旧build字节的疑虑不能
+作为失败归因；XML实际支持上述预期错误。四份XML保留原名并逐一冻结，
+原stdout/receipt未单独保存，退出码按原工具终态记录。静态session47125
+实际exit0：py_compile、ament_flake8 --linelength 99、ament_pep257、diff检查。
+
+主代理独立六格旧新对照实际exit0：四种容器的完整节点/边、初始值、
+类型、set_initial成功/拒绝及重建结果一致；set/list双向及兄弟实例污染
+由旧实现复现，修复后隔离。对照不累加到JUnit或作为加速证明。
+证据在 /tmp/ltl_ros2_completion_20261006：ts_initial_baseline_d843104.py、
+ts_initial_{baseline,compare,inspected,attempts_inspected}_d843104.json；
+XML位于/tmp：ts_initial_red_d843104.xml、ts_initial_green_d843104.xml、
+ts_initial_green_run2_d843104.xml、ts_initial_green_run3_d843104.xml。
+最终XML SHA为 3f417326b6e5dc1acbccdd4a6700f6fb80e3f55d7104a041dc5699335bc42ad0。
+README同步，前97节正文保持；673项组合保留为9c源码历史资格。
+本轮未重跑七包、调用LLM、跑benchmark/物理仿真/实机或Jazzy。

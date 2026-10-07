@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from copy import copy
 from itertools import product as cartesian_product
 
 from networkx.classes.digraph import DiGraph
@@ -27,7 +28,7 @@ class TSModel(DiGraph):
         if len(self.state_models) == 1:
             DiGraph.__init__(self,
                              incoming_graph_data=self.state_models[0],
-                             initial=self.state_models[0].graph['initial'],
+                             initial=copy(self.state_models[0].graph['initial']),
                              ts_state_format=self.state_models[0].graph['ts_state_format'])
             disallowed = [
                 (source, target) for source, target, data in self.edges(data=True)

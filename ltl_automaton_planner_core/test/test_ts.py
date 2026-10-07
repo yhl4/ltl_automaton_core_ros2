@@ -102,6 +102,49 @@ def test_set_initial_state() -> None:
     assert model.set_initial(("unknown", "state")) is False
 
 
+@pytest.mark.parametrize(
+    "initial_factory", [lambda: {("r1",)}, lambda: [("r1",)]],
+    ids=["set", "list"],
+)
+def test_single_dimension_initial_ownership_and_rebuild(initial_factory):
+    """Keep single-dimension initial containers independent across builds."""
+    factor = make_region_model()
+    factor.graph["initial"] = initial_factory()
+    model = TSModel([factor])
+    sibling = TSModel([factor])
+    model.build_full()
+    sibling.build_full()
+
+    expected_initial = initial_factory()
+    model.graph["initial"].clear()
+    assert factor.graph["initial"] == expected_initial
+    assert sibling.graph["initial"] == expected_initial
+
+    _append_initial(factor.graph["initial"], ("r2",))
+    expected_empty = [] if isinstance(model.graph["initial"], list) else set()
+    assert model.graph["initial"] == expected_empty
+    assert sibling.graph["initial"] == expected_initial
+    assert model.edges[("r1",), ("r2",)] == factor.edges[("r1",), ("r2",)]
+    assert model.set_initial(("r2",)) is True
+    assert model.graph["initial"] == {("r2",)}
+    assert model.set_initial(("unknown",)) is False
+    assert model.graph["initial"] == {("r2",)}
+
+    model.build_full()
+    rebuilt_initial = initial_factory()
+    _append_initial(rebuilt_initial, ("r2",))
+    assert model.graph["initial"] == rebuilt_initial
+    model.graph["initial"].clear()
+    assert factor.graph["initial"] == rebuilt_initial
+
+
+def _append_initial(initial, state):
+    if isinstance(initial, list):
+        initial.append(state)
+    else:
+        initial.add(state)
+
+
 def test_single_dimension_guard_is_enforced():
     """Apply the same source-label guard rule to one-dimensional systems."""
     region = make_region_model()
