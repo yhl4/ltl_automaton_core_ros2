@@ -21,6 +21,10 @@ from ltl_automaton_execution.models import ProductNode
 from ltl_automaton_execution.models import SymbolicState
 
 
+class UnhashableString(str):
+    __hash__ = None
+
+
 def _state(value):
     return SymbolicState(("region",), (value,))
 
@@ -239,11 +243,14 @@ def test_symbolic_state_requires_strings_in_every_position(invalid, field):
         assert invalid == ["nonempty"]
 
 
-def test_symbolic_state_keeps_string_subclasses_and_exact_values():
+@pytest.mark.parametrize("unhashable", [False, True])
+def test_symbolic_state_keeps_string_subclasses_and_exact_values(unhashable):
     """Retain valid string objects and surrounding whitespace without normalization."""
     class StateString(str):
         pass
 
+    if unhashable:
+        StateString.__hash__ = None
     dimensions = (StateString(" region "), "load")
     values = (StateString(" r1 "), "holding")
 
@@ -253,6 +260,22 @@ def test_symbolic_state_keeps_string_subclasses_and_exact_values():
     assert state.states is values
     assert state.dimension_names == (" region ", "load")
     assert state.states == (" r1 ", "holding")
+
+
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        (UnhashableString("region"), "region"),
+        ("region", UnhashableString("region")),
+        (UnhashableString("region"), UnhashableString("region")),
+    ],
+)
+def test_symbolic_state_rejects_unhashable_duplicate_dimensions(dimensions):
+    """Keep duplicate-dimension diagnostics ahead of value validation."""
+    with pytest.raises(ValueError) as caught:
+        SymbolicState(dimensions, ("r1", ""))
+
+    assert str(caught.value) == "Symbolic state dimensions must be unique."
 
 
 def test_a7_abstraction_rejects_unsupported_or_malformed_observation():

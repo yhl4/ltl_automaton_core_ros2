@@ -2742,3 +2742,72 @@ resolver_pairs_d4d8c05_tool_results.json，没有重跑验证。
 独立计数。README 与执行包说明同步，前 79 节历史正文完整保留。
 本轮未运行七包、LLM、benchmark、完整演示、物理仿真、实机示范
 或 Jazzy；原生派发仍是符号级记录后端，IRL 范围与默认关闭保持。
+
+### 11.81 合法不可哈希维度的状态与观察契约修复（2026-10-07）
+
+基线为干净 `8548a3bd8ffe142125dcffe21c641868b4bed317`。
+SymbolicState 原已允许非空 str 子类且保持原字段对象，但 dimension
+去重的 set 对 __hash__=None 的合法名字泄漏 TypeError；执行观察的
+set 匹配、dict 构造及按 expected 名字查询也有相同缺口。仅修模型
+会使合法新状态随后在观察管线失败，本轮同时覆盖两处源码。
+普通/hashable 字符串保留原 set/dict 路径；仅这些 hash 操作出现
+TypeError 时用本次调用的值比较及序列索引。名称非空仍先于唯一性，
+唯一性仍先于 values 校验，重复维度保留精确原 ValueError；观察不
+匹配先按原 warning 拒绝，匹配后按活动快照的维度顺序发布。
+不转换名字/值或改变模型 hash、消息、身份、调度、规划/接受性、
+代价或可选 IRL。异常分支按值比较，维度数较大时可为平方复杂度，
+常用可哈希路径保持；不声称整体加速。
+
+净新增八项定向 case：既有字符串子类保留测试新增不可哈希参数，
+三种混合/双侧重复名字保持 duplicate 诊断先于非法 value，既有
+快照转换测试新增维度参数，三个 observer 参数覆盖 observed-only、
+expected-only、both。最终 observer 使用实际 ExecutionManagerNode、
+RecordingObserver 与生成消息的 spy publisher，反序维度有效→未知
+→有效反馈发布数 1→1→2，值按计划重排，backend.calls 保持空。
+
+原始阶段 XML 分别保留，主代理独立核对完整计数、失败、mtime
+先后、所有新/既有关键 case 与 SHA256：
+
+| phase | passed | failed | child tool exit |
+|---|---:|---:|---:|
+| 原模型/快照 targeted RED | 2 | 5 | 1 |
+| 修模型后的初始 GREEN | 105 | 0 | 0 |
+| 原观察节点 targeted RED | 0 | 3 | 1 |
+| GREEN run2 | 107 | 1 | 1 |
+| GREEN run3 | 108 | 0 | 0 |
+| 最终 GREEN run4 | 108 | 0 | 0 |
+
+首 RED 另有 67 deselected，observer RED 33 deselected；失败均为
+TypeError。run2 漏将 expected-only 的 dict 查询放入 try，同一缺口
+导致一项失败；随后修正，不改变输入或验收。run3→run4 仅增强
+valid→unknown→valid 与无派发断言，生产源码未再改动。初始 105
+项 stdout 另含 “The following exception was never retrieved: late
+exception”，原诊断保留，不记为零诊断结果。最终三个现有文件
+test_backend.py、test_accepted_run_resolver.py、test_execution_node.py
+一次 **108 passed in 1.77s**、实际 exit 0，0 errors/failures/skips，
+无 warnings，XML 为 /tmp/symbolic_dimensions_green_run4_8548a3b.xml。
+各版属于不同阶段/重叠人口，不相加；未重跑原 RED 或覆盖 XML。
+静态首次误写不存在的 ltl_automaton_core/.../execution_node.py 路径
+而 exit 1，原错误保留；改为正确四文件后 py_compile、
+ament_flake8 --linelength 99、测试 pep257 与 diff 检查实际 exit 0。
+
+主代理独立 helper 一次实际 exit 0。完整旧 models/node 逐字匹配
+git show 8548a3b，当前 import resolve 与源 SHA256 核对；resolver、
+manager、snapshot、Product、IRL 五模块完整未修改字节匹配基线。
+十种普通构造/精确错误保持，字段与 frozen 契约保持，hashable
+名字构造的 hash 调用 2/2 保持；五种不可哈希名字按既有契约修正。
+未绑定/绑定活动维度的普通 observer 控制一致，三个不可哈希位置
+完成重排、未知维度拒绝与恢复。三个原生 single/safe/KTH 快照的
+完整字段投影、实际 manager/resolver 派发步骤、诊断与重复序号
+拒绝一致，派发 3/4/4，成本 3/1/13、3/2/23、20/20/220；原消息
+deepcopy 相等。该对照按字段比较两个模型类，不把不同类身份当作
+公开字段差异；记录后端仍为立即完成的符号后端，不是物理验证。
+
+完整旧模块、helper、symbolic_dimensions_8548a3b.json、
+symbolic_dimensions_8548a3b_xml_receipts.json 与明确标记代理报告的
+symbolic_dimensions_8548a3b_tool_results.json 独立保留。此前 83
+文件冻结闭包、314 份选定历史哈希及上一轮 63 项 XML SHA256 保持。
+README 与执行包说明同步，前 80 节历史正文完整保留。本轮未执行
+七包、LLM、benchmark、完整演示、物理仿真、实机示范或 Jazzy；
+11.79 的 644 项仍只属于 d6f4983 历史整包资格，IRL 原范围/默认
+关闭保持。108 项局部通过不证明完整系统或 IRL 科学效果。

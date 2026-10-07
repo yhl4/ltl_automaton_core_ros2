@@ -18,7 +18,19 @@ class SymbolicState:
             for name in self.dimension_names
         ):
             raise ValueError("Symbolic state dimensions must be non-empty.")
-        if len(set(self.dimension_names)) != len(self.dimension_names):
+        try:
+            duplicate_dimensions = (
+                len(set(self.dimension_names)) != len(self.dimension_names)
+            )
+        except TypeError:
+            seen_dimensions = []
+            duplicate_dimensions = False
+            for name in self.dimension_names:
+                if name in seen_dimensions:
+                    duplicate_dimensions = True
+                    break
+                seen_dimensions.append(name)
+        if duplicate_dimensions:
             raise ValueError("Symbolic state dimensions must be unique.")
         if any(
             not isinstance(value, str) or not value or not value.strip()

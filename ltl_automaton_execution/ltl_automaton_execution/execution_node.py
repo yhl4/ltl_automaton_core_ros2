@@ -476,15 +476,38 @@ class ExecutionManagerNode(Node):
             return
         state = abstracted
         if self._expected_dimensions is not None:
-            if set(state.dimension_names) != set(self._expected_dimensions):
+            try:
+                dimensions_match = (
+                    set(state.dimension_names)
+                    == set(self._expected_dimensions)
+                )
+            except TypeError:
+                dimensions_match = (
+                    len(state.dimension_names)
+                    == len(self._expected_dimensions)
+                    and all(
+                        name in self._expected_dimensions
+                        for name in state.dimension_names
+                    )
+                )
+            if not dimensions_match:
                 self.get_logger().warning(
                     "Observed TS dimensions do not match the active snapshot."
                 )
                 return
-            values = dict(zip(state.dimension_names, state.states))
+            try:
+                values = dict(zip(state.dimension_names, state.states))
+                ordered_values = tuple(
+                    values[name] for name in self._expected_dimensions
+                )
+            except TypeError:
+                ordered_values = tuple(
+                    state.states[state.dimension_names.index(name)]
+                    for name in self._expected_dimensions
+                )
             state = SymbolicState(
                 self._expected_dimensions,
-                tuple(values[name] for name in self._expected_dimensions),
+                ordered_values,
             )
         self._publish_state(state)
 

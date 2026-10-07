@@ -127,6 +127,12 @@ existing `ValueError` at construction; valid strings are kept without trimming
 or coercion. An abstraction construction failure follows the node's existing
 rejection path, and later valid observations can still publish.
 
+Valid dimension-name string subclasses may be unhashable. Uniqueness and
+observation alignment then use value comparison, keeping the original objects
+and the active snapshot's dimension order. Hashable names retain the existing
+set and dictionary path. Unknown dimensions are rejected before publication;
+later matching observations remain accepted.
+
 Node teardown stops the observer and ignores previously queued observation
 callbacks before abstraction or publication, protecting destroyed ROS entities.
 

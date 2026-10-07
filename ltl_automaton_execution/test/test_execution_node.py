@@ -238,13 +238,22 @@ def test_snapshot_conversion_does_not_reuse_state_between_messages():
     assert second.product_nodes[0].ts_state.states == ("changed", "empty")
 
 
-def test_snapshot_conversion_accepts_unhashable_string_subclass():
+@pytest.mark.parametrize(
+    ("dimension_names", "states"),
+    [
+        (["region"], [UnhashableString("r1")]),
+        ([UnhashableString("region")], ["r1"]),
+    ],
+)
+def test_snapshot_conversion_accepts_unhashable_string_subclass(
+    dimension_names, states,
+):
     """A valid unhashable string value follows normal SymbolicState checks."""
     node = SimpleNamespace(
         id=1,
         ts_state=SimpleNamespace(
-            state_dimension_names=["region"],
-            states=[UnhashableString("r1")],
+            state_dimension_names=dimension_names,
+            states=states,
         ),
     )
     message = SimpleNamespace(
@@ -264,9 +273,19 @@ def test_snapshot_conversion_accepts_unhashable_string_subclass():
 
     snapshot = ExecutionManagerNode._snapshot_from_message(message)
 
-    assert type(snapshot.product_nodes[0].ts_state.states[0]) is UnhashableString
+    assert (
+        snapshot.product_nodes[0].ts_state.dimension_names[0].__class__
+        is dimension_names[0].__class__
+    )
+    assert (
+        snapshot.product_nodes[0].ts_state.states[0].__class__
+        is states[0].__class__
+    )
+    assert snapshot.product_nodes[0].ts_state.dimension_names == tuple(
+        dimension_names
+    )
     assert snapshot.product_nodes[0].ts_state.states == (
-        UnhashableString("r1"),
+        states[0],
     )
 
 
@@ -942,6 +961,60 @@ def test_custom_abstraction_rejects_bytes_and_recovers_valid_observation(field):
         assert published[1].ts_state.state_dimension_names == ["region", "load"]
         assert published[1].ts_state.states == ["r2", "holding"]
         assert published[0].ts_state.states == ["r1", "empty"]
+        assert backend.calls == []
+    finally:
+        execution.destroy_node()
+        rclpy.shutdown(context=context)
+
+
+@pytest.mark.parametrize("unhashable", ["observed", "expected", "both"])
+def test_state_observation_accepts_unhashable_dimensions_and_recovers(
+    unhashable,
+):
+    """Match reversed dimensions without hashing string subclasses."""
+    class ConstructingAbstraction:
+        def abstract(self, observation):
+            return SymbolicState(*observation)
+
+    context = Context()
+    rclpy.init(context=context)
+    observer = RecordingObserver()
+    backend = RecordingBackend()
+    execution = ExecutionManagerNode(
+        backend=backend,
+        state_observer=observer,
+        state_abstraction=ConstructingAbstraction(),
+        context=context,
+    )
+    published = []
+    execution._state_publisher = SimpleNamespace(publish=published.append)
+    expected = (
+        UnhashableString("region") if unhashable in ("expected", "both")
+        else "region",
+        "load",
+    )
+    observed = (
+        UnhashableString("load") if unhashable in ("observed", "both")
+        else "load",
+        "region",
+    )
+    try:
+        execution._expected_dimensions = expected
+        observer.emit((observed, ("empty", "r1")))
+        assert len(published) == 1
+        observer.emit((("unknown", "region"), ("x", "r1")))
+        assert len(published) == 1
+        observer.emit((observed, ("holding", "r2")))
+
+        assert [message.ts_state.state_dimension_names for message in published] == [
+            ["region", "load"],
+            ["region", "load"],
+        ]
+        assert [message.ts_state.states for message in published] == [
+            ["r1", "empty"],
+            ["r2", "holding"],
+        ]
+        assert execution._manager.in_flight is False
         assert backend.calls == []
     finally:
         execution.destroy_node()
