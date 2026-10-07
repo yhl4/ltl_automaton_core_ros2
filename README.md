@@ -85,6 +85,10 @@ ltl_automaton_msgs/
 面向新 ROS 2 consumer 的正式 V0.2 contract 见
 [`ltl_automaton_planner/docs/planning_api.md`](ltl_automaton_planner/docs/planning_api.md)。
 
+Action/IRL 提交前会准备计划消息、成功结果与快照；准备失败释放事务并保留
+当前计划及执行身份。计划消息在成功提交后发布，提交后的发布或进程故障
+不属于该准备回滚边界。可选 IRL 的失效示范丢弃与重新开始约定也见该接口说明。
+
 ### 1.3 ROS 2 Planner 节点
 
 Planner 节点位于：

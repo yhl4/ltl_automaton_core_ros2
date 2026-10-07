@@ -4577,3 +4577,24 @@ python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_hil_package_0c151a2.py v
 两份 README 同步 HIL 整包范围与自动发现命令；前113节正文保持。本次不
 替代七包组合资格，125项不与此前局部10/9项或历史705项相加。未运行LLM、
 benchmark、物理仿真、实机或Jazzy，不证明整体加速或机器人示范效果。
+
+### 11.115 V0.2 提交准备与 IRL 记录恢复的文档同步（2026-10-07）
+
+基线603f6594276c3945eca04da28887d2df3bf5fb9d。planning_api.md 的提交
+说明原仅列快照准备，未列已实现的时间戳、prefix/suffix消息和完整成功
+Result准备。本轮按 _commit_plan_ltl_candidate 的实际顺序补齐：锁内通过
+新鲜度检查后准备消息/结果，再准备并提交快照，最后安装候选；准备异常
+返回内部失败并释放事务，prefix/suffix发布在成功提交之后。仍明确后续
+发布或进程故障不属于该准备回滚边界，不新增执行保证。
+
+Optional IRL 部分同步11.112已实现的恢复约定：无一致延伸路径时结束记录，
+不提交空示范，随后 True 从当前有效 belief 开始新记录，可先 False。
+根 README 同步接口概述。只修改这三份文档；生产源码、测试、IDL、版本号
+及算法/学习规则保持，前114节正文保留。
+
+检查当前 planner完整SHA aa6c5dd384638cee38b5019c035a0ee3b73ee4fb319414052751f7aa5090f0b6
+与11.110的实际import proof一致；八个相关生产模块、三个测试完整字节及
+旧110项GREEN日志/XML核对，六个plans/result × READY/ACTIVE/IRL参数项
+均存在且通过。IRL恢复源码及单元正文与11.114的14模块/125项证据一致。
+正文按当前源码核对，Markdown本地链接、LF和diff检查通过。上述运行均为
+既有资格，未在本轮重跑测试，也不增加测试计数或扩大科学结论。

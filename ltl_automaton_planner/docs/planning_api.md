@@ -105,11 +105,15 @@ Planning uses transactional replacement semantics. When a new goal starts from
 `ACTIVE`, the existing plan remains the execution authority while an isolated
 candidate is built in a worker thread.
 
-At commit, the retained snapshot copy, new metadata and immutable Product ID
-mapping are prepared before replacing authority. A preparation exception returns
+After the commit freshness checks pass, the timestamp, prefix/suffix messages
+and complete success `PlanLTL.Result` are prepared inside the commit lock. The
+retained snapshot copy, new metadata and immutable Product ID mapping are then
+prepared and committed before installing the replacement planner and TS.
+A timestamp, message, result or snapshot preparation exception returns
 `ERROR_INTERNAL` and releases the PlanLTL or IRL transaction, preserving the
-current planner, TS, snapshot, IDs, generation and execution step. This covers
-snapshot preparation; it does not roll back a later publisher or process failure.
+current planner, TS, snapshot, IDs, generation and execution step. Prefix/suffix
+messages are published after successful commit. A later publisher or process
+failure is outside this preparation rollback boundary.
 
 Expected `/ts_state` feedback continues to advance the old plan, update possible
 states, and publish the old plan's next command. The candidate publishes nothing
@@ -252,6 +256,11 @@ It records demonstrations using `/irl_trigger` and `/possible_runs`, then asks
 the planner host to learn beta and replan on an isolated candidate. It uses the
 same single planning transaction as `PlanLTL`; concurrent requests are rejected.
 The previous plan remains authoritative while learning runs.
+
+If accepted feedback cannot extend any recorded Product path, recording stops
+without requesting learning. A subsequent `True` on `/irl_trigger` starts a
+fresh recording from the current valid Product belief; an intervening `False`
+is optional and does not submit the discarded demonstration.
 
 IRL commit requires the captured instance, generation, execution sequence, and
 accepted TS-feedback revision to remain current, in addition to the source hash
