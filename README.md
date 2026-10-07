@@ -247,7 +247,8 @@ source /opt/ros/humble/setup.bash
 
 ### 4.2 Python 依赖
 
-建议通过系统包、`rosdep` 或虚拟环境安装：
+ROS 2 工作空间的 Python 依赖已在 `package.xml` 中声明，推荐按第 5 节
+使用 `rosdep` 安装。单独使用 Planner core 时，可在虚拟环境中准备依赖：
 
 ```bash
 python3 -m pip install networkx ply pyyaml
@@ -255,14 +256,27 @@ python3 -m pip install networkx ply pyyaml
 
 ### 4.3 ltl2ba
 
-确保 `ltl2ba` 可执行文件位于 `PATH` 中：
+`ltl2ba` 是外部原生程序，需单独准备。可从
+[原作者下载页](https://lsv.ens-paris-saclay.fr/~gastin/ltl2ba/download.php)
+获取源码，按随源码的说明编译。将编译出的可执行文件加入用户目录，
+把下面的 `/path/to/built/ltl2ba` 替换为实际文件路径：
 
 ```bash
-which ltl2ba
-ltl2ba -h
+mkdir -p "$HOME/.local/bin"
+install -m 755 /path/to/built/ltl2ba "$HOME/.local/bin/ltl2ba"
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
-若 `which ltl2ba` 没有输出，Planner 将无法把 LTL 公式转换为 Büchi 自动机。
+在启动 Planner 或运行测试的同一终端检查：
+
+```bash
+command -v ltl2ba
+ltl2ba -f '[]<> p'
+```
+
+翻译检查应以状态 0 退出并输出 `never {` 开头的 Promela claim。
+`command -v` 没有输出时，Planner 无法找到程序；启动其他终端时也需设置
+上述 `PATH`。这里使用实际公式翻译检查安装，避免把帮助输出当作成功检查。
 
 ---
 
