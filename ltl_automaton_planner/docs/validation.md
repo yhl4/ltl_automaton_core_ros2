@@ -3800,3 +3800,57 @@ README同步当前组合表，前99节正文保持，旧组合、局部资格及
 默认关闭，执行仍为符号级FakeBackend。没有LLM、benchmark、完整演示、
 物理仿真、实机/机器人示范或Jazzy验证；通过不证明整体加速、IRL收敛、
 逆最优性或机器人效果。
+
+### 11.101 Product 权重更新复用边属性（2026-10-07）
+
+基线为26f1cf0424d23e30fb2d1ab0e8a37bc007465a48。仅改ProdAut.update_beta：
+从edges(data=True)获取当前边属性，省去每边三次self[u][v]邻接查找。
+仍先写graph['beta']，按原边顺序计算transition_cost + beta * soft_task_dist，
+保留属性字典对象、其它字段与缺失属性/无效beta时的原异常及部分更新行为。
+不增加参数验证或跨调用缓存，不改IRL、接受性、消息schema和其它方法。
+源SHA从77cf0812e699381fc9b8e880469754ef83d368f6acf577105b7e839d1c34bf23
+变为6e99f3f906f0402ddf355208420aa5005aa69aee2ed097bebde02164625c53d5。
+
+WSL/Humble环境沿用11.100；两个完整相关测试文件在修改前按原XML固定
+33项Product与24项discrete_plan，没有新增测试或改变filter/验收条件。
+一次正式运行session65325沿原handle等待至实际exit0：**57 passed**，
+0 errors/failures/skipped，pytest0.96秒、JUnit0.940秒，receipt5.19313363秒。
+启动前核对三个生产模块的真实import/完整字节及两个测试的Git字节，
+保存原命令、环境路径、stdout/stderr和receipt。先绑定模块再pytest.main，
+输出未列pytest警告汇总，没有额外警告过滤。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_beta_update_26f1cf0.py
+```
+
+worker在隔离workspace调用pytest.main，参数为checkout完整路径的
+test_product.py、test_discrete_plan.py和
+--junitxml=/tmp/ltl_ros2_completion_20261006/beta_update_26f1cf0.xml。
+静态helper session14824实际exit0：py_compile、安装的ament_flake8.main
+API（--linelength 99分开传参）、ament_pep257.main与git diff --check通过。
+首个静态命令误用python -m ament_flake8，无__main__而exit1；随后内联
+入口探查遇PowerShell引号解析错误，未启动Linux检查。改为临时脚本读取
+已安装API并调用。结果检查器首次在静态handle尚未结束时读取receipt而
+FileNotFoundError；等待原handle终态后再次核对通过，没有重跑正式测试。
+
+完整旧模块独立13格对照：空图、零/大/负beta、Fraction、NaN/Infinity、
+None/字符串、重复更新后重新读取软距离，以及缺首个cost、后续distance、
+同时缺字段的错误优先级。返回、错误类型/文本、部分权重、graph beta、
+节点/边引用、TS与initial/accept/cycle/possible_states均保持。
+三个手算场景gamma=1：beta=0选a环总代价2，beta=5选b环总代价5，再回到
+beta=0恢复a环；旧新完整run字段、路径、动作及代价一致。四边计数探针
+邻接查找12次变0；首次探针计数器未初始化而AttributeError，修正辅助
+类后完整对照通过。此计数与对照不加入57项JUnit，不证明整体加速。
+
+证据在/tmp/ltl_ros2_completion_20261006：beta_update_baseline_26f1cf0.py、
+beta_update_26f1cf0.xml、beta_update_{run,imports,compare,static,inspected}_26f1cf0.json
+及beta_update_run_26f1cf0.log，helper在主机临时目录；原工具失败诊断如上，
+未另外保存失败尝试的独立stdout/receipt。最终XML SHA为
+da35c42e68b0cc8d3037c8dbf1f6774d4e2087333f453e71b46dc81f594d9b0d。
+
+README同步当前局部资格，前100节正文保持；11.100的683项组合仍按
+6ce源码保留，本轮未重跑七包或推算新组合人口。IRL仍仅学习beta且默认
+关闭，执行仍为符号级FakeBackend；未做LLM、benchmark、完整演示、
+物理仿真、实机/机器人示范或Jazzy验证。

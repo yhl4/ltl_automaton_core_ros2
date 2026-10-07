@@ -131,13 +131,12 @@ class ProdAut(DiGraph):
         self.build_accept_with_cycle()
 
     def update_beta(self, beta):
-        # update the saved parameter for beta
+        """Update edge weights for the supplied soft-task coefficient."""
         self.graph['beta'] = beta
 
-        # compute new weight associate to each edge in the ProdAut based on new value of beta
-        for (u, v) in self.edges():
-            self[u][v]['weight'] = self[u][v]['transition_cost'] + \
-                beta * self[u][v]['soft_task_dist']
+        for _, _, data in self.edges(data=True):
+            data['weight'] = data['transition_cost'] + \
+                beta * data['soft_task_dist']
 
     def composition(self, ts_node, buchi_node):
         # Compose node from TS and Büchi
