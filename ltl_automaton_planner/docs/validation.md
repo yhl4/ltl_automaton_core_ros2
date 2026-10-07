@@ -1590,3 +1590,52 @@ Python 3.10.12 隔离 overlay，NumPy/NetworkX 弃用警告保留。
 本轮没有重跑整包、ROS 通信、物理仿真、实机、Jazzy、benchmark
 或机器人示范学习；11.57 整包证据仍属于原代码基线。README、
 57 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.59 运行结果转换复用单条 TS 边属性（2026-10-07）
+
+以 `e2234e1` 为基线，ProdAut_Run.plan_output 的 prefix/suffix 循环
+每条 TS 边分别为 action 和 weight 定位同一边属性。现在每次边处理
+先读取一次原 edge dict，再先 append action、后 append weight。
+引用只用于当前这次边处理，不提前读取 TS、不跨边/调用保存，没有
+建立缓存表。prefix/suffix/TS 投影、重复与闭合边次序、zip 类型及
+耗尽行为、日志与错误次序、原始数值类型、成本列表起始 0 均保持。
+不修改 Dijkstra/SCC、代价公式、接受性、执行身份、ROS 字段或 IRL。
+
+五个新增 case 使用真实 ProdAut 和 TS。一个重复 prefix/self-loop
+case 的 prefix 成本 4、suffix 成本 1、总成本 14，确认动作、投影、
+重复/闭合边和成本列表完整；四条输出边的真实 DiGraph.__getitem__
+访问从旧版 8 次变为新版 4 次。更改 self-loop action/weight 后再次
+转换会读取新值，输出列表重新创建，原列表与输入路径保持。原记录的
+precost/sufcost/totalcost 按旧行为不在 plan_output 中自动重算，不能
+把重新转换旧运行当作修改 TS 后的重新规划证据。
+
+另两个空/单节点 prefix case 均没有 prefix 动作，单节点 suffix
+输出一条自环，访问从 2 次变为 1 次；空 prefix 只属于 helper 允许的
+输入，不声称 solver 会产生该运行。两个缺 action/weight case 保留
+精确 KeyError，缺 action 不添加动作，缺 weight 时已添加该动作而
+成本列表仍为 [0]；suffix 的既有输出在 prefix 失败后保持。
+
+独立进程加载 git show 导出的完整旧 product.py 后，五个新增检查
+为 **3 failed / 2 passed**，三项只在重复访问计数断言失败，分别是
+8 vs 4、2 vs 1、2 vs 1；字段/成本断言在计数前通过，两项错误次序
+检查通过。JUnit 原始结果保留在既有隔离目录的
+`run_output_baseline_e2234e1.xml`，没有把旧版重复访问作为语义错误。
+
+另用实际旧/当前完整模块对照一条连续四边 prefix 及其终点自环
+suffix，手算 prefix 成本 10、suffix 成本 5、总成本 60；全部 Run
+字段一致（已耗尽 zip 转 tuple），prefix 访问 8→4、suffix 访问 2→1。
+单节点/空 prefix、TS 属性更新后的再转换、缺 action/weight 的异常
+和部分输出也一致；各版本调用前后对 Product/TS 节点/边 dict-copy
+及接受/初始集合 set-copy 的快照核对保持。旧文件逐字节匹配 git
+导出，当前模块导入绑定本 checkout。首次外部探针将线性 prefix
+误标为重复路径且与 suffix 不相连，审阅后在同一临时脚本修正为
+上述连续路径再运行；原配置不作为可行接受运行的证据。
+
+仅重跑 test_product.py、test_discrete_plan.py、test_irl.py 与
+test_ltl_planner.py，合计 **97 passed**。源码 py_compile/ament_flake8、
+测试 py_compile/ament_flake8/pep257 通过；环境仍为 WSL Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12 隔离 overlay，保留 NumPy/NetworkX
+弃用警告。没有重跑整包、ROS 通信、物理仿真、实机、Jazzy、benchmark
+或机器人示范学习；11.57 整包证据仍属于其原代码基线。README、
+58 节历史正文保留、本地链接/锚点与 diff 检查通过。图访问计数只
+证明这些边处理的重复定位被省去，不作为整体加速或总内存测量。

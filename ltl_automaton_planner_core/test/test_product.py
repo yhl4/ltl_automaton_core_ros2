@@ -9,6 +9,7 @@ from ltl_automaton_planner_core.boolean_formulas.parser import (
     parse as parse_guard,
 )
 from ltl_automaton_planner_core.ltl_tools.product import ProdAut
+from ltl_automaton_planner_core.ltl_tools.product import ProdAut_Run
 from ltl_automaton_planner_core.ltl_tools import buchi as buchi_module
 from ltl_automaton_planner_core.ltl_tools.discrete_plan import dijkstra_plan_networkX
 from ltl_automaton_planner_core.ltl_tools import product as product_module
@@ -504,3 +505,104 @@ def test_full_product_rebuild_reads_changed_ts_successors_cost_and_action():
         assert product.edges[source, ("isolated", "q1")] == dict(
             transition_cost=4.0, soft_task_dist=1, weight=6.5, action="new_exit",
         )
+
+
+def test_run_output_reuses_each_edge_lookup_and_refreshes_repeated_actions(monkeypatch):
+    """Read each edge once while retaining repeated actions and fresh output lists."""
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    product.build_full()
+    ts = product.graph["ts"]
+    lookups = []
+    original_getitem = DiGraph.__getitem__
+
+    def record_lookup(graph, source):
+        if graph is ts:
+            lookups.append(source)
+        return original_getitem(graph, source)
+
+    monkeypatch.setattr(DiGraph, "__getitem__", record_lookup)
+    start, goal = ("s0", "q0"), ("s1", "q1")
+    prefix, suffix = [start, goal, goal, goal], [goal]
+    before = [(source, target, dict(data)) for source, target, data
+              in product.edges(data=True)]
+    before_ts = [(source, target, dict(data)) for source, target, data in ts.edges(data=True)]
+    run = ProdAut_Run(product, prefix, 4, suffix, 1, 14)
+    assert run.prefix is prefix and run.suffix is suffix
+    assert prefix == [start, goal, goal, goal] and suffix == [goal]
+    assert run.line == ["s0", "s1", "s1", "s1"]
+    assert run.loop == ["s1", "s1"]
+    assert run.pre_prod_edges == [(start, goal), (goal, goal), (goal, goal)]
+    assert run.suf_prod_edges == [(goal, goal)]
+    assert run.pre_plan == ["goto_s1", "stay_s1", "stay_s1"]
+    assert run.suf_plan == ["stay_s1"]
+    assert run.pre_plan_cost == [0, 2.0, 1.0, 1.0]
+    assert run.suf_plan_cost == [0, 1.0]
+    assert (run.precost, run.sufcost, run.totalcost) == (4, 1, 14)
+    assert list(run.pre_ts_edges) == list(run.suf_ts_edges) == []
+    assert lookups == ["s0", "s1", "s1", "s1"]
+    assert list(product.edges(data=True)) == before
+    assert list(ts.edges(data=True)) == before_ts
+    old_outputs = (run.pre_plan, run.suf_plan, run.pre_plan_cost, run.suf_plan_cost)
+    ts.edges["s1", "s1"].update(action="changed_stay", weight=7)
+    updated_ts = [(source, target, dict(data)) for source, target, data in ts.edges(data=True)]
+    lookups.clear()
+    run.plan_output(product)
+    assert lookups == ["s0", "s1", "s1", "s1"]
+    assert run.pre_plan == ["goto_s1", "changed_stay", "changed_stay"]
+    assert run.suf_plan == ["changed_stay"]
+    assert run.pre_plan_cost == [0, 2.0, 7, 7]
+    assert run.suf_plan_cost == [0, 7]
+    assert (run.precost, run.sufcost, run.totalcost) == (4, 1, 14)
+    assert old_outputs == (["goto_s1", "stay_s1", "stay_s1"], ["stay_s1"],
+                           [0, 2.0, 1.0, 1.0], [0, 1.0])
+    assert all(new is not old for new, old in zip(
+        (run.pre_plan, run.suf_plan, run.pre_plan_cost, run.suf_plan_cost), old_outputs,
+    ))
+    assert list(product.edges(data=True)) == before
+    assert list(ts.edges(data=True)) == updated_ts
+
+
+@pytest.mark.parametrize("empty_prefix", [False, True])
+def test_run_output_keeps_empty_prefix_and_single_node_suffix(empty_prefix, monkeypatch):
+    """Keep no prefix actions and exactly one accepting self-loop action."""
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    product.build_full()
+    ts = product.graph["ts"]
+    lookups = []
+    original_getitem = DiGraph.__getitem__
+
+    def record_lookup(graph, source):
+        if graph is ts:
+            lookups.append(source)
+        return original_getitem(graph, source)
+
+    monkeypatch.setattr(DiGraph, "__getitem__", record_lookup)
+    goal = ("s1", "q1")
+    prefix = [] if empty_prefix else [goal]
+    run = ProdAut_Run(product, prefix, 0, [goal], 1, 10)
+    assert run.line == ([] if empty_prefix else ["s1"])
+    assert run.loop == ["s1", "s1"]
+    assert run.pre_prod_edges == []
+    assert run.suf_prod_edges == [(goal, goal)]
+    assert run.pre_plan == [] and run.pre_plan_cost == [0]
+    assert run.suf_plan == ["stay_s1"] and run.suf_plan_cost == [0, 1.0]
+    assert lookups == ["s1"]
+
+
+@pytest.mark.parametrize("missing_field", ["action", "weight"])
+def test_run_output_edge_error_preserves_action_before_weight(missing_field):
+    """Keep exact KeyError and prefix output produced before a missing edge field."""
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    product.build_full()
+    start, goal = ("s0", "q0"), ("s1", "q1")
+    run = ProdAut_Run(product, [start, goal], 2, [goal], 1, 12)
+    ts = product.graph["ts"]
+    del ts.edges["s0", "s1"][missing_field]
+    before = [(source, target, dict(data)) for source, target, data in ts.edges(data=True)]
+    with pytest.raises(KeyError) as caught:
+        run.plan_output(product)
+    assert caught.value.args == (missing_field,)
+    assert run.pre_plan == ([] if missing_field == "action" else ["goto_s1"])
+    assert run.pre_plan_cost == [0]
+    assert run.suf_plan == ["stay_s1"] and run.suf_plan_cost == [0, 1.0]
+    assert list(ts.edges(data=True)) == before

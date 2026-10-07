@@ -355,15 +355,15 @@ class ProdAut_Run(object):
 
         # Iterate over the nodes associated with the prefix (see pre_ts_edges)
         for ts_edge in self.pre_ts_edges:
+            edge = product.graph['ts'][ts_edge[0]][ts_edge[1]]
 
             # Extract 'action' label between the two consecutive TS nodes of the
             # prefix plan and add it to the pre_plan
-            self.pre_plan.append(product.graph['ts'][ts_edge[0]][ts_edge[1]]['action'])
+            self.pre_plan.append(edge['action'])
 
             # Add the 'weight' label between the two consectuve TS nodes as the cost
             # of the prefix plan
-            self.pre_plan_cost.append(
-                product.graph['ts'][ts_edge[0]][ts_edge[1]]['weight'])  # action cost
+            self.pre_plan_cost.append(edge['weight'])  # action cost
 
         # Initialize suffix plan and cost
         self.suf_plan = list()
@@ -371,14 +371,14 @@ class ProdAut_Run(object):
 
         # Iterate over the nodes associated with the suffix (see suf_ts_edges)
         for ts_edge in self.suf_ts_edges:
+            edge = product.graph['ts'][ts_edge[0]][ts_edge[1]]
 
             # Extract 'action' label between the two consecutive TS nodes of the
             # suffix plan and add it to the suf_plan
-            self.suf_plan.append(product.graph['ts'][ts_edge[0]][ts_edge[1]]['action'])
+            self.suf_plan.append(edge['action'])
 
             # Add 'weight' label between the consecutive TS nodes of the suffix plan to the cost
-            self.suf_plan_cost.append(
-                product.graph['ts'][ts_edge[0]][ts_edge[1]]['weight'])  # action cost
+            self.suf_plan_cost.append(edge['weight'])  # action cost
 
         _LOGGER.info(
             "LTL Planner: Prefix plan: %s",

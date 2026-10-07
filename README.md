@@ -703,12 +703,13 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-本轮优化接受环的闭合边选择：按原 predecessor 次序遍历，只保留
-当前最佳候选，省去每个接受节点的临时成本表。并列结果仍取首个候选，
-默认 weight、None 隐藏边、代价公式、prefix/SCC 搜索及路径恢复保持。
-discrete-plan、planner、IRL 三个相关测试文件 **70 passed**；另补充的
-无可用闭合边检查 **1 passed**。源码/测试 lint 和定向旧版对照通过，
-本轮未重跑整包，不作为整体加速或总内存测量。
+本轮优化运行结果转换：每条 prefix/suffix TS 边只定位一次原属性
+字典，再按原次序读取 action 与 weight。重复动作、自环、空 prefix、
+原 zip 行为及精确异常保持，下一次转换仍读取当前 TS 属性。
+product、discrete-plan、planner、IRL 四个相关文件 **97 passed**，
+源码/测试 lint 与实际旧版对照通过；重复路径与单节点 suffix 的
+TS 图访问计数分别从 8→4、2→1。本轮未重跑整包，不作为整体
+加速或总内存测量，不改变路径搜索、执行身份或 IRL 规则。
 
 此前代码基线 `c70d38d` 的 aggregate 七包构建与整包测试全部完成。
 六份本轮新 JUnit 合计 **572 tests = 568 passed / 4 skipped**，
