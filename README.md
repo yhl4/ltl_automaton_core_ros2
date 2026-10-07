@@ -714,7 +714,16 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前局部验证：IRL 测试入口拆分（2026-10-07）
+### 当前 HIL 包验证（源码 0c151a2，2026-10-07）
+
+在独立临时目录构建 HIL 包，并通过常规 `colcon test` 自动发现全部测试：
+**125 项 = 124 passed + 1 skipped**，0 errors、0 failures。跳过项为既有
+copyright 检查。原 119 个 pytest 项保留，移出的六个 IRL 单元用例独立计数；
+原 HIL 仲裁、异步回调、Trap/IRL launch 和真实 β preference 同时通过。
+本轮验证范围为 HIL 包，其他包沿用既有依赖环境，生产源码和测试未改。
+完整记录见 [validation.md 第 11.114 节](ltl_automaton_planner/docs/validation.md)。
+
+### 此前局部验证：IRL 测试入口拆分（源码 0c151a2，2026-10-07）
 
 六个 fake-host 单元用例移至 `test_irl_plugin_unit.py`，原文件保留 ROS launch
 用例；所有测试正文和生产代码保持。默认 launch-testing 插件启用时可直接选择

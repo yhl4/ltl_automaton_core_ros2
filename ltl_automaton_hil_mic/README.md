@@ -155,6 +155,15 @@ ROS launch test in `test/test_irl_plugin.py`. In a sourced ROS workspace, select
 `test_irl_plugin_unit.py::TestIRLPluginFakeHost` directly with pytest; the default
 launch-testing collectors can remain enabled.
 
+The HIL package was built and tested with normal colcon discovery at source
+`0c151a2` on 2026-10-07: **125 tests, 124 passed, 1 existing copyright skip**,
+with zero errors or failures. This includes all six standalone fake-host tests
+and the existing HIL/Trap/IRL integration tests. Run the package tests with:
+
+```bash
+colcon test --packages-select ltl_automaton_hil_mic --return-code-on-test-failure
+```
+
 Within a Python-built diagnostic message, each path occurrence owns its TS
 state-value and dimension-name lists. Editing one occurrence does not change
 another occurrence, the source TS format, or the next publication.

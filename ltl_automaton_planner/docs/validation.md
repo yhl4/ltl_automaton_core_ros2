@@ -4532,3 +4532,48 @@ unit文件 SHA 为e670a4661283dd4bdd593948fbd7be654b2f619d85026adc67f3c6f79dbaf7
 两份 README 同步直接选择入口，前112节正文和历史失败保留。未重跑七包，
 10项是当前局部运行范围，不推算或与历史705/9项相加；未运行LLM、benchmark、
 物理仿真、实机或Jazzy，不证明整体加速或新增机器人示范效果。
+
+### 11.114 IRL 测试拆分后的 HIL 整包发现验证（2026-10-07）
+
+资格源码0c151a25710964fae46fd0541e1c044c34ce6f85。11.113直接选择文件的
+局部运行未证明常规 colcon 自动发现新单元文件，本轮在独立临时目录构建和
+测试 HIL 包；其他包使用既有 Humble 安装环境。运行前固定旧 HIL JUnit 的
+119项和一个 copyright skip，以及从当前 AST 提取的六个独立单元方法，
+完整预期名称为125项。旧 XML/manifest SHA 核对，HIL 全部30个 tracked
+输入文件与资格 Git 字节一致，在结果前冻结。生产源码和测试本轮未修改。
+
+构建 session75378、测试 session96180 均沿原 handle 至实际 exit0，
+实际 colcon PID66138、66220；命令、完整日志、起止时序和退出码保存。
+build4.936563432秒，test17.748827654秒，不用于性能比较。构建仅选择
+HIL、symlink-install、独立 build/install，测试仅选择 HIL、默认测试发现、
+return-code-on-test-failure、console_direct 与 -s，无筛选用例或关闭插件。
+构建关于依赖来自既有安装目录的提示及原 np.int/SelectableGroups 弃用
+提示保留；未更换依赖或改动其他包。
+
+独立新结果目录仅一份新鲜 JUnit：**125 tests = 124 passed + 1 skipped**，
+0 errors/failures；全部旧119项及六个 TestIRLPluginFakeHost 名称逐项核对，
+跳过项与旧 copyright 一致。原 HIL policy、异步回调、控制器 launch、Trap
+服务/替换计划、IRL DDS 提交与真实 β preference 均执行，flake8/pep257
+也属于该次整包结果。launch 外层 item 与内部 unittest 不重复计数。
+colcon test-result 查询实际 exit0，同样报告125/0/0/1。
+
+14个实际生产 import 完整字节、生成消息路径和原生 ltl2ba SHA 核对；
+HIL package share 指向新安装前缀，安装 README 与资格源码一致。独立结果
+及日志闭包17文件保存 SHA manifest，旧冻结 HIL 证据未改。完整证据位于
+/tmp/ltl_ros2_completion_20261006/hil_package_0c151a2：population.json、
+imports.json、build/test/query_run.json、build/test/query.log、verified.json、
+result_manifest.json及 results/ltl_automaton_hil_mic/pytest.xml。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_hil_package_0c151a2.py prepare
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_hil_package_0c151a2.py build
+source /tmp/ltl_ros2_completion_20261006/hil_package_0c151a2/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_hil_package_0c151a2.py test
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_hil_package_0c151a2.py verify
+```
+
+两份 README 同步 HIL 整包范围与自动发现命令；前113节正文保持。本次不
+替代七包组合资格，125项不与此前局部10/9项或历史705项相加。未运行LLM、
+benchmark、物理仿真、实机或Jazzy，不证明整体加速或机器人示范效果。
