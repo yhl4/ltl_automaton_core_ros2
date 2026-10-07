@@ -1763,3 +1763,70 @@ translator 路径核对。此探针不启动 ROS 节点或 DDS 通信。
 overlay。未重跑整包、ROS 通信、LLM、benchmark、物理仿真、实机、
 Jazzy 或机器人示范；11.57 整包结果属于原代码基线。README/API、
 61 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.63 并行测试 DDS 隔离与最新七包组合验证（2026-10-07）
+
+最近几轮同时修改接受环搜索、运行结果转换、执行边对和快照导出，
+本轮重新验证 aggregate 七包组合。初始干净基线为
+`2c52c71385ba4c6c732eb199c4de6a60af53cd6b`，构建七包成功，实际
+耗时 19.547 秒、exit 0；默认并行整包测试耗时 44.405 秒、exit 1。
+六份新 JUnit 合计 **597 tests = 588 passed + 5 failed + 4 skipped**。
+execution 为 121 passed/3 failed；HIL 为 100 passed/2 failed/1 skipped。
+其它包未失败，四个 skipped 均为已有 copyright。
+
+execution 的观测管线收到其它 TS 的 load/2d_pose_region 消息，两个
+真实 DDS 加载请求被不同的 ACTIVE planner/hash 拒绝；HIL 两个 IRL
+Action 得到 ABORTED，日志警告可能存在多个 /plan_ltl action server。
+并行包的 Context 和 launch 节点此前均继承同一 ROS_DOMAIN_ID=229，
+使用同名根 topic/service/action，存在跨包串扰。日志未单独标识每个
+重复 server 的进程，不将其作为所有错误的唯一来源证明。未修改规划、
+学习或接受判断，也未通过串行、缩短运行或过滤失败用例取得通过。
+
+在 planner/execution/HIL/标准 TS 的 test/conftest.py 收集阶段分别
+设置测试 domain 215/216/217/218；各包 in-process Context 和 launch
+子进程继承同包设置。此约定适用于 colcon 每包独立 pytest 进程。
+四个文件 py_compile 与 diff 检查通过，提交为
+`6cbfd3940df2628a0c4ac8ff01c713cbed0a4648`。只有测试环境配置改变，
+正式运行节点、ROS 字段、搜索/代价、执行规则及 IRL 算法保持。
+
+修复后的干净基线重新执行相同七包构建与默认并行整包测试，均 exit 0，
+实际耗时分别 22.698 秒和 69.542 秒。构建仍使用 packages-up-to
+ltl_automaton_core、symlink-install、BUILD_TESTING=ON；测试明确选择
+全部七包并启用 return-code-on-test-failure，没有 pytest 用例过滤。
+build/install 仍是 `/tmp/ltl_ros2_completion_20261006` 下的隔离目录。
+运行环境为 WSL Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4，translator 为原 `/home/yuhling/.local/bin/ltl2ba`，
+未升级依赖。构建/测试前后核对 HEAD 和清洁树；Core TS/planner/
+Product/discrete-plan、ROS planner/snapshot、execution models/resolver
+及 2D monitor 的实际导入来自当前 checkout，生成接口来自隔离 build。
+
+独立核对测试开始时间之后的六份 JUnit，不计历史 XML 或 wrapper 重复项：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 181 | 180 | 1 |
+| ltl_automaton_planner | 136 | 135 | 1 |
+| ltl_automaton_execution | 124 | 124 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 42 | 41 | 1 |
+
+合计 **597 tests = 593 passed + 4 skipped，0 errors，0 failures**。
+四个 skipped 仍均为已有 copyright。当前接口 CTest wrapper 一项通过，
+标准 colcon 汇总为 598 tests；七份旧 CTest XML 按时间排除。近期
+25 个接受环/结果转换/边对/导出结构新增 case，四个真实 DDS 场景、
+Studio consumer、snapshot fallback、IRL commit/step reset，以及既有
+native translator/POSIX 和核心回归均核对确实执行、参数数量正确且
+没有跳过。其它完整包检查包括 HIL、2D/6D monitor、launch 与 lint。
+保留 NumPy/NetworkX 和 SelectableGroups 的既有弃用警告。
+
+首轮六份失败 JUnit/当前 CTest、完整 receipt 与 SHA256 manifest 保存于
+`failed_results_2c52c71_run1`，原 log_combo_2c52c71 与 receipt 保留；
+通过轮六份 JUnit/当前 CTest 保存于 `verified_results_6cbfd39`，并有
+`verification_6cbfd39.json`、`verified_summary_6cbfd39.json` 与完整
+log_combo_6cbfd39。均在上述隔离目录，未把首轮失败或历史通过混入
+本次统计，也未覆盖旧 verified_results_c70d38d 的证据。
+
+没有 LLM、benchmark、物理仿真、实机、机器人示范或 Jazzy 验证。
+通过支持该基线的组合运行，不证明 IRL 收敛/逆最优性、机器人示范
+效果或整体加速。README、62 节历史正文保留、本地链接与 diff 检查通过。
