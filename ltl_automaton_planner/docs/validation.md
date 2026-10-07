@@ -1485,3 +1485,61 @@ ament_flake8/pep257、根/包 README、链接/55 节历史正文保留及 diff
 检查通过。环境为既有 Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12；
 本轮未重跑其它包、物理仿真、实机、Jazzy 或示范学习，11.50 整包
 证据仍属原基线。NumPy/NetworkX 与 lint 插件的既有弃用警告保留。
+
+### 11.57 当前代码七包组合验证刷新（2026-10-07）
+
+在实际代码提交 `c70d38deee51319f109d3f3b5018af1f861be31e` 上构建
+并测试 aggregate 与其六个功能包，补充 11.51–11.56 修改后的组合证据。
+原 11.50 结果继续保留为其原代码基线的历史记录。本轮不修改源码、
+测试、目标函数、学习规则或验收条件，只更新 README 和本记录。
+`colcon list` 与 aggregate 的六个 exec_depend 覆盖当前全部包；
+aggregate 本身仅提供 ament 入口，没有独立测试。
+
+环境仍为 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、
+NetworkX 2.4，使用 `/home/yuhling/.local/bin/ltl2ba`。构建前与测试前
+均核对 exact HEAD 和干净源码树；source 隔离 install 后确认 TS/core
+planner、ROS planner、execution models 和 2D model 实际导入 resolve
+到本 checkout，msgs resolve 到隔离 build 的 rosidl_generator_py。
+没有更换依赖、调用 LLM、运行 benchmark、硬件或物理仿真。
+
+使用既有隔离目录 `/tmp/ltl_ros2_completion_20261006`，build/install/log
+均显式绑定该目录。构建使用 symlink-install、BUILD_TESTING=ON、
+`--packages-up-to ltl_automaton_core` 和 sequential executor，七包
+全部成功。测试同样选择 aggregate 并指定隔离 build/install，使用
+ROS_DOMAIN_ID=230、`--executor sequential --return-code-on-test-failure`
+和 pytest -q，七包命令正常结束，退出码为 0。
+
+按本轮测试开始时间核对六份独立 JUnit，全部为新结果，各 XML 的
+testcase 数与 tests 属性一致，errors/failures 均为零。“收集”含 skipped。
+
+| 功能包 | 收集 | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 167 | 166 | 1 |
+| ltl_automaton_planner | 132 | 131 | 1 |
+| ltl_automaton_execution | 117 | 117 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 42 | 41 | 1 |
+| 合计 | 572 | 568 | 4 |
+
+四个 skipped 均为已有 copyright 检查。逐项确认近期 guard 求值复用、
+legacy margin、批量维度序列化、SymbolicState 字符串边界及 2D/6D
+溢出回归都在新 JUnit 中通过；真实 translator/Büchi 集成与两个 POSIX
+故障 case 也通过，未因 PATH 或平台条件跳过。范围还包含既有 ROS
+Action/服务/快照/DDS、符号 FakeBackend、可选 IRL、HIL、monitor、
+launch 通信/干净退出与 lint。IRL launch wrapper 的内部 unittest 数
+不另外加到独立 JUnit 统计，受控学习检查不作为机器人示范实验。
+
+msgs 的本轮 CTest wrapper 为 passed；标准
+`colcon test-result --test-result-base .../build --verbose` 返回
+**573 tests, 0 errors, 0 failures, 4 skipped**，比独立 JUnit 多一项
+接口 wrapper。五份历史 CTest XML 按时间排除，未删除或改写；本轮
+六份 JUnit 与当前 CTest XML 另复制到 `verified_results_c70d38d`，
+原 `verified_results_58481a2` 保留。`verification_c70d38d.json` 与
+`verified_summary_c70d38d.json` 在上述隔离目录记录 HEAD、环境、
+导入路径、开始时间、结果数量、必需回归及排除的历史路径。
+
+本轮保留 NumPy/NetworkX 和 lint 插件的既有弃用警告，不改变依赖
+绕过它们。结果只证明当前基线的组合检查通过；不推出整体加速、IRL
+收敛/逆最优性、真实网络故障、物理仿真、实机/机器人示范效果或
+Jazzy 兼容性。全部 56 节历史正文保持，文档链接和 diff 检查通过。

@@ -703,20 +703,16 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-最近代码验证补齐 2D pose Python 有限性检查的溢出诊断：超大整数
-现在返回既有 ValueError 并保留 OverflowError cause。两个新检查
-在实际旧源码均复现异常逃出；修复后 update/closest 查询保留精确诊断、
-输入、最后有效区域和 station request，后续有效反馈恢复，position z
-继续被忽略。标准 TS 包 colcon test 为 **41 passed / 1 skipped**，
-跳过项是既有 copyright；包含原有 monitor launch 与 lint。新案例是
-受控 Python model 输入，不声称通过 ROS float64 传输此整数。
-未修改几何、yaw、规划/IRL 规则或重跑其它包、物理验证。
-
-此前代码基线 `58481a2` 的 aggregate 七包构建与整包测试全部完成，
-六功能包为 **533 passed / 4 skipped**，四个跳过项均为 copyright；
-标准 colcon 汇总含一项接口 CTest wrapper，共 538 tests。该整包证据
-属于该基线，不作为最新提交的整包重跑结果。验证环境为 Ubuntu 22.04 /
-ROS 2 Humble / Python 3.10，使用真实 ltl2ba。
+当前代码基线 `c70d38d` 的 aggregate 七包构建与整包测试全部完成。
+六份本轮新 JUnit 合计 **572 tests = 568 passed / 4 skipped**，
+0 errors、0 failures；四个跳过项均为已有 copyright 检查。
+标准 colcon 汇总含一项通过的接口 CTest wrapper，共 573 tests。
+原生 ltl2ba、POSIX 故障、近期 core/planner/execution/2D/6D 回归、
+IRL/HIL、ROS 通信、launch 与 lint 检查均执行，历史结果未混入统计。
+实际导入绑定当前源码与隔离生成接口；环境为 Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12，保留既有依赖与弃用警告。
+本轮只更新组合验证记录，不修改代码、测试或算法规则；不作为整体
+加速、IRL 收敛或机器人示范效果的证据。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
