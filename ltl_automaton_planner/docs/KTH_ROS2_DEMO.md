@@ -109,6 +109,9 @@ Planner 从 (r2, loaded) 自动重规划
 Driver 是确定性的演示节点，不是机器人执行器。它只订阅
 `/next_move_cmd`、发布 `/ts_state`，并在指定阶段调用 `/replanning`。
 
+每条生成的 Python 状态消息独立持有状态值和维度名列表。编辑一条消息
+不会改变其他消息、Driver 的维度定义或后续发布；字段值和顺序保持。
+
 ## 5. 分阶段现场演示
 
 ### 5.1 启动 Planner

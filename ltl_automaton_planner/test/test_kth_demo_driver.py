@@ -2,9 +2,11 @@
 
 import math
 from types import MethodType
+from types import SimpleNamespace
 
 import rclpy
 import pytest
+import ltl_automaton_planner.kth_demo_driver as kth_demo_driver
 from rclpy.context import Context
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
@@ -43,6 +45,51 @@ def test_next_state_for_action_rejects_invalid_transition(state, action):
     """Reject actions that violate the KTH example transition guards."""
     with pytest.raises(ValueError):
         next_state_for_action(state, action)
+
+
+def test_published_state_messages_own_dimension_and_state_lists(monkeypatch):
+    """Keep each published ROS state independent of later message edits."""
+    original_dimensions = list(kth_demo_driver.STATE_DIMENSIONS)
+    driver = None
+    context = None
+    try:
+        driver, context, _ = _construct_driver(monkeypatch, 0.25)
+        published = []
+        driver.state_publisher = SimpleNamespace(publish=published.append)
+        first_input = ("r1", "unloaded")
+        second_input = ("r2", "loaded")
+
+        driver._publish_state(first_input)
+        driver._publish_state(second_input)
+
+        assert len(published) == 2
+        first, second = published
+        assert list(first.ts_state.states) == list(first_input)
+        assert list(second.ts_state.states) == list(second_input)
+        assert list(first.ts_state.state_dimension_names) == original_dimensions
+        assert list(second.ts_state.state_dimension_names) == original_dimensions
+        assert first.ts_state.states is not second.ts_state.states
+        assert (
+            first.ts_state.state_dimension_names
+            is not second.ts_state.state_dimension_names
+        )
+
+        first.ts_state.states[0] = "changed"
+        first.ts_state.state_dimension_names[0] = "changed_dimension"
+        assert list(second.ts_state.states) == list(second_input)
+        assert list(second.ts_state.state_dimension_names) == original_dimensions
+        assert kth_demo_driver.STATE_DIMENSIONS == original_dimensions
+        assert first_input == ("r1", "unloaded")
+        assert second_input == ("r2", "loaded")
+
+        driver._publish_state(("r3", "unloaded"))
+        third = published[-1]
+        assert list(third.ts_state.state_dimension_names) == original_dimensions
+        assert third.ts_state.state_dimension_names is not second.ts_state.state_dimension_names
+    finally:
+        kth_demo_driver.STATE_DIMENSIONS[:] = original_dimensions
+        if driver is not None:
+            _close_driver(driver, context)
 
 
 def _construct_driver(

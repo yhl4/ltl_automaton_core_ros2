@@ -3340,3 +3340,58 @@ hil_future_compare_8f8c937.json、hil_future_inspected_results_8f8c937.json
 生产差异。README/HIL README 同步，前九十节正文保持。本轮未重跑
 七包，11.89 的 660 项仍属于 aa7acf8 历史源码。没有 LLM、benchmark、
 物理仿真、实机或 Jazzy 验证，不声称整体加速或 IRL 科学效果。
+
+### 11.92 KTH driver 状态消息的维度列表隔离（2026-10-07）
+
+基线为干净 ad4d1d6fe2a426080d5f5a33705f3230c4fae194。
+先检查执行入口：ROS 消息的可变列表已转换为 frozen 模型内的 tuple，
+缓存只持有该不可变投影，本轮没有修改 resolver 或执行缓存。继续检查
+演示发布时发现 KthDemoDriver._publish_state 将模块 STATE_DIMENSIONS
+直接赋给每条 ROS 消息。原生生成消息实证两次发布只有一份维度名列表；
+编辑首条会改变第二条、模块定义和下一次发布。状态值原本分别 list(state)。
+本轮生产改动只有 list(STATE_DIMENSIONS) 一行，保留字段值、排序、时间戳
+获取、日志、scenario、max_steps、timer、任务切换与合法偏离流程。
+
+新增一个检查，用现有 isolated ROS Context/真实 Node 构造 fixture，
+publisher 记录真实生成消息。核对两条消息字段与两种列表独立，编辑首条
+后第二条、模块常量、两个输入状态元组及下一次发布保持；finally 恢复
+模块常量并销毁节点/context，RED 失败不污染其他用例。旧实现定向运行
+实际 exit 1：1 failed、21 deselected，0.92 秒，失败为维度列表 is not
+断言。修复后该完整测试文件实际 exit 0：22 passed，1.44 秒，无 pytest
+warnings、errors、failures 或 skipped；原21项和新增一项均执行。
+没有修改阶段、步数、超时或验收条件，也没有运行完整演示。
+
+source Humble 与既有隔离 install/setup.bash 后的实际命令：
+
+```bash
+python3 -m pytest -q ltl_automaton_planner/test/test_kth_demo_driver.py \
+  -k published_state_messages_own_dimension_and_state_lists \
+  --junitxml=/tmp/demo_dimension_lists_red_ad4d1d6.xml
+python3 -m pytest -q ltl_automaton_planner/test/test_kth_demo_driver.py \
+  --junitxml=/tmp/demo_dimension_lists_green_ad4d1d6.xml
+```
+
+两次测试均无持续 session，各自实际退出；没有中间静态失败，GREEN 后
+未改变源码/测试。静态 session 40080 在原 handle 等待至 exit 0：两个
+文件 py_compile、flake8 --linelength 99、pep257 与 diff 检查通过。
+GREEN XML SHA256 为
+14af687d35a5d56e8a236ca0b0f729fd47b40661e2a6db1aa02ebf6faf4f6274。
+最终 driver/test SHA256 分别为
+01d84081b5ea27642bfdb71ccf98f5b24ca5f09fd185f4dda1f6a927b28b7a24、
+8660340ca4e57612e5a3e04fa6ac0ff72661b45d454d14c04b3a0965bf908af0。
+
+主代理从 git show ad4d1d6 加载完整旧 driver，核对运行 import、旧新源
+字节及仅一行生产差异。原生 ROS 消息配合受控 clock/publisher/logger
+hooks 对照：两条消息的完整 header、状态字段与三次日志一致；维度列表
+份数由1变2，编辑首条对兄弟、模块定义和下一次发布的影响均由有变无，
+状态列表份数保持2、输入元组保持。这里验证 Python 消息对象所有权，
+没有声称 DDS 订阅端保留同一别名；该独立对照不加到22项 pytest 人口。
+
+XML 如上；完整旧模块 demo_dimension_baseline_ad4d1d6.py 及
+demo_dimensions_baseline_ad4d1d6.json、demo_dimensions_compare_ad4d1d6.json、
+demo_dimensions_inspected_ad4d1d6.json 在 /tmp/ltl_ros2_completion_20261006，
+helper 在主机临时目录。主代理核对 XML 计数/用例名/SHA 和最终两文件
+字节，README/演示说明同步，前九十一节正文保持。本轮未重跑七包；
+660 项仍属于 aa7acf8 历史源码资格，HIL 的90项与 IRL 的两个 pytest
+入口保留各自源码资格，不相加。没有 LLM、benchmark、物理仿真、实机
+或 Jazzy 验证，不称为整体加速、IRL 科学效果或完整演示验收。

@@ -321,7 +321,7 @@ class KthDemoDriver(Node):
         message = TransitionSystemStateStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.ts_state.states = list(state)
-        message.ts_state.state_dimension_names = STATE_DIMENSIONS
+        message.ts_state.state_dimension_names = list(STATE_DIMENSIONS)
 
         self.state_publisher.publish(message)
         self.get_logger().info(f"Published TS state: {state}.")

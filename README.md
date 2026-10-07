@@ -683,7 +683,14 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前 HIL 异步异常验证（2026-10-07）
+### 当前 KTH driver 消息验证（2026-10-07）
+
+每次状态发布独立复制维度名列表，避免编辑已生成的 Python 消息影响其他
+消息、模块定义及后续发布。新增回归在旧实现失败，修复后 driver 测试文件
+合计 **22 passed**；原生消息对照的完整字段和日志保持。完整记录见
+[validation.md 第 11.92 节](ltl_automaton_planner/docs/validation.md)。
+
+### HIL 异步异常验证（源码 ad4d1d6，2026-10-07）
 
 三个安全查询回调先读取已完成 Future 的异常，再检查节点销毁、请求身份和
 deadline，避免丢弃回调后出现未读取异常诊断。新增 12 项真实 Future/executor
@@ -703,7 +710,7 @@ deadline，避免丢弃回调后出现未读取异常诊断。新增 12 项真�
 
 将快照节点维度列表隔离和 HIL 重复维度校验纳入完整组合。
 干净源码 `aa7acf8` 的七包构建和默认并行整包测试各执行一次，
-均 exit 0。以下结果属于该历史源码；HIL 异步异常与 IRL 列表隔离按上面的局部验证计数，
+均 exit 0。以下结果属于该历史源码；driver、HIL 与 IRL 的后续修改按上面的局部验证计数，
 没有重跑七包组合。
 
 | 包 | tests | passed | skipped |
