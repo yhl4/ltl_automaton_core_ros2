@@ -27,6 +27,10 @@ rebuilds the index with one full Product-edge scan, retaining only edges used by
 the accepted run. Missing run edges are reported before missing run nodes; a
 failed rebuild leaves the prior valid index intact.
 
+Accepted-run adjacency is traversed without copying the prefix or suffix tails.
+The resulting tuple retains every ordered pair, repeated pair and implicit
+closing edge; a new snapshot still rebuilds its own index.
+
 When converting a ROS snapshot, nodes with equal ordinary string dimensions and
 values share one immutable `SymbolicState` within that conversion. Product node
 IDs and order remain distinct. Each new message is converted independently;

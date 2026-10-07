@@ -1,6 +1,6 @@
 """Resolve formal observations against one retained accepted run."""
 
-from itertools import chain
+from itertools import chain, islice
 
 from ltl_automaton_execution.models import ExecutionStep
 
@@ -162,7 +162,7 @@ class AcceptedRunResolver:
                 "Accepted suffix repeats its start node at the end."
             )
         return tuple(chain(
-            zip(prefix, prefix[1:]),
-            zip(suffix, suffix[1:]),
+            zip(prefix, islice(prefix, 1, None)),
+            zip(suffix, islice(suffix, 1, None)),
             ((suffix[-1], suffix[0]),),
         ))

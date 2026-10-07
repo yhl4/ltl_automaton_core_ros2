@@ -2697,3 +2697,48 @@ historical_hashes_before_d6f4983.json 与新 JUnit/当前 CTest、完整
 实机/机器人示范或 Jazzy；执行仍为符号级 FakeBackend。IRL 按用户
 选择保留原示范学习 β 范围，默认关闭。命令耗时不是规划性能，
 组合通过不证明 IRL 收敛、逆最优性、示范效果或整体加速。
+
+### 11.80 执行接受运行相邻边的尾部切片消除（2026-10-07）
+
+基线为干净 `d4d8c05a1f1f570d31cd4f56a14e714bae6a0b78`。
+AcceptedRunResolver._retained_pairs 的 prefix[1:]/suffix[1:]
+改用 islice，省去两次尾部切片；输出仍为完整 tuple，prefix/suffix
+次序、重复边、单节点自环及唯一隐式闭合边保持。原 prefix/suffix
+非空、共享边界与重复 suffix 起点校验位置和诊断保持，索引构造、
+提交/失败保留及下一代恢复规则不变。不改消息、身份、状态分组、
+搜索、接受性、代价或可选 IRL，不扩大为单次 generator 输入。
+
+执行代理一次运行现有 test_accepted_run_resolver.py 与
+test_execution_node.py，**63 passed in 1.47s**，实际 exit 0，
+0 errors/failures/skips、无 warnings。未新增测试；主代理独立解析
+/tmp/accepted_run_pairs_islice_d4d8c05.xml，确认全部 63 项及既有三项
+有序边对、三项结构拒绝/恢复、一项重复缺边诊断和六项多候选 case
+实际执行，XML SHA256 为
+79f0aa95b8628623767d49f993be2c91fe861a692c5e922741ba68bd41e8283d。
+py_compile、ament_flake8 --linelength 99 与 git diff --check 通过。
+
+主代理完整旧 resolver 逐字匹配 git show d4d8c05，当前 import resolve
+绑定 checkout；models、manager、execution-node、snapshot、Product
+五模块完整未修改字节匹配基线，原 translator 保持。旧/新三个原生
+single/safe/KTH 经实际 manager/resolver 与立即完成的 symbolic
+recording backend 派发 3/4/4 条命令，完整步骤、诊断与重复序号拒绝
+一致，成本保持 3/1/13、3/2/23、20/20/220。调用生产边对转换的
+tuple 子类记录器测得每例尾部切片 **2 -> 0**，复制尾部引用
+**2/3/3 -> 0**；不声称总分配、总内存或整体加速。
+
+单节点、普通与重复路径的 tuple/list 六种直接输入保留全部 pairs、
+输出类型及原输入 pickle 字节。九种错误的 type/args、正确阶段的
+缓存安装/保留与后续恢复一致，包含漏边先于漏节点、重复缺边次序、
+重复 ID、不同来源、空 prefix、显式闭合 suffix 和目标歧义；None
+target 仅为历史直接调用控制，不是合法模型或 DDS 输入。原生普通
+快照 deepcopy/pickle 不变。独立 helper 一次实际 exit 0，完整旧模块、
+helper 与 resolver_state_equality_d4d8c05.json 独立保留；主代理工具
+输出和明确标记的执行代理报告保存于
+resolver_pairs_d4d8c05_tool_results.json，没有重跑验证。
+
+此前 d6f4983 的 83 文件冻结闭包与 314 份选定历史证据 SHA256
+重新核对保持，未覆盖旧 XML 或重跑旧 helper。11.79 的 644 项仅
+属于 d6f4983 历史整包资格，不作当前修改后的整包声明；本轮 63 项
+独立计数。README 与执行包说明同步，前 79 节历史正文完整保留。
+本轮未运行七包、LLM、benchmark、完整演示、物理仿真、实机示范
+或 Jazzy；原生派发仍是符号级记录后端，IRL 范围与默认关闭保持。
