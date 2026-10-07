@@ -1868,3 +1868,48 @@ ROS 2 Humble / Python 3.10.12 / NetworkX 2.4 隔离 overlay，未更换依赖。
 本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
 机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
 README、63 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.65 IRL 相邻轨迹遍历省去尾部副本（2026-10-07）
+
+初始基线为 `ab75d0fc01fe7a9272f3fe2269ddc095dd51e493`。pure IRL
+在示范校验、软距离求和及示范边集合构造中使用 zip(path, path[1:])，
+会复制轨迹尾部；软距离在示范选择及每轮学习中重复调用。三处现在
+使用 itertools.islice 的流式相邻遍历，不增加 helper 或缓存。输入
+仍为校验后的 tuple 和原生 ProdAut_Run.suffix list，不扩大为单次
+generator path 接口。候选列表、validated tuple、min 示范选择及并列
+规则、原顺序 sum、margin、私有 Product deepcopy、梯度/步长、20 次
+上限和 0.3 停止条件保持；suffix 仍不额外计入隐式闭合边。
+
+新增两个 list/tuple 参数化测试，共四个 case：覆盖空/单节点距离零、
+重复边/自环逐项计数、不补闭合边、1e16+1+1 的原顺序求和及输入
+图/路径保持。示范保留重复节点/边并转换为 tuple；当较早的
+good→bad 边缺失而末尾节点 unknown 时，仍先报告 unknown node，
+保持全部节点校验先于边校验。test_irl.py 与 test_discrete_plan.py
+合计 **49 passed**。补强该错误优先级条件后，仅重跑对应 list/tuple
+两个 case，**2 passed / 23 deselected**，属于前述测试子集，不另计独立项。
+源码/测试 py_compile、ament_flake8、测试 pep257 与 diff 检查通过。
+
+独立进程加载逐字匹配 git show ab75d0f 的完整旧 IRL 模块，执行
+这四个新增语义 case，同为 **4 passed / 21 deselected**；这是行为
+保持检查，不作为旧算法错误的 RED 证据。完整旧/新 learn_beta 在
+真实 ProdAut 控制小图上返回相同 IRLLearningResult 字段，β 序列为
+(1, 2, 3, 3)。在两侧以保留 tuple/list 行为的子类记录实际尾切片，
+search 仍调用实际 NetworkX，并保留未计数调用的结果对照：旧版
+六个长度 2 的 tuple 尾副本及四个长度 1 的 suffix list 尾副本，新版
+均为零。该计数仅针对这些相邻遍历的轨迹副本，其它列表/tuple、
+Product deepcopy 和 margin 边表仍保留，不作为总分配/RSS/加速测量。
+
+另以原生 ltl2ba 构造 hard GF hub / soft GF good 的真实 Büchi/Product，
+在 hub/good 观测词下获得 64 条示范路径；旧/新完整学习结果相同，
+β=6。两组源 Product 的 metadata、节点、边、possible states 及所引用
+TS/Büchi 内容，在学习前后的完整 pickle 序列化一致。这是原算法
+保持检查，不证明收敛、逆最优性、示范效果或改进学习质量。
+
+完整探针为 Windows Temp/probe_irl_adjacency_ab75d0f.py，旧模块重放
+为 replay_irl_semantics_ab75d0f.py，旧源码保留在隔离目录
+irl_baseline_ab75d0f.py。旧源码字节、当前 IRL 模块路径与原
+/home/yuhling/.local/bin/ltl2ba 均核对。环境仍为 WSL Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12 / NetworkX 2.4 隔离 overlay，未更换依赖。
+本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
+机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
+README、64 节历史正文保留、本地链接/锚点与 diff 检查通过。

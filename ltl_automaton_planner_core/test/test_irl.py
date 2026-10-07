@@ -264,3 +264,64 @@ def test_no_accepting_run_is_a_learning_error():
     path = (nodes["hub"], nodes["good"])
     with pytest.raises(RuntimeError, match="no accepting run"):
         learn_beta(product, [path], beta=0.0, gamma=1.0)
+
+
+@pytest.mark.parametrize("path_type", [list, tuple])
+def test_path_soft_distance_counts_only_listed_edges(path_type):
+    """Count repeated/self-loop edges without adding an implicit closure edge."""
+    product, nodes = _margin_product()
+    product.add_edge(
+        nodes["hub"], nodes["hub"],
+        soft_task_dist=1.0, transition_cost=0.0, weight=0.0,
+    )
+    product.edges[nodes["hub"], nodes["good"]]["soft_task_dist"] = 1e16
+    product.edges[nodes["good"], nodes["hub"]]["soft_task_dist"] = 1.0
+    before_edges = {
+        pair: dict(data) for pair, data in product.edges.items()
+    }
+    cases = (
+        ((), 0),
+        ((nodes["hub"],), 0),
+        ((nodes["hub"], nodes["bad"], nodes["hub"]), 1.0),
+        ((nodes["hub"], nodes["bad"], nodes["hub"], nodes["bad"]), 2.0),
+        ((nodes["hub"], nodes["hub"], nodes["hub"]), 2.0),
+        ((nodes["hub"], nodes["good"], nodes["hub"], nodes["hub"]), 1e16),
+    )
+
+    for values, expected in cases:
+        path = path_type(values)
+        original_path = tuple(path)
+        assert irl._path_soft_distance(product, path) == expected
+        assert tuple(path) == original_path
+    assert {
+        pair: dict(data) for pair, data in product.edges.items()
+    } == before_edges
+
+
+@pytest.mark.parametrize("path_type", [list, tuple])
+def test_validate_runs_preserves_repeated_paths_and_unknown_priority(path_type):
+    """Validate repeated edges while reporting unknown nodes before edges."""
+    product, nodes = _margin_product()
+    repeated = path_type(
+        (nodes["hub"], nodes["bad"], nodes["hub"], nodes["bad"])
+    )
+    before_edges = {
+        pair: dict(data) for pair, data in product.edges.items()
+    }
+
+    validated = irl._validate_runs(product, [repeated])
+    assert validated == [tuple(repeated)]
+    assert tuple(repeated) == (
+        nodes["hub"], nodes["bad"], nodes["hub"], nodes["bad"]
+    )
+    assert {
+        pair: dict(data) for pair, data in product.edges.items()
+    } == before_edges
+
+    unknown = path_type((nodes["good"], nodes["bad"], "unknown"))
+    with pytest.raises(
+        ValueError,
+        match="Demonstration references unknown node 'unknown'",
+    ):
+        irl._validate_runs(product, [unknown])
+    assert tuple(unknown) == (nodes["good"], nodes["bad"], "unknown")

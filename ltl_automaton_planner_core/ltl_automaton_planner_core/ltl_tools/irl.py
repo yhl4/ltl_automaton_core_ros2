@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import dataclass
+from itertools import islice
 import math
 
 from .discrete_plan import dijkstra_plan_networkX
@@ -34,7 +35,7 @@ def _finite_nonnegative(value, name):
 def _path_soft_distance(product, path):
     return sum(
         product.edges[source, target]["soft_task_dist"]
-        for source, target in zip(path, path[1:])
+        for source, target in zip(path, islice(path, 1, None))
     )
 
 
@@ -57,7 +58,7 @@ def _validate_runs(product, possible_runs):
         for node in path:
             if not product.has_node(node):
                 raise ValueError(f"Demonstration references unknown node {node!r}.")
-        for source, target in zip(path, path[1:]):
+        for source, target in zip(path, islice(path, 1, None)):
             if not product.has_edge(source, target):
                 raise ValueError(
                     "Demonstration contains a transition absent from Product."
@@ -92,7 +93,9 @@ def learn_beta(product, possible_runs, beta, gamma):
         key=lambda path: _path_soft_distance(product, path),
     )
     demonstration_soft = _path_soft_distance(product, demonstration)
-    demonstration_edges = set(zip(demonstration, demonstration[1:]))
+    demonstration_edges = set(
+        zip(demonstration, islice(demonstration, 1, None))
+    )
     learning_product = deepcopy(product)
     margin_edges = tuple(
         (
