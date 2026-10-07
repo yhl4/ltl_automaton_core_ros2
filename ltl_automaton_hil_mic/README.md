@@ -120,6 +120,7 @@ the service returns `is_connected=false` and `is_trap=false`.
 For a connected query, a state is non-trap when any candidate Product node can
 reach any node in `accept_with_cycle`, including a candidate already in that set.
 Normal directed Product graphs use one reverse reachability traversal per query.
+The initial overlap check returns a boolean without building an intersection set.
 The search keeps no graph cache between requests, so later edge or accepting-set
 changes are read again. Empty candidate sets remain disconnected; an empty
 accepting-cycle set makes a connected query a trap.

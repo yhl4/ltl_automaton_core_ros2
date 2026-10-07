@@ -111,7 +111,7 @@ class TrapDetectionPlugin:
             if not possible_states:
                 return True
             visited = set(accepting_cycles)
-            if possible_states & visited:
+            if not possible_states.isdisjoint(visited):
                 return False
             pending = deque(accepting_cycles)
             while pending:

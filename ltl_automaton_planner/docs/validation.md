@@ -3463,3 +3463,41 @@ driver 局部资格与各次原始失败仍按各自版本保留，不累加为�
 IRL 沿用原示范学习 β 范围，默认关闭；执行仍为符号级 FakeBackend。
 没有 LLM、benchmark、完整演示、物理仿真、实机/机器人示范或 Jazzy
 验证，通过不证明整体加速、IRL 收敛/逆最优性或机器人效果。
+
+### 11.94 Trap 初始相交判断省去临时集合（2026-10-07）
+
+基线为干净 9d2eca3c6d3d624b67405118d99232a405c013f1。本轮只有一行
+生产改动：possible_states & visited 改为 not possible_states.isdisjoint(visited)。
+保留 set/frozenset 与 DiGraph 的原入口检查、逆向单次遍历、缺失节点和
+列表输入的原 has_path 分支，以及每次查询重新读取活动图的行为。
+这是布尔查询的容器优化，没有增加测试或修改算法/IRL 学习范围。
+
+WSL Ubuntu-22.04-D 中 source Humble 与既有隔离 install/setup.bash 后，
+一次运行两个完整现有测试文件，实际 exit 0：21 passed，0 errors、
+failures 或 skipped，终端报告3.99秒，无持续 session；两项警告均为既有
+NetworkX np.int 弃用。
+
+```bash
+python3 -m pytest ltl_automaton_hil_mic/test/test_trap_detection.py \
+  ltl_automaton_hil_mic/test/test_trap_plugin_launch.py \
+  --junitxml=/tmp/trap_disjoint_green_9d2eca3.xml
+```
+
+静态 session 57990 沿原 handle 等待至实际 exit 0：改动源码 py_compile、
+flake8 --linelength 99、pep257 与 git diff --check 通过。根代理检查新鲜
+XML 的21个入口、计数与 SHA256；JUnit suite time 为3.972秒，XML SHA256为
+d8e5b3f748584c2f30d21b87862a3ec76cfde4a761a4f69ed4c95d863ff3e7e1。
+最终源码 SHA256 为
+a81bb4dc536da6f9f0c6be91b1544ef3e132667fe8fd7802495c47cee64f15f0。
+
+独立旧新对照加载完整 git show 9d2eca3 模块，核对运行 import 和仅一行
+源差异。16个双节点有向图（含全部自边组合）×4候选子集×4接受子集×
+4种 set/frozenset 配对，每版1,024格，全部与 NetworkX has_path 参考
+结果一致，包含空集合及零边续行。二进制交集字节码位置由1变0；此数值
+是静态结构检查，没有测量时延/RSS或声称整体加速。对照不加到pytest人口。
+
+完整旧模块 trap_disjoint_baseline_9d2eca3.py、baseline/compare JSON 与
+trap_disjoint_inspected_9d2eca3.json 位于 /tmp/ltl_ros2_completion_20261006，
+helper 位于主机临时目录，XML 如上。README/HIL 说明同步；此前93节正文
+保持。本轮未重跑七包，11.93 的673项资格仍属于0beaa3e历史源码。
+没有 LLM、benchmark、物理仿真、实机或 Jazzy 验证。
