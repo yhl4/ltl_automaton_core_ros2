@@ -3583,3 +3583,62 @@ station_yaw_inspected_abc12b4.json 位于 /tmp/ltl_ros2_completion_20261006，
 helper 位于主机临时目录，XML 如上。README 同步，前95节正文保持；11.93
 的673项组合及11.94–11.95局部资格保留原版本，本轮未重跑七包。没有 LLM、
 benchmark、物理仿真、实机或 Jazzy 验证。
+
+### 11.97 Trap 与2D/6D monitor 优化后的七包组合资格（2026-10-07）
+
+资格源码为干净 9c9a80d6f5a0ef91291fe0fc04689e0bdcc1552d，包括
+11.94–11.96 的三个生产优化；本轮没有新的算法/接口或测试变更。
+开始前核对与0be资格之间仅三源文件和四文档变化，固定七包、六份JUnit
+673项与4项 copyright 跳过，保留默认并行、domain、timeout、max_steps
+和原验收条件。环境为 WSL Ubuntu-22.04-D / ROS 2 Humble /
+Python3.10.12 / NetworkX2.4，原生 ltl2ba 路径与完整二进制SHA保持。
+
+既有隔离 build/install 下各执行一次。build session94245、test session
+88838 沿原 handle 等待至实际 exit0，receipt elapsed 分别43.635586786秒
+与78.790072845秒；import/start gate session9367 实际exit0。构建后核对
+18项源码 import 与生成消息路径，16个完整相关生产模块与 Git 字节匹配，
+包含三个最新优化。主代理未捕获运行期PID，终态按原执行handle及原始
+receipt/log核对；没有据空进程观测、marker或观察超时启动替代运行。
+
+```bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_9c9a80d build \
+  --executor sequential \
+  --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --symlink-install --packages-up-to ltl_automaton_core \
+  --cmake-args -DBUILD_TESTING=ON
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_9c9a80d test \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --packages-select ltl_automaton_core ltl_automaton_msgs \
+  ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution \
+  ltl_automaton_hil_mic ltl_automaton_std_transition_systems \
+  --return-code-on-test-failure
+```
+
+六份新鲜JUnit：**673 tests = 669 passed + 4 skipped**，0 errors/failures。
+msgs11/0skip、core191/1、planner160/1、execution143/0、HIL119/1、std49/1；
+四项跳过均为既有 copyright。Trap 九种可达性、缺失节点/短路/图变更，
+2D station access/closest、6D连通/严格半径/extra joint及monitor/plugin
+launch入口均执行；原12项HIL Future、driver列表、IRL launch/真实β偏好、
+二十步/overflow/commit、快照隔离/原子复制、resolver/timeout、四个DDS、
+Studio、fallback、原生translator/POSIX、readonly参数、launch和lint通过。
+聚合内部与此前独立旧新对照不重复累加。接口CTest wrapper另1项通过，
+实际隔离build查询674tests、0 errors/failures、4 skipped；16份历史CTest
+XML按测试开始时间排除。完整stderr五包各923bytes，保留np.int/
+SelectableGroups依赖弃用警告，未见未读取Future异常诊断。
+
+前一0be的85文件闭包与833份选定历史hash前后均保持；本轮XML、receipt、
+imports、完整常规colcon日志另冻结为85文件闭包。根代理query、collector、
+独立audit与receipt检查各一次实际exit0，核对源字节/人口/入口/时间/日志。
+证据位于 /tmp/ltl_ros2_completion_20261006：verification_9c9a80d.json、
+verified_changed_imports_9c9a80d.json、verified_summary_9c9a80d.json、
+colcon_query_9c9a80d.json、historical_hashes_before_9c9a80d.json、
+inspected_combo_receipts_9c9a80d.json及verified_results_9c9a80d/sha256_manifest.json。
+日志在log_combo_9c9a80d/log_query_9c9a80d，helper在主机临时目录。
+
+README改为当前组合表，前96节正文保持。旧0be/AA组合、各版局部资格和
+原始失败仍按原源码保留。IRL仅学习β、默认关闭，执行仍为符号级FakeBackend；
+没有LLM、benchmark、完整演示、物理仿真、实机/机器人示范或Jazzy验证。
+通过不证明整体加速、IRL收敛/逆最优性或机器人效果。

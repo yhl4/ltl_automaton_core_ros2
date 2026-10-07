@@ -697,21 +697,11 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前 2D station 判定局部验证（2026-10-07）
+### 最近七包组合验证（源码 9c9a80d，2026-10-07）
 
-station 角度差在单次判定内计算一次，供 sin/cos 共用，省去重复 yaw
-计算。保留未归一化 quaternion 公式、±π 环绕、严格半径/角度边界、
-阈值选择和 access/滞回。相关模型、节点输入和 ROS launch 测试
-**46 passed**，保留两项 np.int 依赖弃用警告；源码编译、flake8、pep257
-和差异检查通过。43 个旧新对照的结果、异常与状态一致，正常 station
-判定的 yaw 计算由 2 次降为 1 次。对照单独计数，本轮未重跑七包。
-详见 [validation.md 第 11.96 节](ltl_automaton_planner/docs/validation.md)。
-
-### 最近七包组合验证（历史源码 0beaa3e，2026-10-07）
-
-将 IRL 轨迹列表隔离、HIL 晚到 Future 异常回收和 driver 维度列表
-隔离纳入完整组合。干净源码 `0beaa3e` 的七包构建和默认并行整包
-测试各执行一次，均 exit 0。
+将 trap 布尔相交、6D monitor 入口校验复用和 2D station yaw 差值复用
+纳入完整组合。干净源码 `9c9a80d` 的七包构建和默认并行整包测试
+各执行一次，均 exit 0；此前 IRL、HIL Future 与 driver 修复同时覆盖。
 
 | 包 | tests | passed | skipped |
 | --- | ---: | ---: | ---: |
@@ -727,7 +717,7 @@ station 角度差在单次判定内计算一次，供 sin/cos 共用，省去重
 对实际隔离 build 的 colcon 查询为 674 tests。保留 np.int/
 SelectableGroups 依赖弃用警告，五包 stderr 非空；历史 XML
 按测试开始时间排除。完整记录见
-[validation.md 第 11.93 节](ltl_automaton_planner/docs/validation.md)。
+[validation.md 第 11.97 节](ltl_automaton_planner/docs/validation.md)。
 
 快照隔离/HIL 恢复、IRL 与执行索引的局部对照、旧版本资格、原始失败，以及
 命令、日志和冻结哈希清单的位置见同一验证记录，按源码版本分别计数。
