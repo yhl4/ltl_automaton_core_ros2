@@ -2992,3 +2992,38 @@ README 同步，前 83 节正文完整保留。本轮未重跑七包，11.83 的
 653 项只属于 ef300b4 历史源码资格，不作为当前 IRL 改动后的整包
 声明。本轮无 LLM、benchmark、完整演示、物理仿真、实机示范或
 Jazzy 验证，不证明整体加速、IRL 收敛、逆最优性或机器人示范效果。
+
+### 11.85 执行快照索引复用每条边的 ID 对（2026-10-07）
+
+基线为干净 4d047cca0ac9042d8e9ddbb53353b3f2b1b7a640。
+_snapshot_index 原先为匹配检查和 matched_pairs.add 分别构造
+(source_id, target_id)。本轮在每条边的循环内构造一次 pair，
+匹配后复用。完整有序运行对及重复项、保留边顺序、缺边先于
+缺节点的校验、目标歧义判断和全部校验后提交索引缓存均保持。
+没有跨快照缓存或增加依赖，IRL 和测试文件未修改。
+
+执行代理完整 test_accepted_run_resolver.py 与 test_backend.py
+各执行一次，共 **72 passed**，0 errors/failures/skips，无 warnings；
+现有两文件分别 31/41 项。JUnit 为 /tmp/resolver_edge_key_4d047cc.xml，
+SHA256 为 8fc8982f19a73e8508fb05fe31ec40d996b2aa4ff2365484562c5ba3ab849ca0。
+源码 py_compile、ament_flake8 --linelength 99 与 diff 检查通过。
+
+主代理完整旧解析器逐字取自 git show 4d047cc，核对当前 import
+及源码 SHA，并绑定未修改的 models、manager、execution_node、
+snapshot、Product 五模块。对照 helper 一次实际 exit 0，三个原生
+single/safe/KTH 的完整步骤、诊断、重复序号拒绝与输入保持相同，
+派发 3/4/4 次，成本分别为 3/1/13、3/2/23、20/20/220。
+六种 tuple/list 运行对及九种错误的精确消息、缓存完整性和恢复
+一致。计数使用单独的 ProductEdge 子类快照，不改原生快照：
+首次索引的 ID 读取分别为 22→16、36→28、104→96，缓存再次
+命中均为零；重复保留边与重复运行对控制的索引结果也相同。
+这里只验证每条匹配边减少两次字段读取，未测速度或内存。
+
+主代理检查原 XML、计数与源码绑定，没有重跑测试。首次审计
+脚本误写 XML classname/后端文件名，exit 1 保留；读取真实 XML
+和文件清单后，仅修正审计脚本，run2 exit 0。完整旧模块、helper、
+resolver_edge_key_4d047cc.json 与 resolver_edge_key_4d047cc_receipt.json
+保留在既有隔离目录。README 同步，前 84 节正文完整保留。
+本轮未重跑七包；11.84 的 IRL 74 项与 11.83 的 ef300b4 整包
+653 项分别属于此前验证，不累加为当前人口。IRL 继续从示范学习
+β，默认关闭；无 LLM、benchmark、物理仿真、实机或 Jazzy 验证。

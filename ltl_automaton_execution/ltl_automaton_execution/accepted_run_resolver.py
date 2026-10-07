@@ -89,8 +89,9 @@ class AcceptedRunResolver:
         retained_edges = []
 
         for edge in snapshot.product_edges:
-            if (edge.source_id, edge.target_id) in retained_pairs:
-                matched_pairs.add((edge.source_id, edge.target_id))
+            pair = (edge.source_id, edge.target_id)
+            if pair in retained_pairs:
+                matched_pairs.add(pair)
                 retained_edges.append(edge)
 
         missing = [
