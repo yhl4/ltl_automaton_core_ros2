@@ -121,6 +121,131 @@ def test_learn_beta_margin_updates_private_copy_and_matches_hand_fixture():
     } == before_edges
 
 
+@pytest.mark.parametrize(
+    ("order", "expected_match"),
+    [("bad-first", 2), ("good-first", 3)],
+)
+def test_equal_demonstration_scores_keep_input_order(
+    order, expected_match, monkeypatch,
+):
+    """Choose the first equal-score path without tuple-based tie sorting."""
+    product, nodes = _margin_product()
+    for pair in (
+        (nodes["hub"], nodes["bad"]),
+        (nodes["bad"], nodes["hub"]),
+        (nodes["hub"], nodes["good"]),
+        (nodes["good"], nodes["hub"]),
+    ):
+        product.edges[pair]["soft_task_dist"] = 0.0
+    bad = (nodes["hub"], nodes["bad"], nodes["hub"])
+    good = (nodes["hub"], nodes["good"], nodes["hub"])
+    demonstrations = [bad, good] if order == "bad-first" else [good, bad]
+    before_edges = {
+        pair: dict(data) for pair, data in product.edges.items()
+    }
+    before_initial = set(product.graph["initial"])
+    before_possible = set(product.possible_states)
+    before_beta = product.graph["beta"]
+    planned = []
+
+    def fixed_plan(candidate, gamma):
+        assert candidate is not product
+        assert gamma == 1.0
+        planned.append((candidate.graph["beta"], {
+            pair: dict(data) for pair, data in candidate.edges.items()
+        }))
+        return SimpleNamespace(suffix=list(good)), None
+
+    monkeypatch.setattr(irl, "dijkstra_plan_networkX", fixed_plan)
+    result = learn_beta(product, demonstrations, beta=0.0, gamma=1.0)
+
+    chosen = demonstrations[0]
+    assert result.demonstration == chosen
+    assert result.beta_sequence == (0.0,)
+    assert result.match_scores == (expected_match,)
+    assert planned[0][0] == 0.0
+    chosen_edges = set(zip(chosen, chosen[1:]))
+    for pair, edge in planned[0][1].items():
+        source_edge = before_edges[pair]
+        expected = source_edge["transition_cost"]
+        if pair not in chosen_edges:
+            expected += 1.0
+        assert edge["weight"] == expected
+    assert {
+        pair: dict(data) for pair, data in product.edges.items()
+    } == before_edges
+    assert product.graph["initial"] == before_initial
+    assert product.possible_states == before_possible
+    assert product.graph["beta"] == before_beta
+
+
+def test_minimum_demonstration_score_is_fresh_on_next_call(monkeypatch):
+    """Rescore paths per call while preserving the chosen path's margin."""
+    product, nodes = _margin_product()
+    bad = (nodes["hub"], nodes["bad"], nodes["hub"])
+    good = (nodes["hub"], nodes["good"], nodes["hub"])
+    planned = []
+
+    def fixed_plan(candidate, gamma):
+        assert candidate is not product
+        assert gamma == 1.0
+        planned.append((candidate.graph["beta"], {
+            pair: dict(data) for pair, data in candidate.edges.items()
+        }))
+        return SimpleNamespace(suffix=list(good)), None
+
+    monkeypatch.setattr(irl, "dijkstra_plan_networkX", fixed_plan)
+    before_edges = {
+        pair: dict(data) for pair, data in product.edges.items()
+    }
+    before_initial = set(product.graph["initial"])
+    before_possible = set(product.possible_states)
+    before_beta = product.graph["beta"]
+    first = learn_beta(product, [bad, good], beta=0.0, gamma=1.0)
+
+    assert first.demonstration == good
+    assert first.beta_sequence == (0.0,)
+    assert first.match_scores == (3,)
+    chosen_edges = set(zip(good, good[1:]))
+    for pair, edge in planned[0][1].items():
+        source_edge = before_edges[pair]
+        expected = source_edge["transition_cost"]
+        if pair not in chosen_edges:
+            expected += 1.0
+        assert edge["weight"] == expected
+    assert {
+        pair: dict(data) for pair, data in product.edges.items()
+    } == before_edges
+    assert product.graph["initial"] == before_initial
+    assert product.possible_states == before_possible
+    assert product.graph["beta"] == before_beta
+
+    product.edges[nodes["hub"], nodes["good"]]["soft_task_dist"] = 2.0
+    changed_edges = {
+        pair: dict(data) for pair, data in product.edges.items()
+    }
+    second = learn_beta(product, [bad, good], beta=0.0, gamma=1.0)
+
+    assert second.demonstration == bad
+    assert second.beta_sequence == tuple(float(value) for value in range(1, 11)) + (
+        10.0 + 1.0 / 11.0,
+    )
+    assert second.match_scores == (2,) * 11
+    chosen_edges = set(zip(bad, bad[1:]))
+    for pair, edge in planned[1][1].items():
+        source_edge = changed_edges[pair]
+        expected = source_edge["transition_cost"]
+        if pair not in chosen_edges:
+            expected += 1.0
+        assert edge["weight"] == expected
+    assert {
+        pair: dict(data) for pair, data in product.edges.items()
+    } == changed_edges
+    assert product.graph["initial"] == before_initial
+    assert product.possible_states == before_possible
+    assert product.graph["beta"] == before_beta
+
+
 def test_nonnegative_projection_handles_reverse_gradient():
     product, nodes = _margin_product()
     bad = (nodes["hub"], nodes["bad"], nodes["hub"])

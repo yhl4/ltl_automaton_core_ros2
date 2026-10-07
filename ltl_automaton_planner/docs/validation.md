@@ -2937,3 +2937,58 @@ verified_results_ef300b4/sha256_manifest.json 与独立工具记录。
 benchmark、完整演示、物理仿真、实机示范或 Jazzy 验证；符号级
 FakeBackend 的组合通过不证明整体加速、IRL 收敛、逆最优性或
 机器人示范效果。IRL 保持原示范学习 β 范围，默认关闭。
+
+### 11.84 IRL 示范选择中复用本次软距离评分（2026-10-07）
+
+基线为干净 b3097ffc4ee32cdfaca7583f62197ea34dea80f8，其源码/测试
+沿用 11.83 的 ef300b4 资格。learn_beta 原先在 min 的 key 中评分
+全部示范，再对选中的路径重新评分。ROS worker 已隔离候选
+Product，学习过程本身不改调用者输入；本轮将 (path, score) 流式
+交给带显式 score key 的 min，直接复用选中分数。同分保留输入
+迭代顺序中的首条，不按 path tuple 排序，不合并重复路径，也不
+跨调用缓存。全部路径仍先验证，私有 deepcopy、margin 算术、
+gradient、step、20 次上限、<=0.3 停止与结果字段均保持。
+
+原 test_irl.py 新增三项 case：同分 bad-first/good-first 两参数，
+固定规划 suffix 隔离选择手算，beta_sequence=(0.0,) 且匹配分数
+分别为 2/3；下一次调用改 hub→good 软距离为 2，选中示范从
+good 变为 bad，gradient=-1，前十步 beta=1..10，第十一步
+10+1/11 满足停止规则，匹配分数为 (2,)*11。各次私有 margin
+按选择路径手算，输入 edge/weight/initial/possible/beta 保持。
+既有真实 planner 与全部二十步大梯度检查未删减。
+
+执行代理初轮 73 passed / 1 failed 的 XML 原样保留：fixture 将
+good 两条边都改为 2，软距离为 4，实际 gradient=-3，手算不符。
+改为只修改 hub→good 后，完整 test_irl.py 与 test_plan_ltl_action.py
+一次最终 **74 passed**，session 36936 实际 exit 0，0 errors/
+failures/skips，保留两项既有 NetworkX/NumPy 弃用 warnings。
+两 XML 分别为 /tmp/irl_demonstration_score_b3097ff.xml 和
+/tmp/irl_demonstration_score_b3097ff_run2.xml，不将初轮称为原算法
+RED 或累加人口。静态 session 30763 实际 exit 0，两文件
+py_compile、ament_flake8 --linelength 99、测试 pep257、diff 检查通过。
+
+主代理完整旧 learner 与 fixture 逐字取自 git show b3097ff，当前
+import/source SHA256 核对，Product、discrete_plan、ltl_planner、
+TS、planner_node、snapshot 六模块完整字节绑定基线。独立 helper
+一次实际 exit 0，七种实际 Product/Dijkstra 小图（其中一项两次
+调用）全部结果字段相同、调用者完整公开图及 possible_states
+保持；输入评分调用 R+1→R，每次少读选中示范的 L-1 条软距离。
+普通两路径为 3→2 次、6→4 次读取；重复长路径为 4→3 次、
+12→8 次读取。计数在输入 edge 字典读取处记录，私有副本用普通
+属性字典；没有测量速度或内存。六种错误类型/精确消息保持，
+前五种在评分前拒绝；无接受环控制的原始两条诊断也保留。
+
+主代理独立核对两 XML 的计数/失败/mtime/SHA 和三项新增、
+二十步、权重 overflow 与全部 IRL 提交/失效场景。首次 collector
+把既有 snapshot preparation 的 copy/ids 两参数错计为一项，
+helper exit 1 保留；核对未修改的基线声明后，只更正独立计数
+脚本，run2 exit 0，没有重跑测试或修改 XML/条件。此前 85 文件
+闭包及 424 份历史哈希保持，合并选定历史记录为 518 文件。
+完整旧模块/fixture、probe、irl_demonstration_score_b3097ff.json、
+irl_demo_b3097ff_xml_receipts.json、历史清单与区分根代理实际结果/
+执行代理报告的工具记录分别保留。
+
+README 同步，前 83 节正文完整保留。本轮未重跑七包，11.83 的
+653 项只属于 ef300b4 历史源码资格，不作为当前 IRL 改动后的整包
+声明。本轮无 LLM、benchmark、完整演示、物理仿真、实机示范或
+Jazzy 验证，不证明整体加速、IRL 收敛、逆最优性或机器人示范效果。

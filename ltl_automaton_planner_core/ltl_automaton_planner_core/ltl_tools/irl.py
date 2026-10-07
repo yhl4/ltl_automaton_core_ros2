@@ -88,11 +88,13 @@ def learn_beta(product, possible_runs, beta, gamma):
     current_beta = _finite_nonnegative(beta, "beta")
     gamma = _finite_nonnegative(gamma, "gamma")
     demonstrations = _validate_runs(product, possible_runs)
-    demonstration = min(
-        demonstrations,
-        key=lambda path: _path_soft_distance(product, path),
+    demonstration, demonstration_soft = min(
+        (
+            (path, _path_soft_distance(product, path))
+            for path in demonstrations
+        ),
+        key=lambda item: item[1],
     )
-    demonstration_soft = _path_soft_distance(product, demonstration)
     demonstration_edges = set(
         zip(demonstration, islice(demonstration, 1, None))
     )
