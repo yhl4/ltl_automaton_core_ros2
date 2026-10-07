@@ -4329,3 +4329,55 @@ verified_results_02d426f/sha256_manifest.json；原始日志在log_combo_02d426f
 log_query_02d426f，helper在主机临时目录。IRL仍仅学习β且默认关闭，执行仍
 为符号级FakeBackend。未做LLM、benchmark、完整演示、物理仿真、实机/
 机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。
+
+### 11.110 Action 与 IRL 成功消息的提交前准备（2026-10-07）
+
+基线5e61d4a1dad464f9d8175715fa869288d8ad5525。原共享提交方法在替换活动
+计划后才准备计划消息和成功Result；这两类准备异常导致Action被rclpy中止并
+返回默认ERROR_NONE，或从IRL executor回调泄漏，新计划却已经提交。
+仅修改_commit_plan_ltl_candidate：原新鲜度谓词通过后，在现有锁及提交
+try边界内先准备时间戳、计划消息、完整成功结果，再提交快照和planner/TS。
+准备失败使用既有ERROR_INTERNAL恢复路径，保留旧权威并释放事务；发布仍在
+提交之后，其顺序保持。其他37个生产方法、核心代价/接受性及IRL规则未改。
+
+新增六项原生回归：action_ready/action_active/irl分别组合plans/result。
+LoadTS、PlanLTL、快照服务和候选规划均为真实接口/实现；ACTIVE与IRL用DDS
+反馈推进旧step到1。IRL沿用既有注入learn_beta返回β+7并执行真实候选重规划，
+不将注入视为真实学习测量。plans仅注入当前节点方法；result保留生成类，
+其planning_time默认0.0使用原setter，仅非零值触发准备故障，失败结果可正常
+构造及传输。每项检查旧planner/run/Product、β/weights、TS/YAML/hash、
+snapshot/IDs、instance/generation/step、canonical与事务字段，并在解除
+故障后验证有效原生重试generation+1、step=0。Action返回ABORTED/
+ERROR_INTERNAL；IRL保留ACTIVE和旧β。已有55个测试函数正文保持。
+
+人口在结果前由11.109冻结XML固定为104+6=110，三个文件Action58、节点38、
+序列化14，collection hook核对全部名称；测试完整SHA在RED/GREEN间不变。
+首次辅助脚本使用pytest6不支持的item.path，session44499在收集阶段停止，
+Python receipt exit3、JUnit仅含一条internal error，未执行回归。只将helper
+改为item.fspath并另存retry1；原helper、日志/XML/receipt和人口清单均保留，
+两份人口JSON相同，生产源码和测试均未因收集错误修改。
+
+原Git生产字节上的RED session33876实际exit1：**6 failed / 52 deselected**，
+四项Action默认错误码与两项IRL受控异常均核对。单次生产修复后的GREEN
+session84131沿原handle至实际exit0：**110 passed**，0 errors/failures/skipped。
+pytest29.87秒，JUnit29.841秒，receipt38.949717397秒；不用于性能比较。
+源码和测试编译、flake8、pep257及diff检查通过，保留lint既有optparse提示。
+八个实际生产import完整字节、生成消息路径及原生ltl2ba SHA核对；独立receipt
+检查exit0，并确认新鲜度谓词、成功发布顺序及其他方法不变。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_payload_5e61d4a_retry1.py red 17d2ac337ef85e6a41a68a731d5bf091dd0e7e3357394b1054b7d3b3917a2a07
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_payload_5e61d4a_retry1.py green aa6c5dd384638cee38b5019c035a0ee3b73ee4fb319414052751f7aa5090f0b6
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/inspect_payload_5e61d4a.py aa6c5dd384638cee38b5019c035a0ee3b73ee4fb319414052751f7aa5090f0b6 a552f57541c9c1bbe6154be55963fed76ebf6b6286e92bc27aaa753bc50d63d9
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：payload_5e61d4a和
+payload_5e61d4a_retry1的_population.json、_red.xml/_red_imports.json/
+_red_run.json/_red_run.log，以及retry1的对应green文件和_inspected.json。
+当前源码SHA为aa6c5dd384638cee38b5019c035a0ee3b73ee4fb319414052751f7aa5090f0b6，
+Action测试SHA为a552f57541c9c1bbe6154be55963fed76ebf6b6286e92bc27aaa753bc50d63d9。
+README同步当前局部范围，前109节正文与原始失败保留。未重跑七包，699项仍
+属于02d426f组合基线，局部110项不相加；IRL仅学习β且默认关闭，执行仍为
+符号级FakeBackend，未运行LLM、benchmark、物理仿真、实机或Jazzy验证。

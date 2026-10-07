@@ -1125,6 +1125,21 @@ class PlannerNode(Node):
 
             if commit_is_current:
                 try:
+                    stamp = self.get_clock().now().to_msg()
+                    prefix_plan, suffix_plan = self._plan_messages(
+                        outcome.planner,
+                        stamp,
+                    )
+                    result = PlanLTL.Result()
+                    result.success = True
+                    result.error_code = PlanLTL.Result.ERROR_NONE
+                    result.message = "Planning succeeded."
+                    result.prefix_plan = prefix_plan
+                    result.suffix_plan = suffix_plan
+                    result.total_cost = float(outcome.planner.run.totalcost)
+                    result.planning_time = float(
+                        outcome.planner.planning_time or 0.0
+                    )
                     self._commit_planning_graph_snapshot(
                         outcome.planning_graph
                     )
@@ -1163,11 +1178,6 @@ class PlannerNode(Node):
                 operation,
             )
 
-        stamp = self.get_clock().now().to_msg()
-        prefix_plan, suffix_plan = self._plan_messages(
-            outcome.planner,
-            stamp,
-        )
         self.prefix_plan_publisher.publish(prefix_plan)
         self.suffix_plan_publisher.publish(suffix_plan)
         self._publish_possible_states()
@@ -1175,16 +1185,6 @@ class PlannerNode(Node):
         self._publish_planning_execution_observation()
         self._initialize_plugins()
 
-        result = PlanLTL.Result()
-        result.success = True
-        result.error_code = PlanLTL.Result.ERROR_NONE
-        result.message = "Planning succeeded."
-        result.prefix_plan = prefix_plan
-        result.suffix_plan = suffix_plan
-        result.total_cost = float(outcome.planner.run.totalcost)
-        result.planning_time = float(
-            outcome.planner.planning_time or 0.0
-        )
         if goal_handle is not None:
             goal_handle.succeed()
         return result

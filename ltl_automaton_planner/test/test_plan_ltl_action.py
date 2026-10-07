@@ -437,6 +437,207 @@ def _fail_snapshot_commit_preparation(patch, stage):
     return message
 
 
+def _fail_plan_payload_preparation(patch, node, stage):
+    """Inject a failure while preparing a candidate's public payload."""
+    message = f"Controlled plan {stage} preparation failure."
+    if stage == "plans":
+        def failed_plan_messages(*_args):
+            raise RuntimeError(message)
+
+        patch.setattr(node, "_plan_messages", failed_plan_messages)
+        return message
+
+    descriptor = PlanLTL.Result.planning_time
+    assert isinstance(descriptor, property)
+
+    def failed_planning_time_setter(instance, value):
+        if value != 0.0:
+            raise RuntimeError(message)
+        descriptor.fset(instance, value)
+
+    patch.setattr(
+        PlanLTL.Result,
+        "planning_time",
+        property(
+            descriptor.fget,
+            failed_planning_time_setter,
+            descriptor.fdel,
+            descriptor.__doc__,
+        ),
+    )
+    return message
+
+
+def _capture_plan_authority(runtime):
+    """Capture references and values that a failed candidate must preserve."""
+    node = runtime.planner
+    planner = node.ltl_planner
+    weights = None
+    if planner is not None and planner.product is not None:
+        weights = {
+            (source, target): edge["weight"]
+            for source, target, edge in planner.product.edges(data=True)
+        }
+    return SimpleNamespace(
+        planner=planner,
+        run=None if planner is None else planner.run,
+        product=None if planner is None else planner.product,
+        beta=None if planner is None else planner.beta,
+        active_ts=node._active_transition_system,
+        yaml=node._active_ts_yaml,
+        source_hash=node._active_ts_sha256,
+        snapshot=node._active_planning_graph_snapshot,
+        product_ids=node._active_product_node_ids,
+        instance=node._planner_instance_id,
+        generation=node._planning_generation,
+        sequence=node._execution_step_seq,
+        canonical=node._canonical_ts_state,
+        waiting=node._waiting_for_initial_state,
+        status=node._planner_state,
+        origin=node._planning_origin_state,
+        planning_yaml=node._planning_source_yaml,
+        planning_hash=node._planning_source_hash,
+        pending_divergence=node._pending_divergence,
+        weights=weights,
+        service_snapshot=get_planning_graph_snapshot(runtime).snapshot,
+    )
+
+
+def _assert_plan_authority_preserved(runtime, before):
+    """Assert candidate preparation did not replace live execution authority."""
+    node = runtime.planner
+    current = node.ltl_planner
+    assert current is before.planner
+    assert (None if current is None else current.run) is before.run
+    assert (None if current is None else current.product) is before.product
+    assert (None if current is None else current.beta) == before.beta
+    assert node._active_transition_system is before.active_ts
+    assert node._active_ts_yaml == before.yaml
+    assert node._active_ts_sha256 == before.source_hash
+    assert node._active_planning_graph_snapshot is before.snapshot
+    assert node._active_product_node_ids is before.product_ids
+    assert node._planner_instance_id == before.instance
+    assert node._planning_generation == before.generation
+    assert node._execution_step_seq == before.sequence
+    assert node._canonical_ts_state == before.canonical
+    assert node._waiting_for_initial_state == before.waiting
+    assert node._planner_state == before.status
+    assert node._planning_origin_state == before.origin
+    assert node._planning_source_yaml == before.planning_yaml
+    assert node._planning_source_hash == before.planning_hash
+    assert node._pending_divergence == before.pending_divergence
+    assert node._planning_token is node._planning_worker is None
+    if before.weights is not None:
+        weights = {
+            (source, target): edge["weight"]
+            for source, target, edge in current.product.edges(data=True)
+        }
+        assert weights == before.weights
+    assert get_planning_graph_snapshot(runtime).snapshot == before.service_snapshot
+
+
+def _wait_for_action_result_without_leaking_executor_error(runtime, handle):
+    """Capture executor callback errors so the regression fails at an assertion."""
+    future = handle.get_result_async()
+    callback_error = None
+    try:
+        assert spin_until(runtime, future.done, timeout=8.0)
+    except Exception as error:
+        callback_error = error
+    return future, callback_error
+
+
+@pytest.mark.parametrize(
+    "operation",
+    ["action_ready", "action_active", "irl"],
+    ids=["action_ready", "action_active", "irl"],
+)
+@pytest.mark.parametrize("stage", ["plans", "result"], ids=["plans", "result"])
+def test_candidate_payload_preparation_failure_preserves_authority_and_recovers(
+    action_runtime, monkeypatch, operation, stage,
+):
+    """Catch plan-message/result preparation failures before candidate commit."""
+    if operation == "action_ready":
+        assert load_transition_system(action_runtime, VALID_TS).success
+    elif operation == "action_active":
+        _activate_at_self_loop(action_runtime)
+    else:
+        old_for_setup = _activate_at_self_loop(action_runtime)
+        beta = old_for_setup.beta
+        monkeypatch.setattr(
+            planner_module,
+            "learn_beta",
+            lambda *_args: SimpleNamespace(beta=beta + 7),
+        )
+
+    node = action_runtime.planner
+    before = _capture_plan_authority(action_runtime)
+    identity = (before.instance, before.generation)
+    goal_state = (
+        before.canonical[0]
+        if before.canonical is not None
+        else "r1"
+    )
+    teaching_runs = (
+        _current_teaching_loop(before.planner)
+        if operation == "irl"
+        else None
+    )
+
+    with monkeypatch.context() as patch:
+        message = _fail_plan_payload_preparation(patch, node, stage)
+        if operation == "irl":
+            assert node.start_irl_replan(teaching_runs, identity)
+            callback_error = None
+            try:
+                assert spin_until(
+                    action_runtime,
+                    lambda: node._planning_token is None,
+                    timeout=8.0,
+                )
+            except Exception as error:
+                callback_error = error
+            assert callback_error is None, repr(callback_error)
+        else:
+            handle = send_goal(action_runtime, make_goal(state=goal_state))
+            assert handle.accepted
+            result_future, callback_error = (
+                _wait_for_action_result_without_leaking_executor_error(
+                    action_runtime, handle,
+                )
+            )
+            assert callback_error is None, repr(callback_error)
+            assert result_future.done()
+            response = result_future.result()
+            assert response.status == GoalStatus.STATUS_ABORTED
+            assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
+            assert not response.result.success
+            assert response.result.message == message
+
+    _assert_plan_authority_preserved(action_runtime, before)
+
+    if operation == "irl":
+        assert node.start_irl_replan(teaching_runs, identity)
+        assert spin_until(
+            action_runtime,
+            lambda: node._planning_token is None,
+            timeout=8.0,
+        )
+        assert node.ltl_planner is not before.planner
+        assert node.ltl_planner.beta == before.planner.beta + 7
+    else:
+        accepted = action_result(
+            action_runtime,
+            send_goal(action_runtime, make_goal(state=goal_state)),
+        )
+        assert accepted.status == GoalStatus.STATUS_SUCCEEDED
+        assert accepted.result.success
+
+    assert node._planning_generation == before.generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
+
+
 @pytest.mark.parametrize("stage", ["copy", "ids"])
 @pytest.mark.parametrize("active", [False, True], ids=["ready", "active"])
 def test_snapshot_commit_preparation_failure_preserves_transaction_authority(
