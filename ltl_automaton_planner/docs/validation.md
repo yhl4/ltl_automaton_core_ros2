@@ -1681,3 +1681,42 @@ ROS 2 Humble / Python 3.10.12 隔离 overlay，保留 NumPy/NetworkX
 弃用警告。未重跑整包/ROS 通信、LLM、benchmark、物理仿真、实机、
 Jazzy 或机器人示范；11.57 整包证据仍属于原代码基线。README、
 59 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.61 接受运行边对直接构造 tuple（2026-10-07）
+
+以 `92a46bf` 为基线，AcceptedRunResolver._retained_pairs 原先先建立
+prefix 边对列表，再 extend suffix 边对、append 隐式闭合边，最后
+复制为 tuple。现在用 itertools.chain 直接构造同一 tuple，省去
+中间列表。保留原 prefix/suffix 切片、边对次序与重复项、单节点
+suffix 自环及唯一隐式闭合边；此前的结构校验和精确诊断逐字保持。
+快照索引、动作解析、缓存提交与失败出口没有改动，不改变模型、
+ROS 接口、执行身份、接受性、规划代价或可选 IRL 的 β 学习规则。
+
+七个新增 case 覆盖三个合法路径的 tuple 类型/全部边对、三个结构
+错误的精确消息与有效索引保留/恢复，以及缺边优先于缺节点的重复
+缺边诊断次序。仅重跑 resolver、backend、execution-node 三个相关
+文件，合计 **90 passed**。随后为三个 formatter fixture 补齐实际
+Product 边并断言全部边对存在，这三个 case 再次通过；它们是前述
+90 项的子集，不另计独立通过项。源码 py_compile/ament_flake8 与
+测试 py_compile/ament_flake8/pep257 通过。
+
+独立进程加载 git show 导出的完整旧 resolver 后，七个新增检查
+**7 passed**，确认旧版原本具有相同语义。首次临时 harness 因包
+初始化会提前导入 resolver 而在模块加载处失败，未执行测试；先
+初始化包再加载旧模块后通过，旧源码字节校验保留，未修改生产代码。
+
+另用实际旧/当前完整模块构造边齐全的重复 prefix/multi-node suffix
+与 single-node suffix：全部边对 tuple、完整 ExecutionStep、缺闭合
+边/显式重复 suffix 的精确诊断、原有效缓存保持及后续恢复一致。
+两版调用前保存 deepcopy 并在调用后确认输入快照保持。1024 项
+重复 prefix（1、3 交替）与三节点 suffix（3、4、5）产生相同的
+1026 项边对，跟踪实际 helper 帧确认旧中间 pairs 列表最大 1026
+项，新版无该列表。首次临时大样例只有一个重复自环，single/large
+的 deepcopy 比较也未保存调用前状态；审阅后在同一脚本修正并重跑，
+上述重复路径与输入保持结论来自修正后的实际断言。仍保留输入切片
+和输出 tuple，未测时间、RSS 或总分配，不外推整体加速/总内存收益。
+
+环境仍为既有 WSL Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12
+隔离 overlay。未重跑整包/ROS 通信、LLM、benchmark、物理仿真、
+实机、Jazzy 或机器人示范；11.57 整包结果属于原代码基线。README、
+60 节历史正文保留、本地链接/锚点与 diff 检查通过。

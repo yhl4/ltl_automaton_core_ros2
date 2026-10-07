@@ -703,12 +703,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-本轮在接受集合为空时清除旧接受环标记，省去无用 SCC 遍历；恢复
-接受节点或改变自环后仍按原结构环规则重新计算，没有跨调用缓存。
-product、discrete-plan、planner、IRL 四个相关文件 **101 passed**，
-源码/测试 lint 与实际旧版对照通过；空集合的 SCC 调用从 1 次变为
-0 次，缺失 accept 字段保留原结果/诊断。本轮未重跑整包，不作为
-整体加速或总内存测量，不改变代价、执行身份或 IRL 规则。
+本轮接受运行的边对直接构造 tuple，省去中间列表；保持 prefix/
+suffix 次序、重复边、自环及隐式闭合边，拒绝无效快照后保留原索引。
+resolver、backend、execution-node 三个相关文件 **90 passed**；
+随后补齐 formatter fixture 的 Product 边，三个对应 case 再次通过。
+七个新增检查在实际旧版也全部通过，源码/测试 lint 与旧/新完整
+ExecutionStep 对照通过。1024 项重复 prefix 样例的边对结果一致，
+旧版中间列表含 1026 项，新版无该列表；仍有输入切片与输出 tuple，
+不作为整体加速或总内存测量。本轮未重跑整包，不改变接口或 IRL。
 
 此前代码基线 `c70d38d` 的 aggregate 七包构建与整包测试全部完成。
 六份本轮新 JUnit 合计 **572 tests = 568 passed / 4 skipped**，

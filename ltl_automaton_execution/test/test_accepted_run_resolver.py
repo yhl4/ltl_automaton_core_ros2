@@ -278,3 +278,73 @@ def test_resolver_reuses_one_snapshot_then_switches_generation():
     ).target_state == _state("new-r2")
     with pytest.raises(ResolutionError, match="identity"):
         resolver.resolve(_observation(), replacement)
+
+
+@pytest.mark.parametrize("accepted_run, expected", [
+    (AcceptedRun((3,), (3,)), ((3, 3),)),
+    (AcceptedRun((1, 3), (3, 4, 5)), ((1, 3), (3, 4), (4, 5), (5, 3))),
+    (AcceptedRun((1, 3, 1, 3), (3, 4, 5, 4)),
+     ((1, 3), (3, 1), (1, 3), (3, 4), (4, 5), (5, 4), (4, 3))),
+])
+def test_retained_pair_tuple_preserves_order_duplicates_and_closure(accepted_run, expected):
+    """Keep one tuple with repeated prefix edges and exactly one implicit closure."""
+    base = _snapshot()
+    snapshot = replace(base, accepted_run=accepted_run, product_edges=base.product_edges + (
+        ProductEdge(3, 3, "wait"), ProductEdge(3, 1, "prefix-return"),
+        ProductEdge(5, 4, "suffix-return"), ProductEdge(4, 3, "close-from-four"),
+    ))
+    graph_pairs = {(edge.source_id, edge.target_id) for edge in snapshot.product_edges}
+    assert all(pair in graph_pairs for pair in expected)
+    pairs = AcceptedRunResolver._retained_pairs(snapshot)
+    assert type(pairs) is tuple
+    assert pairs == expected
+    assert snapshot.accepted_run is accepted_run
+    assert snapshot.accepted_run.prefix_node_ids == accepted_run.prefix_node_ids
+    assert snapshot.accepted_run.suffix_node_ids == accepted_run.suffix_node_ids
+
+
+@pytest.mark.parametrize("accepted_run, message", [
+    (AcceptedRun((), ()), "Accepted run has no prefix nodes."),
+    (AcceptedRun((1,), ()), "Accepted run has no suffix nodes."),
+    (AcceptedRun((1,), (3,)),
+     "Accepted prefix and suffix do not share their boundary node."),
+])
+def test_retained_pair_structure_failure_keeps_index_and_recovers(accepted_run, message):
+    """Retain the valid index when pair conversion rejects the next generation."""
+    resolver = AcceptedRunResolver()
+    snapshot = _snapshot()
+    previous_step = resolver.resolve(_observation(), snapshot)
+    nodes, targets = resolver._nodes, resolver._retained_targets
+    malformed = replace(snapshot, planning_generation=5, accepted_run=accepted_run)
+    with pytest.raises(ResolutionError) as caught:
+        resolver.resolve(_observation(generation=5), malformed)
+    assert str(caught.value) == message
+    assert resolver._indexed_snapshot is snapshot
+    assert resolver._nodes is nodes and resolver._retained_targets is targets
+    assert resolver.resolve(_observation(), snapshot) == previous_step
+    replacement = replace(snapshot, planning_generation=6)
+    assert resolver.resolve(_observation(generation=6), replacement) == replace(
+        previous_step, planning_generation=6,
+    )
+    assert resolver._indexed_snapshot is replacement
+
+
+def test_missing_repeated_pair_diagnostic_keeps_order_duplicates_and_index():
+    """Preserve repeated missing pairs before a missing-node error and cache commit."""
+    resolver = AcceptedRunResolver()
+    snapshot = _snapshot()
+    previous_step = resolver.resolve(_observation(), snapshot)
+    malformed = replace(
+        snapshot, planning_generation=5,
+        accepted_run=AcceptedRun((1, 3, 1, 3), (3, 4, 5)),
+        product_edges=tuple(edge for edge in snapshot.product_edges
+                            if (edge.source_id, edge.target_id) != (1, 3)),
+        product_nodes=tuple(node for node in snapshot.product_nodes if node.node_id != 1),
+    )
+    with pytest.raises(ResolutionError) as caught:
+        resolver.resolve(_observation(generation=5), malformed)
+    assert str(caught.value) == (
+        "Accepted run references missing Product edges: [(1, 3), (3, 1), (1, 3)]."
+    )
+    assert resolver._indexed_snapshot is snapshot
+    assert resolver.resolve(_observation(), snapshot) == previous_step

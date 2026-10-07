@@ -1,5 +1,7 @@
 """Resolve formal observations against one retained accepted run."""
 
+from itertools import chain
+
 from ltl_automaton_execution.models import ExecutionStep
 
 
@@ -153,7 +155,8 @@ class AcceptedRunResolver:
             raise ResolutionError(
                 "Accepted suffix repeats its start node at the end."
             )
-        pairs = list(zip(prefix, prefix[1:]))
-        pairs.extend(zip(suffix, suffix[1:]))
-        pairs.append((suffix[-1], suffix[0]))
-        return tuple(pairs)
+        return tuple(chain(
+            zip(prefix, prefix[1:]),
+            zip(suffix, suffix[1:]),
+            ((suffix[-1], suffix[0]),),
+        ))
