@@ -711,52 +711,41 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 最新局部优化与验证（2026-10-07）
+### 最新七包组合验证（源码 ef300b4，2026-10-07）
 
-修复被丢弃的快照回调未读取 Future 异常而留下析构诊断的问题。
-节点销毁、请求过期或被替换时读取异常后返回，不读取旧响应或
-改变活动请求、缓存、重试与派发。真实 Humble executor 的已排队
-回调验证销毁边界；过期异常仍只恢复最新观测，不能派发旧命令。
-backend/resolver/execution-node/snapshot-timeout 四份现有测试文件
-一次 **126 passed**，无失败、跳过或 warnings，静态检查通过。
-原始七项定向 RED 为 3 failed / 4 passed，与最终结果分别保留。
-完整旧/新节点对照确认三个丢弃边界的真实 Future 被回收时，原版
-未读取异常诊断被消除，当前失败的 warning/重试仍保持；三个原生
-符号场景的快照、派发步骤与成本一致。此前维度契约修复保留在
-11.81。本轮未重跑七包，下述 644 项仅属于历史源码 d6f4983；
-本轮证据详见 11.82，不累加历史与局部测试人口。
-IRL 继续保持原示范学习 β 范围，默认关闭。
+将接受路径的相邻边流式遍历、合法不可哈希字符串维度修复，以及
+失效快照回调的异常读取纳入当前完整组合。干净源码基线 `ef300b4`
+的 aggregate 七包构建和默认并行整包测试各执行一次，均 exit 0。
+六份本轮新 JUnit 的计数如下：
 
-### 最近七包历史资格（源码 d6f4983，2026-10-07）
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 188 | 187 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
 
-该轮将执行快照的单次状态复用及合法不可哈希字符串值解析修复
-纳入完整组合。干净源码基线 `d6f4983` 的 aggregate 七包构建和默认
-并行整包测试各执行一次，均 exit 0。六份本轮新 JUnit 合计
-**644 tests = 640 passed / 4 skipped**，0 errors、0 failures；
-四项跳过均为已有 copyright 检查。标准 colcon 汇总含一项通过的
-接口 CTest wrapper，共 645 tests。构建/测试命令实际耗时约
-28.85/51.20 秒，不作为规划性能或加速比。
+合计 **653 tests = 649 passed / 4 skipped**，0 errors、0 failures。
+四项跳过均为已有 copyright；接口 CTest wrapper 另有一项通过，
+对实际隔离 build 的 colcon 查询汇总为 654 tests。12 份历史 CTest
+XML 按时间排除。构建/测试命令耗时约 35.92/60.80 秒，不表示规划性能。
 
-新增的六项快照转换 case 和解析器全部六项多候选参数 case 均执行；
-此前 Planner 参数、TS 动作转换、四个真实 DDS 场景、Studio consumer、
-快照 fallback、IRL commit/step reset、原生 ltl2ba/POSIX、HIL、
-monitor、launch 与 lint 也完成组合检查。11 份历史 CTest XML 按时间
-排除，不与本轮 JUnit 混用。IRL 保持原示范学习 β 范围、默认关闭。
+最近九项新增参数 case、真实排队回调、timeout、解析器、四个真实
+DDS 场景、Studio consumer、快照 fallback、IRL commit/step reset、
+原生 ltl2ba/POSIX、HIL、monitor、launch 与 lint 都执行。IRL 继续
+保持原示范学习 β 范围，默认关闭。实际导入来自当前 checkout 和
+隔离生成接口，九模块完整源码字节匹配该基线；环境为 Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12 / NetworkX 2.4。保留 np.int 与
+SelectableGroups 弃用警告，五包有 stderr。
 
-实际导入来自本 checkout 与隔离生成接口，执行节点/解析器、Planner、
-Product、快照、IRL、2D 生成器及 KTH 驱动八模块完整源码字节与该
-基线一致。环境为 Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 /
-NetworkX 2.4；保留依赖弃用警告，五包有 stderr。本轮结果、receipts、
-完整构建/测试实体日志及哈希清单已冻结，83 份文件校验通过；
-314 份选定历史证据 SHA256 保持。该次只刷新 README 与验证记录，
-源码/测试保持 `d6f4983`，详细证据见 11.79。
-
-`b555100` 的 634 项、`be23c75` 的 631 项、`4817dd4` 的 620 项、
-`6cbfd39` 的 597 项，以及 `2c52c71` 的五项失败和旧模块重放均保留，
-不并入本轮统计。前两轮局部的 76/63 项及对象/哈希调用数量对照
-独立保留在 11.77–11.78，不累加为测试总数或整体加速证据。
-执行场景仍为符号级 FakeBackend；组合验证不证明 IRL 收敛、逆最优性
-或机器人示范效果。物理验证与 Ubuntu 24.04 / ROS 2 Jazzy 验证尚未完成。
+本轮结果、命令 receipts、完整构建/测试及查询日志冻结为 85 文件
+SHA256 闭包，424 份选定历史证据保持。本轮只更新 README 与验证
+记录，源码和测试保持 `ef300b4`，详细证据见 11.83。此前 `d6f4983`
+的 644 项及各阶段局部结果、原始失败保留，不累加为本轮总数。
+执行场景仍为符号级 FakeBackend；没有 LLM、benchmark、完整演示、
+物理仿真、实机示范或 Jazzy 验证，不证明整体加速或 IRL 科学效果。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
 [validation.md](ltl_automaton_planner/docs/validation.md)。

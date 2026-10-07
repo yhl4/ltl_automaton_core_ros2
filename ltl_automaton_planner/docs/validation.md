@@ -2873,3 +2873,67 @@ snapshot_discard_6d8466a.json、snapshot_discard_6d8466a_xml_receipts.json
 物理仿真、实机示范或 Jazzy；11.79 的 644 项仍只属于 d6f4983
 历史整包资格。本轮为局部行为验证，不证明整体加速、完整系统
 或 IRL 科学效果。
+
+### 11.83 近三轮执行改动后的七包组合资格（2026-10-07）
+
+源码资格为干净 `ef300b4eb2a6f3c709e402679c8e7d8ba48fc9d2`。
+11.80 的相邻边 islice、11.81 的维度值契约及 11.82 的丢弃回调
+异常读取此前只有局部验证，本轮将它们一起纳入完整七包组合。
+测试前固定源树/七包清单、预期执行包 143 项与总 JUnit 653 项，
+保全此前 83 文件闭包、314 份旧哈希及近三轮产物共 424 文件。
+不改源码、测试、pytest domain、超时、过滤或验收条件。
+
+环境沿用 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4，translator 为 /home/yuhling/.local/bin/ltl2ba。
+aggregate 六项 exec_depend 完整对应六功能包，测试 domains
+215/216/217/218 保持。build 使用 --executor sequential、
+--symlink-install、--packages-up-to ltl_automaton_core 和
+-DBUILD_TESTING=ON；test 选择全部七包及 --return-code-on-test-failure，
+保持默认并行。执行代理 build session 44331 与 test session 33138
+各启动一次，均在原 handle 等待至实际 exit 0；receipt 命令耗时
+分别为 35.918813251 与 60.804561879 秒，不作为规划加速比。
+主代理未采到运行中 PID，不将代理报告或状态文件当成活进程观测。
+
+六份 test_start_ns 之后的新鲜 JUnit 独立核对如下：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 188 | 187 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **653 tests = 649 passed + 4 skipped，0 errors、0 failures**。
+跳过均为既有 copyright，接口 CTest wrapper 另有一项通过。主代理
+仅查询一次，显式 --test-result-base /tmp/ltl_ros2_completion_20261006/build，
+实际 exit 0，Summary: 654 tests, 0 errors, 0 failures, 4 skipped。
+12 份历史 CTest XML 按 test_start_ns 排除，没有重跑构建或测试。
+
+相对 d6f4983 净增九项执行包参数 case，完整覆盖合法维度子类、
+重复维度诊断、快照转换、observed-only/expected-only/both 重排及
+callback-deadline 异常。真实 executor 排队销毁回调三参数、timeout
+两参数、deadline 两参数均执行；既有接受路径/解析缓存、Planner
+参数、TS 错误/剩余迭代器、四个真实 DDS 场景、Studio consumer、
+快照 fallback、IRL commit/step reset、native ltl2ba/POSIX、HIL、
+monitor、launch 与 lint 也执行。保留 np.int/SelectableGroups 依赖
+弃用警告，五包 stderr 非空；完整 stderr 未见未读取 Future 诊断。
+
+start gate 核对十个源码 import resolve 与隔离生成消息路径。主代理
+另外核对 models、执行节点/解析器、Planner、Product、snapshot、
+IRL、2D generator、KTH driver 九模块完整 git 源字节。collector
+仅执行一次，新 XML、命令 receipt、导入记录、历史哈希及完整实体
+构建/测试/查询日志冻结为 85 文件 SHA256 闭包；独立 audit 对比
+fresh/live/frozen 字节、全计数、关键 case、wrapper、命令次序和
+完整源码，实际 exit 0，424 份历史哈希保持。记录位于隔离目录的
+verification_ef300b4.json、verified_changed_imports_ef300b4.json、
+verified_summary_ef300b4.json、colcon_query_ef300b4.json、
+verified_results_ef300b4/sha256_manifest.json 与独立工具记录。
+
+本轮仅刷新 README 与验证记录，源码与测试仍为 ef300b4，前 82 节
+正文完整保留。此前 d6f4983 的 644 项、其他整包历史、局部 63/108/
+126 项及原始失败分别保留，不与本轮重复累加。本轮没有 LLM、
+benchmark、完整演示、物理仿真、实机示范或 Jazzy 验证；符号级
+FakeBackend 的组合通过不证明整体加速、IRL 收敛、逆最优性或
+机器人示范效果。IRL 保持原示范学习 β 范围，默认关闭。
