@@ -379,7 +379,8 @@ def build_planning_graph_snapshot(
     snapshot.accepted_run = accepted_run
     return PlanningGraphSnapshotBuild(
         snapshot=snapshot,
-        product_node_ids=MappingProxyType(dict(product_ids)),
+        # This private per-build table is delivered directly as a read-only view.
+        product_node_ids=MappingProxyType(product_ids),
     )
 
 

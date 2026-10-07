@@ -1830,3 +1830,41 @@ log_combo_6cbfd39。均在上述隔离目录，未把首轮失败或历史通过
 没有 LLM、benchmark、物理仿真、实机、机器人示范或 Jazzy 验证。
 通过支持该基线的组合运行，不证明 IRL 收敛/逆最优性、机器人示范
 效果或整体加速。README、62 节历史正文保留、本地链接与 diff 检查通过。
+
+### 11.64 快照私有 Product ID 表省去返回副本（2026-10-07）
+
+初始基线为 `c997347a81315170e9c62e903194d609139570de`。快照构造的
+Product ID 表由本次调用新建，后续运行序列化仅查询该表；planner、
+输入图及 ROS 消息没有保留该字典引用。返回处现在直接构造
+MappingProxyType(product_ids)，省去原 MappingProxyType(dict(product_ids))
+中的同大小副本。每次构造仍创建新表，公开映射保持只读。事务提交处
+_commit_planning_graph_snapshot 的独立 dict 复制和消息 deepcopy 均保留。
+排序、ID、全部消息字段、诊断/fallback、搜索/代价及 IRL 规则保持。
+
+新增定向用例先保留完整快照和 ID，再插入排序靠前的孤立 Product
+节点，检查新 ID 及 prefix/suffix 全部引用更新，原快照/映射不变，
+两张表都拒绝写入；移除新节点后恢复原完整消息/ID，并仍得到新映射。
+首次新用例直接比较 ROS array('I') 与 Python list 而失败，改为 list
+后，test_planning_graph_snapshot.py 与 test_snapshot_service_copy.py
+合计 **16 passed**，保留两项既有弃用警告。随后仅补齐 suffix ID
+断言并单独重跑该用例，**1 passed / 12 deselected**，属于前述测试
+子集，不另计独立项。源码/测试 py_compile、ament_flake8，以及测试
+pep257 通过；没有为测试比较问题修改生产代码或接受条件。
+
+另加载逐字匹配 git show c997347 的完整旧模块，与当前 checkout
+实际导入对照。原生 ltl2ba 规划 <> r2，source-label 消费规则下
+goto_r2 成本 2，再 stay_r2 成本 1 进入接受，prefix=3、suffix=1、
+gamma=10、total=13。旧/新完整生成 ROS 快照与公开 ID 映射相同。
+在两个模块内分别记录实际显式 dict 构造（代理仍调用 builtins.dict），
+4 节点 Product 的旧路径复制长度为 [4]，新路径为 []；dict comprehension
+未替换。旧/新公开映射均拒绝写入，后续新构造保持字段/值相同且
+映射对象独立。证据仅支持本次私有 ID 表减少一个 N 项副本，不作为
+总分配、峰值内存、RSS 或整体加速结果。
+
+探针保留于 Windows Temp/probe_snapshot_id_map_c997347.py，旧源码位于
+隔离目录 snapshot_baseline_c997347.py；实际当前模块路径与原
+/home/yuhling/.local/bin/ltl2ba 均核对。环境仍为 WSL Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12 / NetworkX 2.4 隔离 overlay，未更换依赖。
+本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
+机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
+README、63 节历史正文保留、本地链接/锚点与 diff 检查通过。

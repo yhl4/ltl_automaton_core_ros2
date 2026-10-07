@@ -703,14 +703,15 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-本轮修复并行 colcon 测试共用 ROS domain 的端点串扰。各包 pytest
-在收集阶段固定自己的测试 domain：planner 215、execution 216、
-HIL 217、标准 TS 218；launch 子进程继承同包设置。此约定用于
-colcon 每包独立 pytest 进程，运行时代码与规划/IRL 规则保持。
-首次组合运行的 5 项失败完整保留；隔离后仍用默认并行和全部用例。
+本轮快照构造直接以只读视图返回本次私有 Product ID 表，省去一个
+同大小字典副本；每次构造仍使用新表，事务提交处保留防御性复制。
+快照与服务复制回归共 **16 passed**；补齐 suffix ID 断言后单独重跑
+新增用例，**1 passed / 12 deselected**，该通过属于前述测试子集。
+原生规划的旧/新完整快照与 ID 相同，4 节点探针中显式字典复制由
+一次降为零；未测量整体耗时或 RSS，也未重跑整包或 DDS。
 
-当前代码基线 `6cbfd39` 的 aggregate 七包构建与整包测试全部完成。
-六份本轮新 JUnit 合计 **597 tests = 593 passed / 4 skipped**，
+此前代码基线 `6cbfd39` 的 aggregate 七包构建与整包测试全部完成。
+六份该轮新 JUnit 合计 **597 tests = 593 passed / 4 skipped**，
 0 errors、0 failures；四个跳过项均为已有 copyright 检查。
 标准 colcon 汇总含一项通过的接口 CTest wrapper，共 598 tests。
 近期 25 个接受环/结果转换/边对/快照导出新增 case 均通过；原生
@@ -718,6 +719,9 @@ ltl2ba、POSIX 故障、IRL/HIL、真实 DDS、launch、monitor 与 lint
 也执行，七份历史 XML 排除，失败与历史基线均未混入通过统计。
 实际导入绑定当前源码与隔离生成接口；环境为 Ubuntu 22.04 /
 ROS 2 Humble / Python 3.10.12，保留既有依赖与弃用警告。
+该整包结果属于 `6cbfd39`，本轮结果限于上述定向检查。此前并行
+测试的 5 项失败完整保留；planner/execution/HIL/标准 TS 的包级
+测试 domain 215/216/217/218 隔离串扰后，同样默认并行全部通过。
 组合验证不证明 IRL 收敛或机器人示范效果。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 

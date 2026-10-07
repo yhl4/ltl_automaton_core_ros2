@@ -342,6 +342,49 @@ def test_new_build_reads_updated_buchi_identity_without_stale_cache():
     assert second.snapshot != first.snapshot
 
 
+def test_product_id_view_is_private_per_build_and_refreshes_with_graph_order():
+    """Expose each build's fresh Product IDs through an immutable view."""
+    planner = _control_planner()
+    first = build_planning_graph_snapshot(planner, "control-hash")
+    first_snapshot = deepcopy(first.snapshot)
+    first_ids = dict(first.product_node_ids)
+
+    planner.product.graph["ts"].add_node("r-1", label={"r-1"})
+    planner.product.add_node(
+        "p_early",
+        ts="r-1",
+        buchi="q0",
+        marker="isolated",
+    )
+    planner.product.graph["accept"].add("p_early")
+
+    second = build_planning_graph_snapshot(planner, "control-hash")
+    assert first.snapshot == first_snapshot
+    assert dict(first.product_node_ids) == first_ids
+    assert second.snapshot != first_snapshot
+    assert second.product_node_ids is not first.product_node_ids
+    assert dict(second.product_node_ids) != first_ids
+    assert second.product_node_ids["p_early"] == 0
+    assert list(second.snapshot.accepted_run.prefix_product_node_ids) == [
+        second.product_node_ids[node] for node in planner.run.prefix
+    ]
+    assert list(second.snapshot.accepted_run.suffix_product_node_ids) == [
+        second.product_node_ids[node] for node in planner.run.suffix
+    ]
+    for product_ids in (first.product_node_ids, second.product_node_ids):
+        with pytest.raises(TypeError):
+            product_ids["cannot-write"] = 99
+
+    planner.product.remove_node("p_early")
+    planner.product.graph["ts"].remove_node("r-1")
+    planner.product.graph["accept"].remove("p_early")
+
+    third = build_planning_graph_snapshot(planner, "control-hash")
+    assert third.snapshot == first_snapshot
+    assert dict(third.product_node_ids) == first_ids
+    assert third.product_node_ids is not first.product_node_ids
+
+
 def test_unavailable_snapshot_is_an_atomic_empty_payload():
     """Never return partially serialized graph arrays on conversion failure."""
     planner, active_hash = build_planner(
