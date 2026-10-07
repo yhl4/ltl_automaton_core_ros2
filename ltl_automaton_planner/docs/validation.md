@@ -2178,3 +2178,46 @@ kth_params_old_a27c17d.log。当前源码 resolve 与旧字节已核对。
 物理仿真、实机/机器人示范或 Jazzy 验证；11.69 的 620 项结果仍
 属于 4817dd4 原资格基线。README/KTH 演示说明同步，前 69 节
 历史正文完整保留，本地链接/锚点与 diff 检查通过。
+
+### 11.71 快照运行相邻校验省去尾部副本（2026-10-07）
+
+基线为干净 `86f915eae6dcbbc422b131f571466ec5a59ba89e`。
+`_serialize_run` 在 prefix/suffix 相邻 Product 边校验时，以
+`zip(nodes, islice(nodes, 1, None))` 替代 `zip(nodes, nodes[1:])`，
+省去两个序列尾部副本。仅增加标准库导入与该表达式；保留全部
+ID 转换、suffix 非空/重复起点/闭合边、prefix 非空/共享边界、
+prefix 先于 suffix 的内部边检查和 any 短路、消息成本转换的顺序。
+支持既有 list/tuple 运行，不扩展为单次 generator 输入契约，不改
+搜索、接受性、目标函数、IRL、事务、消息或快照服务防御性副本。
+
+复用控制 Product，新增 list/tuple 两种容器的重复访问与单节点
+自环四项：重复 prefix 为 p0,p1,p2,p1,p2,p1，suffix 为
+p1,p2,p1,p2，手算成本为 5/4/45；单节点 prefix/suffix 均为 p1，
+零代价 Product 自环成本 0/0/0。断言完整 ID 顺序、重复项、成本
+及输入图/run 未变。既有损坏参数化增加 prefix/suffix 同时缺边，
+仍先报告 prefix missing。两个快照相关文件一次运行 **23 passed**，
+保留两条既有 NetworkX/NumPy np.int 弃用警告；没有前置 RED，
+新用例为语义保留检查。源码/测试 py_compile、ament_flake8
+--linelength 99（两文件）、测试 pep257 与 diff 检查通过；实际
+source realpath 指向本 checkout 的隔离 symlink overlay。
+
+主代理独立加载逐字匹配 git show 的完整旧模块，对照三个原生
+single/safe/KTH 小规划，成本分别为 3/1/13、3/2/23、20/20/220。
+再对照上述四个 list/tuple 控制运行；完整 ROS 快照、Product ID
+映射、图/run 输入 pickle 字节均相同。对支持序列的真实切片和
+has_edge 调用做独立观察：每次尾部切片 2 -> 0，三个原生运行的
+被复制元素数分别 2/3/3 -> 0，重复控制运行 8 -> 0；单节点原
+尾部为空，也不再触发尾部切片。每个成功运行的 has_edge 次序
+完全相同。两个损坏运行的精确 ValueError、短路调用和 unavailable
+空载荷亦相同；同时缺边时仅检查闭合边 p2->p1 与缺边 p0->p2，
+没有继续检查 suffix。该观察不测时间，不作为整体性能/加速比。
+
+原生 translator 保持 /home/yuhling/.local/bin/ltl2ba，当前模块
+resolve 与完整旧字节已核对。旧源码位于隔离目录
+snapshot_baseline_86f915e.py；对照脚本为 Windows Temp/
+probe_snapshot_run_slices_86f915e.py，成功 stdout 保留在工具记录。
+环境仍为 WSL Ubuntu-22.04-D / ROS 2 Humble 及既有 overlay，
+不更换依赖。本轮没有七包、完整演示、LLM、benchmark、物理仿真、
+实机/机器人示范或 Jazzy 验证；11.69 的 620 项仍属于 4817dd4。
+README 同步本轮局部结果，前 70 节历史正文保持，本地链接/锚点
+及四文件范围/diff 检查通过。

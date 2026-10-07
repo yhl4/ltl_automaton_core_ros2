@@ -1,6 +1,7 @@
 """Deterministically serialize one accepted planner graph snapshot."""
 
 from dataclasses import dataclass
+from itertools import islice
 from types import MappingProxyType
 from typing import Mapping
 
@@ -321,7 +322,7 @@ def _serialize_run(planner, product, product_ids):
     ):
         if any(
             not product.has_edge(source, target)
-            for source, target in zip(nodes, nodes[1:])
+            for source, target in zip(nodes, islice(nodes, 1, None))
         ):
             raise ValueError(
                 f"The accepted {segment} references a missing Product edge."

@@ -518,6 +518,55 @@ def _control_run_state(run):
     )
 
 
+@pytest.mark.parametrize("container", [list, tuple])
+@pytest.mark.parametrize("single_node", [False, True])
+def test_accepted_run_path_order_and_single_node_cycle(container, single_node):
+    """Serialize repeated paths and a one-node accepted self-loop."""
+    planner = _control_planner()
+    if single_node:
+        planner.product.add_edge(
+            "p1",
+            "p1",
+            action="stay",
+            transition_cost=0,
+            soft_task_dist=0,
+            weight=0,
+        )
+        prefix = ["p1"]
+        suffix = ["p1"]
+        expected_prefix_cost = 0
+        expected_suffix_cost = 0
+        expected_total_cost = 0
+    else:
+        prefix = ["p0", "p1", "p2", "p1", "p2", "p1"]
+        suffix = ["p1", "p2", "p1", "p2"]
+        expected_prefix_cost = 5
+        expected_suffix_cost = 4
+        expected_total_cost = 45
+
+    planner.run.prefix = container(prefix)
+    planner.run.suffix = container(suffix)
+    planner.run.precost = expected_prefix_cost
+    planner.run.sufcost = expected_suffix_cost
+    planner.run.totalcost = expected_total_cost
+    graph_before = _control_graph_state(planner.product)
+    run_before = _control_run_state(planner.run)
+
+    result = build_planning_graph_snapshot(planner, "control-hash")
+    product_ids = result.product_node_ids
+    assert list(result.snapshot.accepted_run.prefix_product_node_ids) == [
+        product_ids[node] for node in prefix
+    ]
+    assert list(result.snapshot.accepted_run.suffix_product_node_ids) == [
+        product_ids[node] for node in suffix
+    ]
+    assert result.snapshot.accepted_run.prefix_cost == expected_prefix_cost
+    assert result.snapshot.accepted_run.suffix_cost == expected_suffix_cost
+    assert result.snapshot.accepted_run.total_cost == expected_total_cost
+    assert _control_graph_state(planner.product) == graph_before
+    assert _control_run_state(planner.run) == run_before
+
+
 @pytest.mark.parametrize(
     "prefix,suffix,expected",
     [
@@ -534,6 +583,11 @@ def _control_run_state(run):
         (
             ["p0", "p2", "p1"],
             ["p1", "p2"],
+            "The accepted prefix references a missing Product edge.",
+        ),
+        (
+            ["p0", "p2", "p1"],
+            ["p1", "p0", "p2"],
             "The accepted prefix references a missing Product edge.",
         ),
         (
