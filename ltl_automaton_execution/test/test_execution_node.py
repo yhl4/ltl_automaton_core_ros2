@@ -59,6 +59,10 @@ class MalformedState:
     states = ("r1", "r2")
 
 
+class UnhashableString(str):
+    __hash__ = None
+
+
 class DelayedSnapshotClient:
     """Return one controllable Future for a delayed snapshot response."""
 
@@ -162,6 +166,157 @@ def _successful_response(generation=1):
     response.success = True
     _fill_snapshot(response.snapshot, generation)
     return response
+
+
+def test_snapshot_conversion_preserves_repeated_states_and_input_order():
+    """Convert repeated TS values without changing the ROS message."""
+    response = _successful_response()
+    first, second = response.snapshot.product_nodes
+    second.id = 7
+    second.ts_state.states = list(first.ts_state.states)
+    response.snapshot.product_nodes = [second, first]
+    before = [
+        (node.id, list(node.ts_state.state_dimension_names),
+         list(node.ts_state.states))
+        for node in response.snapshot.product_nodes
+    ]
+    before_metadata = (
+        response.snapshot.metadata.planner_instance_id,
+        response.snapshot.metadata.planning_generation,
+        response.snapshot.metadata.available,
+        response.snapshot.metadata.unavailable_reason,
+    )
+    before_edges = [
+        (edge.source_id, edge.target_id, edge.action)
+        for edge in response.snapshot.product_edges
+    ]
+    before_run = (
+        list(response.snapshot.accepted_run.prefix_product_node_ids),
+        list(response.snapshot.accepted_run.suffix_product_node_ids),
+    )
+
+    snapshot = ExecutionManagerNode._snapshot_from_message(response.snapshot)
+
+    assert [node.node_id for node in snapshot.product_nodes] == [7, 1]
+    assert [
+        (node.ts_state.dimension_names, node.ts_state.states)
+        for node in snapshot.product_nodes
+    ] == [
+        (tuple(before[0][1]), tuple(before[0][2])),
+        (tuple(before[1][1]), tuple(before[1][2])),
+    ]
+    assert [
+        (node.id, list(node.ts_state.state_dimension_names),
+         list(node.ts_state.states))
+        for node in response.snapshot.product_nodes
+    ] == before
+    assert (
+        response.snapshot.metadata.planner_instance_id,
+        response.snapshot.metadata.planning_generation,
+        response.snapshot.metadata.available,
+        response.snapshot.metadata.unavailable_reason,
+    ) == before_metadata
+    assert [
+        (edge.source_id, edge.target_id, edge.action)
+        for edge in response.snapshot.product_edges
+    ] == before_edges
+    assert (
+        list(response.snapshot.accepted_run.prefix_product_node_ids),
+        list(response.snapshot.accepted_run.suffix_product_node_ids),
+    ) == before_run
+
+
+def test_snapshot_conversion_does_not_reuse_state_between_messages():
+    """A later message cannot mutate a previously converted snapshot."""
+    response = _successful_response()
+    first = ExecutionManagerNode._snapshot_from_message(response.snapshot)
+
+    response.snapshot.product_nodes[0].ts_state.states[0] = "changed"
+    second = ExecutionManagerNode._snapshot_from_message(response.snapshot)
+
+    assert first.product_nodes[0].ts_state.states == ("r1", "empty")
+    assert second.product_nodes[0].ts_state.states == ("changed", "empty")
+
+
+def test_snapshot_conversion_accepts_unhashable_string_subclass():
+    """A valid unhashable string value follows normal SymbolicState checks."""
+    node = SimpleNamespace(
+        id=1,
+        ts_state=SimpleNamespace(
+            state_dimension_names=["region"],
+            states=[UnhashableString("r1")],
+        ),
+    )
+    message = SimpleNamespace(
+        metadata=SimpleNamespace(
+            available=True,
+            planner_instance_id="planner-a",
+            planning_generation=1,
+            unavailable_reason="",
+        ),
+        product_nodes=[node],
+        product_edges=[],
+        accepted_run=SimpleNamespace(
+            prefix_product_node_ids=[],
+            suffix_product_node_ids=[],
+        ),
+    )
+
+    snapshot = ExecutionManagerNode._snapshot_from_message(message)
+
+    assert type(snapshot.product_nodes[0].ts_state.states[0]) is UnhashableString
+    assert snapshot.product_nodes[0].ts_state.states == (
+        UnhashableString("r1"),
+    )
+
+
+@pytest.mark.parametrize(
+    ("dimensions", "states", "expected"),
+    (
+        ([[]], [[]], "Symbolic state dimensions must be non-empty."),
+        (
+            ["region", "region"],
+            [[], []],
+            "Symbolic state dimensions must be unique.",
+        ),
+        (["region"], [[]], "Symbolic state values must be non-empty."),
+    ),
+)
+def test_snapshot_conversion_preserves_validation_order_for_malformed_input(
+    dimensions, states, expected
+):
+    """Node IDs and malformed state values retain their original errors."""
+    message = SimpleNamespace(
+        metadata=SimpleNamespace(
+            available=True,
+            planner_instance_id="planner-a",
+            planning_generation=1,
+            unavailable_reason="",
+        ),
+        product_nodes=[
+            SimpleNamespace(
+                id=1,
+                ts_state=SimpleNamespace(
+                    state_dimension_names=dimensions,
+                    states=states,
+                ),
+            ),
+        ],
+        product_edges=[],
+        accepted_run=SimpleNamespace(
+            prefix_product_node_ids=[],
+            suffix_product_node_ids=[],
+        ),
+    )
+
+    with pytest.raises(ValueError) as raised:
+        ExecutionManagerNode._snapshot_from_message(message)
+    assert str(raised.value) == expected
+
+    message.product_nodes[0].id = "not-an-int"
+    with pytest.raises(ValueError) as raised:
+        ExecutionManagerNode._snapshot_from_message(message)
+    assert str(raised.value).startswith("invalid literal for int()")
 
 
 def test_repeated_suffix_start_snapshot_cannot_dispatch():

@@ -174,16 +174,30 @@ class ExecutionManagerNode(Node):
             raise ValueError(
                 metadata.unavailable_reason or "Planning snapshot is unavailable."
             )
-        nodes = tuple(
-            ProductNode(
-                int(node.id),
-                SymbolicState(
-                    tuple(node.ts_state.state_dimension_names),
-                    tuple(node.ts_state.states),
-                ),
-            )
-            for node in message.product_nodes
-        )
+
+        def product_nodes():
+            state_cache = {}
+            for node in message.product_nodes:
+                node_id = int(node.id)
+                dimensions = tuple(node.ts_state.state_dimension_names)
+                values = tuple(node.ts_state.states)
+                if all(
+                    type(item) is str for item in dimensions
+                ) and all(
+                    type(item) is str for item in values
+                ):
+                    key = (dimensions, values)
+                    state = state_cache.get(key)
+                    if state is None:
+                        state = SymbolicState(dimensions, values)
+                        # Cache only ordinary ROS strings; subclasses and other
+                        # values retain the original validation path.
+                        state_cache[key] = state
+                else:
+                    state = SymbolicState(dimensions, values)
+                yield ProductNode(node_id, state)
+
+        nodes = tuple(product_nodes())
         edges = tuple(
             ProductEdge(
                 int(edge.source_id),

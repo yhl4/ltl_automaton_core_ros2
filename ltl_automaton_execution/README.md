@@ -27,6 +27,11 @@ rebuilds the index with one full Product-edge scan, retaining only edges used by
 the accepted run. Missing run edges are reported before missing run nodes; a
 failed rebuild leaves the prior valid index intact.
 
+When converting a ROS snapshot, nodes with equal ordinary string dimensions and
+values share one immutable `SymbolicState` within that conversion. Product node
+IDs and order remain distinct. Each new message is converted independently;
+string subclasses and malformed inputs retain the original validation path.
+
 Command resolution visits every retained edge matching the current Product IDs
 and action, accumulating the complete source and target ID sets directly. IDs
 are still returned sorted, current nodes with no matching edge are omitted,

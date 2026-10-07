@@ -2492,3 +2492,64 @@ historical_hashes_before_b555100.json 与新 JUnit/当前 CTest、完整
 组合通过不证明 IRL 收敛、逆最优性或机器人示范效果。本次仓库
 只更新 README 与本记录，源码/测试保持 b555100。前 75 节历史
 正文完整保留，13 个本地链接/锚点及 doc-only diff 检查通过。
+
+### 11.77 执行快照中不可变符号状态的单次转换复用（2026-10-07）
+
+基线为干净 `3484d801d0874c1c00be52d4a8a2bfa52ee5e3c8`。
+先只读检查默认 FakeBackend 的延迟、异步失败及 busy 释放，并以
+既有 Humble 空 Node、domain 231 验证非有限参数与 ROS timer 范围；
+未发现新缺陷，没有为该审计改动后端或参数行为。随后三个原生
+single/safe/KTH public snapshot 的投影分别有 4/8/24 个 Product 节点，
+却只有 2/2/6 种不可变符号状态，为本轮局部复用提供输入证据。
+
+生产修改仅在 ExecutionManagerNode._snapshot_from_message：嵌套
+generator 的本地字典按 dimension/value tuple 复用已校验的普通
+str SymbolicState。仍先 int(node.id)，再取两 tuple；子类/非字符串
+继续执行原构造校验。缓存只存在于本次转换，全部节点 ID/顺序、
+边、accepted-run、实例/代际和下游执行策略保持；未修改消息接口、
+搜索、接受性、代价、后端完成/TS 观测权威或默认关闭的可选 IRL。
+
+新增四个定向测试函数、六个 case：重复状态与节点顺序、原消息
+保持、后续修改与先前投影隔离、有效不可哈希 str 子类类型/值保持，
+以及三种 malformed 字段的原 ValueError/ID 转换优先次序。后两类
+使用 SimpleNamespace 检查直接转换路径，不宣称畸形字段可通过 DDS。
+三个文件 test_execution_node.py、test_accepted_run_resolver.py、
+test_snapshot_timeout.py 一次 **76 passed in 2.84s**，实际 exit 0，
+无 skips/warnings；新增六项全部执行。命令未使用 --junitxml，未生成
+本轮 JUnit，stdout 保留在执行代理工具记录。两个修改 Python 文件
+py_compile、ament_flake8 --linelength 99、测试文件 ament_pep257 与
+diff 检查均 exit 0，保留既有依赖。属于实现后的语义保持验证，无前置 RED。
+
+主代理另加载逐字匹配 git show 3484d80 的完整旧 execution_node.py，
+核对当前 checkout import resolve 及 models/resolver/manager/snapshot/
+Product 五个依赖模块完整基线字节。三个原生规划的完整新旧投影与
+实际 AcceptedRunResolver/ExecutionManager 符号派发一致，立即完成的
+recording backend 分别记录 3/4/4 条命令，重复序号仍拒绝；成本分别
+3/1/13、3/2/23、20/20/220。每份投影保留的 SymbolicState 对象实测
+4/8/24 -> 2/2/6；相同消息再次转换的状态对象集合互不相交。
+完整 ROS 输入字段、pickle 字节保持，五次 CDR roundtrip 均还原原
+消息；六种错误的精确 type/args 及有效不可哈希值子类亦与旧模块一致。
+只统计投影持有对象，不是总分配、总内存或时间/加速测量。
+
+原生对照辅助脚本有两次实际失败，均保留：首次 exit 1 因 tiny
+planning fixture 没有 PlannerNode lifetime 身份，执行仲裁拒绝空身份；
+run2 先通过 single，随后 safe 的 CDR 原始字节比较失败。只读诊断
+exit 0 证明，未调用转换时同一消息五次连续 CDR 序列化已出现不同
+字节，而完整旧/新投影、输入对象/pickle 相同。run3 对输入补有效
+fixture 身份，旧/新空身份拒绝仍单独核对，并以完整消息、pickle 和
+CDR 反序列化字段验证语义，实际 exit 0。原辅助检查不适合用非规范
+CDR 字节判定输入变化；不是产品缺陷或 pytest 失败，没有更改生产
+代码、规划条件或用户验收标准以通过这些检查。
+
+Windows Temp/probe_exec_state_reuse_3484d80.py、_run2.py、_run3.py 和
+diagnose_exec_snapshot_bytes_3484d80.py 保留，旧源码分别留在隔离目录
+execution_node_baseline_3484d80.py 及 _run2/_run3 版本；
+成功 receipt 为 execution_state_reuse_3484d80_run3.json，工具输出另
+保留为 execution_state_reuse_3484d80_tool_results.json。首次统计脚本
+inspect_exec_state_counts_3484d80.py 未重跑；旧七包冻结闭包不改写。
+环境仍为既有 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12
+隔离 overlay，原生 translator 为 /home/yuhling/.local/bin/ltl2ba。
+没有七包、LLM、benchmark、完整演示、物理仿真、实机/机器人示范或
+Jazzy 验证；上述派发仅为 ROS-independent 符号 recording backend。
+11.76 的 634 项只属于 b555100 历史源码资格，不作当前整包声明。
+README 同步；前 76 节正文完整保留，五文件范围与本地链接检查通过。
