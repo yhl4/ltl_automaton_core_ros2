@@ -1958,3 +1958,54 @@ NetworkX 2.4 隔离 overlay，build 路径经 symlink 绑定当前 checkout。
 本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
 机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
 两份 README、65 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.67 Product 边必需字段集合在单次快照内复用（2026-10-07）
+
+初始基线为 `9d4962df07f351026c740be9d2cc451e1f8c2197`。Product
+快照导出每处理一条边都会新建相同的 action/transition_cost/
+soft_task_dist/weight 四字段 set。现在将该局部 literal set 移到
+循环前，边内仍只调用 difference，不外泄、不跨调用缓存。保持
+set 类型、缺失字段按字母序诊断、字段读取/转换次序及边排序；
+节点/运行校验、全部消息、只读 ID 和事务复制、搜索/代价/IRL 保持。
+每条边的 missing 差集与消息仍单独构造。
+
+新增两个参数 case，分别仅缺 weight 和四字段全缺：直接 builder
+抛出原精确 ValueError，转换 fallback 保留原诊断并给出完全空载荷，
+损坏边属性不被校验改写；恢复字段后完整快照和公开 ID 同原健康
+结果。test_planning_graph_snapshot.py 与 test_snapshot_service_copy.py
+合计 **18 passed**。补充 ID 恢复断言后仅重跑这两个 case，
+**2 passed / 13 deselected**，属于前述测试子集，不另计独立项。
+源码/测试 py_compile、ament_flake8、测试 pep257 与 diff 检查通过。
+独立加载逐字匹配 git show 的完整旧模块，并核对旧 builder 确实被
+planner_node 的 fallback 使用；新增两项同为 **2 passed / 13 deselected**，
+用于保持既有行为，不作为算法 bug 的 RED 证据。
+
+完整旧/新 builder 在原生 ltl2ba 的 single/safe/KTH 三个图上比较，
+普通及 trace 调用的全部生成 ROS 快照与公开 ID 相同。在实际
+missing 差集语句执行处保留真实 required set 引用，避免释放后
+地址复用，所观察到的集合数量如下：
+
+| native graph | Product edges | old distinct sets | new distinct sets |
+|---|---:|---:|---:|
+| single | 5 | 5 | 1 |
+| safe | 10 | 10 | 1 |
+| KTH | 44 | 44 | 1 |
+
+后续新构造使用另一个新 set；两个缺字段场景的旧/新精确诊断相同，
+恢复后完整消息相同。single 的原成本保持 prefix=3、suffix=1、
+gamma=10、total=13。首次探针的整对象 pickle 比较失败，诊断再运行
+确认唯一新增对象属性是 NetworkX 的 Buchi.nodes 懒 view 缓存；
+比较前读取同一 view 后再运行通过，生产代码未因该探针问题改变。
+图/运行输入内容保持。初始失败和诊断输出保留在工具 stdout；
+此计数只证明这些有边图少了重复四字段集合，不作为总分配、RSS、
+整体耗时或加速比测量。
+
+完整探针为 Windows Temp/probe_product_required_fields_9d4962d.py，
+旧模块重放为 replay_snapshot_fields_9d4962d.py，完整旧源码保留于
+隔离目录 snapshot_baseline_9d4962d.py。旧字节、当前模块的 resolve
+导入与原 /home/yuhling/.local/bin/ltl2ba 均核对；build symlink 绑定
+当前 checkout。环境仍为 WSL Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10.12 / NetworkX 2.4 隔离 overlay，未更换依赖。
+本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
+机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
+README、66 节历史正文保留、本地链接/锚点与 diff 检查通过。

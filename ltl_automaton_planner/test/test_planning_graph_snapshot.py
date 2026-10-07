@@ -587,3 +587,52 @@ def test_damaged_accepted_run_is_unavailable_and_recoverable(
     assert restored.snapshot == expected_snapshot
     assert _control_graph_state(planner.product) == graph_before
     assert _control_run_state(planner.run) == run_before
+
+
+@pytest.mark.parametrize(
+    "missing,expected_fields",
+    [
+        (("weight",), "weight"),
+        (
+            ("action", "transition_cost", "soft_task_dist", "weight"),
+            "action, soft_task_dist, transition_cost, weight",
+        ),
+    ],
+)
+def test_missing_product_edge_fields_are_reported_and_recoverable(
+    missing, expected_fields
+):
+    """Report missing edge fields in order without mutating the Product."""
+    planner = _control_planner()
+    healthy = build_planning_graph_snapshot(planner, "control-hash")
+    expected_snapshot = deepcopy(healthy.snapshot)
+    edge = planner.product["p0"]["p1"]
+    edge_before = deepcopy(dict(edge))
+    for field in missing:
+        del edge[field]
+    damaged_graph = _control_graph_state(planner.product)
+    expected = f"Product edge is missing fields: {expected_fields}."
+
+    with pytest.raises(ValueError, match=f"^{expected}$") as error:
+        build_planning_graph_snapshot(planner, "control-hash")
+    assert str(error.value) == expected
+    assert _control_graph_state(planner.product) == damaged_graph
+
+    unavailable = serialize_planning_graph(planner, "control-hash")
+    assert unavailable.snapshot.metadata.unavailable_reason == (
+        "Planning graph snapshot conversion failed: " + expected
+    )
+    assert not unavailable.snapshot.metadata.available
+    assert unavailable.product_node_ids is None
+    assert not unavailable.snapshot.buchi_nodes
+    assert not unavailable.snapshot.buchi_edges
+    assert not unavailable.snapshot.product_nodes
+    assert not unavailable.snapshot.product_edges
+    assert not unavailable.snapshot.accepted_run.prefix_product_node_ids
+    assert not unavailable.snapshot.accepted_run.suffix_product_node_ids
+    assert _control_graph_state(planner.product) == damaged_graph
+
+    edge.update(edge_before)
+    restored = build_planning_graph_snapshot(planner, "control-hash")
+    assert restored.snapshot == expected_snapshot
+    assert restored.product_node_ids == healthy.product_node_ids

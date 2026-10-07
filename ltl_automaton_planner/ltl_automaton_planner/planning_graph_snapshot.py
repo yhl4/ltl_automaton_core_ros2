@@ -247,15 +247,15 @@ def _serialize_product(product, buchi, buchi_ids):
         messages.append(message)
 
     edge_messages = []
+    required_edge_fields = {
+        "action",
+        "transition_cost",
+        "soft_task_dist",
+        "weight",
+    }
 
     for source, target, attributes in product.edges(data=True):
-        required = {
-            "action",
-            "transition_cost",
-            "soft_task_dist",
-            "weight",
-        }
-        missing = required.difference(attributes)
+        missing = required_edge_fields.difference(attributes)
 
         if missing:
             fields = ", ".join(sorted(missing))
