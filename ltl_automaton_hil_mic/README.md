@@ -150,6 +150,11 @@ recording stops and the buffered demonstrations are cleared without requesting
 learning. A subsequent `True` starts a fresh recording from the current valid
 Product belief; `False` alone does not request learning from an empty buffer.
 
+Fake-host plugin tests are in `test/test_irl_plugin_unit.py`, separate from the
+ROS launch test in `test/test_irl_plugin.py`. In a sourced ROS workspace, select
+`test_irl_plugin_unit.py::TestIRLPluginFakeHost` directly with pytest; the default
+launch-testing collectors can remain enabled.
+
 Within a Python-built diagnostic message, each path occurrence owns its TS
 state-value and dimension-name lists. Editing one occurrence does not change
 another occurrence, the source TS format, or the next publication.

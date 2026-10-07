@@ -714,6 +714,20 @@ colcon test-result --verbose
 git diff --check
 ```
 
+### 当前局部验证：IRL 测试入口拆分（2026-10-07）
+
+六个 fake-host 单元用例移至 `test_irl_plugin_unit.py`，原文件保留 ROS launch
+用例；所有测试正文和生产代码保持。默认 launch-testing 插件启用时可直接选择
+单元类，无需关闭收集插件：
+
+```bash
+python3 -m pytest ltl_automaton_hil_mic/test/test_irl_plugin_unit.py::TestIRLPluginFakeHost
+```
+
+直接选择单元类并与原 launch、β preference、safety 一次组合运行，**10 passed**
+（单元6、launch1、preference1、safety2），编译和 lint 通过。本轮未重跑七包；
+完整记录见 [validation.md 第 11.113 节](ltl_automaton_planner/docs/validation.md)。
+
 ### 历史七包组合验证（源码 d5f2faa，2026-10-07）
 
 历史记录中，干净源码 `d5f2faa` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
@@ -738,7 +752,7 @@ IRL 完整二十步与事务提交、HIL 及标准 TS/monitor 同时覆盖。
 [validation.md 第 11.111 节](ltl_automaton_planner/docs/validation.md)。
 符号级组合通过不证明整体加速、IRL 科学效果或实机效果。
 
-### 当前局部验证：IRL 不一致反馈恢复（2026-10-07）
+### 此前局部验证：IRL 不一致反馈恢复（源码 9d51dfb，2026-10-07）
 
 HIL fake-host、IRL preference DDS 与 safety 回归共 **9 passed**，0 errors、
 0 failures、0 skipped。覆盖反馈无法延伸候选 Product 路径时停止记录、清空

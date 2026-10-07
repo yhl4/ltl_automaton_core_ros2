@@ -4489,3 +4489,46 @@ red_run.log，retry2 对应 green 文件及 recording_dd51014_inspected.json。
 两份 README 同步恢复约定；前111节正文和原失败记录保留。未重跑七包，
 705项仍属于d5f2faa组合源码，9项局部结果不相加。未做LLM、benchmark、
 物理仿真、实机或Jazzy验证，不据此宣称IRL收敛或机器人示范效果。
+
+### 11.113 IRL 单元测试与 launch 收集入口拆分（2026-10-07）
+
+基线9d51dfb7436e5956d36910fa5ec33d1da2748f0c。11.112已经记录默认
+launch-testing 将混合文件转换成 LaunchTestModule、无法直接选择单元类的
+收集失败，本轮核对该日志 SHA 和当时测试 SHA 与基线相符，不重复运行失败。
+将完整 fake-host helpers 和六个单元方法移至 test_irl_plugin_unit.py；
+原 test_irl_plugin.py 保留 HUB fixture、launch 入口和唯一 DDS 方法。
+移除原文件未用 imports，仅更新模块说明；测试正文原始字节保持，未新增
+测试函数、依赖或共享 helper 模块。拆分草案中残留的重复单元类在运行前
+核对并移除；最终两个文件从 Git 基线原始字节构造，实际验证未运行草案。
+
+运行前固定六个单元方法、原 launch 的一个 DDS 方法、原 preference 一个
+方法与 safety 两个方法。默认 launch_testing 和 launch_ros 均启用，直接
+选择新文件的 TestIRLPluginFakeHost，同时执行其余三个完整文件；收集钩子
+在用例执行前核对全部十个 pytest 名称，以及 launch loader 的精确 DDS
+方法 test_real_action_and_irl_commit_contract，避免残留或遗漏单元类。
+
+单次运行 session30224 沿原 handle 至实际 exit0：**10 passed**，
+0 errors/failures/skipped，单元6、launch item1、preference1、safety2。
+launch 的一个 pre-shutdown DDS 方法实际执行，post-shutdown 没有测试；
+不把内部方法与外层 pytest item 重复计数。pytest3.46秒，receipt
+10.432461725秒，不用于性能比较。使用 -s 保留完整 ROS/launch 输出；原
+DDS 事务提交及真实 β preference 学习/重规划同时通过。编译、flake8、
+pep257、diff检查通过，lint既有 optparse 提示保留。
+
+11个实际生产 import 完整字节与基线一致，生成消息路径和原生 ltl2ba SHA
+固定；本轮生产实现未改，旧学习/恢复规则及全部原测试断言保持。四个测试
+文件 SHA 在运行前冻结，收集 proof、完整日志、JUnit 与时序 receipt 保留。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_irl_test_split_9d51dfb.py
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：irl_split_9d51dfb 的
+_population.json、_imports_collection.json、_run.json、_run.log 和 .xml。
+launch文件 SHA 为9189d5dd3ed16501d92b981907005737d33c61969cba1f9bc885ec15ee167b7c，
+unit文件 SHA 为e670a4661283dd4bdd593948fbd7be654b2f619d85026adc67f3c6f79dbaf7df。
+两份 README 同步直接选择入口，前112节正文和历史失败保留。未重跑七包，
+10项是当前局部运行范围，不推算或与历史705/9项相加；未运行LLM、benchmark、
+物理仿真、实机或Jazzy，不证明整体加速或新增机器人示范效果。
