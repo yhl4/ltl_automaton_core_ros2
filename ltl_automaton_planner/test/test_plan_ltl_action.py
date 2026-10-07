@@ -483,6 +483,157 @@ def test_snapshot_commit_preparation_failure_preserves_transaction_authority(
     assert node._planner_state == PlannerStatus.ACTIVE
 
 
+@pytest.mark.parametrize("stage", ["copy", "ids"])
+def test_task_replanning_commit_failure_preserves_transaction_authority(
+    action_runtime, monkeypatch, stage,
+):
+    """Keep the old run authoritative when legacy replan commit preparation fails."""
+    activate(action_runtime)
+    node = action_runtime.planner
+    old_planner = node.ltl_planner
+    old_run = old_planner.run
+    old_product = old_planner.product
+    old_ts = old_product.graph["ts"]
+    old_active_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    old_canonical = node._canonical_ts_state
+    old_waiting = node._waiting_for_initial_state
+    old_generation = node._planning_generation
+    old_sequence = node._execution_step_seq
+    old_status = node._planner_state
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+
+    request = TaskPlanning.Request()
+    request.hard_task = "[]<> r2"
+    request.soft_task = "(r2 || ! r2)"
+
+    with monkeypatch.context() as patch:
+        _fail_snapshot_commit_preparation(patch, stage)
+        leaked = None
+        callback_response = None
+        try:
+            callback_response = node._task_replanning_callback(
+                request,
+                TaskPlanning.Response(),
+            )
+        except RuntimeError as error:
+            leaked = error
+
+        assert leaked is None, f"Replanning leaked controlled error: {leaked}"
+
+    assert callback_response is not None
+    assert not callback_response.success
+    assert old_planner is node.ltl_planner
+    assert old_run is node.ltl_planner.run
+    assert old_product is node.ltl_planner.product
+    assert old_ts is old_product.graph["ts"]
+    assert old_active_ts is node._active_transition_system
+    assert old_snapshot is node._active_planning_graph_snapshot
+    assert old_ids is node._active_product_node_ids
+    assert node._canonical_ts_state == old_canonical
+    assert node._waiting_for_initial_state == old_waiting
+    assert node._planning_generation == old_generation
+    assert node._execution_step_seq == old_sequence
+    assert node._planner_state == old_status == PlannerStatus.ACTIVE
+    assert node._planning_token is None
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+    client = action_runtime.client_node.create_client(
+        TaskPlanning,
+        "replanning",
+    )
+    try:
+        assert client.wait_for_service(timeout_sec=2.0)
+        future = client.call_async(request)
+        assert spin_until(action_runtime, future.done, timeout=8.0)
+        retry = future.result()
+        assert retry.success
+    finally:
+        action_runtime.client_node.destroy_client(client)
+
+    assert node._planning_generation == old_generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
+    committed = get_planning_graph_snapshot(action_runtime).snapshot
+    assert committed.metadata.hard_task == request.hard_task
+
+
+def test_task_replanning_cost_overflow_preserves_transaction_authority(
+    action_runtime,
+):
+    """Keep the active run when legacy replan produces a non-finite cost."""
+    overflow_goal = make_goal()
+    overflow_goal.beta = 1e308
+    overflow_goal.gamma = 1.0
+    activate(action_runtime, goal=overflow_goal)
+    node = action_runtime.planner
+    old_planner = node.ltl_planner
+    old_run = old_planner.run
+    old_product = old_planner.product
+    old_ts = old_product.graph["ts"]
+    old_active_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    old_canonical = node._canonical_ts_state
+    old_waiting = node._waiting_for_initial_state
+    old_generation = node._planning_generation
+    old_sequence = node._execution_step_seq
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    assert isfinite(old_run.totalcost)
+
+    request = TaskPlanning.Request()
+    request.hard_task = "[]<> r2"
+    request.soft_task = "(missing1 && missing2)"
+    leaked = None
+    response = None
+    try:
+        response = node._task_replanning_callback(
+            request,
+            TaskPlanning.Response(),
+        )
+    except (RuntimeError, ValueError) as error:
+        leaked = error
+
+    assert leaked is None, f"Replanning leaked controlled error: {leaked}"
+    assert response is not None
+    assert not response.success
+    assert node.ltl_planner is old_planner
+    assert old_planner.run is old_run
+    assert old_planner.product is old_product
+    assert old_ts is old_product.graph["ts"]
+    assert node._active_transition_system is old_active_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._canonical_ts_state == old_canonical
+    assert node._waiting_for_initial_state == old_waiting
+    assert node._planning_generation == old_generation
+    assert node._execution_step_seq == old_sequence
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._planning_token is None
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+    request.soft_task = "(r2 || ! r2)"
+    client = action_runtime.client_node.create_client(
+        TaskPlanning,
+        "replanning",
+    )
+    try:
+        assert client.wait_for_service(timeout_sec=2.0)
+        future = client.call_async(request)
+        assert spin_until(action_runtime, future.done, timeout=8.0)
+        retry = future.result()
+        assert retry.success
+    finally:
+        action_runtime.client_node.destroy_client(client)
+
+    assert node._planning_generation == old_generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
+    committed = get_planning_graph_snapshot(action_runtime).snapshot
+    assert committed.metadata.hard_task == request.hard_task
+
+
 @pytest.mark.parametrize(
     "weight_name, soft_task, cost_field",
     [

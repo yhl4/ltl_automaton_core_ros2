@@ -4005,3 +4005,56 @@ XML SHA为74d14cd090541faf324756f47ca5407ea3df8d656eed60cd335cda44df629b6e。
 README区分当前局部资格与11.103的685项组合基线，前103节正文保持。
 本轮未重跑七包、LLM、benchmark、完整演示、物理仿真、实机/机器人示范
 或Jazzy验证；IRL仍仅学习beta且默认关闭。
+
+### 11.105 旧重规划服务的候选/快照提交与有限代价（2026-10-07）
+
+基线4e7cd929c4859da93f6630e260f3b72ac39132b4。旧/replanning回调直接
+调用活动LTLPlanner.replan_task；核心成功时先替换自身run/Product/TS，
+之后wrapper才准备快照。快照copy/IDs准备失败不在异常边界内，并且
+旧服务没有Action/IRL已有的有限候选代价检查。
+
+修复只修改此服务回调及copy导入：浅复制外层planner，在该对象调用
+核心既有replan_task（内部继续一次深复制），不增加第二次整图深复制。
+搜索、有限公开代价、快照和计划消息均先准备；快照提交准备成功后才
+在锁内替换活动planner和TS。准备失败返回false、恢复ACTIVE，旧运行、
+快照、ID映射、generation/step及TS引用保持。成功复用已准备消息，
+发布顺序仍为possible_states、prefix/suffix、next_move、execution_observation，
+保留发布日志；不修改核心目标、source-label、Action/IRL及状态恢复回调。
+
+新增三项native回归：copy/ids两种可控快照准备失败，以及beta=1e308、
+gamma=1.0的有限初始运行，改soft task为(missing1 && missing2)后产生
+非有限代价。测试不修改算法或伪造run cost，失败后检查完整旧authority
+引用/快照/身份与ACTIVE，再经真实TaskPlanning服务有效重试，generation
+只增加1且step重置。首份草稿中重试soft task未恢复，主代理在任何运行
+前纠正；RED/GREEN使用同一最终测试字节，没有按结果放宽预期。
+
+生产字节仍为Git基线时，RED session27159实际exit1：**3 failed / 46
+deselected**，pytest3.51秒、JUnit3.461秒、receipt11.077337952秒。
+copy/ids分别泄漏Controlled snapshot准备RuntimeError；溢出用例旧服务
+返回success=True。两种失败和原始日志/XML保留，不计为修复后通过。
+
+开始前从冻结0b6的原XML固定90项（Action46、节点30、序列化14）加新3项
+为93项。一次完整GREEN session31105沿原handle等待至实际exit0：
+**93 passed**，0 errors/failures/skipped；Action49、节点30、序列化14。
+pytest26.55秒、JUnit26.515秒、含lint的worker receipt37.586069558秒。
+八个实际生产import/完整字节、生成消息路径、三个测试SHA及原生ltl2ba
+二进制核对通过；未改模块与Git基线一致。源码/测试编译、ament_flake8.main
+--linelength 99、ament_pep257.main、git diff --check通过，lint既有
+optparse提示保留，没有额外警告过滤。这些时间不用于性能比较。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_legacy_task_4e7cd92.py \
+  green c71109a3122b66f21233284992a537f3e18f79bcbd790c4bf7d5c1012a2f4f9f
+```
+
+证据在/tmp/ltl_ros2_completion_20261006：legacy_task_4e7cd92_population.json、
+legacy_task_4e7cd92_{red,green}.xml、对应_{red,green}_{imports.json,run.json,run.log}
+及legacy_task_4e7cd92_inspected.json；helper在主机临时目录。独立检查
+实际exit0，核对原失败文本、人口、时序、新鲜度、完整import字节和日志哈希。
+新源码SHA为c71109a3122b66f21233284992a537f3e18f79bcbd790c4bf7d5c1012a2f4f9f，
+最终XML SHA为8a13f7c0a4e6cb3c2e74be6f8a746408fb41c79e21a06cfa7aacc45178aec1e2。
+README同步服务契约和当前局部资格，前104节正文保持；11.103的685项
+仍属于0b6源码基线，未重跑七包或推算新组合人口。IRL仍仅学习beta且默认
+关闭；未做LLM、benchmark、物理仿真、实机/机器人示范或Jazzy验证。

@@ -4,6 +4,7 @@ import hashlib
 import importlib
 import subprocess
 import uuid
+from copy import copy
 from copy import deepcopy
 from dataclasses import dataclass
 from functools import partial
@@ -1914,7 +1915,8 @@ class PlannerNode(Node):
             response.success = False
             return response
 
-        current_state = self.ltl_planner.curr_ts_state
+        active_planner = self.ltl_planner
+        current_state = active_planner.curr_ts_state
 
         self._set_planner_status(
             PlannerStatus.PLANNING,
@@ -1935,11 +1937,43 @@ class PlannerNode(Node):
         )
 
         try:
-            replanned = self.ltl_planner.replan_task(
+            candidate = copy(active_planner)
+            replanned = candidate.replan_task(
                 hard_task,
                 soft_task,
                 current_state,
             )
+            if (
+                not replanned
+                or candidate.run is None
+                or candidate.next_move is None
+            ):
+                self.get_logger().error(
+                    "No accepting plan was found for the new task."
+                )
+                self._set_planner_status(
+                    PlannerStatus.ACTIVE,
+                    "Task replanning failed; the previous run remains active.",
+                )
+                response.success = False
+                return response
+
+            _validate_candidate_run_costs(candidate.run)
+            snapshot = serialize_planning_graph(
+                candidate,
+                self._active_ts_sha256,
+            )
+            stamp = self.get_clock().now().to_msg()
+            prefix_plan, suffix_plan = self._plan_messages(
+                candidate,
+                stamp,
+            )
+            candidate_ts = candidate.ts
+
+            with self._state_lock:
+                self._commit_planning_graph_snapshot(snapshot)
+                self.ltl_planner = candidate
+                self._active_transition_system = candidate_ts
         except Exception as error:
             self.get_logger().error(
                 f"Task replanning failed: {error}"
@@ -1951,35 +1985,18 @@ class PlannerNode(Node):
             response.success = False
             return response
 
-        if (
-            not replanned
-            or self.ltl_planner.run is None
-            or self.ltl_planner.next_move is None
-        ):
-            self.get_logger().error(
-                "No accepting plan was found for the new task."
-            )
-            self._set_planner_status(
-                PlannerStatus.ACTIVE,
-                "Task replanning failed; the previous run remains active.",
-            )
-            response.success = False
-            return response
-
-        snapshot = serialize_planning_graph(
-            self.ltl_planner,
-            self._active_ts_sha256,
-        )
-
         with self._state_lock:
-            self._commit_planning_graph_snapshot(snapshot)
             self._set_planner_status(
                 PlannerStatus.ACTIVE,
                 "The replanned accepted LTL run is active.",
             )
 
         self._publish_possible_states()
-        self._publish_plan()
+        self.prefix_plan_publisher.publish(prefix_plan)
+        self.suffix_plan_publisher.publish(suffix_plan)
+        self.get_logger().info(
+            "Published prefix and suffix plans."
+        )
         self._publish_next_move()
         self._publish_planning_execution_observation()
 

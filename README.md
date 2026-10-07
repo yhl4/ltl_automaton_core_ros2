@@ -420,8 +420,9 @@ Planner 接受的 TS YAML 必须满足以下结构约束：
 输入违反这些约束时，加载或规划请求应失败并保留此前有效的运行状态。
 直接调用 Python 核心 Planner 或 IRL 时，超出浮点表示范围的 β/γ 也返回
 各自既有的无效权重 `ValueError`，并保留转换溢出的异常原因。
-PlanLTL 或 IRL 事务候选计算出的 prefix/suffix/total 代价必须能表示为
-有限 float64；结果溢出或出现 NaN 时返回内部失败，保留活动计划与代际。
+PlanLTL、IRL 或旧 `/replanning` 候选计算出的 prefix/suffix/total 代价必须
+能表示为有限 float64；结果溢出或出现 NaN 时，Action/IRL 返回内部失败，
+旧服务返回 `success: false`，保留活动计划与代际。
 这是候选结果检查，不改变核心代价定义或为有限 β/γ 设置额外上限。
 
 ---
@@ -625,6 +626,10 @@ ros2 topic pub --once /irl_trigger std_msgs/msg/Bool '{data: false}'
 - 类型：`ltl_automaton_msgs/srv/TaskPlanning`
 - 作用：从当前 TS 状态出发，使用新的 hard task 和 soft task 重新规划。
 
+候选计划、有限代价、计划消息和快照准备成功后才替换活动计划。
+搜索或准备失败返回 `success: false`，旧计划、快照和执行身份保持；
+成功后更新 generation 并从 step=0 开始。
+
 服务定义：
 
 ```text
@@ -697,7 +702,16 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前局部验证：历史重规划遍历（2026-10-07）
+### 当前局部验证：旧重规划服务的事务提交（2026-10-07）
+
+修复旧 `/replanning` 在快照准备失败后泄漏异常、或接受非有限候选代价的问题。
+三个新增回归先在旧源码上复现失败；修复后三个完整相关测试文件
+**93 passed**，包含失败后的旧 authority 保持及有效服务请求恢复。
+源码和测试编译、flake8、pep257 通过；详见
+[validation.md 第 11.105 节](ltl_automaton_planner/docs/validation.md)。
+本轮仅执行相关验证，以下七包结果仍属于所列基线，不叠加局部计数。
+
+### 此前局部验证：历史重规划遍历（2026-10-07）
 
 历史重规划改用 `islice` 遍历尾部，省去 `trace[1:]` 的临时列表。
 输入仍为调用期间保持稳定的可索引历史序列，实际 Planner 传入新建列表；
