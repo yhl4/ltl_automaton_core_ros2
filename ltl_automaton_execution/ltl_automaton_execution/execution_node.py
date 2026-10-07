@@ -342,14 +342,17 @@ class ExecutionManagerNode(Node):
 
     def _on_snapshot(self, observation, identity, context, future):
         if self._shutting_down:
+            future.exception()
             return
         if monotonic() >= context["deadline"]:
             if self._detach_snapshot_request(identity, context, future):
                 self._retain_failed_snapshot_observation(identity)
+            future.exception()
             return
         if not self._detach_snapshot_request(
             identity, context, future, cancel=False
         ):
+            future.exception()
             return
         try:
             response = future.result()

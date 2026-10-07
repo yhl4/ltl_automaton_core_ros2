@@ -2811,3 +2811,65 @@ README 与执行包说明同步，前 80 节历史正文完整保留。本轮未
 七包、LLM、benchmark、完整演示、物理仿真、实机示范或 Jazzy；
 11.79 的 644 项仍只属于 d6f4983 历史整包资格，IRL 原范围/默认
 关闭保持。108 项局部通过不证明完整系统或 IRL 科学效果。
+
+### 11.82 丢弃快照回调时读取 Future 异常（2026-10-07）
+
+基线为干净 `6d8466a7360790a56a1ec704674effa3d95e57a0`。
+11.81 初始 105 项 stdout 中的未读取异常诊断原样保留。核对实际
+Humble rclpy/task.py：exception() 非阻塞地返回错误并标记已读取，
+Future 析构时报告未读取的错误；取消/完成会调度并清空 callbacks。
+原测试在销毁并取消之后再注入异常，回调未必会执行，不能仅凭
+那条诊断认定真实晚到回调已经执行。本轮改用真实 executor 排队：
+完成 Future 后销毁节点，再 spin 执行已经排队的回调，明确复现
+节点销毁后未读取错误的缺口。
+
+生产修改仅在 _on_snapshot 的三个丢弃返回点调用 future.exception()：
+节点已销毁、deadline 已过、请求已被替换。保留原 guard 与 detach/
+latest-observation 恢复顺序，不提前调用 result()，不访问已销毁
+logger。当前请求的异常/None/unsuccessful 仍按原 warning 与重试
+处理，成功响应仍按身份、schema、快照转换及最新观测派发。消息、
+身份、调度、planner/接受性、代价、可选 β 学习与默认关闭均保持。
+
+既有销毁测试的 success/failure/exception 三参数使用真实 Humble
+Future + SingleThreadedExecutor，检查无 Destroyable warning、无
+pending/request/派发；weakref 与 gc 确认 Future 已实际回收，再检查
+捕获的 stderr 没有未读取异常。既有 timeout late-error 测试检查
+exception 被读取，既有 callback-deadline 测试新增异常参数（净增
+一项 case），仍断言旧请求零派发及替换请求成功恢复。受控 Future
+只补齐真实 exception() 的读取语义；没有过滤生产 stderr 或放宽
+错误/恢复条件。
+
+执行代理原始 targeted RED 一次实际 exit 1：**3 failed / 4 passed /
+47 deselected**，XML 为 /tmp/snapshot_discard_red_6d8466a.xml；
+失败为真实销毁异常、timeout 晚到异常与 callback 过期异常。修复后
+test_backend.py、test_accepted_run_resolver.py、test_execution_node.py、
+test_snapshot_timeout.py 四个完整既有文件一次 **126 passed in 3.11s**，
+实际 exit 0，0 errors/failures/skips，无 warnings；XML 为
+/tmp/snapshot_discard_green_6d8466a.xml。真实排队三参数、timeout
+两参数、deadline 两参数与此前维度/解析回归均执行。RED 与 GREEN
+计数、失败、时间顺序、关键 case 与 SHA256 核对后分别保留，不
+重跑或覆盖原 XML，不相加测试人口。三份修改文件 py_compile、
+ament_flake8 --linelength 99、两测试文件 pep257 与 diff 检查实际
+exit 0；静态 session 9353 在原 handle 上等待至完成。
+
+主代理独立 helper 一次实际 exit 0。完整旧 execution_node.py 与
+git show 6d8466a 逐字匹配，当前 runtime import/源字节核对；models、
+manager、resolver、snapshot、Product、IRL 六模块完整未修改字节
+绑定基线，原生 translator 路径保持。真实 Humble Future 的 shutdown/
+expired/superseded 三种丢弃边界中，请求/替换请求、pending、timer、
+warning、缓存与维度状态一致，Future 实际回收，baseline 原始 stderr
+有未读取诊断而 current 无。当前请求的 exception/None/unsuccessful
+三个控制保留原 warning/最新重试及请求释放，且没有未读取诊断。
+三个原生 single/safe/KTH 通过实际成功快照回调、manager/resolver
+和符号 recording backend，对照完整快照、派发步骤、诊断与重复
+序号拒绝一致；派发 3/4/4，成本 3/1/13、3/2/23、20/20/220。
+
+完整旧模块、probe_snapshot_discard_6d8466a.py、
+snapshot_discard_6d8466a.json、snapshot_discard_6d8466a_xml_receipts.json
+与明确区分主代理实际结果/执行代理报告的工具记录独立保留。
+此前 83 文件冻结闭包、314 份选定历史哈希、11.81 六阶段 XML 与
+上一轮 63 项 XML SHA256 保持。README 与执行包说明同步，前 81
+节历史正文完整保留。本轮未执行七包、LLM、benchmark、完整演示、
+物理仿真、实机示范或 Jazzy；11.79 的 644 项仍只属于 d6f4983
+历史整包资格。本轮为局部行为验证，不证明整体加速、完整系统
+或 IRL 科学效果。

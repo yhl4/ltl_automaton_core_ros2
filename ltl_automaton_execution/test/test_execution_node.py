@@ -1,8 +1,10 @@
 """Real ROS node-boundary tests for execution and observed state separation."""
 
+import gc
 import time
 from types import SimpleNamespace
 import warnings
+import weakref
 
 import pytest
 import rclpy
@@ -589,11 +591,12 @@ def test_synchronous_snapshot_request_failure_is_retried():
 
 
 @pytest.mark.parametrize("outcome", ["success", "failure", "exception"])
-def test_late_snapshot_completion_after_destroy_is_ignored(outcome):
+def test_late_snapshot_completion_after_destroy_is_ignored(outcome, capsys):
     """Late snapshot callbacks do not touch a destroyed node."""
     context = Context()
     rclpy.init(context=context)
     execution = None
+    executor = SingleThreadedExecutor(context=context)
     try:
         backend = RecordingBackend()
         execution = ExecutionManagerNode(
@@ -601,23 +604,25 @@ def test_late_snapshot_completion_after_destroy_is_ignored(outcome):
             state_observer=RecordingObserver(),
             context=context,
         )
+        executor.add_node(execution)
         client = DelayedSnapshotClient()
+        client.future = Future(executor=executor)
         execution._snapshot_client = client
         execution._on_observation(_observation(1))
+        if outcome == "success":
+            client.future.set_result(_successful_response())
+        elif outcome == "failure":
+            response = GetPlanningGraphSnapshot.Response()
+            response.success = False
+            response.message = "late failure"
+            client.future.set_result(response)
+        else:
+            client.future.set_exception(RuntimeError("late exception"))
         execution.destroy_node()
 
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
-            execution._retry_snapshot_discovery()
-            if outcome == "success":
-                client.future.set_result(_successful_response())
-            elif outcome == "failure":
-                response = GetPlanningGraphSnapshot.Response()
-                response.success = False
-                response.message = "late failure"
-                client.future.set_result(response)
-            else:
-                client.future.set_exception(RuntimeError("late exception"))
+            executor.spin_once(timeout_sec=0)
 
         assert not any(
             "Destroyable" in str(warning.message) for warning in caught
@@ -625,9 +630,15 @@ def test_late_snapshot_completion_after_destroy_is_ignored(outcome):
         assert execution._pending_snapshot_observation is None
         assert not execution._snapshot_requests
         assert backend.calls == []
+        future_reference = weakref.ref(client.future)
+        client.future = None
+        gc.collect()
+        assert future_reference() is None
+        assert "exception was never retrieved" not in capsys.readouterr().err
     finally:
         if execution is not None:
             execution.destroy_node()
+        executor.shutdown()
         rclpy.shutdown(context=context)
 
 

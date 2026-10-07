@@ -66,6 +66,11 @@ only the latest actionable observation for the same current graph identity.
 A newer authority or no-action observation suppresses retries of the old command.
 Successful responses still require valid identity and schema before dispatch.
 Node teardown cancels pending retries and ignores late snapshot completions.
+Callbacks discarded after teardown, expiry, or request replacement retrieve the
+Future exception before returning. This releases an unread error without using
+the old response or changing the current request, retry, cache, or dispatch rules.
+A completed callback already queued by the executor remains subject to these
+guards even if the node is destroyed before that callback runs.
 
 `snapshot_request_timeout` sets a finite positive request deadline in seconds at
 startup (default `5.0`). The existing 0.1-second retry timer uses a steady clock, so a

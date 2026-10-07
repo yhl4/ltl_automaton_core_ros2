@@ -24,6 +24,7 @@ class DeferredSnapshotFuture:
         self.response = None
         self.error = None
         self.cancelled = False
+        self.exception_fetched = False
 
     def add_done_callback(self, callback):
         """Retain completion callbacks for controlled delivery."""
@@ -32,8 +33,13 @@ class DeferredSnapshotFuture:
     def result(self):
         """Return the reply or raise the injected service error."""
         if self.error is not None:
-            raise self.error
+            raise self.exception()
         return self.response
+
+    def exception(self):
+        """Return the error while marking it as retrieved."""
+        self.exception_fetched = True
+        return self.error
 
     def cancel(self):
         """Invoke cancellation callbacks immediately, retaining late replies."""
@@ -45,6 +51,7 @@ class DeferredSnapshotFuture:
         """Deliver a service reply after any earlier cancellation."""
         self.response = response
         self.error = error
+        self.exception_fetched = False
         for callback in tuple(self.callbacks):
             callback(self)
 
@@ -119,6 +126,8 @@ def test_timeout_retries_latest_step_and_ignores_old_reply(
         _successful_response(),
         RuntimeError("Late service failure.") if late_error else None,
     )
+    if late_error:
+        assert old.exception_fetched
     runtime.node._retry_snapshot_discovery()
     assert len(runtime.client.futures) == 2
     assert runtime.backend.calls == []
@@ -129,14 +138,24 @@ def test_timeout_retries_latest_step_and_ignores_old_reply(
     assert step.source_product_node_ids == (2,)
 
 
-def test_expired_success_cannot_dispatch_before_timer_runs(snapshot_runtime):
+@pytest.mark.parametrize("late_error", [False, True])
+def test_expired_success_cannot_dispatch_before_timer_runs(
+    snapshot_runtime, late_error,
+):
     """Check the deadline in a response callback despite delayed scheduling."""
     runtime = snapshot_runtime
     runtime.node._on_observation(_observation(1))
     runtime.now[0] = 100.5
-    runtime.client.futures[0].complete(_successful_response())
+    if late_error:
+        runtime.client.futures[0].complete(
+            error=RuntimeError("Expired service failure.")
+        )
+    else:
+        runtime.client.futures[0].complete(_successful_response())
     assert runtime.backend.calls == []
     assert runtime.client.futures[0].cancelled
+    if late_error:
+        assert runtime.client.futures[0].exception_fetched
     runtime.node._retry_snapshot_discovery()
     assert len(runtime.client.futures) == 2
     runtime.client.futures[1].complete(_successful_response())
