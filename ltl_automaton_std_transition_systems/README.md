@@ -37,6 +37,9 @@ the monitor keeps the existing yaw formula without normalizing the input.
 Rejected feedback is logged and does not publish a region or replace the last
 valid pose used by `closest_region`. That service reports the last valid pose;
 it does not certify observation freshness.
+Programmatic model calls also report overflow in the x/y or quaternion
+finite-value check as the existing `ValueError`, retaining the original cause.
+The planar model continues to ignore the position z coordinate.
 
 ## 6D joint-space monitor
 

@@ -703,14 +703,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-最近代码验证补齐执行 SymbolicState 的字符串边界：整数/list 不再
-泄漏 AttributeError，非空 bytes 不再被误接收后触发 ROS setter 断言。
-无效元素使用既有 ValueError，合法字符串/子类及原值保持不变。
-Backend、resolver、Execution Node 三个相关文件为 **83 passed**；
-九个新增检查在实际旧源码为 **8 failed / 1 passed**。真实 Node 与
-记录型 publisher 确认拒绝时不发布、随后有效反馈恢复；这两个新案例
-是受控 Python 抽象边界检查，不声称非法 bytes 经由 DDS 传输。
-身份、调度、规划与 IRL 规则不变，本轮未重跑整包或物理验证。
+最近代码验证补齐 2D pose Python 有限性检查的溢出诊断：超大整数
+现在返回既有 ValueError 并保留 OverflowError cause。两个新检查
+在实际旧源码均复现异常逃出；修复后 update/closest 查询保留精确诊断、
+输入、最后有效区域和 station request，后续有效反馈恢复，position z
+继续被忽略。标准 TS 包 colcon test 为 **41 passed / 1 skipped**，
+跳过项是既有 copyright；包含原有 monitor launch 与 lint。新案例是
+受控 Python model 输入，不声称通过 ROS float64 传输此整数。
+未修改几何、yaw、规划/IRL 规则或重跑其它包、物理验证。
 
 此前代码基线 `58481a2` 的 aggregate 七包构建与整包测试全部完成，
 六功能包为 **533 passed / 4 skipped**，四个跳过项均为 copyright；

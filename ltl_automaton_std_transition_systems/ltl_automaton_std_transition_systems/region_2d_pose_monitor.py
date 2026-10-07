@@ -74,7 +74,7 @@ class Region2DPoseModel:
             raise ValueError("Pose is missing position or orientation fields.") from error
         try:
             finite = all(math.isfinite(value) for value in values)
-        except TypeError as error:
+        except (TypeError, OverflowError) as error:
             raise ValueError(
                 "Pose position and orientation must be finite numbers."
             ) from error

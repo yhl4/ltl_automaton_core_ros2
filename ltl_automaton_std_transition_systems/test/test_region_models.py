@@ -205,6 +205,32 @@ def test_2d_model_rejects_invalid_pose_without_changing_region(invalid):
     assert model.update(_pose(1.5, 0.5)) == "r2"
 
 
+@pytest.mark.parametrize("invalid", [10**400, -(10**400)], ids=["positive", "negative"])
+def test_2d_model_normalizes_python_pose_overflow_and_preserves_state(invalid):
+    """Keep the finite-value diagnostic for oversized Python pose components."""
+    transition_system = generate_regions_and_actions(_definition())
+    model = Region2DPoseModel(transition_system["state_models"]["2d_pose_region"])
+    assert model.update(_pose(0.2, 0.2)) == "r1"
+    model.station_access_request = "s0"
+    for component, name in (("position", "x"), ("orientation", "w")):
+        pose = _pose(0.5, 0.5)
+        setattr(getattr(pose, component), name, invalid)
+        before_position = dict(vars(pose.position))
+        before_orientation = dict(vars(pose.orientation))
+        for validate in (model.update, model.closest_region):
+            with pytest.raises(ValueError) as caught:
+                validate(pose)
+            assert str(caught.value) == "Pose position and orientation must be finite numbers."
+            assert isinstance(caught.value.__cause__, OverflowError)
+            assert vars(pose.position) == before_position
+            assert vars(pose.orientation) == before_orientation
+            assert model.state == "r1"
+            assert model.station_access_request == "s0"
+    valid = _pose(1.5, 0.5)
+    valid.position.z = invalid  # The planar model continues to ignore the z coordinate.
+    assert model.update(valid) == "r2"
+
+
 def _joint_model(radius=1.0):
     return Region6DJointspaceModel({
         "nodes": {

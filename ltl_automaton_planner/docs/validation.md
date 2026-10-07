@@ -1449,3 +1449,39 @@ py_compile/ament_flake8、两个测试文件 ament_flake8/pep257、根/包 READM
 resolve 路径绑定当前 checkout，使用既有 Ubuntu 22.04 / ROS 2 Humble /
 Python 3.10.12 隔离 overlay。本轮未重跑整包、物理仿真、实机、Jazzy
 或示范学习实验；11.50 整包证据仍属于其原基线。
+
+### 11.56 2D Python pose 有限性溢出诊断（2026-10-07）
+
+以 `46169bb` 为基线，Region2DPoseModel._validate_pose 在 x/y 与
+四个 quaternion 分量的 math.isfinite 检查中只捕获 TypeError。
+±10**400 的 Python 整数会逃出 OverflowError。现在仅给既有捕获
+增加 OverflowError，保留原 ValueError 精确文字
+`Pose position and orientation must be finite numbers.` 和 raise-from cause。
+不转换/钳制输入，不增加 z 校验，不改变零 quaternion 拒绝、yaw 公式、
+station request、区域次序/严格边界/hysteresis、closest 查询、配置几何、
+ROS 字段、消息提取、Node callback、规划或 IRL 规则。
+
+两个新增参数化 model 检查使用正/负超大整数，分别放入第一个受检查
+分量 position.x 和最后一个 orientation.w；update 与 closest_region
+均返回原 ValueError 并保留 OverflowError cause。输入字段、r1 区域与
+s0 station request 不变；随后有效 x/y/quaternion 输入正常进入 r2，
+同一输入的超大 position.z 仍被忽略。已有 nan/inf、零 quaternion、
+支持的四种消息提取、station/closest 与 6D 边界检查仍执行。
+
+独立进程执行实际旧提交完整 region_2d_pose_monitor.py 后，两个新
+检查均因 math.isfinite 的 OverflowError 逃出失败。另一次旧源码
+直接 probe 也复现 position.x 正整数、position.y 负整数和 orientation.w
+的相同错误。超大整数不能通过正常 ROS float64 pose 字段传输；新
+fixture 是受控 SimpleNamespace Python model 输入，没有以 Node 注入、
+非法 DDS 传输或物理反馈作为验证。未新增 quaternion 归一化或几何校验。
+
+仅重跑标准 TS 包 colcon test，指定既有隔离 build/install、
+ROS_DOMAIN_ID=230 与 --return-code-on-test-failure。标准结果为
+**42 tests, 0 errors, 0 failures, 1 skipped**，即 **41 passed**；
+JUnit 确认唯一 skipped 是既有 copyright，两个新增 case 均通过。
+包含原有 monitor launch 通信/干净退出与包 lint。实际模型 import
+resolve 到当前 checkout。源码 py_compile/ament_flake8、测试
+ament_flake8/pep257、根/包 README、链接/55 节历史正文保留及 diff
+检查通过。环境为既有 Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12；
+本轮未重跑其它包、物理仿真、实机、Jazzy 或示范学习，11.50 整包
+证据仍属原基线。NumPy/NetworkX 与 lint 插件的既有弃用警告保留。
