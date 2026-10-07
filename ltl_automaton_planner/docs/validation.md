@@ -1413,3 +1413,39 @@ README/文档链接、53 节历史正文保留与 diff 检查通过。环境仍�
 Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 隔离 overlay；本轮未
 重跑整包、物理仿真、实机、Jazzy 或真实示范学习实验。11.50 的整包
 证据属于原基线，既有 NumPy/NetworkX 弃用警告保留。
+
+### 11.55 执行 SymbolicState 字符串类型边界（2026-10-07）
+
+以 `7366267` 为基线，SymbolicState 构造只检查空值和 .strip()。
+整数/list 会逃出 AttributeError；非空 bytes 有 .strip()，会被误接收，
+随后进入生成 ROS 消息 setter 触发断言。现在在维度名和值的既有
+短路条件最先检查 isinstance(..., str)，继续返回各自原精确 ValueError。
+alignment、维度非空、唯一性、值非空的校验次序保持；合法字符串子类
+与含首尾空格的原值及 tuple 身份不变，不转换/裁剪/解码输入。
+不扩展 container、其它模型字段或身份校验，不改变 resolver、执行调度、
+backend、observer、规划或 IRL。包 README 补充构造要求，并将 fake
+abstraction 的说明改为接受已构造 SymbolicState，与实际代码一致。
+
+六个新增 model 参数化检查将非空 int/bytes/list 放在第二个维度或值，
+验证每个元素均检查、精确 ValueError 文案及 list 输入保持。一个合法
+字符串子类/空格检查确认 tuple 对象和原字符串保持，无额外归一化。
+另两个使用真实 ExecutionManagerNode、受控 ConstructingAbstraction 与
+记录型 publisher：先记录一条有效生成消息，再输入维度/值 bytes，
+拒绝时消息数不变、无 backend 调用，随后有效观察继续记录第二条消息，
+第一条的值不变。此处没有发送非法 bytes ROS 消息，不作为 DDS 或
+硬件反馈边界验证；生成类型的标准字符串字段未修改。
+
+在独立进程执行实际旧提交完整 models.py 后，九项新增检查为
+**8 failed / 1 passed**：四次 int/list 的 AttributeError 逃出、两次
+bytes 未抛 ValueError、两个 Node 案例在 state_dimension_names/states
+setter 抛 AssertionError；合法子类/原值检查通过。基线不是对模型
+行为的 mock；Node 案例的 abstraction 和 publisher 为受控测试组件。
+
+仅重跑 test_backend.py、test_accepted_run_resolver.py 与
+test_execution_node.py，合计 **83 passed**。包含已有身份/重复步骤、
+resolver、backend 失败恢复、Node 快照重试与观测管线回归。源码
+py_compile/ament_flake8、两个测试文件 ament_flake8/pep257、根/包 README、
+文档链接、54 节历史正文保留与 diff 检查通过。实际模型 import 的
+resolve 路径绑定当前 checkout，使用既有 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10.12 隔离 overlay。本轮未重跑整包、物理仿真、实机、Jazzy
+或示范学习实验；11.50 整包证据仍属于其原基线。

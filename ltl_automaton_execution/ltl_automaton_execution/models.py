@@ -13,11 +13,17 @@ class SymbolicState:
     def __post_init__(self):
         if not self.dimension_names or len(self.dimension_names) != len(self.states):
             raise ValueError("Symbolic state dimensions and values must align.")
-        if any(not name or not name.strip() for name in self.dimension_names):
+        if any(
+            not isinstance(name, str) or not name or not name.strip()
+            for name in self.dimension_names
+        ):
             raise ValueError("Symbolic state dimensions must be non-empty.")
         if len(set(self.dimension_names)) != len(self.dimension_names):
             raise ValueError("Symbolic state dimensions must be unique.")
-        if any(not value or not value.strip() for value in self.states):
+        if any(
+            not isinstance(value, str) or not value or not value.strip()
+            for value in self.states
+        ):
             raise ValueError("Symbolic state values must be non-empty.")
 
 

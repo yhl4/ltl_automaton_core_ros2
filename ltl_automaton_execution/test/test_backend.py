@@ -224,6 +224,37 @@ def test_symbolic_state_rejects_malformed_dimensions(dimensions, values):
         SymbolicState(dimensions, values)
 
 
+@pytest.mark.parametrize("invalid", [2, b"nonempty", ["nonempty"]], ids=["int", "bytes", "list"])
+@pytest.mark.parametrize("field", ["dimensions", "values"])
+def test_symbolic_state_requires_strings_in_every_position(invalid, field):
+    """Reject non-string elements before strip or ROS message assignment."""
+    dimensions = ("region", invalid) if field == "dimensions" else ("region", "load")
+    values = ("r1", invalid) if field == "values" else ("r1", "holding")
+
+    with pytest.raises(ValueError) as caught:
+        SymbolicState(dimensions, values)
+
+    assert str(caught.value) == f"Symbolic state {field} must be non-empty."
+    if isinstance(invalid, list):
+        assert invalid == ["nonempty"]
+
+
+def test_symbolic_state_keeps_string_subclasses_and_exact_values():
+    """Retain valid string objects and surrounding whitespace without normalization."""
+    class StateString(str):
+        pass
+
+    dimensions = (StateString(" region "), "load")
+    values = (StateString(" r1 "), "holding")
+
+    state = SymbolicState(dimensions, values)
+
+    assert state.dimension_names is dimensions
+    assert state.states is values
+    assert state.dimension_names == (" region ", "load")
+    assert state.states == (" r1 ", "holding")
+
+
 def test_a7_abstraction_rejects_unsupported_or_malformed_observation():
     class MalformedState:
         dimension_names = ("region", "region")

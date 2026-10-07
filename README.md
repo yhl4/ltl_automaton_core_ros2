@@ -701,15 +701,16 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 最新验证摘要（2026-10-06）
+### 最新验证摘要（2026-10-07）
 
-最近代码验证修复了遗留 build_full_margin 的一次性示范边迭代器：
-先前的未命中会耗尽后面的示范边，使它们错误保留额外 margin。
-现在保存可重复查询的 tuple，保留交替 source/target 配对、重复项、
-奇数尾项忽略与原代价计算顺序。Product、IRL、Planner 三个相关测试
-文件为 **68 passed**；六个 hard/soft/safe 与分支顺序检查在实际旧
-源码均复现错误权重。当前可选 IRL 使用独立 margin 实现，未调用该
-遗留 helper，本轮未改其 β 学习规则，也未重跑整包或物理验证。
+最近代码验证补齐执行 SymbolicState 的字符串边界：整数/list 不再
+泄漏 AttributeError，非空 bytes 不再被误接收后触发 ROS setter 断言。
+无效元素使用既有 ValueError，合法字符串/子类及原值保持不变。
+Backend、resolver、Execution Node 三个相关文件为 **83 passed**；
+九个新增检查在实际旧源码为 **8 failed / 1 passed**。真实 Node 与
+记录型 publisher 确认拒绝时不发布、随后有效反馈恢复；这两个新案例
+是受控 Python 抽象边界检查，不声称非法 bytes 经由 DDS 传输。
+身份、调度、规划与 IRL 规则不变，本轮未重跑整包或物理验证。
 
 此前代码基线 `58481a2` 的 aggregate 七包构建与整包测试全部完成，
 六功能包为 **533 passed / 4 skipped**，四个跳过项均为 copyright；

@@ -109,13 +109,19 @@ safe observation to ordered `SymbolicState`; only that pipeline may publish
 `/ts_state`. Invalid abstractions fail closed. Core remains authoritative for
 whether the observation is expected and how planning state advances.
 
+`SymbolicState` requires aligned, nonempty string dimension names and values,
+with unique dimensions. Non-string entries, including nonempty bytes, raise the
+existing `ValueError` at construction; valid strings are kept without trimming
+or coercion. An abstraction construction failure follows the node's existing
+rejection path, and later valid observations can still publish.
+
 Node teardown stops the observer and ignores previously queued observation
 callbacks before abstraction or publication, protecting destroyed ROS entities.
 
 P4 fake execution composes `FakeBackend` and `FakeStateObserver` around one
 in-memory `FakePlant`. The backend mutates the plant after its configured delay;
-the observer emits `FakePlantObservation`; `FakeStateAbstraction` revalidates the
-ordered symbolic state. The plant contains no task route or Demo-D1 logic.
+the observer emits `FakePlantObservation`; `FakeStateAbstraction` accepts the
+constructed `SymbolicState`. The plant contains no task route or Demo-D1 logic.
 
 Future integrations are independent extension points. A Gazebo integration
 would use `ExecutionStep -> GazeboExecutionBackend -> simulator command` and

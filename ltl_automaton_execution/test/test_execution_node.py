@@ -1,6 +1,7 @@
 """Real ROS node-boundary tests for execution and observed state separation."""
 
 import time
+from types import SimpleNamespace
 import warnings
 
 import pytest
@@ -749,6 +750,46 @@ def test_r1_through_r9_and_a10_observation_pipeline_contract():
         driver.destroy_node()
         execution.destroy_node()
         executor.shutdown()
+        rclpy.shutdown(context=context)
+
+
+@pytest.mark.parametrize("field", ["dimensions", "values"])
+def test_custom_abstraction_rejects_bytes_and_recovers_valid_observation(field):
+    """Keep invalid custom state out of generated ROS messages and accept later feedback."""
+    class ConstructingAbstraction:
+        def abstract(self, observation):
+            return SymbolicState(*observation)
+
+    context = Context()
+    rclpy.init(context=context)
+    observer = RecordingObserver()
+    backend = RecordingBackend()
+    execution = ExecutionManagerNode(
+        backend=backend, state_observer=observer,
+        state_abstraction=ConstructingAbstraction(), context=context,
+    )
+    published = []
+    execution._state_publisher = SimpleNamespace(publish=published.append)
+    try:
+        observer.emit((("region", "load"), ("r1", "empty")))
+        assert len(published) == 1
+        assert published[0].ts_state.state_dimension_names == ["region", "load"]
+        assert published[0].ts_state.states == ["r1", "empty"]
+        dimensions = ("region", b"load") if field == "dimensions" else ("region", "load")
+        values = ("r1", b"empty") if field == "values" else ("r1", "empty")
+
+        observer.emit((dimensions, values))
+
+        assert len(published) == 1
+        assert backend.calls == []
+        observer.emit((("region", "load"), ("r2", "holding")))
+        assert len(published) == 2
+        assert published[1].ts_state.state_dimension_names == ["region", "load"]
+        assert published[1].ts_state.states == ["r2", "holding"]
+        assert published[0].ts_state.states == ["r1", "empty"]
+        assert backend.calls == []
+    finally:
+        execution.destroy_node()
         rclpy.shutdown(context=context)
 
 
