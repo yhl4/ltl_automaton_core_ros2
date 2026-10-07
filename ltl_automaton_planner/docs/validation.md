@@ -2430,3 +2430,65 @@ Jazzy 验证。11.73 的 631 项仍属于 be23c75，11.74 的 Planner 30 项
 仍属于 c559fd6 局部资格；不作当前整包通过或 IRL 效果声明。
 README 同步；前 74 节正文完整保留，本地链接/锚点及四文件范围/
 diff 检查通过。
+
+### 11.76 Planner 参数与 TS 转换改动后的七包组合资格（2026-10-07）
+
+资格基线为干净 `b555100743fb348f60554c084da1f372273ef81d`。
+前两轮改动 Planner 只读启动参数及 TS 动作转换的稳定节点快照，
+本轮重新执行完整组合。colcon 发现的七包与 aggregate 的六个
+exec_depend 一致。环境为既有 WSL Ubuntu-22.04-D / ROS 2 Humble /
+Python 3.10.12 / NetworkX 2.4，原生 translator 仍为
+/home/yuhling/.local/bin/ltl2ba，隔离 build/install 保持。
+一次 build 使用 --executor sequential、--symlink-install、
+--packages-up-to ltl_automaton_core 和 -DBUILD_TESTING=ON，实际
+exec session 14031 terminal exit 0，耗时 28.073706513 秒。一次
+test 选择全部七包、默认并行与 --return-code-on-test-failure，实际
+exec session 81802 terminal exit 0，耗时 54.444397821 秒。主代理
+实际确认同一 test wrapper PID345/colcon PID366 存活；工具 yield
+只等待原句柄，未重启。新 helper 另有 exclusive run marker，
+包级 domain 215/216/217/218 保持，无 pytest 筛选、缩时或改条件。
+
+独立核对测试开始后的六份新 JUnit：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 188 | 187 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 124 | 124 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **634 tests = 630 passed + 4 skipped，0 errors，0 failures**。
+四项跳过仍为已有 copyright。当前接口 CTest wrapper 一项通过；
+实际 colcon test-result --verbose 为 **635 tests，0 errors，0 failures，
+4 skipped**。十份历史 CTest XML 按时间排除，不与当前 JUnit 混用/
+重复计数；aggregate 没有独立 pytest case。相对 be23c75 增加的
+三项 Planner False/True 启动覆盖/运行时拒绝及公开参数 RPC 均执行，
+两个补强的 TS 缺 action/weight 与剩余 zip 隔离 case 亦执行、不新增
+计数。此前 23+11 项新增回归、四个真实 DDS 场景、Studio consumer、
+快照 fallback、IRL commit/step reset、native translator/POSIX、
+HIL、monitor、launch 与 lint 亦核对。保留 NetworkX/NumPy np.int
+与 SelectableGroups 弃用警告，五包有 stderr，不作为零警告结果。
+
+构建/测试前后 HEAD 与清洁树核对，start gate 的常用 Core、ROS
+planner/snapshot、execution、monitor 来自本 checkout，消息来自
+隔离生成接口。主代理另核对 Planner、Product、snapshot、IRL、2D
+generator、KTH driver 六模块 resolve 和完整 git 源字节，均绑定
+资格提交。collector 只执行一次，verification_b555100.json、
+verified_summary_b555100.json、verified_changed_imports_b555100.json、
+historical_hashes_before_b555100.json 与新 JUnit/当前 CTest、完整
+构建/测试实体日志冻结于 verified_results_b555100，清单 83 文件
+逐项 SHA256 通过。log_combo_b555100 便利 symlink 排除，实体日志
+保留；后续查询使用独立 log_query_b555100，不改冻结闭包。
+旧 be23c75 的 83 文件清单在执行前先校验；五个旧资格/失败目录
+与选定 standalone receipt、旧模块/失败日志等 213 份历史证据前后
+哈希保持。原 be23c75/4817dd4/6cbfd39 统计、最初五项失败、KTH
+与 Planner 旧模块失败、Planner 首次 helper INTERNAL_ERROR 以及
+原生旧/新对照源码均保留，没有重跑原 helper 或覆盖原证据。
+
+本轮没有 LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy
+验证；执行场景仍为符号级 FakeBackend。命令耗时不是规划性能，
+组合通过不证明 IRL 收敛、逆最优性或机器人示范效果。本次仓库
+只更新 README 与本记录，源码/测试保持 b555100。前 75 节历史
+正文完整保留，13 个本地链接/锚点及 doc-only diff 检查通过。
