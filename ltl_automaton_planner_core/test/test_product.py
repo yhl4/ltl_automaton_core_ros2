@@ -752,7 +752,7 @@ def test_run_output_edge_error_preserves_action_before_weight(missing_field):
     product = ProdAut(create_test_ts(), create_test_buchi())
     product.build_full()
     start, goal = ("s0", "q0"), ("s1", "q1")
-    run = ProdAut_Run(product, [start, goal], 2, [goal], 1, 12)
+    run = ProdAut_Run(product, [start, goal, goal], 3, [goal], 1, 13)
     ts = product.graph["ts"]
     del ts.edges["s0", "s1"][missing_field]
     before = [(source, target, dict(data)) for source, target, data in ts.edges(data=True)]
@@ -762,4 +762,11 @@ def test_run_output_edge_error_preserves_action_before_weight(missing_field):
     assert run.pre_plan == ([] if missing_field == "action" else ["goto_s1"])
     assert run.pre_plan_cost == [0]
     assert run.suf_plan == ["stay_s1"] and run.suf_plan_cost == [0, 1.0]
+    assert (run.precost, run.sufcost, run.totalcost) == (3, 1, 13)
+    assert type(run.pre_ts_edges) is zip
+    assert type(run.suf_ts_edges) is zip
+    run.line[:] = ["mutated"]
+    run.loop[:] = ["mutated"]
+    assert list(run.pre_ts_edges) == [("s1", "s1")]
+    assert list(run.suf_ts_edges) == [("s1", "s1")]
     assert list(ts.edges(data=True)) == before

@@ -713,16 +713,27 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-本轮将 Planner 的 `initial_ts_state_from_agent` 明确为只读启动配置，
+本轮 TS 动作转换使用稳定节点 tuple 与流式相邻遍历，省去四次尾部
+切片；空/单节点 prefix 不创建节点副本。原 `line/loop` list、已消费的
+zip、动作/成本/日志以及失败后的剩余迭代器快照行为保持。Product 与
+discrete-plan 两文件 **57 passed**，保留两条既有 NumPy 弃用警告。
+完整旧模块对照三个原生小规划的完整运行、ROS 快照与 ID 一致；
+临时节点容器 4 -> 2，复制节点引用分别 6/8/8 -> 5/6/6。
+空/单节点 prefix 为 4 -> 1 容器，引用数仍为 2；缺字段的精确错误、
+部分输出和 `line/loop` 原地变更后剩余 zip 的隔离行为也核对。
+只测局部容器与节点引用，不作为总分配、耗时或整体加速结果。
+本轮未重跑七包。
+
+此前 `c559fd6` 将 Planner 的 `initial_ts_state_from_agent` 明确为只读启动配置，
 避免运行时参数写入成功、内部等待状态却未更新。最终
 `test_planner_node.py` 整文件 **30 passed**，保留两条既有 NumPy 弃用警告。
 三个新增 case 覆盖 False/True 启动覆盖、本地与公开参数服务拒绝、
 混合原子更新无部分生效及动态参数单独更新成功。完整旧节点模块
 重放这三个 case 为 **3 failed / 27 deselected**，均检出错误的 successful=true。
-本轮未重跑七包；新用例使用真实节点和参数 RPC，但不执行规划或机器人反馈闭环。
+该轮未重跑七包；新增用例使用真实节点和参数 RPC，但不执行规划或机器人反馈闭环。
 
 历史七包资格基线 `be23c75` 的 aggregate 构建与默认并行整包测试
-均 exit 0，各执行一次。六份本轮新 JUnit 合计
+均 exit 0，各执行一次。六份该轮新 JUnit 合计
 **631 tests = 627 passed / 4 skipped**，
 0 errors、0 failures；四个跳过项均为已有 copyright 检查。
 标准 colcon 汇总含一项通过的接口 CTest wrapper，共 632 tests。
@@ -737,10 +748,10 @@ IRL commit/step reset、原生 ltl2ba/POSIX、HIL、monitor、launch 与 lint
 实际导入绑定本 checkout 与隔离生成接口，Product/快照/IRL/生成器/
 驱动五模块源码字节与该基线一致。环境仍为 Ubuntu 22.04 / ROS 2 Humble /
 Python 3.10.12 / NetworkX 2.4，保留依赖与弃用警告。
-本轮结果、receipt、构建/测试完整日志与哈希清单已冻结，83 份文件
+该轮结果、receipt、构建/测试完整日志与哈希清单已冻结，83 份文件
 校验通过；119 份历史证据的 SHA256 保持。此前 `4817dd4` 的 620 项、
-`6cbfd39` 的 597 项和 `2c52c71` 的五项失败均保留，不并入本轮统计。
-以上整包统计只属于 `be23c75`，未覆盖本轮 Planner 启动参数修正。
+`6cbfd39` 的 597 项和 `2c52c71` 的五项失败均保留，不并入该轮统计。
+以上整包统计只属于 `be23c75`，未覆盖后续 Planner 启动参数及本轮 TS 转换修正。
 组合验证不证明 IRL 收敛、逆最优性、机器人示范效果或整体加速。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 

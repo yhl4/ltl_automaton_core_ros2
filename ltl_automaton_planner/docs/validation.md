@@ -2378,3 +2378,55 @@ Python 3.10.12 隔离 overlay，新测试与旧重放使用包测试 domain 215�
 Jazzy 验证；11.73 的 631 项只属于 be23c75 历史资格。
 README/API 同步；前 73 节正文完整保留，本地链接/锚点和五文件
 范围/diff 检查通过。
+
+### 11.75 TS 动作转换的稳定节点快照与切片缩减（2026-10-07）
+
+基线为干净 `c559fd60dc65f82c95e1290cd418634194a78b02`。
+先对动态参数做只读审计：当前 Planner 只注册一个参数回调，先
+校验两个行为参数再更新缓存。安装的 Humble rclpy 在用户回调前
+执行 descriptor/type/read-only 校验。真实空 TS Node/Context、
+domain 230 的三种 mixed atomic probe（合法 behavior=False 在前，
+其它参数错误 string、只读初始参数或另一个 behavior 错误 int 在后）
+均返回拒绝，四参数与两个行为/等待缓存保持原值；随后合法两行为
+更新成功且参数/缓存同步，probe exit 0。没有发现不一致，没有为
+该审计修改回调、注册新插件机制或扩大参数兼容范围。
+
+本轮生产修改仅在 ProdAut_Run.plan_output：保留 line/loop 两个
+输出 list 和 loop 追加首节点，将原四次相邻节点尾部 list 切片换为
+每段一次稳定 tuple 与 zip/islice。空/单节点 prefix 使用空 tuple；
+suffix 仍读取原追加闭合节点的 loop。全部次序、重复项、自环、
+动作后取 weight、成本字段、错误/部分更新、日志及公开 zip 类型/
+消费保持。发生转换错误后，剩余 zip 仍读取本次原节点快照，即使
+line/loop 随后原地修改也不受影响；没有跨调用缓存。Product 边列表
+转换、历史重规划调用点、搜索、接受性、目标函数和可选 IRL 不变。
+
+仅补强现有缺失 action/weight 的两个 case，不新增测试函数：有效
+prefix 改为 start/goal/goal，手算成本 3/1/13；失败后原精确 KeyError、
+partial action/cost、suffix 原输出保持，再改 line/loop 为单节点列表，
+剩余 prefix 和未消费 suffix zip 均仍返回原 s1->s1。Product 与
+discrete-plan 两现有文件一次 **57 passed**，两条既有 NetworkX/
+NumPy np.int 弃用警告。最终两文件 py_compile、ament_flake8
+--linelength 99、测试 pep257 与 diff 通过，没有更换依赖。
+
+主代理独立加载逐字匹配 git show c559fd6 的完整旧 Product 模块，
+使用原生 single/safe/KTH 小规划的同一 Product 与运行输入构造旧/新
+ProdAut_Run。完整字段、line/loop、动作及分项成本、已耗尽 TS zip、
+info 调用、完整 ROS 快照与 Product ID 映射一致；旧/新转换的 graph/run 输入
+pickle 字节保持。成本分别 3/1/13、3/2/23、20/20/220。观察真实
+plan_output 传给 zip 的节点容器类型、身份与长度：原四个临时尾部
+list 变成两个 tuple，复制节点引用分别 6/8/8 -> 5/6/6。重复 prefix
+控制为 4 -> 2 容器、8 -> 6 引用；空/单节点 prefix 为 4 -> 1 容器、
+2 -> 2 引用。两种缺字段的精确错误、部分输出及原地修改 line/loop
+后剩余 zip 的隔离亦与完整旧模块一致。不是总分配或耗时/加速测量。
+属于语义保持对照，没有前置新用例 RED，也没有重跑旧执行脚本。
+
+旧源码保留在隔离目录 product_baseline_c559fd6.py；独立脚本为
+Windows Temp/probe_ts_output_snapshots_c559fd6.py，成功 stdout
+保留于工具记录。实际 Product import resolve 来自本 checkout，
+原生 translator 仍为 /home/yuhling/.local/bin/ltl2ba；环境为既有 WSL
+Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 隔离 overlay。
+本轮没有七包、完整演示、LLM、benchmark、仿真、实机/机器人示范或
+Jazzy 验证。11.73 的 631 项仍属于 be23c75，11.74 的 Planner 30 项
+仍属于 c559fd6 局部资格；不作当前整包通过或 IRL 效果声明。
+README 同步；前 74 节正文完整保留，本地链接/锚点及四文件范围/
+diff 检查通过。

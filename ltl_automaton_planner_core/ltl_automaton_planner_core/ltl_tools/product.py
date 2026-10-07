@@ -343,12 +343,21 @@ class ProdAut_Run(object):
         # Append start of loop to the end to create a 'loop'
         self.loop.append(self.loop[0])
 
+        prefix_snapshot = tuple(self.line) if len(self.line) > 1 else ()
+        suffix_snapshot = tuple(self.loop)
+
         # Collect prefix nodes in list of tuples e.g. [ (prefix_node_1,
         # prefix_node_2), (prefix_node_2, prefix_node_3), ..., (prefix_node_n-1,
         # prefix_node_n)]
-        self.pre_ts_edges = zip(self.line[0:-1], self.line[1:])
+        self.pre_ts_edges = zip(
+            prefix_snapshot,
+            islice(prefix_snapshot, 1, None),
+        )
         # Collect suffix nodes in list of tuples (see pre_ts_edges)
-        self.suf_ts_edges = zip(self.loop[0:-1], self.loop[1:])
+        self.suf_ts_edges = zip(
+            suffix_snapshot,
+            islice(suffix_snapshot, 1, None),
+        )
 
         # output plan --- for execution
 
