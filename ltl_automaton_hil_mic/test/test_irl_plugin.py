@@ -132,6 +132,7 @@ class TestIRLPluginFakeHost(unittest.TestCase):
         """Preserve ordered two-dimensional payloads and separate ROS state lists."""
         plugin, _, planner = _fake_plugin()
         planner.product.graph["ts"].graph["ts_state_format"] = [["region"], ["load"]]
+        source_format = [["region"], ["load"]]
         ts_state = (("hub",), ("empty",))
         first, second = (ts_state, "q0"), (ts_state, "q1")
         plugin.possible_runs = {(first, first), (first, second), (second, second)}
@@ -147,13 +148,20 @@ class TestIRLPluginFakeHost(unittest.TestCase):
             self.assertEqual(state.ts_state.states, ["hub", "empty"])
             self.assertEqual(state.ts_state.state_dimension_names, ["region", "load"])
         self.assertEqual(len({id(state.ts_state.states) for state in states}), len(states))
+        self.assertEqual(
+            len({id(state.ts_state.state_dimension_names) for state in states}), len(states)
+        )
         states[0].ts_state.states.append("caller_change")
+        states[0].ts_state.state_dimension_names[0] = "caller_dimension_change"
         for state in states[1:]:
             self.assertEqual(state.ts_state.states, ["hub", "empty"])
+            self.assertEqual(state.ts_state.state_dimension_names, ["region", "load"])
         self.assertEqual(plugin.possible_runs, histories)
+        self.assertEqual(planner.product.graph["ts"].graph["ts_state_format"], source_format)
         plugin.publish_possible_runs()
         self.assertTrue(all(
             state.ts_state.states == ["hub", "empty"]
+            and state.ts_state.state_dimension_names == ["region", "load"]
             for run in plugin.publisher.messages[-1].runs for state in run.ltl_states
         ))
 

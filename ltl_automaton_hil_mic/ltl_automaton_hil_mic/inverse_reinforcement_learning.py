@@ -146,7 +146,7 @@ class IRLPlugin:
                 if ts_state not in ts_value_cache:
                     ts_value_cache[ts_state] = tuple(_state_values(ts_state))
                 state.ts_state.states = list(ts_value_cache[ts_state])
-                state.ts_state.state_dimension_names = dimensions
+                state.ts_state.state_dimension_names = list(dimensions)
                 state.buchi_state = str(product_state[1])
                 run_message.ltl_states.append(state)
             message.runs.append(run_message)

@@ -3229,3 +3229,43 @@ README 同步，前 88 节正文保留；旧局部 23/78 项及 e5a663c
 示范学习 β 范围，默认关闭；执行验证仍为符号级 FakeBackend，
 没有 LLM、benchmark、完整演示、物理仿真、实机示范或 Jazzy
 验证。通过不证明整体加速、IRL 收敛、逆最优性或机器人效果。
+
+### 11.90 IRL 轨迹消息的维度列表隔离（2026-10-07）
+
+基线为干净 7feb701902d4ef831f12b4372ca2dc56766acdd4。
+IRLPlugin.publish_possible_runs 原先将同一个 dimensions 列表
+交给所有 LTLState。扩展既有 composed-state 列表独立性用例后，
+直接 unittest RED 实际 exit 1：1 failed、0 errors，六个轨迹点
+只有一份维度名列表（1 != 6）。本轮仅改为 list(dimensions)，
+每个出现点独立持有列表，保留消息字段值、排序、历史集、源 TS
+格式、缓冲规则、默认关闭与仅学习 β 的原范围。该问题针对
+Python 消息对象，不声称 DDS 接收端仍有同一对象别名。
+
+首次按普通 pytest 类名/方法节点定位因 launch_testing 的
+LaunchTestModule 包装失败，实际 exit 1，未执行目标用例；原始
+/tmp/irl_dimension_lists_red_7feb701.xml 保留，不把该 invocation
+错误称为算法 RED。collect-only 实际 exit 0，显示一个聚合入口；
+随后直接运行既有 unittest 完成上述 RED，没有改变验收条件。
+修复后完整 test_irl_plugin.py 与 test_irl_preference.py 一次
+实际 exit 0：两个 pytest 入口 passed，含插件 launch_testing
+包装与真实 ROS β 偏好学习集成；两项既有 np.int 警告保留。
+另直接运行强化的同一 unittest 一次 GREEN，1 passed；它与
+聚合入口不相加为三个独立用例。静态 session 49156 在原 handle
+等待至实际 exit 0，两文件 py_compile、flake8 --linelength 99、
+pep257 和 diff 检查通过。
+
+完整旧插件来自 git show 7feb701，运行 import/source 字节核对，
+确认生产改动仅上述一行。单维、多维各六出现点及空轨迹对照，
+完整字段/次序保持；编辑首点后受影响兄弟从 5 变为 0，历史集、
+源格式和下一次完整发布保持。直接 RED JSON、完整旧模块及
+irl_dimension_lists_verified_7feb701.json 保留在既有隔离目录，
+helper 位于主机临时目录。GREEN XML 为
+/tmp/irl_dimension_lists_green_7feb701.xml，SHA256 为
+6aad9e08dfb1061f9cbca8cc8f59cf3cfa1e68835975fbe5173b045dfb570010。
+当前插件 SHA256 为
+f0f01ffbe90c7fe95c45b71f83e387a92c1b004222f50d932f338670800c4857。
+
+README/HIL README 同步，前 89 节正文保持。本轮未重跑七包，
+11.89 的 660 项属于 aa7acf8 历史源码资格，不作本轮整包声明。
+没有 LLM、benchmark、物理仿真、实机或 Jazzy 验证，不将列表
+隔离或局部集成通过称为整体加速、IRL 收敛或机器人示范效果。

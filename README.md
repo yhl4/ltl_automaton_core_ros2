@@ -590,7 +590,9 @@ ros2 topic pub --once /irl_trigger std_msgs/msg/Bool '{data: true}'
 ros2 topic pub --once /irl_trigger std_msgs/msg/Bool '{data: false}'
 ```
 
-`/possible_runs` 发布与示范一致的 Product 路径。`max_run_buffer_size` 默认 100，
+`/possible_runs` 发布与示范一致的 Product 路径。Python 构造的消息中，各轨迹点
+独立持有状态值和维度名列表，修改一个点不会影响其他点或后续发布。
+`max_run_buffer_size` 默认 100，
 所有候选路径的节点总数超过该值时自动结束并提交一次学习请求。
 替代路线示范需要关闭 `replan_on_unplanned_move`，其状态仍须匹配实际 Product
 后继；切换任务或自动重规划产生新 generation 时，旧示范会清空。
@@ -681,11 +683,20 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 最新七包组合验证（源码 aa7acf8，2026-10-07）
+### 当前 IRL 轨迹消息验证（2026-10-07）
+
+修复轨迹点共享可变维度名列表的问题。强化的既有 unittest 修复前失败、
+修复后通过；插件与 β 偏好学习两个 pytest 入口通过（含 launch_testing
+包装），不与独立 unittest 重复累加。单维、多维、空轨迹的完整字段和次序
+对照保持，修改首点不再影响其他点或后续发布。完整记录见
+[validation.md 第 11.90 节](ltl_automaton_planner/docs/validation.md)。
+
+### 最近七包组合验证（历史源码 aa7acf8，2026-10-07）
 
 将快照节点维度列表隔离和 HIL 重复维度校验纳入完整组合。
 干净源码 `aa7acf8` 的七包构建和默认并行整包测试各执行一次，
-均 exit 0；本次文档更新没有修改该资格版本的源码或测试。
+均 exit 0。以下结果属于该历史源码；当前 IRL 列表隔离按上面的局部验证计数，
+没有重跑七包组合。
 
 | 包 | tests | passed | skipped |
 | --- | ---: | ---: | ---: |

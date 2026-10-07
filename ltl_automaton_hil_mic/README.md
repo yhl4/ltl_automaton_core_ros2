@@ -136,6 +136,11 @@ With an active plan, publish `std_msgs/msg/Bool` on `/irl_trigger`: `True`
 starts recording from the current Product belief, and `False` stops recording
 and requests learning. Supply actual, freshly timestamped `/ts_state` feedback
 between those messages. `/possible_runs` publishes diagnostic Product paths.
+
+Within a Python-built diagnostic message, each path occurrence owns its TS
+state-value and dimension-name lists. Editing one occurrence does not change
+another occurrence, the source TS format, or the next publication.
+
 `max_run_buffer_size` defaults to 100 and counts nodes across all candidate
 paths; exceeding it stops recording and requests learning once. A generation
 change clears the teaching buffer. Repeated trigger values do not repeat a
