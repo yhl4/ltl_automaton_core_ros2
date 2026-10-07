@@ -112,10 +112,11 @@ class Region2DPoseModel:
             attr["pose"][0][0] - pose.position.x,
             attr["pose"][0][1] - pose.position.y,
         )
+        yaw_difference = attr["pose"][1][0] - self._yaw(pose)
         angle = abs(
             math.atan2(
-                math.sin(attr["pose"][1][0] - self._yaw(pose)),
-                math.cos(attr["pose"][1][0] - self._yaw(pose)),
+                math.sin(yaw_difference),
+                math.cos(yaw_difference),
             )
         )
         threshold = attr.get("angle_threshold", attr.get("angle_tolerance"))

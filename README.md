@@ -697,15 +697,15 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前 6D monitor 局部验证（2026-10-07）
+### 当前 2D station 判定局部验证（2026-10-07）
 
-每次六维位置更新在入口校验一次，内部候选区域搜索复用该校验；公开
-`is_in_region` 调用继续独立校验。相关模型、节点输入和 ROS launch 测试
+station 角度差在单次判定内计算一次，供 sin/cos 共用，省去重复 yaw
+计算。保留未归一化 quaternion 公式、±π 环绕、严格半径/角度边界、
+阈值选择和 access/滞回。相关模型、节点输入和 ROS launch 测试
 **46 passed**，保留两项 np.int 依赖弃用警告；源码编译、flake8、pep257
-和差异检查通过。43 个旧新对照的结果、异常与状态一致，初次定位、连通
-转移、断连回退的校验次数分别从 2/3/6 次降为 1 次。保留严格半径、
-候选顺序和无效输入恢复。对照单独计数，本轮未重跑七包。
-详见 [validation.md 第 11.95 节](ltl_automaton_planner/docs/validation.md)。
+和差异检查通过。43 个旧新对照的结果、异常与状态一致，正常 station
+判定的 yaw 计算由 2 次降为 1 次。对照单独计数，本轮未重跑七包。
+详见 [validation.md 第 11.96 节](ltl_automaton_planner/docs/validation.md)。
 
 ### 最近七包组合验证（历史源码 0beaa3e，2026-10-07）
 

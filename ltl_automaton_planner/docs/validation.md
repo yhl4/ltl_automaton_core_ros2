@@ -3542,3 +3542,44 @@ joint_validation_inspected_93841ea.json 位于 /tmp/ltl_ros2_completion_20261006
 helper 位于主机临时目录，XML 如上。README/标准 TS 说明同步，前94节正文
 保持。11.93 的673项组合与11.94的trap局部资格保留原源码版本，本轮未重跑
 七包。没有 LLM、benchmark、物理仿真、实机或 Jazzy 验证。
+
+### 11.96 2D station 判定复用单次 yaw 差值（2026-10-07）
+
+基线为干净 abc12b4103a8f17600f826864345522d30c3a9db。旧 is_in_station
+分别在 sin/cos 内重复计算同一个 pose 的 yaw 和角度差；本轮在 distance
+之后按原先先读 heading 再读 quaternion 的顺序计算局部 yaw_difference，供两者
+共用。保留原未归一化 quaternion/yaw 公式、sin/cos/atan2/abs 次序、±π
+环绕、严格边界、threshold 优先级、station access、滞回及错误优先级。
+没有跨调用缓存，后续调用仍读取 pose 和区域配置；其他源码/测试保持。
+
+source Humble 与既有隔离 overlay 后，一次运行三个完整现有文件，实际
+exit 0：46 passed，0 errors/failures/skipped。37项模型、8项节点输入、
+1项 launch_testing 聚合入口；内部通信/关闭用例不另计数。终端4.33秒，
+无持续 session，两项警告均为既有 NetworkX np.int 弃用，无新增测试/RED。
+
+```bash
+python3 -m pytest ltl_automaton_std_transition_systems/test/test_region_models.py \
+  ltl_automaton_std_transition_systems/test/test_monitor_inputs.py \
+  ltl_automaton_std_transition_systems/test/test_monitor_launch.py \
+  --junitxml=/tmp/station_yaw_green_abc12b4.xml
+```
+
+静态 session 83155 沿原 handle 等待至实际 exit 0：改动源码 py_compile、
+flake8 --linelength 99、pep257 与 git diff --check 通过。根代理检查 XML
+入口、数量与哈希，JUnit suite time 为4.308秒，XML SHA256为
+3f2902ec45860249edfb9f6ea1a8cfb4c8bfbabf4dd2a816146743ea1235e07f。
+最终源码 SHA256 为
+9e64af55ac56ec4b5ac6e79a88611e5b8d19422db0c6707c9d5640e2e24c0cbe。
+
+完整旧模块与当前 import 独立对照43格：原生 Pose 的±π及相邻角度、
+严格半径相邻浮点、距离/角度滞回、非单位 quaternion、threshold/tolerance
+优先级、station 请求/释放/离开与无效输入。返回、错误类型/文本/cause、
+状态及输入/配置不变性一致。缺失 heading 仍先于缺失 orientation 报错；
+正常 station 判定 yaw 调用由2次变1次。此计数不证明整体加速，不加入
+46项pytest人口。
+
+完整旧模块 station_yaw_baseline_abc12b4.py、baseline/compare JSON 与
+station_yaw_inspected_abc12b4.json 位于 /tmp/ltl_ros2_completion_20261006，
+helper 位于主机临时目录，XML 如上。README 同步，前95节正文保持；11.93
+的673项组合及11.94–11.95局部资格保留原版本，本轮未重跑七包。没有 LLM、
+benchmark、物理仿真、实机或 Jazzy 验证。
