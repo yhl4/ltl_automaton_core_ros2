@@ -3027,3 +3027,59 @@ resolver_edge_key_4d047cc.json 与 resolver_edge_key_4d047cc_receipt.json
 本轮未重跑七包；11.84 的 IRL 74 项与 11.83 的 ef300b4 整包
 653 项分别属于此前验证，不累加为当前人口。IRL 继续从示范学习
 β，默认关闭；无 LLM、benchmark、物理仿真、实机或 Jazzy 验证。
+
+### 11.86 IRL 与执行索引优化后的七包组合资格（2026-10-07）
+
+干净源码资格为 e5a663c06ce45533cf098edd9eef91e69b3f5f6c，将
+11.84 的 IRL 示范评分复用和 11.85 的索引键复用纳入完整组合。
+本轮只更新 README 与验证记录，源码、测试、domains 和验收条件
+保持。测试前固定预期 JUnit 656 项，其中 Core 191 项；其余包
+与上次资格一致。此前 85 文件冻结闭包与 518 份选定历史哈希
+核对，追加最近局部证据后预先固定 529 文件，不覆盖原始失败。
+
+WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 / NetworkX 2.4
+及 /home/yuhling/.local/bin/ltl2ba 保持。aggregate 六项依赖对应
+六功能包；build 使用 --executor sequential、--symlink-install、
+--packages-up-to ltl_automaton_core 与 -DBUILD_TESTING=ON。
+test 选择完整七包，默认并行并带 --return-code-on-test-failure，
+无筛选、缩时或条件调整。执行代理 build session 17106 与 test
+session 22338 各启动一次，在原 handle 等待至实际 exit 0；
+命令耗时分别 37.042412937 / 63.917228888 秒，不作为加速比。
+主代理实际观测到 build runner/colcon PID 4332/4353，以及
+test runner/colcon PID 4854/4879，未用状态文件推断活进程。
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 191 | 190 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+六份新鲜 JUnit 合计 **656 tests = 652 passed + 4 skipped**，0 errors/
+failures。四项跳过均为既有 copyright。接口 CTest wrapper
+另有一项通过；主代理对实际隔离 build 查询一次，exit 0，
+汇总为 657 tests、0 errors、0 failures、4 skipped。13 份历史
+CTest XML 按 test_start_ns 排除，不把旧结果或 wrapper 重复累加。
+
+新增 IRL 同分顺序两参数及跨调用评分一项、原完整二十步和
+四个溢出参数、IRL commit/step reset、执行解析/缓存及四个真实
+DDS 场景执行；既有 Studio consumer、snapshot fallback、原生
+ltl2ba/POSIX、HIL、monitor、launch 与 lint 均执行。保留 np.int/
+SelectableGroups 弃用警告，五包 stderr 非空；检查完整 stderr
+未见未读取 Future 诊断。start gate 核对十一项源码 import 与
+隔离生成消息，主代理再绑定九模块完整 git 源字节，包含当前
+IRL 与 resolver，不使用旧 receipt 代替当前源码证明。
+
+collector、独立 fresh/live/frozen audit 和日志 receipt 检查均
+各一次 exit 0；新 XML、构建/测试/查询完整实体日志、命令 receipt、
+源码 import 与历史清单冻结为 85 文件 SHA256 闭包，529 份历史
+哈希保持。记录在既有隔离目录的 verification_e5a663c.json、
+verified_summary_e5a663c.json、verified_changed_imports_e5a663c.json、
+colcon_query_e5a663c.json、inspected_combo_receipts_e5a663c.json 与
+verified_results_e5a663c/sha256_manifest.json，独立工具结果另存。
+前 85 节正文完整保留，旧 74/72 局部与 ef300b4 的 653 项保留
+各自范围，不相加为本轮人口。无 LLM、benchmark、完整演示、
+物理仿真、实机示范或 Jazzy 验证；通过不证明整体加速、IRL
+收敛或逆最优性。IRL 沿用原示范学习 β 范围，默认关闭。
