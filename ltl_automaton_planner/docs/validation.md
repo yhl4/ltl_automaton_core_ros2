@@ -3901,3 +3901,67 @@ README同步当前局部资格，前101节正文保持；57项权重更新资格
 683项组合按6ce源码保留，本轮未重跑七包或推算新组合人口。验证为
 WSL Ubuntu-22.04-D/ROS2 Humble符号级；未做LLM、benchmark、完整演示、
 物理仿真、实机/机器人示范或Jazzy验证，不作为整体加速或IRL科学效果证据。
+
+### 11.103 权重更新与维度名隔离后的七包组合资格（2026-10-07）
+
+资格源码为干净0b6b7ebf604a2acfea04c6ce2b82e771011ac258，包含11.101–11.102
+的两个生产改动。开始前核对相对6ce仅两生产文件、一测试和两文档变化，
+新增TS格式隔离的单维/双维两例，固定七包、六份JUnit的685项及4项既有
+copyright跳过。保留默认并行、domain、timeout、max_steps与原验收条件。
+WSL Ubuntu-22.04-D/ROS2 Humble/Python3.10.12/NetworkX2.4及原生ltl2ba路径
+和完整二进制SHA核对通过，聚合六个exec_depend完整。
+
+既有隔离build/install下构建与测试各一次：build session37422、test
+session88762沿原handle等待至实际exit0，receipt elapsed分别47.323844525秒
+与84.698237344秒。主代理观察到build wrapper/colcon PID37236/37249和test
+wrapper/colcon PID37662/37683，终态仍由原handle与receipt/log核对；没有
+替代运行。构建后18项源码import及生成消息路径通过；16完整生产模块及
+独立TS补证合计17模块，均与Git字节匹配，包含两个最新改动。
+
+```bash
+source /opt/ros/humble/setup.bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_0b6b7eb build \
+  --executor sequential \
+  --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --symlink-install --packages-up-to ltl_automaton_core \
+  --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_0b6b7eb test \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --packages-select ltl_automaton_core ltl_automaton_msgs \
+  ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution \
+  ltl_automaton_hil_mic ltl_automaton_std_transition_systems \
+  --return-code-on-test-failure
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_query_0b6b7eb test-result \
+  --test-result-base /tmp/ltl_ros2_completion_20261006/build --verbose
+```
+
+六份新鲜JUnit：**685 tests = 681 passed + 4 skipped**，0 errors/failures。
+msgs11/0skip、core195/1、planner168/1、execution143/0、HIL119/1、std49/1。
+四项跳过均为既有copyright；接口CTest wrapper另1项通过，查询686tests，
+0 errors/failures、4 skipped；18份历史CTest XML按测试开始时间排除。
+两例维度名隔离和update_beta入口均执行，原单维initial/frozenset快照、
+IRL插件/真实β偏好/完整二十步/overflow/commit、HIL十二项Future、driver、
+Trap/monitor、snapshot/服务复制、resolver/timeout、四个DDS、Studio/fallback、
+原生translator/POSIX、参数、launch与lint通过。聚合内部和局部对照不加总。
+五包stderr各923bytes，保留np.int/SelectableGroups依赖弃用警告，未见
+未读取Future异常诊断；上述时间只记录该次运行，不作为加速比较。
+
+先前6ce的87文件闭包及1058份选定历史hash前后均保持；本轮新XML、receipt、
+imports/TS补证和完整TS源码、完整常规colcon日志另冻结为87文件闭包。
+query、collector、独立audit与receipt检查各一次实际exit0；核对完整
+人口、要求入口、新鲜度、source/日志字节、时序、历史及闭包哈希。
+证据在/tmp/ltl_ros2_completion_20261006：verification_0b6b7eb.json、
+verified_changed_imports_0b6b7eb.json、verified_ts_import_bytes_0b6b7eb.json、
+verified_summary_0b6b7eb.json、colcon_query_0b6b7eb.json、
+historical_hashes_before_0b6b7eb.json、inspected_combo_receipts_0b6b7eb.json
+及verified_results_0b6b7eb/sha256_manifest.json，日志在log_combo_0b6b7eb/
+log_query_0b6b7eb，helper在主机临时目录。
+
+README改为当前组合表，前102节正文保持，旧组合/局部资格/原始失败按
+原源码保留；57/61项局部运行不再叠加。IRL仍仅学习β且默认关闭，执行仍
+为符号级FakeBackend；未做LLM、benchmark、完整演示、物理仿真、实机/
+机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。

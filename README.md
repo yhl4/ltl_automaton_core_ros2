@@ -697,49 +697,31 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前 TS 维度名容器隔离验证（2026-10-07）
+### 当前七包组合验证（源码 0b6b7eb，2026-10-07）
 
-TS 构建复制单维格式列表及多维组合的每个来源列表，编辑模型、来源或
-兄弟模型的维度名不会互相污染；显式重建读取来源最新格式。保留格式
-类型/形状、节点、边、guard、initial 和代价。单维/双维回归先复现旧错误，
-三个完整相关文件 **61 passed**，编译、flake8、pep257 与差异检查通过。
-完整记录见 [validation.md 第 11.102 节](ltl_automaton_planner/docs/validation.md)。
-
-### Product 权重更新验证（历史源码 a152954，2026-10-07）
-
-`update_beta` 直接读取每条边的属性，省去每边三次邻接查找，保留
-`transition_cost + beta * soft_task_dist`、边与属性引用、遍历顺序、
-重复更新及原异常/部分更新行为。两个完整相关文件 **57 passed**，
-编译、flake8、pep257 与差异检查通过；13 种输入对照与三个手算规划场景
-独立计数，完整运行字段一致。命令、源码绑定、原始日志与限制见
-[validation.md 第 11.101 节](ltl_automaton_planner/docs/validation.md)。
-
-### 最近七包组合验证（历史源码 6ce560f，2026-10-07）
-
-干净源码 `6ce560f` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
-单维 TS 初始容器隔离与 frozenset 初始/接受集合快照转换纳入完整组合，
-新增两项 TS、八项完整快照回归均执行；此前 Trap、2D/6D monitor、IRL、
-HIL Future 与 driver 修复同时覆盖。
+干净源码 `0b6b7eb` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
+Product 权重更新与 TS 维度名容器隔离纳入完整组合，新单维/双维回归均执行；
+此前初始容器隔离、frozenset 快照、Trap、2D/6D monitor、IRL、HIL Future
+与 driver 修复同时覆盖。
 
 | 包 | tests | passed | skipped |
 | --- | ---: | ---: | ---: |
 | ltl_automaton_msgs | 11 | 11 | 0 |
-| ltl_automaton_planner_core | 193 | 192 | 1 |
+| ltl_automaton_planner_core | 195 | 194 | 1 |
 | ltl_automaton_planner | 168 | 167 | 1 |
 | ltl_automaton_execution | 143 | 143 | 0 |
 | ltl_automaton_hil_mic | 119 | 118 | 1 |
 | ltl_automaton_std_transition_systems | 49 | 48 | 1 |
 
-合计 **683 tests = 679 passed / 4 skipped**，0 errors、0 failures。
+合计 **685 tests = 681 passed / 4 skipped**，0 errors、0 failures。
 四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
-对实际隔离 build 的 colcon 查询为 684 tests。保留 np.int/
+对实际隔离 build 的 colcon 查询为 686 tests。保留 np.int/
 SelectableGroups 依赖弃用警告，五包 stderr 非空；历史 XML
 按测试开始时间排除。完整记录见
-[validation.md 第 11.100 节](ltl_automaton_planner/docs/validation.md)。
-旧源码的 673 项组合和 TS/快照局部资格保留在第 11.97–11.99 节，
-独立旧新对照与局部重复运行不累加到本轮测试人口。
-683 项组合属于 `6ce560f` 源码；之后的权重更新优化按上述局部资格记录，
-本轮未重跑七包。
+[validation.md 第 11.103 节](ltl_automaton_planner/docs/validation.md)。
+旧源码的 673/683 项组合和局部资格保留在第 11.97–11.102 节，
+权重更新的 57 项与维度名隔离的 61 项局部运行及独立旧新对照
+不累加到本轮测试人口。
 
 快照隔离/HIL 恢复、IRL 与执行索引的局部对照、旧版本资格、原始失败，以及
 命令、日志和冻结哈希清单的位置见同一验证记录，按源码版本分别计数。
