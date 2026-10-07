@@ -4058,3 +4058,72 @@ legacy_task_4e7cd92_{red,green}.xml、对应_{red,green}_{imports.json,run.json,
 README同步服务契约和当前局部资格，前104节正文保持；11.103的685项
 仍属于0b6源码基线，未重跑七包或推算新组合人口。IRL仍仅学习beta且默认
 关闭；未做LLM、benchmark、物理仿真、实机/机器人示范或Jazzy验证。
+
+### 11.106 意外状态恢复的候选/快照提交与观测保持（2026-10-07）
+
+基线b524d8f3b5130d72c911dd575897660b4e5f7173。自动恢复回调直接调用活动
+LTLPlanner.replan_from_ts_state；核心成功时先替换自身run/Product/TS，
+wrapper随后才准备快照。快照copy/IDs准备失败会泄漏异常，自动恢复也缺少
+Action/IRL/旧服务已有的有限候选代价检查。
+
+唯一生产改动在_recover_from_ts_state：浅复制外层planner，在候选调用
+核心既有恢复（内部继续一次深复制），不增加第二次整图深复制。搜索、有限
+公开代价、快照及计划消息先准备；锁内先完成快照提交准备，再替换活动planner
+和TS。准备失败返回false并恢复ACTIVE，原运行、图、快照、ID映射、
+generation/step及活动TS引用保持。成功状态发布在提交异常边界之后；复用
+已准备计划消息，possible_states、prefix/suffix、next_move、execution_observation
+和plugins的发布/调用顺序保持。
+
+观测事实与计划提交分开：_ts_state_callback已接收的canonical状态、revision
+及时间戳保持最新；恢复失败不把实际观测的r3回滚为r1。replan_on_unplanned_move
+为false时的既有belief分支字节保持。核心目标、source-label、接受性、IRL、
+Action、服务、参数及其余生产方法保持。
+
+新增三项native回归：copy/ids两种可控快照准备失败，以及合法有限动作权重
+1e308的r3→r4→r2两边恢复路径。后者保留正常初始运行，真实计算候选代价，
+不伪造run cost。失败检查旧authority引用/快照/身份与ACTIVE，同时检查
+canonical=r3、revision加1及原始反馈时间戳。移除快照故障后直接调用native
+恢复；溢出场景先接收另一条生成的r2反馈再直接恢复，成功代价有限、generation
+只增加1、step为0。这里的恢复重试为直接方法调用，不称为DDS重试。
+
+既有延迟恢复用例的计数补丁在任何运行前从旧planner实例移至类方法，调用
+原始非绑定方法，覆盖隔离候选；原请求、同步条件、期限及调用次数保持。
+同时要求恢复后的新planner与原对象不同、旧对象仍在r1。这一条修改既有用例
+不增加测试人口。主代理在运行前去除测试中多余的时间戳/状态赋值，改用生成
+反馈维护观测；RED与GREEN使用同一冻结测试SHA，没有按结果放宽预期。
+
+生产仍为Git基线时，RED session54088沿原handle等待至实际exit1：
+**4 failed / 48 deselected**，pytest3.47秒、JUnit3.434秒、receipt10.309644303秒。
+copy/ids泄漏Controlled snapshot准备RuntimeError；溢出用例替换了原run，
+延迟恢复仍复用原planner对象。原始失败日志/XML保留，不计为修复后通过。
+
+开始前固定11.105原XML的93项（Action49、节点30、序列化14），加新3项为96。
+一次完整GREEN session50523沿原handle等待至实际exit0：**96 passed**，
+0 errors/failures/skipped；Action52、节点30、序列化14。pytest26.85秒、
+JUnit26.805秒、含lint的worker receipt37.209725057秒。八个实际生产import
+与完整字节、生成消息路径、三个测试SHA及原生ltl2ba二进制核对通过；未改
+模块与Git基线一致。源码/测试编译、ament_flake8.main --linelength 99、
+ament_pep257.main及git diff --check通过，保留lint既有optparse提示，没有
+额外警告过滤。这些时间不用于性能比较。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_state_recovery_b524d8f.py \
+  green 7f428d591b11415f6b47d1d2a02b355ac83fa40ef8379b4f0213156dfb752d3e
+```
+
+证据在/tmp/ltl_ros2_completion_20261006：state_recovery_b524d8f_population.json、
+state_recovery_b524d8f_{red,green}.xml、对应_{red,green}_{imports.json,run.json,run.log}
+及state_recovery_b524d8f_inspected.json；helper在主机临时目录。独立检查实际
+exit0，核对原失败文本、人口、时序、新鲜度、完整import字节和日志哈希。
+额外只读scope检查位于主机临时目录state_recovery_scope_b524d8f.json，确认
+其余方法/测试及模块级非函数AST不变、禁用自动恢复分支字节不变。
+首次文档检查helper错误地把旧try行纳入分支切片，实际exit1；修正切片边界，
+保留初稿helper和失败输出，未改生产/测试字节或重跑GREEN。
+旧源码SHA为c71109a3122b66f21233284992a537f3e18f79bcbd790c4bf7d5c1012a2f4f9f，
+新源码SHA为7f428d591b11415f6b47d1d2a02b355ac83fa40ef8379b4f0213156dfb752d3e；
+最终XML SHA为916af565c037e784a84c746f40ae1edb8b7758f34966661049ed1022e6fda78a。
+README同步自动恢复契约和当前局部资格，前105节正文保持；11.103的685项
+仍属于0b6源码基线，未重跑七包或推算新组合人口。IRL仍仅学习beta且默认
+关闭；未做LLM、benchmark、完整演示、物理仿真、实机/机器人示范或Jazzy验证。

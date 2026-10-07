@@ -1270,13 +1270,17 @@ def test_unexpected_state_defers_recovery_until_candidate_finishes(
     assert first_snapshot.metadata.planning_generation == 1
     active_planner = action_runtime.planner.ltl_planner
     recovery_calls = []
-    original_recovery = active_planner.replan_from_ts_state
+    original_recovery = type(active_planner).replan_from_ts_state
 
-    def counted_recovery(state):
+    def counted_recovery(planner, state):
         recovery_calls.append(state)
-        return original_recovery(state)
+        return original_recovery(planner, state)
 
-    active_planner.replan_from_ts_state = counted_recovery
+    monkeypatch.setattr(
+        type(active_planner),
+        "replan_from_ts_state",
+        counted_recovery,
+    )
     started, release = block_candidate(monkeypatch)
     goal_handle = send_goal(action_runtime, make_goal())
     assert spin_until(action_runtime, started.is_set)
@@ -1293,12 +1297,148 @@ def test_unexpected_state_defers_recovery_until_candidate_finishes(
     assert response.status == GoalStatus.STATUS_ABORTED
     assert response.result.error_code == PlanLTL.Result.ERROR_NOT_READY
     assert recovery_calls == [("r3",)]
-    assert active_planner.curr_ts_state == ("r3",)
+    assert action_runtime.planner.ltl_planner is not active_planner
+    assert active_planner.curr_ts_state == ("r1",)
+    assert action_runtime.planner.ltl_planner.curr_ts_state == ("r3",)
     assert action_runtime.planner._pending_divergence is None
     recovered = get_planning_graph_snapshot(action_runtime)
     assert recovered.success
     assert recovered.snapshot.metadata.planning_generation == 2
     assert recovered.snapshot != first_snapshot
+
+
+@pytest.mark.parametrize("stage", ["copy", "ids"])
+def test_state_replanning_commit_failure_preserves_transaction_authority(
+    action_runtime, monkeypatch, stage,
+):
+    """Keep old authority after state recovery commit preparation fails."""
+    activate(action_runtime, DIVERGENCE_TS)
+    node = action_runtime.planner
+    old_planner = node.ltl_planner
+    old_run = old_planner.run
+    old_product = old_planner.product
+    old_ts = old_product.graph["ts"]
+    old_active_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    old_canonical = node._canonical_ts_state
+    old_generation = node._planning_generation
+    old_sequence = node._execution_step_seq
+    old_revision = node._ts_state_revision
+    old_snapshot_message = get_planning_graph_snapshot(action_runtime).snapshot
+
+    message = TransitionSystemStateStamped()
+    assert node._previous_state_stamp is None
+    message.header.stamp.nanosec = 1
+    message.ts_state.states = ["r3"]
+    message.ts_state.state_dimension_names = ["region"]
+
+    with monkeypatch.context() as patch:
+        _fail_snapshot_commit_preparation(patch, stage)
+        leaked = None
+        try:
+            node._ts_state_callback(message)
+        except RuntimeError as error:
+            leaked = error
+
+        assert leaked is None, f"State recovery leaked controlled error: {leaked}"
+
+    assert node.ltl_planner is old_planner
+    assert old_planner.run is old_run
+    assert old_planner.product is old_product
+    assert old_ts is old_product.graph["ts"]
+    assert node._active_transition_system is old_active_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._canonical_ts_state == ("r3",)
+    assert old_canonical == ("r1",)
+    assert old_planner.curr_ts_state == ("r1",)
+    assert node._planning_generation == old_generation
+    assert node._execution_step_seq == old_sequence
+    assert node._ts_state_revision == old_revision + 1
+    assert node._previous_state_stamp == (0, 1)
+    assert get_planning_graph_snapshot(action_runtime).snapshot == (
+        old_snapshot_message
+    )
+
+    assert node._recover_from_ts_state(("r3",))
+    assert node._planning_generation == old_generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._canonical_ts_state == ("r3",)
+    assert node._active_transition_system is node.ltl_planner.ts
+    assert node._active_transition_system.graph["initial"] == {("r3",)}
+    assert node._active_planning_graph_snapshot is not old_snapshot
+
+
+def test_state_replanning_cost_overflow_preserves_transaction_authority(
+    action_runtime,
+):
+    """Reject an overflowing state recovery without replacing the active run."""
+    data = planner_module.yaml.safe_load(DIVERGENCE_TS)
+    nodes = data["state_models"]["region"]["nodes"]
+    nodes["r3"]["connected_to"] = {"r4": "recover_r2"}
+    nodes["r4"] = {"connected_to": {"r2": "recover_r2"}}
+    data["actions"]["recover_r2"]["weight"] = 1e308
+    overflow_ts = planner_module.yaml.safe_dump(data)
+
+    activate(action_runtime, overflow_ts)
+    node = action_runtime.planner
+    old_planner = node.ltl_planner
+    old_run = old_planner.run
+    old_product = old_planner.product
+    old_ts = old_product.graph["ts"]
+    old_active_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    old_canonical = node._canonical_ts_state
+    old_generation = node._planning_generation
+    old_sequence = node._execution_step_seq
+    old_revision = node._ts_state_revision
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    assert isfinite(old_run.totalcost)
+
+    message = TransitionSystemStateStamped()
+    assert node._previous_state_stamp is None
+    message.header.stamp.nanosec = 1
+    message.ts_state.states = ["r3"]
+    message.ts_state.state_dimension_names = ["region"]
+    leaked = None
+    try:
+        node._ts_state_callback(message)
+    except (RuntimeError, ValueError) as error:
+        leaked = error
+
+    assert leaked is None, f"State recovery leaked controlled error: {leaked}"
+    assert node.ltl_planner is old_planner
+    assert old_planner.run is old_run
+    assert old_planner.product is old_product
+    assert old_ts is old_product.graph["ts"]
+    assert node._active_transition_system is old_active_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._canonical_ts_state == ("r3",)
+    assert old_canonical == ("r1",)
+    assert node._planning_generation == old_generation
+    assert node._execution_step_seq == old_sequence
+    assert node._ts_state_revision == old_revision + 1
+    assert node._previous_state_stamp == (0, 1)
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+    next_message = TransitionSystemStateStamped()
+    next_message.header.stamp.nanosec = 2
+    next_message.ts_state.states = ["r2"]
+    next_message.ts_state.state_dimension_names = ["region"]
+    node._ts_state_callback(next_message)
+    assert node._canonical_ts_state == ("r2",)
+    assert node._recover_from_ts_state(("r2",))
+    assert node._planning_generation == old_generation + 1
+    assert node._execution_step_seq == 0
+    assert node._active_transition_system is node.ltl_planner.ts
+    assert node._active_transition_system.graph["initial"] == {("r2",)}
+    assert isfinite(node.ltl_planner.run.totalcost)
 
 
 def test_shutdown_does_not_wait_for_or_commit_blocked_worker(

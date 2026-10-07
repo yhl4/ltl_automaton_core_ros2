@@ -2033,14 +2033,50 @@ class PlannerNode(Node):
                 "Product states; replanning is required."
             )
 
+        active_planner = self.ltl_planner
         try:
             self._set_planner_status(
                 PlannerStatus.PLANNING,
                 "State-based replanning is in progress.",
             )
-            replanned = self.ltl_planner.replan_from_ts_state(
+            candidate = copy(active_planner)
+            replanned = candidate.replan_from_ts_state(
                 reached_state
             )
+            if (
+                not replanned
+                or candidate.run is None
+                or candidate.next_move is None
+            ):
+                self.get_logger().error(
+                    "No accepting plan was found from "
+                    f"the unexpected state {reached_state}."
+                )
+                self._set_planner_status(
+                    PlannerStatus.ACTIVE,
+                    "State-based replanning failed; "
+                    "the previous run remains active.",
+                )
+                return False
+
+            _validate_candidate_run_costs(candidate.run)
+            candidate.curr_ts_state = reached_state
+            snapshot = serialize_planning_graph(
+                candidate,
+                self._active_ts_sha256,
+            )
+            stamp = self.get_clock().now().to_msg()
+            prefix_plan, suffix_plan = self._plan_messages(
+                candidate,
+                stamp,
+            )
+            candidate_ts = candidate.ts
+
+            with self._state_lock:
+                self._commit_planning_graph_snapshot(snapshot)
+                self.ltl_planner = candidate
+                self._active_transition_system = candidate_ts
+                self._canonical_ts_state = reached_state
         except Exception as error:
             self.get_logger().error(
                 f"Replanning from {reached_state} failed: {error}"
@@ -2052,31 +2088,7 @@ class PlannerNode(Node):
             )
             return False
 
-        if (
-            not replanned
-            or self.ltl_planner.run is None
-            or self.ltl_planner.next_move is None
-        ):
-            self.get_logger().error(
-                "No accepting plan was found from "
-                f"the unexpected state {reached_state}."
-            )
-            self._set_planner_status(
-                PlannerStatus.ACTIVE,
-                "State-based replanning failed; "
-                "the previous run remains active.",
-            )
-            return False
-
-        self.ltl_planner.curr_ts_state = reached_state
-        snapshot = serialize_planning_graph(
-            self.ltl_planner,
-            self._active_ts_sha256,
-        )
-
         with self._state_lock:
-            self._canonical_ts_state = reached_state
-            self._commit_planning_graph_snapshot(snapshot)
             self._set_planner_status(
                 PlannerStatus.ACTIVE,
                 "The state-replanned accepted LTL run is active.",
@@ -2089,7 +2101,11 @@ class PlannerNode(Node):
         self.get_logger().info(
             f"Selected next move: {self.ltl_planner.next_move}"
         )
-        self._publish_plan()
+        self.prefix_plan_publisher.publish(prefix_plan)
+        self.suffix_plan_publisher.publish(suffix_plan)
+        self.get_logger().info(
+            "Published prefix and suffix plans."
+        )
         self._publish_next_move()
         self._publish_planning_execution_observation()
         self._run_plugins(reached_state)
