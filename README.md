@@ -711,45 +711,27 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-本轮 Core 运行转为 Product 边列表时使用流式相邻遍历，省去四个
-临时切片；仍生成独立输出列表并保留原闭合 suffix 拼接。Product/
-discrete-plan 相关文件 **57 passed**；强化列表独立性和旧字段值
-断言后，三个新增用例子集再次通过，不重复累计。两次运行均保留
-两条既有 NumPy 弃用警告。三个原生小规划的完整旧/新转换输出、
-快照/ID、成本和输入一致，Product 阶段切片次数 4 -> 0；TS 动作
-转换与迭代器消费保持。本轮未重跑七包，不作为整体加速结论。
-
-前次快照导出改用流式相邻遍历，省去 prefix/suffix 校验的两个尾部
-切片副本。快照与服务副本相关文件 **23 passed**，保留两条既有
-NumPy 弃用警告。完整旧/新模块在三个原生小规划及四个 list/tuple
-控制运行上的快照、ID、成本和输入一致，实测切片次数从 2 降为 0；
-两个损坏运行的精确诊断、短路顺序与空载荷保持。该局部减少不作为
-整体加速结论；该次未重跑七包或完整演示场景。
-
-此前将 KTH driver 六个缓存配置声明为只读启动参数，修复运行时
-写入成功但实际配置/timer 不变的问题。相关文件 **20 passed**，
-新增公开参数服务 case 单独通过；先写入可变 `use_sim_time` 的
-原子拒绝场景补强后，两项子集再次通过，不重复累计。
-完整旧模块三个新 case 失败，失败 JUnit/log 保留；启动覆盖与动态
-`use_sim_time` 仍可用，该次未重跑七包或完整演示场景。
-
-上次代码资格基线 `4817dd4` 的 aggregate 七包构建与默认并行整包测试
-均 exit 0。六份该轮新 JUnit 合计 **620 tests = 616 passed / 4 skipped**，
+代码资格基线 `be23c75` 的 aggregate 七包构建与默认并行整包测试
+均 exit 0，各执行一次。六份本轮新 JUnit 合计
+**631 tests = 627 passed / 4 skipped**，
 0 errors、0 failures；四个跳过项均为已有 copyright 检查。
-标准 colcon 汇总含一项通过的接口 CTest wrapper，共 621 tests。
-自 `6cbfd39` 后新增的 23 项快照、IRL、2D 边界及 KTH 参数 case
-均执行且未跳过。四个真实 DDS 场景、Studio consumer、快照 fallback、
-IRL commit/step reset、原生 ltl2ba/POSIX、HIL、monitor、launch 与 lint
-也完成整包检查。八份历史 XML 按时间排除，未计入该轮通过统计。
+标准 colcon 汇总含一项通过的接口 CTest wrapper，共 632 tests。
+构建/测试命令实际耗时约 37.70/62.27 秒，不作为规划性能或加速比。
 
-实际导入绑定本 checkout 与隔离生成接口，改过的 IRL/生成器/驱动
-源码字节与该基线一致；环境仍为 Ubuntu 22.04 / ROS 2 Humble /
+自 `4817dd4` 后新增的 11 项 KTH 只读参数、快照重复运行/诊断、Core
+边转换 case，以及此前新增的 23 项回归，均执行且未跳过。
+四个真实 DDS 场景、Studio consumer、快照 fallback、
+IRL commit/step reset、原生 ltl2ba/POSIX、HIL、monitor、launch 与 lint
+也完成整包检查。九份历史 XML 按时间排除，未混入本轮统计。
+
+实际导入绑定本 checkout 与隔离生成接口，Product/快照/IRL/生成器/
+驱动五模块源码字节与该基线一致。环境仍为 Ubuntu 22.04 / ROS 2 Humble /
 Python 3.10.12 / NetworkX 2.4，保留依赖与弃用警告。
-该轮结果、receipt、完整日志及哈希清单已冻结，83 份文件校验通过；
-26 份旧冻结证据的 SHA256 保持。此前 `6cbfd39` 的 597 项历史结果
-与 `2c52c71` 的五项失败均保留，未混入该轮统计。该组合结果属于
-`4817dd4`，本轮仅为上述 Core 边转换局部验证。组合验证不证明 IRL 收敛、机器人示范
-效果或整体加速。
+本轮结果、receipt、构建/测试完整日志与哈希清单已冻结，83 份文件
+校验通过；119 份历史证据的 SHA256 保持。此前 `4817dd4` 的 620 项、
+`6cbfd39` 的 597 项和 `2c52c71` 的五项失败均保留，不并入本轮统计。
+本次仓库只刷新 README 与验证记录，源码/测试保持 `be23c75`。
+组合验证不证明 IRL 收敛、逆最优性、机器人示范效果或整体加速。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见
