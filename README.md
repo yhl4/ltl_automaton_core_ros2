@@ -657,53 +657,22 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 
 colcon test \
-  --packages-up-to ltl_automaton_core
+  --packages-up-to ltl_automaton_core \
+  --return-code-on-test-failure
 
 colcon test-result --verbose
 ```
 
-仓库包含以下定向测试：
+现有测试覆盖：
 
-- TS 构建；
-- Boolean guard 解析；
-- Promela 生成；
-- `ltl2ba` 集成；
-- Büchi 构建；
-- Product 构建；
-- 接受状态所在 SCC、自环与更便宜接受环的比较、零代价循环；
-- 非法 TS/guard/代价拒绝、单维 TS guard 与显式初始状态保留；
-- prefix–suffix 规划；
-- `LTLPlanner` 静态规划与重规划；
-- Planner 节点的初始 ROS 2 输出；
-- TS 状态反馈后的计划推进；
-- `/replanning` 服务调用；
-- `PlanLTL` Action 的接受、失败和事务式替换；
-- PlanLTL worker 意外异常时完成 Future、释放事务及后续请求恢复；
-- PlanLTL/IRL 提交前保留快照或 ID 映射准备失败时保持原执行权威；
-- planning graph snapshot 与 execution observation 的 identity contract；
-- 快照状态值列表的独立性，以及图属性变化后再次转换的正确性；
-- 快照复制期间的新代际提交、响应代际一致性及防御性副本；
-- 接受运行的缺边/缺节点拒绝顺序，以及索引重建失败后保留原有效缓存；
-- FakeBackend/FakeStateObserver 执行闭环及真实 ROS 2 DDS 通信边界；
-- 布尔值为 False 的显式执行/观测组件仍被使用，以及默认 fake 后端与观测器共享所提供的 plant；
-- 快照服务延迟发现后的命令恢复、执行后端异常后的忙碌状态释放；
-- 快照请求失败或超时后的最新命令恢复，以及节点销毁后晚到响应的抑制；
-- fake 执行延迟的启动校验、one-shot timer 释放和销毁后已排队回调的抑制；
-- fake 异步观测或反馈发布异常后的忙碌状态释放，以及相同序号的去重；
-- 观测管线销毁后已排队回调的丢弃，避免访问已销毁的 ROS publisher；
-- 执行快照拒绝 suffix 末尾重复起点，保留合法单节点自环及后续代际恢复；
-- 标准 2D/6D TS monitor、HIL controller 与 TrapDetectionPlugin 的 launch 通信；
-- TrapDetection 多候选/多接受环可达性、空集合边界与同一图更新后的重新判定；
-- 标准 TS 无效位姿/关节反馈的丢弃与恢复，以及有限大数的 6D 距离计算；
-- HIL 查询超时恢复、离开后返回同状态的过期响应，以及最新输入的仲裁；
-- HIL 人工输入在 ROS 时间回退或过期后不会复活，以及零时刻/零 timeout 的边界；
-- HIL 非有限速度/距离的丢弃与恢复、三轴限幅和小安全区增益的数值稳定性；
-- IRL 每轮权重重置、示范边 margin 与重复迭代的浮点运算保持；
-- HIL、标准 TS 和执行节点的启动参数只读拒绝、启动覆盖及公开参数服务原子更新；
-- Launch 测试结束时的干净退出。
-- 不可行任务、未知状态与内部异常下的事务式重规划回滚。
-- 完整 Product 上的历史重规划、最新到达状态、代价参数与新任务历史隔离。
-- `ltl2ba` 启动失败与信号终止的诊断、错误分类及活动计划保留。
+- TS、Boolean guard、Promela、原生 `ltl2ba`、Büchi 与 Product 构建；
+- prefix–suffix 代价、接受环、自环、零代价循环与历史重规划；
+- Planner 状态反馈、任务替换、`PlanLTL` Action 和失败时的活动计划保留；
+- 正式快照与执行观测身份、步骤序号、缓存更新及异常/超时恢复；
+- 符号执行闭环、四个真实 ROS 2 DDS 场景及 Studio consumer；
+- 标准 2D/6D TS monitor、HIL 仲裁、trap 查询与无效输入恢复；
+- 可选 IRL 的示范选择、完整二十步学习、隔离候选与事务式提交；
+- 启动参数、运行时参数服务、launch、节点销毁与 lint。
 
 提交前建议额外执行：
 
@@ -715,7 +684,7 @@ git diff --check
 
 将最近 IRL 示范评分复用与执行索引键复用一起纳入完整组合。
 干净源码 `e5a663c` 的七包构建和默认并行整包测试各执行一次，
-均 exit 0；本轮只更新文档，源码和测试保持该资格版本。
+均 exit 0；后续文档更新没有改变该资格版本的源码或测试。
 
 | 包 | tests | passed | skipped |
 | --- | ---: | ---: | ---: |
@@ -727,78 +696,15 @@ git diff --check
 | ltl_automaton_std_transition_systems | 49 | 48 | 1 |
 
 合计 **656 tests = 652 passed / 4 skipped**，0 errors、0 failures。
-四项跳过均为既有 copyright，接口 CTest wrapper 另有一项通过；
-对实际隔离 build 的 colcon 查询为 657 tests。13 份历史 XML
-按测试开始时间排除。构建/测试耗时约 37.04/63.92 秒，不是性能测量。
+四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
+对实际隔离 build 的 colcon 查询为 657 tests。保留 np.int/
+SelectableGroups 依赖弃用警告，五包 stderr 非空；历史 XML
+按测试开始时间排除。完整记录见
+[validation.md 第 11.86 节](ltl_automaton_planner/docs/validation.md)。
 
-新增 IRL 同分顺序和跨调用重新评分三项、完整二十步与溢出检查、
-IRL 提交/失败恢复、执行索引/缓存、四个真实 DDS 场景及已有
-Studio、原生 ltl2ba、HIL、monitor、launch、lint 均执行。
-保留 np.int/SelectableGroups 依赖弃用警告，五包 stderr 非空；
-完整 stderr 未见未读取 Future 诊断。85 文件结果闭包冻结，
-529 份选定历史哈希保持。详见 11.86，符号级组合通过不证明
-整体加速、IRL 科学效果或实机效果；IRL 继续默认关闭。
-
-### 最近局部优化与验证（源码 e5a663c）
-
-执行快照首次建立索引时，每条 Product 边只构造一次 ID 对，匹配后
-直接复用该键。完整解析器与后端两份现有测试文件 **72 passed**，
-没有新增测试或改变条件。三个原生 single/safe/KTH 快照的新旧
-解析结果、派发步骤和成本一致；九种错误及缓存恢复保持。
-每条匹配边省去两次 ID 读取，缓存命中仍不遍历边；未测整体性能。
-源码编译、flake8 和 diff 检查通过，详见 11.85；该局部阶段未重跑七包。
-
-### 最近 IRL 局部验证（源码 4d047cc）
-
-IRL 选择示范时流式携带软任务距离，复用选中示范的本次评分，
-省去随后对同一路径的再次遍历。同分仍按输入迭代顺序取首条；
-下一次学习重新读取 Product，不跨调用缓存。梯度、步长、二十次
-迭代上限、停止规则和原示范学习 β 范围保持，模块仍默认关闭。
-完整纯 IRL 与 PlanLTL Action 两份现有测试文件 **74 passed**，
-包含三项新增顺序/重新评分回归，保留两项既有依赖弃用警告。
-完整旧/新学习器在实际 Product/Dijkstra 小图中的全部结果字段
-一致，每次少评一次选中示范；局部读取减少不证明整体加速。
-首轮 fixture 手算失败与最终 XML 分别保留，详见 11.84。
-该 IRL 局部阶段未重跑七包；下述 653 项仅属于历史源码 ef300b4。
-
-### 上一次七包资格（源码 ef300b4，2026-10-07）
-
-将接受路径的相邻边流式遍历、合法不可哈希字符串维度修复，以及
-失效快照回调的异常读取纳入该次完整组合。干净源码基线 `ef300b4`
-的 aggregate 七包构建和默认并行整包测试各执行一次，均 exit 0。
-六份本轮新 JUnit 的计数如下：
-
-| package | tests | passed | skipped |
-|---|---:|---:|---:|
-| ltl_automaton_msgs | 11 | 11 | 0 |
-| ltl_automaton_planner_core | 188 | 187 | 1 |
-| ltl_automaton_planner | 159 | 158 | 1 |
-| ltl_automaton_execution | 143 | 143 | 0 |
-| ltl_automaton_hil_mic | 103 | 102 | 1 |
-| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
-
-合计 **653 tests = 649 passed / 4 skipped**，0 errors、0 failures。
-四项跳过均为已有 copyright；接口 CTest wrapper 另有一项通过，
-对实际隔离 build 的 colcon 查询汇总为 654 tests。12 份历史 CTest
-XML 按时间排除。构建/测试命令耗时约 35.92/60.80 秒，不表示规划性能。
-
-最近九项新增参数 case、真实排队回调、timeout、解析器、四个真实
-DDS 场景、Studio consumer、快照 fallback、IRL commit/step reset、
-原生 ltl2ba/POSIX、HIL、monitor、launch 与 lint 都执行。IRL 继续
-保持原示范学习 β 范围，默认关闭。实际导入来自当前 checkout 和
-隔离生成接口，九模块完整源码字节匹配该基线；环境为 Ubuntu 22.04 /
-ROS 2 Humble / Python 3.10.12 / NetworkX 2.4。保留 np.int 与
-SelectableGroups 弃用警告，五包有 stderr。
-
-本轮结果、命令 receipts、完整构建/测试及查询日志冻结为 85 文件
-SHA256 闭包，424 份选定历史证据保持。本轮只更新 README 与验证
-记录，源码和测试保持 `ef300b4`，详细证据见 11.83。此前 `d6f4983`
-的 644 项及各阶段局部结果、原始失败保留，不累加为本轮总数。
-执行场景仍为符号级 FakeBackend；没有 LLM、benchmark、完整演示、
-物理仿真、实机示范或 Jazzy 验证，不证明整体加速或 IRL 科学效果。
-
-各轮验证正文（包括数值、fixture、实测与限制）见
-[validation.md](ltl_automaton_planner/docs/validation.md)。
+IRL 示范评分与执行索引的局部对照、旧版本资格、原始失败，以及
+命令、日志和冻结哈希清单的位置见同一验证记录，按源码版本分别计数。
+符号级组合通过不证明整体加速、IRL 科学效果或实机效果。
 
 ---
 
