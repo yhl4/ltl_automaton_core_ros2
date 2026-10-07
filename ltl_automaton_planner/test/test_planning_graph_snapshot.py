@@ -2,10 +2,13 @@
 
 from copy import deepcopy
 from pathlib import Path
+from types import SimpleNamespace
 
+from networkx import DiGraph
 import pytest
 
 from ltl_automaton_msgs.msg import BuchiGraphNode
+from ltl_automaton_planner.planner_node import serialize_planning_graph
 from ltl_automaton_planner.planner_node import prepare_transition_system
 from ltl_automaton_planner.planning_graph_snapshot import (
     build_planning_graph_snapshot,
@@ -361,3 +364,183 @@ def test_unavailable_snapshot_is_an_atomic_empty_payload():
     assert not snapshot.product_edges
     assert not snapshot.accepted_run.prefix_product_node_ids
     assert not snapshot.accepted_run.suffix_product_node_ids
+
+
+def _control_planner():
+    """Build a small valid Product/run fixture for run-boundary checks."""
+    ts = DiGraph(initial={"r0"}, ts_state_format=("region",))
+    for state in ("r0", "r1", "r2"):
+        ts.add_node(state, label={state})
+    ts.add_edge("r0", "r1", action="move", weight=1)
+    ts.add_edge("r1", "r2", action="advance", weight=1)
+    ts.add_edge("r2", "r1", action="close", weight=1)
+
+    buchi = DiGraph(
+        type="hard_buchi",
+        initial={"q0"},
+        accept={"q0"},
+        symbols=set(),
+    )
+    buchi.add_edge(
+        "q0",
+        "q0",
+        guard_formula="1",
+    )
+
+    product = DiGraph(
+        ts=ts,
+        buchi=buchi,
+        initial={"p0"},
+        accept={"p0", "p1", "p2"},
+        accept_with_cycle={"p1", "p2"},
+        type="ProdAut",
+    )
+    for node, ts_state in (
+        ("p0", "r0"),
+        ("p1", "r1"),
+        ("p2", "r2"),
+    ):
+        product.add_node(
+            node,
+            ts=ts_state,
+            buchi="q0",
+            marker="visited",
+        )
+    product.add_edge(
+        "p0",
+        "p1",
+        action="move",
+        transition_cost=1,
+        soft_task_dist=0,
+        weight=1,
+    )
+    product.add_edge(
+        "p1",
+        "p2",
+        action="advance",
+        transition_cost=1,
+        soft_task_dist=0,
+        weight=1,
+    )
+    product.add_edge(
+        "p2",
+        "p1",
+        action="close",
+        transition_cost=1,
+        soft_task_dist=0,
+        weight=1,
+    )
+    run = SimpleNamespace(
+        prefix=["p0", "p1"],
+        suffix=["p1", "p2"],
+        precost=1,
+        sufcost=2,
+        totalcost=21,
+    )
+    return SimpleNamespace(
+        product=product,
+        run=run,
+        hard_spec="1",
+        soft_spec="",
+    )
+
+
+def _control_graph_state(product):
+    """Copy Product/TS graph fields used by the serializer fixture."""
+    ts = product.graph["ts"]
+    return (
+        tuple((node, deepcopy(dict(data)))
+              for node, data in product.nodes(data=True)),
+        tuple((source, target, deepcopy(dict(data)))
+              for source, target, data in product.edges(data=True)),
+        tuple((node, deepcopy(dict(data)))
+              for node, data in ts.nodes(data=True)),
+        tuple((source, target, deepcopy(dict(data)))
+              for source, target, data in ts.edges(data=True)),
+        {
+            name: set(product.graph[name])
+            for name in ("initial", "accept", "accept_with_cycle")
+        },
+    )
+
+
+def _control_run_state(run):
+    """Copy run fields without relying on object identity."""
+    return (
+        tuple(run.prefix),
+        tuple(run.suffix),
+        run.precost,
+        run.sufcost,
+        run.totalcost,
+    )
+
+
+@pytest.mark.parametrize(
+    "prefix,suffix,expected",
+    [
+        (
+            [],
+            ["p1", "p2"],
+            "The accepted run has no prefix nodes.",
+        ),
+        (
+            ["p0", "p2"],
+            ["p1", "p2"],
+            "The accepted prefix and suffix do not share their boundary node.",
+        ),
+        (
+            ["p0", "p2", "p1"],
+            ["p1", "p2"],
+            "The accepted prefix references a missing Product edge.",
+        ),
+        (
+            ["p0", "p1"],
+            ["p1", "p0", "p2"],
+            "The accepted suffix references a missing Product edge.",
+        ),
+    ],
+)
+def test_damaged_accepted_run_is_unavailable_and_recoverable(
+    prefix,
+    suffix,
+    expected,
+):
+    """Reject malformed accepted runs without mutating the valid fixture."""
+    planner = _control_planner()
+    healthy = build_planning_graph_snapshot(planner, "control-hash")
+    assert healthy.snapshot.accepted_run.prefix_cost == 1
+    assert healthy.snapshot.accepted_run.suffix_cost == 2
+    assert healthy.snapshot.accepted_run.total_cost == 21
+    expected_snapshot = deepcopy(healthy.snapshot)
+    graph_before = _control_graph_state(planner.product)
+    run_before = _control_run_state(planner.run)
+
+    planner.run.prefix = list(prefix)
+    planner.run.suffix = list(suffix)
+    with pytest.raises(ValueError) as error:
+        build_planning_graph_snapshot(planner, "control-hash")
+    assert str(error.value) == expected
+
+    unavailable = serialize_planning_graph(planner, "control-hash")
+    assert unavailable.snapshot.metadata.unavailable_reason == (
+        "Planning graph snapshot conversion failed: " + expected
+    )
+    assert not unavailable.snapshot.metadata.available
+    assert unavailable.product_node_ids is None
+    assert not unavailable.snapshot.buchi_nodes
+    assert not unavailable.snapshot.buchi_edges
+    assert not unavailable.snapshot.product_nodes
+    assert not unavailable.snapshot.product_edges
+    assert not unavailable.snapshot.accepted_run.prefix_product_node_ids
+    assert not unavailable.snapshot.accepted_run.suffix_product_node_ids
+    assert _control_graph_state(planner.product) == graph_before
+    assert _control_run_state(planner.run) == (
+        tuple(prefix), tuple(suffix), 1, 2, 21,
+    )
+
+    planner.run.prefix = ["p0", "p1"]
+    planner.run.suffix = ["p1", "p2"]
+    restored = build_planning_graph_snapshot(planner, "control-hash")
+    assert restored.snapshot == expected_snapshot
+    assert _control_graph_state(planner.product) == graph_before
+    assert _control_run_state(planner.run) == run_before

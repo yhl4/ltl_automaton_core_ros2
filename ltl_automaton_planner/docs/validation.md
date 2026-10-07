@@ -1720,3 +1720,46 @@ Product 边并断言全部边对存在，这三个 case 再次通过；它们是
 隔离 overlay。未重跑整包/ROS 通信、LLM、benchmark、物理仿真、
 实机、Jazzy 或机器人示范；11.57 整包结果属于原代码基线。README、
 60 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.62 快照导出校验完整接受运行结构（2026-10-07）
+
+以 `5efdada` 为基线，_serialize_run 原先只校验运行节点是否属于
+Product、suffix 非空/末尾不重复起点及闭合边。空 prefix、边界不相接
+或内部缺边仍可能被导出为 metadata.available=true，执行 resolver
+随后拒绝。现在在原有校验之后补查 prefix 非空、prefix 最后节点与
+suffix 首节点一致，以及 prefix/suffix 各自全部相邻 Product 边。
+保持原有错误优先次序与消息；新的结构失败走既有转换 fallback，
+输出 unavailable 元数据、空全部图/运行载荷及空 ID 映射。规划成功
+语义、提交规则、ROS 字段、执行身份、搜索/接受性、代价与 IRL 不变。
+该检查只证明这些运行结构满足导出契约，不证明接受性或最优性。
+
+四个新增参数 case 分别损坏 prefix、边界、prefix 内部边和 suffix
+内部边，健康控制图有三状态 TS、单节点恒真 Büchi 及匹配 Product，
+边为 p0→p1→p2→p1。prefix 一边成本 1，suffix 两边各 1、成本 2，
+gamma=10 的记录总成本 21。损坏运行的精确 ValueError、unavailable
+原因和完整空载荷、Product/TS 与运行保持，以及修复后的完整快照
+恢复均核对。初始控制 fixture 将 suffix 两边各写 2 却记录成本 2，
+并使用不一致的接受标记；审阅后在同一 fixture 校正权重与恒真接受
+标记，补断言记录成本，再重跑四个定向 case，均通过。
+
+新增四个检查在旧源码均失败，因为导出没有抛出结构错误。fixture
+校正后，独立进程再次加载逐字匹配 git show 的完整旧模块，仍为
+**4 failed**；该失败不是规划无解或算法最优性结果。修复后仅重跑
+test_planning_graph_snapshot.py 与 test_snapshot_service_copy.py，合计
+**15 passed**；fixture 校正后的四个通过属于前述测试子集，不另计
+独立项。保留原 NumPy/NetworkX 弃用警告。源码/测试 py_compile、
+ament_flake8 与测试 pep257 通过。
+
+另用原生 ltl2ba 与真实 Core 规划 `<> r2`：source-label 消费规则下
+goto_r2 成本 2、再 stay_r2 成本 1 进入接受，prefix=3、suffix=1、
+gamma=10、total=13。实际旧/新完整 ROS 快照与公开 ID 映射相同，
+执行 consumer 解析 goto_r2 的完整源/目标符号状态为 r1→r2。仅将
+运行 prefix 改为空，旧导出仍 available=true 而 consumer 精确拒绝；
+新转换返回 unavailable 空载荷，保留运行字段，恢复原 prefix 后
+完整快照和 ID 映射再次相同。旧文件字节、当前模块导入与原生
+translator 路径核对。此探针不启动 ROS 节点或 DDS 通信。
+
+环境仍为 WSL Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 隔离
+overlay。未重跑整包、ROS 通信、LLM、benchmark、物理仿真、实机、
+Jazzy 或机器人示范；11.57 整包结果属于原代码基线。README/API、
+61 节历史正文保留、本地链接/锚点与 diff 检查通过。

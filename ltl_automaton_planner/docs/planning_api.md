@@ -147,6 +147,11 @@ closes back to its first through a Product edge. A one-node suffix represents a
 self-loop. The execution resolver rejects a multi-node suffix whose final node
 duplicates its first.
 
+The exporter also requires a nonempty prefix whose last node is the first
+suffix node, and checks every adjacent prefix/suffix Product edge. A broken
+run uses the unavailable empty-payload conversion result described below;
+it is never marked as an available execution snapshot.
+
 Each request atomically captures the current snapshot or its absence. A snapshot
 response remains tied to that complete captured generation even if a newer one
 commits during copying. The returned copy can be modified without changing the

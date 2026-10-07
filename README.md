@@ -703,14 +703,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-本轮接受运行的边对直接构造 tuple，省去中间列表；保持 prefix/
-suffix 次序、重复边、自环及隐式闭合边，拒绝无效快照后保留原索引。
-resolver、backend、execution-node 三个相关文件 **90 passed**；
-随后补齐 formatter fixture 的 Product 边，三个对应 case 再次通过。
-七个新增检查在实际旧版也全部通过，源码/测试 lint 与旧/新完整
-ExecutionStep 对照通过。1024 项重复 prefix 样例的边对结果一致，
-旧版中间列表含 1026 项，新版无该列表；仍有输入切片与输出 tuple，
-不作为整体加速或总内存测量。本轮未重跑整包，不改变接口或 IRL。
+本轮补齐快照导出端的接受运行结构检查：prefix 必须非空并与 suffix
+共享边界，全部相邻 Product 边必须存在。损坏运行走既有 unavailable
+空载荷出口，避免导出标为可用而执行器拒绝的快照；规划成功语义保留。
+snapshot serializer 与 service-copy 两个相关文件 **15 passed**；
+随后校正控制 fixture 的成本和接受标记，四个定向 case 再次通过。
+四个新增 case 在实际旧版均复现失败；原生 ltl2ba 合法规划的完整
+旧/新快照、公开 ID 与执行步骤一致。源码/测试 lint 通过，未重跑
+整包，不改变搜索、代价公式、ROS 字段或 IRL 的 β 学习规则。
 
 此前代码基线 `c70d38d` 的 aggregate 七包构建与整包测试全部完成。
 六份本轮新 JUnit 合计 **572 tests = 568 passed / 4 skipped**，

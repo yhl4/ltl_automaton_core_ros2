@@ -309,6 +309,24 @@ def _serialize_run(planner, product, product_ids):
     if not product.has_edge(run.suffix[-1], run.suffix[0]):
         raise ValueError("The accepted suffix does not close in the Product graph.")
 
+    if not run.prefix:
+        raise ValueError("The accepted run has no prefix nodes.")
+    if run.prefix[-1] != run.suffix[0]:
+        raise ValueError(
+            "The accepted prefix and suffix do not share their boundary node."
+        )
+    for segment, nodes in (
+        ("prefix", run.prefix),
+        ("suffix", run.suffix),
+    ):
+        if any(
+            not product.has_edge(source, target)
+            for source, target in zip(nodes, nodes[1:])
+        ):
+            raise ValueError(
+                f"The accepted {segment} references a missing Product edge."
+            )
+
     message = AcceptedRunSnapshot()
     message.prefix_product_node_ids = prefix_ids
     message.suffix_product_node_ids = suffix_ids
