@@ -4443,3 +4443,49 @@ verified_results_d5f2faa/sha256_manifest.json；原始日志在log_combo_d5f2faa
 log_query_d5f2faa，helper在主机临时目录。IRL仍仅学习β且默认关闭，执行仍
 为符号级FakeBackend。未做LLM、benchmark、完整演示、物理仿真、实机/
 机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。
+
+### 11.112 IRL 无匹配反馈后的记录恢复（2026-10-07）
+
+基线dd51014cfe3820f38016e77ef67df9d22834c814。原插件在示范无法延伸到
+Product 后继时清空 possible_runs，却保持 learning_trigger=True；后续合法
+反馈仍无法延伸空集合。仅在原空集合分支增加 learning_trigger=False，保留
+原 warning/return，停止该次记录且不请求空学习。再次发送 True 从当前有效
+Product belief 开始新记录；可直接 True 或先 False 再 True。后续非记录状态
+的反馈及单独 False 不请求学习，不自动将旧前缀接到新示范。
+
+新增一个 fake-host 回归，含两种重启流程。检查空集合、记录标志、无空学习/
+无空诊断发布、仅一次新示范提交，以及 Product 边、belief、宿主实例、代次
+和状态保持。旧测试 AST 完整保持；核心 β 学习规则、默认关闭、接口未改。
+人口在运行前固定为旧 fake-host 5 + 新回归 1 + 原真实 ROS preference 1 +
+optional safety 2 = 9；测试完整 SHA 在各次尝试及 RED/GREEN 之间不变。
+
+原 helper session65505 在收集阶段 exit3，launch-testing 将文件转换为
+LaunchTestModule，指定用例未收集；retry1 关闭 launch_testing 后仍因
+launch_ros 依赖的 hook 无注册而 exit3，未执行用例。原日志/XML/receipt
+均保留。retry2 同时关闭两个收集插件，沿用原人口和测试，不修改验收条件。
+原生产 Git 字节上的 RED 实际 exit1：**1 failed**，失败断言为候选清空后
+记录标志仍 True。一次生产修复后的 GREEN session98974 沿原 handle 至
+实际 exit0：**9 passed**，0 errors/failures/skipped；pytest2.64秒，
+receipt11.689448731秒，不用于性能比较。无匹配恢复由 fake-host 检查；
+既有 preference 用真实 ROS 接口、原生学习及重规划，未新增无匹配 DDS 场景。
+
+源码/测试编译、flake8、pep257、diff检查通过。11个实际生产 import 完整
+字节、生成消息路径及原生 ltl2ba SHA 核对；独立 receipt/scope 检查 exit0。
+关闭收集插件产生的 UnknownMarkWarning 和 lint optparse 提示均保留。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_recording_dd51014_retry2.py red f0f01ffbe90c7fe95c45b71f83e387a92c1b004222f50d932f338670800c4857
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_recording_dd51014_retry2.py green 1a323b80576da2fa556e73964096f7bec677ccd4c40b15f7eb1f2316d9b8d5be
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/inspect_recording_dd51014.py
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：recording_dd51014_population.json、
+recording_dd51014[_retry1/_retry2] 的 red.xml/red_imports.json/red_run.json/
+red_run.log，retry2 对应 green 文件及 recording_dd51014_inspected.json。
+当前源码 SHA 为1a323b80576da2fa556e73964096f7bec677ccd4c40b15f7eb1f2316d9b8d5be，
+测试 SHA 为fca325f76a7355678a1c4fccea894d0ccf791c7c1a8cdf09dd391feec536fb70。
+两份 README 同步恢复约定；前111节正文和原失败记录保留。未重跑七包，
+705项仍属于d5f2faa组合源码，9项局部结果不相加。未做LLM、benchmark、
+物理仿真、实机或Jazzy验证，不据此宣称IRL收敛或机器人示范效果。

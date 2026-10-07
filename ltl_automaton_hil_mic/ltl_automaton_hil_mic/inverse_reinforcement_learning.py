@@ -117,6 +117,7 @@ class IRLPlugin:
             return
         self.possible_runs = self.update_possible_runs(self.possible_runs, ts_state)
         if not self.possible_runs:
+            self.learning_trigger = False
             self.node.get_logger().warning("IRL teaching has no consistent Product path.")
             return
         self.publish_possible_runs()

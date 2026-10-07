@@ -145,6 +145,11 @@ starts recording from the current Product belief, and `False` stops recording
 and requests learning. Supply actual, freshly timestamped `/ts_state` feedback
 between those messages. `/possible_runs` publishes diagnostic Product paths.
 
+If feedback cannot consistently extend any recorded Product path,
+recording stops and the buffered demonstrations are cleared without requesting
+learning. A subsequent `True` starts a fresh recording from the current valid
+Product belief; `False` alone does not request learning from an empty buffer.
+
 Within a Python-built diagnostic message, each path occurrence owns its TS
 state-value and dimension-name lists. Editing one occurrence does not change
 another occurrence, the source TS format, or the next publication.

@@ -244,6 +244,55 @@ class TestIRLPluginFakeHost(unittest.TestCase):
         plugin.learning_trigger_callback(Bool(data=False))
         self.assertEqual(len(host.calls), 1)
 
+    def test_inconsistent_feedback_stops_recording_and_allows_fresh_restart(self):
+        """Drop inconsistent teaching paths and restart from the current belief."""
+        for finish_invalid_session in (False, True):
+            with self.subTest(finish_invalid_session=finish_invalid_session):
+                plugin, host, planner = _fake_plugin()
+                state = next(iter(planner.product.possible_states))
+                edges = list(planner.product.edges(data=True))
+                possible_states = set(planner.product.possible_states)
+                generation = host._planning_generation
+                instance = host._planner_instance_id
+                status = host._planner_state
+
+                plugin.learning_trigger_callback(Bool(data=True))
+                plugin.run_at_ts_update(("hub",))
+                self.assertTrue(plugin.learning_trigger)
+                self.assertEqual(plugin.possible_runs, {(state, state)})
+                self.assertEqual(host.calls, [])
+                published_count = len(plugin.publisher.messages)
+
+                plugin.run_at_ts_update(("missing",))
+                self.assertFalse(plugin.learning_trigger)
+                self.assertEqual(plugin.possible_runs, set())
+                self.assertEqual(host.calls, [])
+                self.assertEqual(len(plugin.publisher.messages), published_count)
+
+                plugin.run_at_ts_update(("hub",))
+                if finish_invalid_session:
+                    plugin.learning_trigger_callback(Bool(data=False))
+                self.assertFalse(plugin.learning_trigger)
+                self.assertEqual(host.calls, [])
+                self.assertEqual(len(plugin.publisher.messages), published_count)
+
+                plugin.learning_trigger_callback(Bool(data=True))
+                self.assertTrue(plugin.learning_trigger)
+                plugin.run_at_ts_update(("hub",))
+                self.assertEqual(plugin.possible_runs, {(state, state)})
+                plugin.learning_trigger_callback(Bool(data=False))
+
+                self.assertFalse(plugin.learning_trigger)
+                self.assertEqual(
+                    host.calls,
+                    [({(state, state)}, (instance, generation))],
+                )
+                self.assertEqual(list(planner.product.edges(data=True)), edges)
+                self.assertEqual(planner.product.possible_states, possible_states)
+                self.assertEqual(host._planner_instance_id, instance)
+                self.assertEqual(host._planning_generation, generation)
+                self.assertEqual(host._planner_state, status)
+
 
 @pytest.mark.launch_test
 def generate_test_description():

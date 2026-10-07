@@ -586,7 +586,7 @@ class ExamplePlugin:
 ```
 
 `set_node()` 是 ROS 2 适配点，插件通过传入的 Planner Node 创建订阅、发布器、
-服务或客户端。其余三个生命周期钩子保持原版语义。单个插件加载或运行失败会被记录，
+服务或客户端。其余三个生命周期钩子保留原有名称与宿主调用方式。单个插件加载或运行失败会被记录，
 不会终止 Planner 或阻止其他插件运行。
 
 ROS 1 插件若仍直接导入 `rospy`，必须先把通信接口迁移到 `rclpy`；加载契约兼容
@@ -612,6 +612,10 @@ ros2 topic pub --once /irl_trigger std_msgs/msg/Bool '{data: true}'
 # 提供真实示范状态反馈后结束记录
 ros2 topic pub --once /irl_trigger std_msgs/msg/Bool '{data: false}'
 ```
+
+若反馈无法一致地延伸记录中的候选 Product 路径，IRL 会停止记录并清空
+示范缓存，不请求学习。随后再次发送 `True` 会从当前有效 Product belief
+重新开始；空缓存状态下单独发送 `False` 不会请求学习。
 
 `/possible_runs` 发布与示范一致的 Product 路径。Python 构造的消息中，各轨迹点
 独立持有状态值和维度名列表，修改一个点不会影响其他点或后续发布。
@@ -710,9 +714,9 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前七包组合验证（源码 d5f2faa，2026-10-07）
+### 历史七包组合验证（源码 d5f2faa，2026-10-07）
 
-干净源码 `d5f2faa` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
+历史记录中，干净源码 `d5f2faa` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
 Action/IRL 六项消息准备失败及重试回归纳入完整组合；启动规划八项与此前
 事务、DDS、HIL 和标准 TS 回归均执行。
 
@@ -733,6 +737,14 @@ IRL 完整二十步与事务提交、HIL 及标准 TS/monitor 同时覆盖。
 完整原命令、时序、日志与历史结果保留；详细记录见
 [validation.md 第 11.111 节](ltl_automaton_planner/docs/validation.md)。
 符号级组合通过不证明整体加速、IRL 科学效果或实机效果。
+
+### 当前局部验证：IRL 不一致反馈恢复（2026-10-07）
+
+HIL fake-host、IRL preference DDS 与 safety 回归共 **9 passed**，0 errors、
+0 failures、0 skipped。覆盖反馈无法延伸候选 Product 路径时停止记录、清空
+示范缓存、不请求空学习，以及随后直接或经 `False` 后再次 `True` 开始新记录。
+该局部结果不并入历史七包组合计数；完整记录见
+[validation.md 第 11.112 节](ltl_automaton_planner/docs/validation.md)。
 
 ### 此前局部验证：Action 与 IRL 的消息准备（2026-10-07）
 
