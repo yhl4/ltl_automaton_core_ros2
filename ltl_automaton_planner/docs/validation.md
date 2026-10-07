@@ -2221,3 +2221,49 @@ probe_snapshot_run_slices_86f915e.py，成功 stdout 保留在工具记录。
 实机/机器人示范或 Jazzy 验证；11.69 的 620 项仍属于 4817dd4。
 README 同步本轮局部结果，前 70 节历史正文保持，本地链接/锚点
 及四文件范围/diff 检查通过。
+
+### 11.72 Core 运行转为 Product 边列表省去临时切片（2026-10-07）
+
+基线为干净 `f7795b33b9e057ff8237886da348dc7d9b5cddcf`。
+ProdAut_Run.prod_run_to_prod_edges 在 prefix 与 closed_suffix 的
+相邻 zip 中使用 islice，省去原四个切片。仍保留输出 list、空
+suffix 分支和原 `self.suffix + [self.suffix[0]]` 拼接：tuple
+suffix 继续在 prefix 输出更新后抛原 TypeError，不引入新兼容层。
+全部边顺序、重复项、自环和唯一按原规则拼接的闭合边保持；
+每次生成新边列表，读当前 prefix/suffix。plan_output、TS 投影/
+切片、动作与成本读取/日志/zip 消费未改，搜索、接受性、目标
+函数、IRL、ROS 消息/快照/事务和历史重规划调用点不变。
+
+测试复用现有 Product，新增 list/tuple 重复 prefix + 空 suffix
+两项和 tuple suffix 的 TypeError/部分更新一项。完整顺序与
+重复边、空输出、旧输出独立性、输入值和其它计划/成本字段均
+检查。Product 与 discrete-plan 两现有文件一次 **57 passed**。
+审阅补强新 prefix list 与旧输出的对象独立性，并 deepcopy 旧
+字段值以免活引用掩盖原地修改；仅三新增用例子集重跑
+**3 passed / 30 deselected**，未重跑最终整组，不累计为 60。
+两次均保留两条既有 NetworkX/NumPy np.int 弃用警告。源码/测试
+py_compile、ament_flake8 --linelength 99（初次两文件/补强后仅
+测试）、测试 pep257 与 diff 检查通过。新用例属于语义保持检查，
+没有前置 RED；没有更换依赖。
+
+主代理独立加载逐字匹配 git show 的完整旧 Product 模块，以
+三个原生 single/safe/KTH 小规划的同一 Product/输入运行重建
+旧/新 ProdAut_Run。全部 prefix/suffix、边列表、TS line/loop、
+动作序列与分项成本、总体成本、info 调用及已耗尽 TS zip 相同；
+完整 ROS 快照/ID 映射和图/run 输入 pickle 字节保持。原生成本
+分别为 3/1/13、3/2/23、20/20/220。支持序列上的实际切片观察
+仅针对 Product 边生成阶段，每次 4 -> 0，被复制元素分别
+6/8/8 -> 0；闭合 suffix 拼接仍各发生一次，TS 转换切片仍保留。
+这不是总分配或耗时/整体加速测量。旧/新直接 helper 对照亦
+保留 list/tuple prefix 与空 suffix 的新列表，以及 tuple suffix
+精确 TypeError args 和 prefix 先更新/suffix 原输出不变。
+
+旧源码保留于隔离目录 product_baseline_f7795b3.py；独立脚本为
+Windows Temp/probe_core_run_edges_f7795b3.py，成功 stdout 保留
+于工具记录。实际 Core source resolve 来自本 checkout；原生
+translator 仍为 /home/yuhling/.local/bin/ltl2ba。环境为既有 WSL
+Ubuntu-22.04-D / ROS 2 Humble 隔离 overlay。本轮没有七包、完整
+演示、LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy 验证；
+11.69 的 620 项仍为 4817dd4 原资格，不代表本轮整包通过。
+README 同步，前 71 节历史正文保持，13 个本地链接/锚点、四文件
+范围及 diff 检查通过。

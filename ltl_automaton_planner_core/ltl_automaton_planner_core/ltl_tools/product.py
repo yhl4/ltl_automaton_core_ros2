@@ -2,6 +2,7 @@
 """Construct and represent TS–Büchi product automata."""
 
 import logging
+from itertools import islice
 
 from networkx import strongly_connected_components
 from networkx.classes.digraph import DiGraph
@@ -319,15 +320,15 @@ class ProdAut_Run(object):
     def prod_run_to_prod_edges(self):
         """Convert product-state runs into reusable edge lists."""
         self.pre_prod_edges = list(
-            zip(self.prefix[:-1], self.prefix[1:])
+            zip(self.prefix, islice(self.prefix, 1, None))
         )
 
         if self.suffix:
             closed_suffix = self.suffix + [self.suffix[0]]
             self.suf_prod_edges = list(
                 zip(
-                    closed_suffix[:-1],
-                    closed_suffix[1:],
+                    closed_suffix,
+                    islice(closed_suffix, 1, None),
                 )
             )
         else:

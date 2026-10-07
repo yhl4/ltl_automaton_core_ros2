@@ -645,6 +645,80 @@ def test_run_output_reuses_each_edge_lookup_and_refreshes_repeated_actions(monke
     assert list(ts.edges(data=True)) == updated_ts
 
 
+@pytest.mark.parametrize("container", [list, tuple])
+def test_prod_run_to_prod_edges_repeated_prefix_and_empty_suffix(container):
+    """Keep repeated edge order and empty suffix without changing run fields."""
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    product.build_full()
+    start, goal = ("s0", "q0"), ("s1", "q1")
+    run = ProdAut_Run(product, [start, goal], 2, [goal], 1, 12)
+    prefix = container([start, goal, goal, goal])
+    suffix = []
+    old_pre_edges = run.pre_prod_edges
+    old_suf_edges = run.suf_prod_edges
+    old_fields = deepcopy(
+        (
+            run.line,
+            run.loop,
+            run.pre_plan,
+            run.suf_plan,
+            run.pre_plan_cost,
+            run.suf_plan_cost,
+            run.precost,
+            run.sufcost,
+            run.totalcost,
+        )
+    )
+    run.prefix = prefix
+    run.suffix = suffix
+
+    run.prod_run_to_prod_edges()
+
+    assert run.pre_prod_edges == [
+        (start, goal),
+        (goal, goal),
+        (goal, goal),
+    ]
+    assert run.suf_prod_edges == []
+    assert isinstance(run.pre_prod_edges, list)
+    assert isinstance(run.suf_prod_edges, list)
+    assert run.pre_prod_edges is not prefix
+    assert run.pre_prod_edges is not old_pre_edges
+    assert run.suf_prod_edges is not suffix
+    assert prefix == container([start, goal, goal, goal])
+    assert suffix == []
+    assert (
+        run.line,
+        run.loop,
+        run.pre_plan,
+        run.suf_plan,
+        run.pre_plan_cost,
+        run.suf_plan_cost,
+        run.precost,
+        run.sufcost,
+        run.totalcost,
+    ) == old_fields
+    assert old_suf_edges == [(goal, goal)]
+
+
+def test_prod_run_to_prod_edges_tuple_suffix_keeps_partial_update_error():
+    """Keep tuple suffix concatenation TypeError after prefix update."""
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    product.build_full()
+    start, goal = ("s0", "q0"), ("s1", "q1")
+    run = ProdAut_Run(product, [start, goal], 2, [goal], 1, 12)
+    old_suf_edges = run.suf_prod_edges
+    run.prefix = [start, goal, goal]
+    run.suffix = (goal,)
+
+    with pytest.raises(TypeError):
+        run.prod_run_to_prod_edges()
+
+    assert run.pre_prod_edges == [(start, goal), (goal, goal)]
+    assert run.suf_prod_edges is old_suf_edges
+    assert run.suf_prod_edges == [(goal, goal)]
+
+
 @pytest.mark.parametrize("empty_prefix", [False, True])
 def test_run_output_keeps_empty_prefix_and_single_node_suffix(empty_prefix, monkeypatch):
     """Keep no prefix actions and exactly one accepting self-loop action."""
