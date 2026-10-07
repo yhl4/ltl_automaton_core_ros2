@@ -3965,3 +3965,43 @@ README改为当前组合表，前102节正文保持，旧组合/局部资格/原
 原源码保留；57/61项局部运行不再叠加。IRL仍仅学习β且默认关闭，执行仍
 为符号级FakeBackend；未做LLM、benchmark、完整演示、物理仿真、实机/
 机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。
+
+### 11.104 历史重规划省去尾部列表副本（2026-10-07）
+
+基线af8bb38782679a86b3e0e2f089b190a070df68e1。唯一生产改动为
+discrete_plan.py引入islice，并将prod_states_given_history的trace[1:]
+替换为islice(trace, 1, None)。仓内唯一生产调用LTLPlanner.replan已
+传入新建列表；空/单节点、来源标签、后继筛选、逐项次序、gamma及
+规划目标保持，不增加提前返回或跨调用缓存。输入应为调用期间稳定的
+可索引序列；惰性遍历不承诺外部同时修改历史时的切片快照行为，亦不
+新增generator输入支持。
+
+从Git加载完整旧discrete_plan.py，与实际导入的新模块独立对照：
+两个手工图分别覆盖单初态和多初态/非确定性后继，各十二种历史再分别
+使用list与tuple，共48组；空、未知初态、不合法跳转、分支收敛、循环
+及4097状态长历史均与手算预期一致。输入、图节点/边和Büchi初态保持。
+另一个list子类计数探针尾部切片从1次变0，不加入JUnit，不测量耗时、
+RSS或端到端加速。
+
+在既有WSL Ubuntu-22.04-D/ROS2 Humble overlay中，一次正式运行
+session60191沿原handle等待至实际exit0：**50 passed**，0 failures/
+errors/skipped；两个完整未修改文件为discrete_plan24项、LTLPlanner26项，
+pytest1.78秒，含对照/lint的worker receipt9.964176289秒。六个生产模块
+的真实import与完整字节核对通过，未改模块及两个测试与Git基线一致；
+原生ltl2ba路径及既有二进制SHA保持。源码编译、ament_flake8.main
+--linelength 99、ament_pep257.main及git diff --check通过。lint保留
+--max-complexity的既有optparse弃用提示，没有额外警告过滤。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_history_slice_af8bb38.py
+```
+
+证据在/tmp/ltl_ros2_completion_20261006：history_slice_af8bb38.xml、
+history_slice_af8bb38_{baseline.py,proof.json,run.json,run.log}；helper在主机
+临时目录。新源码SHA为82413a403a1fcf6b8b10c72ef5cdcc9cc3e946c999c82a58ce9596380532ca9d，
+XML SHA为74d14cd090541faf324756f47ca5407ea3df8d656eed60cd335cda44df629b6e。
+README区分当前局部资格与11.103的685项组合基线，前103节正文保持。
+本轮未重跑七包、LLM、benchmark、完整演示、物理仿真、实机/机器人示范
+或Jazzy验证；IRL仍仅学习beta且默认关闭。

@@ -4,6 +4,7 @@ import logging
 import time
 from collections import defaultdict
 from collections import deque
+from itertools import islice
 
 from networkx import DiGraph
 from networkx import multi_source_dijkstra_path_length
@@ -533,7 +534,7 @@ def prod_states_given_history(product, trace):
         if (trace[0], buchi_state) in product
     }
 
-    for ts_state in trace[1:]:
+    for ts_state in islice(trace, 1, None):
         next_states = set()
 
         for product_node in possible_states:
