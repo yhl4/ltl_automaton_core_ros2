@@ -1,9 +1,14 @@
 """Exercise HIL callback ordering with real nodes and controlled futures."""
 
+import contextlib
 from contextlib import contextmanager
+from functools import partial
+import gc
+import io
 import math
 from pathlib import Path
 from types import SimpleNamespace
+import weakref
 
 from geometry_msgs.msg import Twist
 from ltl_automaton_hil_mic import bool_cmd_mixer as bool_module
@@ -11,6 +16,8 @@ from ltl_automaton_hil_mic import vel_cmd_mixer as velocity_module
 from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import ClosestState, TrapCheck
 from rclpy.parameter import Parameter
+from rclpy.executors import SingleThreadedExecutor
+from rclpy.task import Future
 import pytest
 import rclpy
 from std_msgs.msg import Bool
@@ -240,6 +247,100 @@ def test_duplicate_dimensions_preserve_pending_query_and_recover(runtime):
     assert runtime.node.current_state.states == (
         ["loaded"] if runtime.kind == "bool" else ["r2"]
     )
+
+
+@pytest.mark.parametrize(
+    ("kind", "stage"),
+    [("bool", "trap"), ("velocity", "closest"), ("velocity", "trap")],
+)
+@pytest.mark.parametrize(
+    "discard", ["closed", "context_replaced", "future_replaced", "deadline"]
+)
+def test_discarded_real_future_exceptions_are_consumed(
+    kind, stage, discard, monkeypatch
+):
+    """Consume exceptions from stale, closed, replaced, and expired queries."""
+    with controller_runtime(kind, monkeypatch) as runtime:
+        executor = SingleThreadedExecutor()
+        node = runtime.node
+        context_attribute = (
+            "_trap_request_context"
+            if kind == "bool"
+            else "_safety_request_context"
+        )
+        context = {
+            "future": None,
+            "deadline": runtime.clock[0] + 1.0,
+            "source_state": node.current_state,
+            "source_revision": node._state_revision,
+        }
+        future = Future(executor=executor)
+        context["future"] = future
+        setattr(node, context_attribute, context)
+        replacement_context = None
+        try:
+            if kind == "bool":
+                callback = partial(node._trap_result, context=context)
+            elif stage == "closest":
+                callback = partial(node._closest_result, context=context)
+            else:
+                callback = partial(
+                    node._trap_result, distance=0.5, context=context
+                )
+            future.add_done_callback(callback)
+            future.set_exception(RuntimeError("late HIL failure"))
+
+            if discard == "context_replaced":
+                replacement_context = {"future": object()}
+                setattr(node, context_attribute, replacement_context)
+            elif discard == "future_replaced":
+                context["future"] = object()
+            elif discard == "deadline":
+                runtime.clock[0] = context["deadline"]
+            elif discard == "closed":
+                node.destroy_node()
+
+            executor.spin_once(timeout_sec=0.0)
+
+            if discard == "closed":
+                assert node._closed
+                assert getattr(node, context_attribute) is None
+            elif discard == "context_replaced":
+                assert getattr(node, context_attribute) is replacement_context
+            elif discard == "future_replaced":
+                assert getattr(node, context_attribute) is context
+            elif discard == "deadline":
+                assert getattr(node, context_attribute) is None
+            assert runtime.trap.futures == []
+            if kind == "velocity":
+                assert runtime.closest.futures == []
+                if discard == "deadline":
+                    assert len(runtime.messages) == 1
+                    assert runtime.messages[0].linear.x == 0.0
+                else:
+                    assert runtime.messages == []
+            else:
+                assert runtime.messages == []
+
+            setattr(node, context_attribute, None)
+            context.clear()
+            if replacement_context is not None:
+                replacement_context.clear()
+            future_reference = weakref.ref(future)
+            stderr = io.StringIO()
+            with contextlib.redirect_stderr(stderr):
+                del callback, future
+                for _ in range(3):
+                    gc.collect()
+            assert future_reference() is None
+            assert "exception was never retrieved" not in stderr.getvalue()
+        finally:
+            if not node._closed:
+                setattr(node, context_attribute, None)
+            context.clear()
+            if replacement_context is not None:
+                replacement_context.clear()
+            executor.shutdown()
 
 
 def test_synchronous_request_failure_allows_next_check(runtime):

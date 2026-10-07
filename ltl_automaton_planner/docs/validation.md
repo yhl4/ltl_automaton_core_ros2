@@ -3269,3 +3269,74 @@ README/HIL README 同步，前 89 节正文保持。本轮未重跑七包，
 11.89 的 660 项属于 aa7acf8 历史源码资格，不作本轮整包声明。
 没有 LLM、benchmark、物理仿真、实机或 Jazzy 验证，不将列表
 隔离或局部集成通过称为整体加速、IRL 收敛或机器人示范效果。
+
+### 11.91 丢弃 HIL 回调时读取 Future 异常（2026-10-07）
+
+基线为 8f8c93739d1b9bc9f925ebfd005fa0f720b3704c，运行环境为
+WSL Ubuntu-22.04-D / ROS 2 Humble，使用既有隔离 overlay。真实
+rclpy Future 在异常完成并调度 callback 后，若回调因节点销毁、
+context/Future 身份替换或 deadline 而提前返回，旧实现没有读取
+异常，GC 会报告 exception was never retrieved。Humble 的
+Future.exception() 不等待并标记异常已读取；已完成 Future 的
+cancel() 不会代替这一步。本轮只在 Bool trap、Velocity closest
+和 Velocity trap 三个入口各增加四行读取，保留所有原 guard、
+deadline、result、错误日志、请求释放和导航回退顺序。对既有受控
+Future 缺少 exception() 方法的情况沿用原 result() 路径。
+
+新增参数化用例覆盖三回调 × 四丢弃条件，使用真实控制器节点、
+Future 和 SingleThreadedExecutor。先异常完成并排队，再真实
+destroy_node()、替换身份或将受控 steady clock 推进到原 deadline，
+随后 spin 一次。检查旧命令零派发、替换请求保留、超时释放及速度
+零导航回退；weakref/GC 确认 Future 实际回收且没有未读取异常。
+executor 在 finally 关闭，fixture 不重复销毁节点。
+
+第一次 RED 为 12 failed、47 deselected；第一次两文件 GREEN 为
+90 passed。随后静态检查发现三处 E731，改用 partial。审查还发现
+首版 fixture 在完成前改变丢弃条件，closed 只切换标记；它没有验证
+已排队回调与真实销毁的完整时序。保留原 XML，不将它们作为最终
+测试字节的资格。修正上述时序和清理后，暂时仅移除十二行生产修复，
+run2 RED 实际 exit 1：12 failed、47 deselected、2 warnings，
+4.10 秒；失败均为 late HIL failure 未读取。恢复相同源码字节后，
+最终两文件 GREEN 实际 exit 0：90 passed、2 warnings，5.27 秒。
+两项警告均为既有 NetworkX np.int 弃用，0 errors/failures/skipped。
+没有改变参数人口、丢弃条件、deadline 或验收标准。
+
+最终命令在 source Humble 与隔离 install/setup.bash 后执行：
+
+```bash
+python3 -m pytest -q ltl_automaton_hil_mic/test/test_hil_async.py \
+  -k discarded_real_future_exceptions_are_consumed \
+  --junitxml=/tmp/hil_future_discard_red_run2_8f8c937.xml
+python3 -m pytest -q ltl_automaton_hil_mic/test/test_hil_async.py \
+  ltl_automaton_hil_mic/test/test_policies.py \
+  --junitxml=/tmp/hil_future_discard_green_run2_8f8c937.xml
+```
+
+RED、GREEN 均无持续 session，各自等待至上述实际退出。最终静态
+session 1571 在原 handle 等待至 exit 0：三个改动文件 py_compile、
+flake8 --linelength 99，回调测试 pep257 及 git diff --check。
+GREEN XML SHA256 为
+c3e0c4a0e9c4b48f5c7f295576d13d48d260ef2ddde8f917df49f3b8d0725d3f。
+最终 Bool/Velocity 源码 SHA256 分别为
+a17ab247306a9de8b3b9e2d60caef9a1761f571fce4b73d92e1c5c997e90707d、
+1e2d07ac8b1bd03d36df111bbd8db07ff439b245fd0d19dbe6eab7062e9b2347；
+测试 SHA256 为
+fe9d51dfb4c252fd81a5a0f2e6be622fc50e487d938eaa9b645b99edeebcebc0。
+
+主代理从 git show 8f8c937 加载完整旧模块并核对运行 import 与
+源字节，采用真实 Future/executor、受控 host hooks，独立对照
+三回调 × 五条件（另含当前请求失败）共十五格。完成先于条件改变；
+十二个丢弃格旧版有诊断、新版 stderr 为空，三项当前失败保持
+日志/释放/回退 trace，全部旧新 trace 相等且 Future 实际回收。
+此对照的 closed 使用 host 标记，真实销毁由上述节点测试覆盖。
+未把十五格重复加到九十项 pytest 人口。
+
+原 XML /tmp/hil_future_discard_red_8f8c937.xml 与
+/tmp/hil_future_discard_green_8f8c937.xml 保留；run2 两 XML 如上。
+完整旧模块、hil_future_baseline_8f8c937.json、
+hil_future_compare_8f8c937.json、hil_future_inspected_results_8f8c937.json
+位于 /tmp/ltl_ros2_completion_20261006，helper 在主机临时目录。
+主代理逐一检查四 XML 计数/新用例名/SHA、最终三文件 SHA 与仅十二行
+生产差异。README/HIL README 同步，前九十节正文保持。本轮未重跑
+七包，11.89 的 660 项仍属于 aa7acf8 历史源码。没有 LLM、benchmark、
+物理仿真、实机或 Jazzy 验证，不声称整体加速或 IRL 科学效果。

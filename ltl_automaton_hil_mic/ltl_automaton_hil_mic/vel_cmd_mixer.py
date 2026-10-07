@@ -258,6 +258,10 @@ class VelocityCommandMixer(Node):
             self._publish_latest_navigation(context)
 
     def _closest_result(self, future, context):
+        try:
+            future.exception()
+        except Exception:
+            pass
         if (
             self._closed
             or self._safety_request_context is not context
@@ -316,6 +320,10 @@ class VelocityCommandMixer(Node):
         distance,
         context,
     ):
+        try:
+            future.exception()
+        except Exception:
+            pass
         if (
             self._closed
             or self._safety_request_context is not context

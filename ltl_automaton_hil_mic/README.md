@@ -74,6 +74,13 @@ human command; velocity publishes the latest valid navigation command. Late repl
 cannot affect a newer query or publish after node teardown. The existing velocity
 `timeout` remains the human-input freshness window, separate from this query limit.
 
+The three safety-response callbacks retrieve completed Future exceptions before
+checking node teardown, request identity and the deadline. An already queued
+callback can then be discarded without an unread-exception diagnostic. Current
+request failures retain their error logging, query release and navigation fallback.
+Real Future/executor regressions and the local 90-test result are recorded in
+[validation section 11.91](../ltl_automaton_planner/docs/validation.md).
+
 Both controllers require TS state values and dimension names to have equal
 length, the configured dimension to be present, and all dimension names to be
 unique. Invalid TS messages log a warning and are dropped without replacing the

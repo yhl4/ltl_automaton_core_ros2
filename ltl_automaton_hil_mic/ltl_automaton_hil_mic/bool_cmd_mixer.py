@@ -166,6 +166,10 @@ class BoolCommandMixer(Node):
             self._clear_trap_request(context)
 
     def _trap_result(self, future, context):
+        try:
+            future.exception()
+        except Exception:
+            pass
         if (
             self._closed
             or self._trap_request_context is not context
