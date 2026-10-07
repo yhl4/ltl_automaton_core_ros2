@@ -2553,3 +2553,75 @@ inspect_exec_state_counts_3484d80.py 未重跑；旧七包冻结闭包不改写�
 Jazzy 验证；上述派发仅为 ROS-independent 符号 recording backend。
 11.76 的 634 项只属于 b555100 历史源码资格，不作当前整包声明。
 README 同步；前 76 节正文完整保留，五文件范围与本地链接检查通过。
+
+### 11.78 接受运行状态分组的合法值契约与无哈希比较（2026-10-07）
+
+基线为干净 `87ac8d578d595209173f85bf2b35aa048b9e9aa1`，本地
+upstream 与 GitHub PR#10 head 相同。只读审计发现，SymbolicState
+允许非空 str 子类值，快照转换也保留其类型，但 resolver 将状态
+加入 source/target set；有效子类若定义 __hash__=None，会抛 TypeError，
+不能解析合法命令。该缺口涉及直接 Python 模型/字符串子类；普通
+ROS DDS 字符串没有该失败，不扩大到新的接口或兼容框架。
+
+生产修改仅在 AcceptedRunResolver.resolve：source 以首个有序 ID
+的状态和其它候选按 dataclass 值比较；target 保留首个匹配值及
+ambiguity flag，仍遍历所有匹配并收集完整 ID 集合。首次 target
+以目标 ID 集合尚空判定，避免用 None 值充当首个状态标记而改变
+已有直接输入的歧义行为。状态值/类型不转换，不调用状态 hash；
+原 no-target、distinct-source、ambiguous-target 消息保持。
+快照索引、retained-pair 转换、结构/漏边/漏节点/重复 ID 错误与
+索引提交点不变；有效图索引安装后的命令拒绝仍保留该有效索引，
+只有索引重建失败才保留前一有效索引。未改规划、代价、接受性、
+执行身份/TS 观测权威、消息定义或默认关闭的可选 IRL。
+
+补强现有多候选测试，不新增测试函数：已有两种 node_ids 顺序
+加 None/1/3 的不可哈希状态位置参数，原两项扩为六项、净增四项。
+断言完整 ExecutionStep、全部排序后的匹配 ID、reversed 输入及
+合法子类输入类型保持。生产改动前 RED 实际 exit 1：**2 passed /
+4 failed / 25 deselected**；四项分别在 source/target hash set 触发
+精确 TypeError。首版两文件 GREEN 为 63 passed；按审查修正首个
+target 判定后，resolver 与 execution-node 两文件最终一次
+**63 passed in 2.77s**、exit 0，0 errors/failures/skips，无 warnings。
+两次 GREEN 为同一测试人口，不能相加；六项 targeted case 都执行。
+最终源码/测试 py_compile、ament_flake8 --linelength 99、测试
+pep257 与 diff 检查通过。根代理静态工具 yield 后继续原 session
+56139，最终 terminal exit 0，没有重新启动该检查。
+
+原 RED XML 为 /tmp/accepted_run_unhashable_red_3484d801.xml，
+首版 GREEN 为 /tmp/accepted_run_unhashable_green_3484d801.xml；
+3484d801 只是这两个文件的标签，本轮权威基线为 87ac8d5。最终 XML 为
+/tmp/accepted_run_unhashable_green_run2_87ac8d5.xml。主代理只读核对
+三份 XML 的精确计数、时间顺序、六项 targeted case、旧 source/
+target traceback，并保存 SHA256 于隔离目录
+resolver_state_equality_87ac8d5_pytest_receipts.json；原 stdout 保留
+在执行代理工具记录，没有重跑 RED 或覆盖任一 XML。
+
+主代理加载逐字匹配 git show 87ac8d5 的完整旧 resolver，并核对
+当前 resolver import resolve 与 models/manager/execution-node/snapshot/
+Product 五个未修改模块的完整基线源字节。三个原生 single/safe/KTH
+快照经实际 manager/resolver 与立即完成的 symbolic recording backend
+分别派发 3/4/4 条命令，完整旧/新步骤、诊断、重复序号拒绝相同；
+成本保持 3/1/13、3/2/23、20/20/220。仅在解析调用内观察实际
+SymbolicState.__hash__，调用数 6/8/8 -> 0/0/0；输入快照 deepcopy/
+pickle 保持。九种原错误的 type/args、正确阶段的缓存提交/保留与
+后续代际恢复保持，包括漏闭合边先于漏节点、重复缺边顺序/重复项、
+重复 ID、不同来源、结构错误、目标歧义及直接 None target 控制。
+最后一项不是合法 SymbolicState 或 DDS 输入，只检查旧直接调用行为。
+
+首次独立 helper 在三个原生场景通过后实际 exit 1：缓存断言把
+“有效图建立索引后，命令歧义拒绝”也误算为重建失败，要求回到旧
+索引；该断言过宽。run2 区分这两个阶段，实际 exit 0，生产源码不变。
+Windows Temp/probe_resolver_state_equality_87ac8d5.py 与 _run2.py、
+两个逐字校验的完整旧模块 accepted_run_resolver_baseline_87ac8d5.py
+及 _run2.py 均保留。成功 receipt 为
+resolver_state_equality_87ac8d5_run2.json，失败/成功工具输出为
+resolver_state_equality_87ac8d5_tool_results.json；旧七包冻结证据不改写。
+
+环境仍为既有 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12
+隔离 overlay，原 translator 为 /home/yuhling/.local/bin/ltl2ba。
+状态 hash 调用减少不是总分配、总内存、规划耗时或整体加速证据。
+本轮没有七包、LLM、benchmark、完整演示、物理仿真、实机/机器人
+示范或 Jazzy 验证；原生对照仅为 ROS-independent symbolic 派发。
+11.76 的 634 项仍只属于 b555100 历史源码；11.77 的 76 项属于
+87ac8d5 局部资格，不作本轮整包通过声明。README 同步，前 77 节
+正文完整保留，五文件范围、本地链接/锚点与 diff 检查通过。

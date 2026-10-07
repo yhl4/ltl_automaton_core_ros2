@@ -37,6 +37,9 @@ and action, accumulating the complete source and target ID sets directly. IDs
 are still returned sorted, current nodes with no matching edge are omitted,
 and all target IDs must represent one symbolic TS state. This avoids a temporary
 list of candidate pairs without pruning the matches or changing ambiguity rules.
+State grouping uses `SymbolicState` value equality, including valid string
+subclasses with unhashable instances. It keeps the original values and requires
+no state-hash sets; source and target Product ID sets remain complete and sorted.
 
 The suffix omits the repeated start node at the end and closes through an implicit
 final edge.

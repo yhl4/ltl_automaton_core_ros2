@@ -15,6 +15,10 @@ from ltl_automaton_execution.models import ProductNode
 from ltl_automaton_execution.models import SymbolicState
 
 
+class UnhashableString(str):
+    __hash__ = None
+
+
 def _state(value):
     return SymbolicState(("region",), (value,))
 
@@ -97,12 +101,24 @@ def test_e2_multiple_product_nodes_must_reduce_to_one_ts_state():
 
 
 @pytest.mark.parametrize("node_ids", [(1, 2, 5), (5, 2, 1, 2, 5, 1)])
-def test_multiple_candidate_pairs_keep_complete_sorted_product_ids(node_ids):
+@pytest.mark.parametrize("unhashable_node_id", [None, 1, 3])
+def test_multiple_candidate_pairs_keep_complete_sorted_product_ids(
+    node_ids, unhashable_node_id,
+):
     """Keep all matched IDs while omitting current nodes with no matching edge."""
     snapshot = PlanningSnapshot(
         "planner-a", 4,
-        tuple(ProductNode(node_id, _state("r1" if node_id in (1, 2, 5) else "r2"))
-              for node_id in range(1, 6)),
+        tuple(
+            ProductNode(
+                node_id,
+                _state(
+                    UnhashableString("r1" if node_id in (1, 2, 5) else "r2")
+                    if node_id == unhashable_node_id
+                    else "r1" if node_id in (1, 2, 5) else "r2"
+                ),
+            )
+            for node_id in range(1, 6)
+        ),
         (
             ProductEdge(1, 3, "move"),
             ProductEdge(3, 2, "bridge"),
@@ -113,6 +129,12 @@ def test_multiple_candidate_pairs_keep_complete_sorted_product_ids(node_ids):
         ),
         AcceptedRun((1, 3, 2, 4, 1, 4), (4,)),
     )
+    if unhashable_node_id is not None:
+        state = next(
+            node.ts_state for node in snapshot.product_nodes
+            if node.node_id == unhashable_node_id
+        )
+        assert type(state.states[0]) is UnhashableString
     resolver = AcceptedRunResolver()
     expected = ExecutionStep(
         "planner-a", 4, 9, "move", _state("r1"), _state("r2"), (1, 2), (3, 4),

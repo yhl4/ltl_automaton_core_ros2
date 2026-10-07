@@ -33,29 +33,35 @@ class AcceptedRunResolver:
                 f"Observation references missing Product nodes: {missing}."
             )
 
-        source_states = {nodes[node_id].ts_state for node_id in current_ids}
-        if len(source_states) != 1:
+        source_state = nodes[current_ids[0]].ts_state
+        if any(
+            nodes[node_id].ts_state != source_state for node_id in current_ids
+        ):
             raise ResolutionError(
                 "Possible Product nodes represent distinct symbolic TS states."
             )
-        source_state = next(iter(source_states))
 
         source_product_node_ids = set()
         target_product_node_ids = set()
-        target_states = set()
+        target_state = None
+        ambiguous_target = False
         for source_id in current_ids:
             for target_id in retained_targets.get(
                 (source_id, observation.next_action), ()
             ):
+                candidate_state = nodes[target_id].ts_state
+                if not target_product_node_ids:
+                    target_state = candidate_state
+                elif candidate_state != target_state:
+                    ambiguous_target = True
                 source_product_node_ids.add(source_id)
                 target_product_node_ids.add(target_id)
-                target_states.add(nodes[target_id].ts_state)
 
         if not target_product_node_ids:
             raise ResolutionError(
                 "Next action is not represented from the current accepted-run state."
             )
-        if len(target_states) != 1:
+        if ambiguous_target:
             raise ResolutionError(
                 "Accepted-run candidates have ambiguous symbolic targets."
             )
@@ -66,7 +72,7 @@ class AcceptedRunResolver:
             execution_step_seq=observation.execution_step_seq,
             action=observation.next_action,
             source_state=source_state,
-            target_state=next(iter(target_states)),
+            target_state=target_state,
             source_product_node_ids=tuple(sorted(source_product_node_ids)),
             target_product_node_ids=tuple(sorted(target_product_node_ids)),
         )
