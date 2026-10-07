@@ -24,6 +24,20 @@ def validate_ts_state(state, required_dimension):
         raise ValueError(
             f"TS state does not contain dimension {required_dimension!r}."
         )
+    try:
+        unique_dimensions = len(set(state.state_dimension_names)) == len(
+            state.state_dimension_names
+        )
+    except TypeError:
+        seen_dimensions = []
+        unique_dimensions = True
+        for dimension in state.state_dimension_names:
+            if any(dimension == seen for seen in seen_dimensions):
+                unique_dimensions = False
+                break
+            seen_dimensions.append(dimension)
+    if not unique_dimensions:
+        raise ValueError("TS state dimension names must be unique.")
 
 
 class BoolCommandPolicy:

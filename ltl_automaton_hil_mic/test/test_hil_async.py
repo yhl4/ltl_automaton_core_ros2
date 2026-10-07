@@ -92,6 +92,17 @@ def state(kind, changed=False):
     return message
 
 
+def duplicate_dimension_state(kind):
+    """Create a state with two values under the same dimension name."""
+    message = TransitionSystemStateStamped()
+    dimension = "load" if kind == "bool" else "2d_pose_region"
+    message.ts_state.state_dimension_names = [dimension, dimension]
+    message.ts_state.states = (
+        ["empty", "loaded"] if kind == "bool" else ["r1", "r2"]
+    )
+    return message
+
+
 @contextmanager
 def controller_runtime(
     kind, monkeypatch, safety_check_timeout=1.0, patch_monotonic=True
@@ -180,6 +191,55 @@ def test_duplicate_state_still_permits_current_decision(runtime):
         assert [message.data for message in runtime.messages] == [True]
     else:
         assert [message.linear.x for message in runtime.messages] == [0.3]
+
+
+def test_duplicate_dimensions_without_state_are_rejected_and_recover(runtime):
+    """Reject duplicate dimensions before caching, then recover normally."""
+    runtime.node.current_state = None
+    runtime.node._state_callback(duplicate_dimension_state(runtime.kind))
+    assert runtime.node.current_state is None
+    assert runtime.trap.futures == []
+    if runtime.kind == "velocity":
+        assert runtime.closest.futures == []
+
+    runtime.node._state_callback(state(runtime.kind))
+    start_check(runtime, finish_closest=False)
+    if runtime.kind == "bool":
+        assert len(runtime.trap.futures) == 1
+    else:
+        assert len(runtime.closest.futures) == 1
+
+
+def test_duplicate_dimensions_preserve_pending_query_and_recover(runtime):
+    """Reject a duplicate update without invalidating an active query."""
+    start_check(runtime, finish_closest=False)
+    expected_state = runtime.node.current_state
+    expected_revision = runtime.node._state_revision
+    trap_count = len(runtime.trap.futures)
+    closest_count = len(runtime.closest.futures)
+
+    runtime.node._state_callback(duplicate_dimension_state(runtime.kind))
+    assert runtime.node.current_state == expected_state
+    assert runtime.node._state_revision == expected_revision
+    assert len(runtime.trap.futures) == trap_count
+    assert len(runtime.closest.futures) == closest_count
+
+    if runtime.kind == "bool":
+        runtime.trap.futures[-1].complete(TrapCheck.Response(is_connected=True))
+        assert [message.data for message in runtime.messages] == [True]
+    else:
+        runtime.closest.futures[-1].complete(
+            ClosestState.Response(closest_state="r2", metric=0.5)
+        )
+        runtime.trap.futures[-1].complete(
+            TrapCheck.Response(is_connected=True)
+        )
+        assert [message.linear.x for message in runtime.messages] == [0.3]
+
+    runtime.node._state_callback(state(runtime.kind, changed=True))
+    assert runtime.node.current_state.states == (
+        ["loaded"] if runtime.kind == "bool" else ["r2"]
+    )
 
 
 def test_synchronous_request_failure_allows_next_check(runtime):

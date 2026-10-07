@@ -1,5 +1,6 @@
 import math
 from decimal import Decimal, localcontext
+from types import SimpleNamespace
 
 from geometry_msgs.msg import Twist
 from ltl_automaton_msgs.msg import TransitionSystemState
@@ -10,6 +11,12 @@ from ltl_automaton_hil_mic.policies import (
     VelocityCommandPolicy,
     validate_ts_state,
 )
+
+
+class UnhashableString(str):
+    """Represent a valid string value whose hash is intentionally disabled."""
+
+    __hash__ = None
 
 
 def _twist(linear_x=0.0, angular_z=0.0):
@@ -67,6 +74,40 @@ def test_state_validation_rejects_malformed_or_missing_dimension():
         validate_ts_state(
             TransitionSystemState(
                 states=["r1"], state_dimension_names=["region"]
+            ),
+            "load",
+        )
+    for names, states in (
+        (["load", "load"], ["empty", "loaded"]),
+        (["region", "region", "load"], ["r1", "r2", "empty"]),
+    ):
+        with pytest.raises(
+            ValueError, match="TS state dimension names must be unique"
+        ):
+            validate_ts_state(
+                SimpleNamespace(
+                    states=states,
+                    state_dimension_names=names,
+                ),
+                "load",
+            )
+    valid_unhashable = UnhashableString("load")
+    validate_ts_state(
+        SimpleNamespace(
+            states=["empty"], state_dimension_names=[valid_unhashable]
+        ),
+        "load",
+    )
+    with pytest.raises(
+        ValueError, match="TS state dimension names must be unique"
+    ):
+        validate_ts_state(
+            SimpleNamespace(
+                states=["r1", "r2"],
+                state_dimension_names=[
+                    UnhashableString("load"),
+                    UnhashableString("load"),
+                ],
             ),
             "load",
         )

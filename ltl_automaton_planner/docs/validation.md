@@ -3129,3 +3129,44 @@ README 与 Planning API 同步，前 86 节正文保留。本轮未重跑七包�
 11.86 的 656 项属于 e5a663c 历史源码资格，未与局部结果累加。
 IRL 学习 β 的范围和默认关闭保持；无 LLM、benchmark、物理仿真、
 实机或 Jazzy 验证，列表隔离不构成整体加速或 IRL 科学效果证据。
+
+### 11.88 HIL 拒绝重复 TS 维度并保留合法状态（2026-10-07）
+
+基线为干净 90ccd8e1613fa35a0fa9631a0c74703acb36fbee。
+主代理用生成的 ROS 消息复现 ['load', 'load'] 被 HIL validator
+接受；BoolCommandPolicy 随后用 index=0 选取 empty→loaded，
+保留重复维度和第二个状态值。这证明输入校验缺口，未声称实机
+执行了错误动作。本轮在既有长度及 required dimension 检查后
+验证所有维度名唯一性，重复时 ValueError；普通名称走 set，
+TypeError 时按值比较，保留合法不可哈希 str 子类。没有更改
+Bool/Velocity 仲裁、缓存更新、查询身份、超时、IRL 或规划语义。
+
+扩展既有 validator 用例，覆盖 required/其他维度重复以及
+不可哈希字符串；两个新增 async 用例各含 bool/velocity 参数，
+共四项，检查无缓存拒绝后恢复、合法缓存/revision/pending query
+保持及后续合法状态更新。执行代理先改测试后运行 RED，实际
+exit 1：5 failed、73 deselected；修复后完整 test_policies.py 与
+test_hil_async.py 一次实际 exit 0：**78 passed**，0 errors/failures/
+skips。两轮各保留两项既有 NetworkX/NumPy np.int 弃用警告。
+静态 session 37917 终态 exit 0，三文件 py_compile、
+ament_flake8 --linelength 99、两测试 pep257 和 diff 检查通过。
+
+RED/GREEN XML 为 /tmp/hil_duplicate_dimensions_red_90ccd8e.xml 和
+/tmp/hil_duplicate_dimensions_green_90ccd8e.xml，SHA256 分别为
+3446b54d85fcbf05a7907a4edec2bd3a3d5611a8c0e108a59053355ee8845056 和
+bbc8720b6d13e12740cd470a9b4b7c2c5424167034bdfe16d5a03e801e0585c7。
+主代理独立读取 XML 核对 5/78 项及四个回调参数，不重跑测试；
+完整旧 policies 来自 git show 90ccd8e，运行 import/源码字节
+绑定，确认生产改动仅在 validator。四种实际生成消息的合法
+输入（单维、多维、重排、不可哈希字符串）结果相同且原对象/
+字段保持；三种重复输入均从接受变为拒绝。长度先于重复、缺
+required 先于重复的精确诊断保持。独立 helper 一次实际 exit 0。
+
+原复现、完整旧模块、verify_hil_duplicate_dimensions_90ccd8e.py
+及 hil_duplicate_dimensions_verified_90ccd8e.json 保留在既有
+隔离目录/主机临时目录，当前 policies SHA256 为
+e05fe6e719dc72e784e9af5bb313e996f2619cb7450fc9bfca1c7c4efe718421。
+README/HIL README 同步，前 87 节正文保留。本轮未重跑七包，
+e5a663c 的 656 项与 90ccd8e 的快照 23 项保留各自资格，不相加
+为当前结果。验证使用真实 ROS 节点和受控 Future，没有实机、
+LLM、benchmark、物理仿真或 Jazzy 验证，也未改变 IRL 学习范围。

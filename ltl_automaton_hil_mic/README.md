@@ -74,6 +74,12 @@ human command; velocity publishes the latest valid navigation command. Late repl
 cannot affect a newer query or publish after node teardown. The existing velocity
 `timeout` remains the human-input freshness window, separate from this query limit.
 
+Both controllers require TS state values and dimension names to have equal
+length, the configured dimension to be present, and all dimension names to be
+unique. Invalid TS messages log a warning and are dropped without replacing the
+last valid state or invalidating its pending query. Before a valid state arrives,
+they cannot start a safety query; a later valid state can restore normal control.
+
 Both controllers' configuration parameters are startup-only and read-only.
 Set limits, deadlines, the monitored action and model/dimension selection when
 starting the node; runtime parameter writes are rejected instead of reporting
