@@ -306,13 +306,29 @@ def test_reused_ts_values_keep_message_state_arrays_independent(soft_task):
     planner, active_hash = build_planner(MINIMAL_TS, "<> r2", soft_task)
     first = build_planning_graph_snapshot(planner, active_hash)
     expected = deepcopy(first.snapshot)
+    source_format = deepcopy(
+        planner.product.graph["ts"].graph["ts_state_format"]
+    )
     nodes = [
         node for node in first.snapshot.product_nodes
         if list(node.ts_state.states) == ["r1"]
     ]
     assert len(nodes) > 1
+    original_dimensions = [
+        tuple(node.ts_state.state_dimension_names)
+        for node in first.snapshot.product_nodes
+    ]
     nodes[0].ts_state.states[0] = "changed-only-in-this-message"
+    nodes[0].ts_state.state_dimension_names[0] = (
+        "changed-dimension-only-in-this-message"
+    )
     assert all(list(node.ts_state.states) == ["r1"] for node in nodes[1:])
+    assert all(
+        tuple(node.ts_state.state_dimension_names) == original_dimensions[index]
+        for index, node in enumerate(first.snapshot.product_nodes)
+        if node is not nodes[0]
+    )
+    assert planner.product.graph["ts"].graph["ts_state_format"] == source_format
     second = build_planning_graph_snapshot(planner, active_hash)
     assert second.snapshot == expected
     assert second.product_node_ids == first.product_node_ids

@@ -165,6 +165,10 @@ response remains tied to that complete captured generation even if a newer one
 commits during copying. The returned copy can be modified without changing the
 planner's retained snapshot.
 
+Within a Python-built snapshot, each Product node owns its mutable TS state
+values and dimension-name lists. Editing one node's lists does not change
+another node, the source TS definition, or a later snapshot build.
+
 `planning_generation` starts at zero and increments once when startup planning,
 `PlanLTL`, legacy task replanning, or state-based replanning successfully
 replaces the accepted run. A successful optional IRL beta-learning commit also

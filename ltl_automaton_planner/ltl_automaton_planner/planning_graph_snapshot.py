@@ -238,7 +238,7 @@ def _serialize_product(product, buchi, buchi_ids):
 
         state = TransitionSystemState()
         state.states = ts_values
-        state.state_dimension_names = dimension_names
+        state.state_dimension_names = list(dimension_names)
         message = ProductGraphNode()
         message.id = node_ids[node]
         message.ts_state = state

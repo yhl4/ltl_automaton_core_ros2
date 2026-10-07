@@ -3083,3 +3083,49 @@ verified_results_e5a663c/sha256_manifest.json，独立工具结果另存。
 各自范围，不相加为本轮人口。无 LLM、benchmark、完整演示、
 物理仿真、实机示范或 Jazzy 验证；通过不证明整体加速、IRL
 收敛或逆最优性。IRL 沿用原示范学习 β 范围，默认关闭。
+
+### 11.87 Product 快照节点的维度名列表隔离（2026-10-07）
+
+基线为干净 07d7d14afda036a851748d4c2fdea6f6fca27d5f。
+Python builder 原先把同一个 dimension_names 列表交给所有
+ProductGraphNode 的 TransitionSystemState；生成消息的 setter 保留
+该列表，因此编辑一个节点会改变其余节点。主代理原生 single/
+safe/KTH 复现分别为 4/8/24 节点、3/7/23 个受影响兄弟节点，
+源 TS 维度定义保持。该问题针对 Python 对象，未声称 DDS 反序列化
+后仍有同一对象别名。本轮仅改为每个节点 list(dimension_names)，
+保留字段值、验证顺序、节点/边/运行次序、ID、代价与接受性。
+
+扩展既有 test_reused_ts_values_keep_message_state_arrays_independent
+的两个 soft_task 参数，检查状态值及维度列表独立、源 TS 格式和
+下一次完整快照/ID 保持，没有增加用例人口。执行代理首次直接
+pytest 因 PATH 无命令 exit 127，在启动前终止、未生成 XML；改用
+python3 -m pytest 后，修复前两用例实际 exit 1，2 failed、18 deselected。
+修复后完整 test_planning_graph_snapshot.py 和
+test_snapshot_service_copy.py 一次 **23 passed**，实际 exit 0，
+0 errors/failures/skips。两轮各保留两项既有 NetworkX/NumPy np.int
+弃用警告。静态 session 88471 终态 exit 0，两文件 py_compile、
+ament_flake8 --linelength 99、测试 pep257、diff 检查通过。
+
+两份原始 JUnit 为 /tmp/snapshot_dimensions_red_07d7d14.xml 与
+/tmp/snapshot_dimensions_green_07d7d14.xml，SHA256 分别为
+6591e4160a76722f07b746b77e22254a64ce684cdb2618407bf07f003cd1df52 和
+8774dd9c364b53de31342aa63a8bfcf08e864dae1f96c8392834b1af9f8e01a9。
+主代理独立读取 XML，核对计数及两个参数的失败/通过，没有重跑测试。
+首次 inline XML 读取命令因 shell 引号错误 exit 1，未启动 Python；
+随后改用保存的 helper，一次实际 exit 0。
+
+完整旧 serializer 来自 git show 07d7d14；当前运行 import 路径与
+源码字节绑定，确认仅上述一行改变。旧/新原生 single、safe、KTH
+全部消息字段与 Product ID 相同，成本分别为 3/1/13、3/2/23、
+20/20/220。旧维度列表共享、本轮各节点值/维度列表均独立；编辑
+首节点后其他节点、源 TS 格式、下一次完整快照与 ID 保持。
+比较使用生成消息字段值，不使用有 padding 的 CDR 字节作判据。
+原复现、完整旧模块、verify_snapshot_dimensions_07d7d14.py 和
+snapshot_dimensions_verified_07d7d14.json 保留于既有隔离目录及
+主机临时目录。当前 serializer SHA256 为
+4c7e2a654cd60a5c0cb04bb01d4315f9cc2d5d20bd3750f2e583528aa903c8c5。
+
+README 与 Planning API 同步，前 86 节正文保留。本轮未重跑七包，
+11.86 的 656 项属于 e5a663c 历史源码资格，未与局部结果累加。
+IRL 学习 β 的范围和默认关闭保持；无 LLM、benchmark、物理仿真、
+实机或 Jazzy 验证，列表隔离不构成整体加速或 IRL 科学效果证据。
