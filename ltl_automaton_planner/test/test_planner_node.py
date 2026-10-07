@@ -1,6 +1,7 @@
 """Tests for ROS2 planner-node state conversion helpers."""
 
 import hashlib
+import math
 from pathlib import Path
 from threading import RLock
 import time
@@ -16,6 +17,8 @@ from rclpy.qos import (
     QoSProfile,
     ReliabilityPolicy,
 )
+
+import ltl_automaton_planner.planner_node as planner_module
 
 from ltl_automaton_msgs.msg import (
     PlannerStatus,
@@ -105,11 +108,23 @@ actions:
 
 
 @pytest.fixture
-def planner_runtime():
+def planner_runtime(request):
     """Create an isolated single-threaded planner service runtime."""
     context = Context()
     rclpy.init(context=context)
-    planner = PlannerNode(context=context)
+    node_options = {}
+    initial_override = getattr(request, "param", None)
+    if initial_override is not None:
+        node_options["parameter_overrides"] = [
+            Parameter(
+                "initial_ts_state_from_agent",
+                value=initial_override,
+            )
+        ]
+    planner = PlannerNode(
+        context=context,
+        **node_options,
+    )
     client_node = rclpy.create_node(
         "planner_lifecycle_test",
         context=context,
@@ -318,6 +333,181 @@ def test_public_parameter_service_preserves_initial_state_configuration(
         assert planner._waiting_for_initial_state is False
     finally:
         planner_runtime.client_node.destroy_client(client)
+
+
+def _patch_initialization_failure(patch, runtime, stage):
+    """Fail exactly one preparation stage with a controlled exception."""
+    message = f"Controlled initial {stage} preparation failure."
+    if stage == "copy":
+        original_copy = planner_module.deepcopy
+
+        def failed_copy(value):
+            if isinstance(value, PlanningGraphSnapshot):
+                raise RuntimeError(message)
+            return original_copy(value)
+
+        patch.setattr(planner_module, "deepcopy", failed_copy)
+    elif stage == "ids":
+        def failed_ids(_value):
+            raise RuntimeError(message)
+
+        patch.setattr(planner_module, "MappingProxyType", failed_ids)
+    else:
+        def failed_plans(*_args, **_kwargs):
+            raise RuntimeError(message)
+
+        patch.setattr(runtime.planner, "_plan_messages", failed_plans)
+    return message
+
+
+def _run_initialization(runtime, mode):
+    """Enter direct initialization or deliver the real agent state."""
+    if mode == "direct":
+        leaked = None
+        result = None
+        try:
+            result = runtime.planner._initialize_planner()
+        except Exception as error:
+            leaked = error
+        return result, leaked
+
+    state = make_state_message(["r1"], ["region"])
+    state.header.stamp.nanosec = 1
+    leaked = None
+    try:
+        runtime.planner._ts_state_callback(state)
+    except Exception as error:
+        leaked = error
+    return None, leaked
+
+
+def _assert_initial_failure_authority(
+    runtime, mode, old_ts, old_yaml, old_hash, waiting, leaked,
+):
+    """Check that failed initialization retains all pre-plan authority."""
+    planner = runtime.planner
+    assert leaked is None, leaked
+    assert planner._planner_state == PlannerStatus.READY
+    assert planner.ltl_planner is None
+    if mode == "direct":
+        assert planner._active_transition_system is old_ts
+    assert planner._active_transition_system.graph["initial"] == {("r1",)}
+    assert planner._active_ts_yaml == old_yaml
+    assert planner._active_ts_sha256 == old_hash
+    assert planner._active_planning_graph_snapshot is None
+    assert planner._active_product_node_ids is None
+    assert planner._canonical_ts_state is None
+    assert planner._planning_generation == 0
+    assert planner._execution_step_seq == 0
+    assert planner._previous_state_stamp is None
+    assert planner._waiting_for_initial_state is waiting
+    assert planner._plugins_initialized is False
+
+
+@pytest.mark.parametrize("stage", ["copy", "ids", "plans"])
+@pytest.mark.parametrize(
+    "mode, planner_runtime",
+    [("direct", False), ("agent", True)],
+    indirect=["planner_runtime"],
+    ids=["direct", "agent"],
+)
+def test_initial_planning_preparation_failure_keeps_ready_and_recovers(
+    planner_runtime, monkeypatch, stage, mode,
+):
+    """Retain startup authority when any initial preparation stage fails."""
+    runtime = planner_runtime
+    planner = runtime.planner
+    assert planner.set_parameters_atomically([
+        Parameter("hard_task", value="[]<> r2"),
+        Parameter("soft_task", value="(r2 || ! r2)"),
+        Parameter("beta", value=1000.0),
+        Parameter("gamma", value=1.0),
+    ]).successful
+    assert call_load_transition_system(runtime, VALID_TS_A).success
+    old_ts = planner._active_transition_system
+    old_yaml = planner._active_ts_yaml
+    old_hash = planner._active_ts_sha256
+    waiting = planner._waiting_for_initial_state
+
+    with monkeypatch.context() as patch:
+        _patch_initialization_failure(patch, runtime, stage)
+        result, leaked = _run_initialization(runtime, mode)
+
+    assert result is False if mode == "direct" else result is None
+    _assert_initial_failure_authority(
+        runtime, mode, old_ts, old_yaml, old_hash, waiting, leaked,
+    )
+
+    if mode == "direct":
+        assert planner._initialize_planner() is True
+    else:
+        state = make_state_message(["r1"], ["region"])
+        state.header.stamp.nanosec = 2
+        planner._ts_state_callback(state)
+
+    assert planner._planner_state == PlannerStatus.ACTIVE
+    assert planner.ltl_planner is not None
+    assert planner.ltl_planner.run is not None
+    assert math.isfinite(planner.ltl_planner.run.totalcost)
+    assert planner._canonical_ts_state == ("r1",)
+    assert planner._planning_generation == 1
+    assert planner._execution_step_seq == 0
+    if mode == "agent":
+        assert planner._waiting_for_initial_state is False
+        assert planner._previous_state_stamp == (0, 2)
+
+
+@pytest.mark.parametrize(
+    "mode, planner_runtime",
+    [("direct", False), ("agent", True)],
+    indirect=["planner_runtime"],
+    ids=["direct", "agent"],
+)
+def test_initial_planning_cost_overflow_keeps_ready_and_recovers(
+    planner_runtime, mode,
+):
+    """Reject a finite beta that produces a non-finite initial run cost."""
+    runtime = planner_runtime
+    planner = runtime.planner
+    assert planner.set_parameters_atomically([
+        Parameter("hard_task", value="[]<> r2"),
+        Parameter("soft_task", value="(missing1 && missing2)"),
+        Parameter("beta", value=1e308),
+        Parameter("gamma", value=1.0),
+    ]).successful
+    assert call_load_transition_system(runtime, VALID_TS_A).success
+    old_ts = planner._active_transition_system
+    old_yaml = planner._active_ts_yaml
+    old_hash = planner._active_ts_sha256
+    waiting = planner._waiting_for_initial_state
+    result, leaked = _run_initialization(runtime, mode)
+
+    assert result is False if mode == "direct" else result is None
+    _assert_initial_failure_authority(
+        runtime, mode, old_ts, old_yaml, old_hash, waiting, leaked,
+    )
+
+    parameter_result = planner.set_parameters_atomically([
+        Parameter("soft_task", value="(r2 || ! r2)"),
+    ])
+    assert parameter_result.successful
+    if mode == "direct":
+        assert planner._initialize_planner() is True
+    else:
+        state = make_state_message(["r1"], ["region"])
+        state.header.stamp.nanosec = 2
+        planner._ts_state_callback(state)
+
+    assert planner._planner_state == PlannerStatus.ACTIVE
+    assert planner.ltl_planner is not None
+    assert planner.ltl_planner.run is not None
+    assert math.isfinite(planner.ltl_planner.run.totalcost)
+    assert planner._canonical_ts_state == ("r1",)
+    assert planner._planning_generation == 1
+    assert planner._execution_step_seq == 0
+    if mode == "agent":
+        assert planner._waiting_for_initial_state is False
+        assert planner._previous_state_stamp == (0, 2)
 
 
 def make_state_message(states, dimensions):

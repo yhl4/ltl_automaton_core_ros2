@@ -420,9 +420,11 @@ Planner 接受的 TS YAML 必须满足以下结构约束：
 输入违反这些约束时，加载或规划请求应失败并保留此前有效的运行状态。
 直接调用 Python 核心 Planner 或 IRL 时，超出浮点表示范围的 β/γ 也返回
 各自既有的无效权重 `ValueError`，并保留转换溢出的异常原因。
-PlanLTL、IRL、旧 `/replanning` 或意外状态恢复候选计算出的 prefix/suffix/total 代价必须
+初始规划、PlanLTL、IRL、旧 `/replanning` 或意外状态恢复候选计算出的
+prefix/suffix/total 代价必须
 能表示为有限 float64；结果溢出或出现 NaN 时，Action/IRL 返回内部失败，
 旧服务返回 `success: false`，自动恢复返回失败，保留活动计划与代际。
+初始规划的结果溢出或提交准备失败时返回 READY，保留有效 TS，且不提交计划或增加代际。
 这是候选结果检查，不改变核心代价定义或为有限 β/γ 设置额外上限。
 
 ---
@@ -464,6 +466,8 @@ ros2 launch ltl_automaton_planner planner.launch.py \
 Planner 会先等待首个合法 `/ts_state`，按消息中的
 `state_dimension_names` 将状态覆盖到对应 TS 维度，然后才构建并发布初始计划。
 无效或维度不匹配的消息不会触发规划，节点会继续等待下一条状态。
+初始候选的代价检查、快照或计划消息准备失败时，节点保持 READY 和等待初态；
+下一条合法反馈可以重新尝试初始化，成功只提交一次新 generation。
 
 ### 8.2 `/next_move_cmd`
 
@@ -706,7 +710,18 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前七包组合验证（源码 917c4cc，2026-10-07）
+### 当前局部验证：启动规划的准备与提交（2026-10-07）
+
+初始规划在候选代价、快照和计划消息全部准备成功后才提交。准备失败返回 READY，
+保留有效 TS，无活动计划、快照或执行身份；有效重试只开启一次新 generation。
+直接初始化和等待机器人初态各覆盖三类准备失败及真实代价溢出，共八项新增回归。
+原代码上八项均失败；首次修复验证因误用检查函数出现 8 failed / 96 passed，
+更正调用后，三个完整相关测试文件 **104 passed**（节点 38、Action 52、序列化 14）。
+原失败记录保留；测试字节和验收条件保持。编译、flake8、pep257 通过，详见
+[validation.md 第 11.108 节](ltl_automaton_planner/docs/validation.md)。
+本轮仅执行相关验证；下列 691 项是此前源码 917c4cc 的七包基线，不与 104 项相加。
+
+### 最近七包组合基线（源码 917c4cc，2026-10-07）
 
 干净源码 `917c4cc` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
 历史遍历、旧 `/replanning` 和意外状态恢复的近期改动纳入完整组合；

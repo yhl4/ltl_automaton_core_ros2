@@ -1489,6 +1489,46 @@ class PlannerNode(Node):
                 style="static"
             )
 
+            if not success or planner.run is None:
+                self.get_logger().error(
+                    "No accepting LTL plan was found."
+                )
+                with self._state_lock:
+                    self.ltl_planner = None
+                    self._set_planner_status(
+                        PlannerStatus.READY,
+                        "No accepting plan; transition system remains ready.",
+                    )
+                return False
+
+            _validate_candidate_run_costs(planner.run)
+
+            initial_states = (
+                planner.product
+                .graph["ts"]  # type: ignore
+                .graph["initial"]
+            )
+            canonical_state = None
+
+            if initial_states:
+                canonical_state = next(iter(initial_states))
+                planner.curr_ts_state = canonical_state
+
+            snapshot = serialize_planning_graph(
+                planner,
+                self._active_ts_sha256,
+            )
+            stamp = self.get_clock().now().to_msg()
+            prefix_plan, suffix_plan = self._plan_messages(
+                planner,
+                stamp,
+            )
+
+            with self._state_lock:
+                self._commit_planning_graph_snapshot(snapshot)
+                self.ltl_planner = planner
+                self._canonical_ts_state = canonical_state
+
         except Exception as error:
             self.get_logger().error(
                 f"Planner initialization failed: {error}"
@@ -1502,38 +1542,7 @@ class PlannerNode(Node):
                 )
             return False
 
-        if not success or planner.run is None:
-            self.get_logger().error(
-                "No accepting LTL plan was found."
-            )
-            with self._state_lock:
-                self.ltl_planner = None
-                self._set_planner_status(
-                    PlannerStatus.READY,
-                    "No accepting plan; transition system remains ready.",
-                )
-            return False
-
-        initial_states = (
-            planner.product
-            .graph["ts"]  # type: ignore
-            .graph["initial"]
-        )
-        canonical_state = None
-
-        if initial_states:
-            canonical_state = next(iter(initial_states))
-            planner.curr_ts_state = canonical_state
-
-        snapshot = serialize_planning_graph(
-            planner,
-            self._active_ts_sha256,
-        )
-
         with self._state_lock:
-            self.ltl_planner = planner
-            self._canonical_ts_state = canonical_state
-            self._commit_planning_graph_snapshot(snapshot)
             self._set_planner_status(
                 PlannerStatus.ACTIVE,
                 "An accepted LTL run is active.",
@@ -1553,7 +1562,11 @@ class PlannerNode(Node):
             f"Suffix actions: {self.ltl_planner.run.suf_plan}"
         )
 
-        self._publish_plan()
+        self.prefix_plan_publisher.publish(prefix_plan)
+        self.suffix_plan_publisher.publish(suffix_plan)
+        self.get_logger().info(
+            "Published prefix and suffix plans."
+        )
         self._publish_next_move()
         self._publish_planning_execution_observation()
         return True

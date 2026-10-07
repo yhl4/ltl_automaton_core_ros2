@@ -4196,3 +4196,73 @@ historical_hashes_before_917c4cc.json、inspected_combo_receipts_917c4cc.json
 log_query_917c4cc，helper在主机临时目录。IRL仍仅学习β且默认关闭，执行
 仍为符号级FakeBackend；未做LLM、benchmark、完整演示、物理仿真、实机/
 机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。
+
+### 11.108 启动规划的准备/提交与有限代价（2026-10-07）
+
+基线77bf3ca9fbc6a4c57ca86ee4dadfede5bc082050，生产与11.107资格917c4cc
+相同。原_initialize_planner只捕获搜索异常，快照copy/IDs和计划消息准备
+位于异常边界之外；活动planner/canonical先于快照提交安装，也缺少已有
+模块级_validate_candidate_run_costs检查。
+
+唯一生产改动在_initialize_planner：新建候选继续原static搜索，保留无接受
+运行的独立诊断；有限公开代价、canonical、快照及共享时间戳的计划消息
+均先准备。锁内先完成既有原子快照提交，再安装planner/canonical。准备
+失败返回false并恢复READY，保留有效TS/yaml/hash，无活动计划、快照、IDs、
+canonical或generation增加。agent分支仍按原行为重建有效TS，不要求保留
+原TS对象引用。成功ACTIVE发布在提交异常边界之外，原possible_states、
+plugins、成功/动作日志、prefix/suffix、next_move、execution_observation
+顺序和发布日志保持，复用已准备消息。加载/初态/缺参数分支、其余37个
+生产方法及方法外完整内容保持；不修改核心目标、source-label或接受性。
+
+新增八项native回归：快照copy、ID映射及计划消息三类可控准备异常，各
+覆盖direct和agent；另两项以有限beta=1e308、gamma=1.0、soft任务
+(missing1 && missing2)真实计算溢出，未伪造run cost。使用真实LoadTS服务，
+agent通过生成的r1反馈调用原_ts_state_callback。失败后检查完整初始
+authority、READY、等待状态/时间戳和未初始化插件；移除故障或仅改soft
+为恒真任务后直接初始化/再次生成反馈，成功代价有限、generation=1、step=0。
+此处agent反馈为native callback，不称为DDS重试。
+
+测试草案在任何运行前修正任务配置、重复fixture、agent重建TS身份预期及
+时间戳格式；默认fixture仍使用原构造参数，旧21个函数字节保持。RED和
+两次完整验证使用同一冻结测试SHA，未按结果修改预期或缩减人口。
+基线生产完整Git字节下RED session10732沿原handle至实际exit1：
+**8 failed / 30 deselected**，pytest2.80秒、JUnit2.762秒、receipt8.850753322秒。
+copy/ids/plans异常泄漏；direct溢出返回true，agent溢出进入ACTIVE。
+
+首次完整修复验证session32724实际exit1：**8 failed / 96 passed**，pytest
+25.38秒、JUnit25.349秒、receipt30.662648252秒。主代理方案错误地把已有
+模块级检查函数接成self方法，所有有效重试被拒绝。完整候选源码、原命令、
+import、XML、日志与receipt保留，未将这次运行标为通过。仅更正该调用，
+测试、配置、期限及验收条件不变。
+
+观察结果前由11.107冻结原XML的96项（Action52、节点30、序列化14）加八项
+固定为104。最终完整验证session23973沿原handle至实际exit0：**104 passed**，
+0 errors/failures/skipped；节点38、Action52、序列化14。pytest26.05秒、
+JUnit26.016秒、含lint的receipt35.538960137秒。八个实际生产import完整字节、
+生成消息路径、三个测试SHA及原生ltl2ba核对通过；其余模块与Git基线一致。
+源码/测试编译、ament_flake8.main --linelength 99、ament_pep257.main及
+git diff --check通过，保留lint既有optparse提示，没有额外警告过滤。
+独立检查实际exit0，核对全部三次原始时序、新鲜度、失败文本、人口、完整
+导入字节和日志哈希。这些时间不用于性能比较。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_startup_77bf3ca_retry1.py \
+  green 17d2ac337ef85e6a41a68a731d5bf091dd0e7e3357394b1054b7d3b3917a2a07
+```
+
+证据在/tmp/ltl_ros2_completion_20261006：startup_77bf3ca_population.json、
+startup_77bf3ca_{red,green}.xml及对应_{red,green}_{imports.json,run.json,run.log}、
+startup_77bf3ca_failed_planner_node.py、startup_77bf3ca_retry1_green.xml及其
+_{imports.json,run.json,run.log}、startup_77bf3ca_inspected.json；helper在主机
+临时目录。旧源码SHA为7f428d591b11415f6b47d1d2a02b355ac83fa40ef8379b4f0213156dfb752d3e，
+首次候选SHA为9a4c712993c4b9695c7d165dea76de6c61ea0ff9405a26665e4823f25daeb800，
+最终源码SHA为17d2ac337ef85e6a41a68a731d5bf091dd0e7e3357394b1054b7d3b3917a2a07，
+冻结测试SHA为0e3a23b5d42d6870e8614f42c5d3a485189d8daac8d3266758e63fcce04bd6ae，
+最终XML SHA为68b497410a0022e13f961a0205a1c4919622e85426ab034cf9d28ced86f103f1。
+首次文档helper错误将新文本写为CRLF，diff检查实际exit2；更正为原LF，
+保留初稿helper及文档字节，生产/测试字节和验证结果未改，未重跑测试。
+README同步启动契约及当前局部资格，前107节正文保持。11.107的691项仍
+属于源码917c4cc七包基线，本轮未重跑七包或推算新组合结果。IRL仍仅学习β且
+默认关闭；未做LLM、benchmark、完整演示、物理仿真、实机/机器人示范或Jazzy验证。
