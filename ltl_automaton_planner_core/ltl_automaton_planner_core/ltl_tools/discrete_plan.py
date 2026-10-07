@@ -68,8 +68,6 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         if prod_target not in prefix_dist:
             continue
 
-        cycle_costs: dict[object, float] = {}
-
         component = target_components[prod_target]
 
         def component_weight(source, successor, data):
@@ -84,26 +82,28 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
             weight=component_weight,
         )
 
+        optimal_predecessor = None
+        suffix_cost = None
+        found_cycle = False
         for target_pred in product.predecessors(prod_target):
             edge_weight = product.edges[target_pred, prod_target].get(
                 "weight",
                 1,
             )
             if target_pred in loop_dist and edge_weight is not None:
-                cycle_costs[target_pred] = (
+                candidate_cost = (
                     loop_dist[target_pred]
                     + edge_weight
                 )
+                if not found_cycle or candidate_cost < suffix_cost:
+                    optimal_predecessor = target_pred
+                    suffix_cost = candidate_cost
+                    found_cycle = True
 
-        if not cycle_costs:
+        if not found_cycle:
             continue
 
-        optimal_predecessor = min(
-            cycle_costs,
-            key=lambda node: cycle_costs[node],
-        )
         prefix_cost = prefix_dist[prod_target]
-        suffix_cost = cycle_costs[optimal_predecessor]
         candidate = (
             prod_target,
             optimal_predecessor,

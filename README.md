@@ -703,7 +703,14 @@ git diff --check
 
 ### 最新验证摘要（2026-10-07）
 
-当前代码基线 `c70d38d` 的 aggregate 七包构建与整包测试全部完成。
+本轮优化接受环的闭合边选择：按原 predecessor 次序遍历，只保留
+当前最佳候选，省去每个接受节点的临时成本表。并列结果仍取首个候选，
+默认 weight、None 隐藏边、代价公式、prefix/SCC 搜索及路径恢复保持。
+discrete-plan、planner、IRL 三个相关测试文件 **70 passed**；另补充的
+无可用闭合边检查 **1 passed**。源码/测试 lint 和定向旧版对照通过，
+本轮未重跑整包，不作为整体加速或总内存测量。
+
+此前代码基线 `c70d38d` 的 aggregate 七包构建与整包测试全部完成。
 六份本轮新 JUnit 合计 **572 tests = 568 passed / 4 skipped**，
 0 errors、0 failures；四个跳过项均为已有 copyright 检查。
 标准 colcon 汇总含一项通过的接口 CTest wrapper，共 573 tests。
@@ -711,8 +718,7 @@ git diff --check
 IRL/HIL、ROS 通信、launch 与 lint 检查均执行，历史结果未混入统计。
 实际导入绑定当前源码与隔离生成接口；环境为 Ubuntu 22.04 /
 ROS 2 Humble / Python 3.10.12，保留既有依赖与弃用警告。
-本轮只更新组合验证记录，不修改代码、测试或算法规则；不作为整体
-加速、IRL 收敛或机器人示范效果的证据。
+该整包证据属于其原基线；组合验证不证明 IRL 收敛或机器人示范效果。
 Ubuntu 24.04 / ROS 2 Jazzy 兼容性验证与物理验证尚未完成。
 
 各轮验证正文（包括数值、fixture、实测与限制）见

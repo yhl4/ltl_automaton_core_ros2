@@ -1543,3 +1543,50 @@ msgs 的本轮 CTest wrapper 为 passed；标准
 绕过它们。结果只证明当前基线的组合检查通过；不推出整体加速、IRL
 收敛/逆最优性、真实网络故障、物理仿真、实机/机器人示范效果或
 Jazzy 兼容性。全部 56 节历史正文保持，文档链接和 diff 检查通过。
+
+### 11.58 接受环闭合边流式选择（2026-10-07）
+
+以 `d804f78` 为基线，dijkstra_plan_networkX 在每个接受目标的 suffix
+距离计算后，将全部可用 predecessor 的闭合环成本保存在 cycle_costs
+字典，再用 min 选一个。现在按原 predecessor 次序只保存当前最佳
+节点与成本，首个可行候选直接保留，后续仅 candidate_cost < suffix_cost
+时替换。省去每个目标随可用入边数增长的临时成本表；prefix/loop
+距离表、SCC 与其它搜索空间不变，不宣称整体加速或总内存下降。
+
+仍先读取边的 weight（缺失时为 1），再检查 predecessor 在 loop_dist
+且 weight 不是 None，按原 loop_dist[pred] + edge_weight 顺序计算。
+并列成本保持首候选，无可行闭合边时继续跳过目标；接受目标的最终
+比较、prefix_cost + gamma * suffix_cost、tight 路径恢复、闭合边输出、
+显式起点、Product/TS 图与执行身份、ROS 字段及 IRL 学习规则均未改。
+
+五个新增手算 case 包含两种 predecessor 次序的并列成本 5，确认
+prefix 成本 2、suffix 成本 5、总成本 52 与首候选动作/闭合边；修改
+另一条闭合边后下一次读取新值，suffix 成本 1、总成本 12。记录图边、
+initial/accept/accept_with_cycle/possible_states 保持。另两个 gamma=0/10
+case 确认缺失 weight 使用 1、None 隐藏闭合边与 SCC 外入边被排除，
+suffix 成本 2、总成本为 2/22。最后一个只有隐藏自环，结构上接受但
+没有可用闭合候选，正确返回 (None, None)。
+
+独立进程用 git show 导出的完整旧 discrete_plan.py 替换测试进程中的
+模块，逐字核对导出内容；上述五个新增 case 在旧模块上也是
+**5 passed**，旧/新均符合相同手算结果。另一个普通非负 finite
+Product 星形样例有 256 个可用闭合 predecessor：旧函数的局部
+cycle_costs 最大为 **256 项**，新函数没有创建该表；两版全部 Run
+字段一致（已消费的 zip 字段转为 tuple 比较）。该计数只证明此临时
+表被省去，不是计时 benchmark，也不作为整体内存测量。
+
+初次外部对照探针有部分场景名与输入配置不一致，补充脚本尾部还
+包含对无计划结果属性的访问；这些部分不作为缺失/隐藏权重、无解或
+图属性保留的证据。采用上述精确旧模块的五个仓内 case 补齐这些
+边界验证，保留初始临时脚本，没有用场景命名代替实际输入检查。
+
+discrete-plan、ltl-planner、IRL 三个相关测试文件合计 **70 passed**；
+随后补充的无可用闭合边 case 单独 **1 passed**，未重复跑三文件。
+源码 py_compile/ament_flake8 与测试 py_compile/ament_flake8/pep257
+通过。新测试初次 lint 有一行超过已有 99 字符限制，换行后通过，
+未改变断言或生产逻辑。使用既有 WSL Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10.12 隔离 overlay，NumPy/NetworkX 弃用警告保留。
+
+本轮没有重跑整包、ROS 通信、物理仿真、实机、Jazzy、benchmark
+或机器人示范学习；11.57 整包证据仍属于原代码基线。README、
+57 节历史正文保留、本地链接/锚点与 diff 检查通过。

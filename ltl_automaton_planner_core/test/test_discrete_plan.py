@@ -534,3 +534,92 @@ def test_history_replanning_passes_gamma_to_networkx_search():
     assert low_gamma.totalcost == 4
     assert high_gamma.suffix == [("b", "q0")]
     assert high_gamma.totalcost == 18
+
+
+@pytest.mark.parametrize("first_tail, second_tail", [("a", "b"), ("b", "a")])
+def test_closing_cycle_ties_keep_predecessor_order_and_read_new_weights(
+    first_tail, second_tail,
+):
+    """Keep the first cost-five cycle, then reread a changed closing edge."""
+    product = make_weighted_product([
+        ("s0", "goal", 2), (first_tail, "goal", 4),
+        (second_tail, "goal", 4), ("goal", first_tail, 1),
+        ("goal", second_tail, 1), ("goal", "goal", 10),
+        ("outside", "goal", 0), ("goal", "hidden", 0),
+        ("hidden", "goal", 0),
+    ], accepting="goal")
+    goal = ("goal", "q0")
+    hidden = ("hidden", "q0")
+    product.edges[hidden, goal]["weight"] = None
+    predecessors = list(product.predecessors(goal))
+    assert predecessors.index((first_tail, "q0")) < predecessors.index((second_tail, "q0"))
+    initial = set(product.graph["initial"])
+    acceptance = set(product.graph["accept"])
+    cycles = set(product.graph["accept_with_cycle"])
+
+    for expected_tail, expected_cost in [(first_tail, 5), (second_tail, 1)]:
+        before_edges = [(source, target, dict(data)) for source, target, data
+                        in product.edges(data=True)]
+        before_ts = [(source, target, dict(data)) for source, target, data
+                     in product.graph["ts"].edges(data=True)]
+        run, _ = dijkstra_plan_networkX(product, gamma=10)
+        assert run.prefix == [("s0", "q0"), goal]
+        assert run.suffix == [goal, (expected_tail, "q0")]
+        assert (run.precost, run.sufcost, run.totalcost) == (
+            2, expected_cost, 2 + 10 * expected_cost,
+        )
+        assert run.suf_prod_edges == [
+            (goal, (expected_tail, "q0")), ((expected_tail, "q0"), goal),
+        ]
+        assert run.pre_plan == ["s0_to_goal"]
+        assert run.suf_plan == [f"goal_to_{expected_tail}", f"{expected_tail}_to_goal"]
+        assert run.pre_plan_cost == [0, 2]
+        assert run.suf_plan_cost == [0, 1, expected_cost - 1]
+        assert list(product.edges(data=True)) == before_edges
+        assert list(product.graph["ts"].edges(data=True)) == before_ts
+        assert product.graph["initial"] == initial
+        assert product.graph["accept"] == acceptance
+        assert product.graph["accept_with_cycle"] == cycles
+        assert product.possible_states == initial
+        product.edges[(second_tail, "q0"), goal]["weight"] = 0
+        product.graph["ts"].edges[second_tail, "goal"]["weight"] = 0
+
+
+@pytest.mark.parametrize("gamma", [0, 10])
+def test_closing_cycle_uses_default_weight_and_ignores_hidden_edges(gamma):
+    """Use weight one for the closing edge and reject a cheaper hidden cycle."""
+    product = make_weighted_product([
+        ("s0", "goal", 2), ("goal", "goal", 10),
+        ("goal", "tail", 1), ("tail", "goal", 1),
+        ("goal", "hidden", 0), ("hidden", "goal", 0),
+        ("outside", "goal", 0),
+    ], accepting="goal")
+    goal = ("goal", "q0")
+    tail = ("tail", "q0")
+    del product.edges[tail, goal]["weight"]
+    product.edges[("hidden", "q0"), goal]["weight"] = None
+    before = [(source, target, dict(data)) for source, target, data in product.edges(data=True)]
+    run, _ = dijkstra_plan_networkX(product, gamma=gamma)
+    assert run.prefix == [("s0", "q0"), goal]
+    assert run.suffix == [goal, tail]
+    assert (run.precost, run.sufcost, run.totalcost) == (2, 2, 2 + gamma * 2)
+    assert run.suf_plan_cost == [0, 1, 1]
+    assert list(product.edges(data=True)) == before
+    assert "weight" not in product.edges[tail, goal]
+
+
+def test_closing_cycle_without_usable_predecessor_returns_no_run():
+    """Reject a structural accepting loop whose only closing edge is hidden."""
+    product = make_weighted_product([
+        ("s0", "goal", 2), ("goal", "goal", 0),
+    ], accepting="goal")
+    goal = ("goal", "q0")
+    product.edges[goal, goal]["weight"] = None
+    before = [(source, target, dict(data)) for source, target, data in product.edges(data=True)]
+    initial = set(product.graph["initial"])
+    cycles = set(product.graph["accept_with_cycle"])
+    assert goal in cycles
+    assert dijkstra_plan_networkX(product) == (None, None)
+    assert list(product.edges(data=True)) == before
+    assert product.graph["initial"] == initial
+    assert product.graph["accept_with_cycle"] == cycles
