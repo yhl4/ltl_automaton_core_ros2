@@ -3395,3 +3395,71 @@ helper 在主机临时目录。主代理核对 XML 计数/用例名/SHA 和最�
 660 项仍属于 aa7acf8 历史源码资格，HIL 的90项与 IRL 的两个 pytest
 入口保留各自源码资格，不相加。没有 LLM、benchmark、物理仿真、实机
 或 Jazzy 验证，不称为整体加速、IRL 科学效果或完整演示验收。
+
+### 11.93 IRL、HIL Future 与 driver 修复后的七包组合资格（2026-10-07）
+
+资格源码为干净 0beaa3ed08cc456e8c7f0ac6c3e9586aa3c8256c，
+包括 11.90–11.92 的三个生产修复。本轮没有新的算法/接口改动。
+测试开始前固定七包、预期六份 JUnit 673项与4项 copyright 跳过，
+保留完整默认并行人口、domain、timeout、max_steps 和原验收条件。
+环境为 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4，原生 translator 为 /home/yuhling/.local/bin/ltl2ba。
+
+使用既有隔离 build/install，build session 43807、test session
+95248 均沿原 handle 等待至实际 exit 0，各执行一次，真实 elapsed
+分别 43.926285402秒与81.327542842秒。根代理从 /proc 确认 build
+runner/colcon PID19057/19070，随后 test runner/colcon PID19407/19428；
+没有用标记文件或观察超时推断进程停止，也没有启动替代运行。
+
+```bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_0beaa3e build \
+  --executor sequential \
+  --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --symlink-install --packages-up-to ltl_automaton_core \
+  --cmake-args -DBUILD_TESTING=ON
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_0beaa3e test \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --packages-select ltl_automaton_core ltl_automaton_msgs \
+  ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution \
+  ltl_automaton_hil_mic ltl_automaton_std_transition_systems \
+  --return-code-on-test-failure
+```
+
+构建后 source 同一隔离 overlay，start gate 核对16项源码 import
+和生成消息路径；13个相关生产模块完整字节与 git show 0beaa3e 绑定，
+包含本次三个修复及原执行/规划模块。aggregate exec_depend 正好为
+六个功能包。新鲜六份 JUnit 为
+**673 tests = 669 passed + 4 skipped**，0 errors/failures：
+msgs11/0skip、core191/1、planner160/1、execution143/0、
+HIL119/1、std49/1。四项跳过均为既有 copyright。
+
+新增 HIL 十二个真实 Future 丢弃参数与 driver 列表检查均执行，
+IRL 插件 launch_testing 聚合入口与真实 β 偏好学习入口各一项通过；
+聚合内部用例不另加到 JUnit 人口。原二十步/overflow/commit、
+快照隔离、原子服务复制、执行 resolver/timeout、四个真实 DDS 场景、
+Studio、fallback、原生 ltl2ba/POSIX、monitor、launch 与 lint 保持通过。
+接口 CTest wrapper 另一项 passed，实际隔离 build 查询为674tests，
+0 errors/failures、4 skipped；15份历史 CTest XML 按开始时间排除。
+
+完整 stderr 中五包各923bytes，包含既有 np.int/SelectableGroups
+依赖弃用警告；未见 exception was never retrieved 诊断。旧AA的
+85文件冻结闭包及731份选定历史哈希在前后核对均保持；新的完整 XML、
+receipt、import与colcon日志冻结为另一份85文件闭包。根代理查询、
+collector、独立 audit 与 receipt 检查各一次实际 exit 0，核对全部
+计数/required cases/时间边界/源字节/原日志，未用历史绿项替换当前结果。
+
+证据位于 /tmp/ltl_ros2_completion_20261006：
+verification_0beaa3e.json、verified_changed_imports_0beaa3e.json、
+verified_summary_0beaa3e.json、colcon_query_0beaa3e.json、
+historical_hashes_before_0beaa3e.json、inspected_combo_receipts_0beaa3e.json
+及 verified_results_0beaa3e/sha256_manifest.json。日志在
+log_combo_0beaa3e 与 log_query_0beaa3e，helper 在主机临时目录。
+
+README 改为当前组合表，前九十二节正文保持。旧660项组合、IRL/HIL/
+driver 局部资格与各次原始失败仍按各自版本保留，不累加为本轮人口。
+IRL 沿用原示范学习 β 范围，默认关闭；执行仍为符号级 FakeBackend。
+没有 LLM、benchmark、完整演示、物理仿真、实机/机器人示范或 Jazzy
+验证，通过不证明整体加速、IRL 收敛/逆最优性或机器人效果。
