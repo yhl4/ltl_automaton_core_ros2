@@ -4835,3 +4835,35 @@ SHA256 为
 SHA256 为 `cc25b99a9bc8cd9428857cb771d4620d52d129f7fff9d606ce967b7010d2cd72`。
 实际源码路径绑定当前 checkout；旧方法来自 Git，除 `compose_edges` 外其他方法
 AST 相同。
+
+### 11.122 当前源码七包组合资格（2026-10-08）
+
+资格源码为 `3ef7856a9fe47e094c89327ff525f2ea77f50bef`。在 WSL
+Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4 下，使用独立工作区
+`/tmp/ltl_ros2_combo_3ef7856`，实际安装路径为
+`/tmp/ltl_ros2_combo_3ef7856/install`；原生 translator 为
+`/home/yuhling/.local/bin/ltl2ba`。构建命令（sequential）和默认并行测试命令各执行一次，
+均退出0：
+
+```bash
+source /opt/ros/humble/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_3ef7856/log_combo_3ef7856 build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_3ef7856/build --install-base /tmp/ltl_ros2_combo_3ef7856/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_3ef7856/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_3ef7856/log_combo_3ef7856 test --build-base /tmp/ltl_ros2_combo_3ef7856/build --install-base /tmp/ltl_ros2_combo_3ef7856/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+```
+
+构建 wall time 为 62.472088893 秒，测试 wall time 为 58.264321854 秒。六包结果为：
+msgs 11/11/0、planner_core 195/194/1、planner 188/187/1、execution 143/143/0、
+HIL 131/130/1、standard TS 51/50/1（tests/passed/skipped）。合计 **719 = 715
+passed + 4 skipped**，0 errors/failures；4 个 skip 均为既有 copyright，CTest wrapper
+另1项通过，query 为720，无 stale XML。完整 719 个 `(classname, name)` 与04c9833
+预冻结清单及 skip flags 逐项一致。
+
+18 个生产模块实际导入的完整字节与资格源码一致，生成消息来自新 build；`ltl2ba`
+沿用第11.119节固定的路径与 SHA256。组合还覆盖
+四真实 DDS、Studio、完整20步 IRL、事务/history、启动8项和payload6项。5份 stderr
+共4615字节，仅保留既有 `np.int`/`SelectableGroups` 警告，无 unread-Future 诊断。
+证据目录为 `/tmp/ltl_ros2_combo_3ef7856`，包括 `verification_3ef7856.json`、
+`verified_summary_3ef7856.json`、`verified_results_3ef7856/sha256_manifest.json`、
+`case_inventory_checked_3ef7856.json` 及完整日志。此资格不证明整体速度、IRL科学效果、
+实机、Jazzy、LLM、benchmark 或 provider 结果；不与局部验证计数相加。

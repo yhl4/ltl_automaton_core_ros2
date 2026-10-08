@@ -725,11 +725,11 @@ git diff --check
 | TS 后继坐标复用（源码 `e6e22c3`；原始对照基线 `5aeea47`） | 17/17 passed；0 skip/error/failure；9案例、10阶段等价；`list(node)` 12→6、48→24、40→20、重建4→2，false/空后继为0 | [11.121](ltl_automaton_planner/docs/validation.md) |
 | Execution resolver 来源 ID 收集（源码 `5aeea47`） | 31/31 passed；0 skip/error/failure | [11.120](ltl_automaton_planner/docs/validation.md) |
 
-两项均为局部验证，不作整体速度、内存、IRL 科学效果或实机声明；上述局部修改后未重跑七包整包资格。
+两项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
-### 最近七包组合记录（源码 `04c9833`，2026-10-08）
+### 最近七包组合记录（源码 `3ef7856`，2026-10-08）
 
-这是局部修改前的独立 Humble 组合记录；构建和默认并行整包测试各 exit 0：
+这是包含 TS 后继坐标复用和 resolver 来源 ID 收集修改的独立 Humble 组合记录；构建和默认并行整包测试各 exit 0：
 
 | 包 | tests / passed / skipped |
 |---|---:|
@@ -740,7 +740,7 @@ git diff --check
 | `ltl_automaton_hil_mic` | 131 / 130 / 1 |
 | `ltl_automaton_std_transition_systems` | 51 / 50 / 1 |
 
-合计 **719 tests = 715 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。CTest wrapper 另1项通过，查询为720。保留18模块字节、生成消息、原生 `ltl2ba`、四真实 DDS、Studio、完整20步 IRL及日志/警告证据；stderr为5份/4615字节，既有依赖警告保留。详见 [validation.md 11.119](ltl_automaton_planner/docs/validation.md)。
+合计 **719 tests = 715 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。CTest wrapper 另1项通过，查询为720。保留18模块字节、生成消息、原生 `ltl2ba`、四真实 DDS、Studio、完整20步 IRL及日志/警告证据；stderr为5份/4615字节，既有依赖警告保留。详见 [validation.md 11.122](ltl_automaton_planner/docs/validation.md)。
 
 ### 历史验证索引
 
