@@ -100,3 +100,50 @@ def test_duo_reads_replaced_guard_again_on_a_later_build(monkeypatch):
     assert second.edges[pair]["softguard"] is new_guard
     assert list(first) == list(second)
     assert list(first.edges) == list(second.edges)
+
+
+def test_duo_rebuild_reads_component_membership_metadata_without_mutation(monkeypatch):
+    """Rebuilding reflects changed membership lists while preserving old output."""
+    hard, soft = _components()
+    original_metadata = {
+        "hard_initial": hard.graph["initial"],
+        "hard_accept": hard.graph["accept"],
+        "soft_initial": soft.graph["initial"],
+        "soft_accept": soft.graph["accept"],
+    }
+    first = _build(monkeypatch, hard, soft)
+    first_initial = set(first.graph["initial"])
+    first_accept = set(first.graph["accept"])
+    first_edges = list(first.edges)
+
+    hard_initial = ["h1", "h1"]
+    hard_accept = ["h0", "h0"]
+    soft_initial = ["s2", "s2"]
+    soft_accept = ["s1", "s1"]
+    hard.graph["initial"] = hard_initial
+    hard.graph["accept"] = hard_accept
+    soft.graph["initial"] = soft_initial
+    soft.graph["accept"] = soft_accept
+    second = _build(monkeypatch, hard, soft)
+
+    assert first.graph["initial"] == first_initial
+    assert first.graph["accept"] == first_accept
+    assert list(first.edges) == first_edges
+    assert second.graph["initial"] == {("h1", "s2", 1)}
+    assert second.graph["accept"] == {
+        ("h0", name, 1) for name in ("s0", "s1", "s2")
+    }
+    assert hard.graph["initial"] is hard_initial
+    assert hard.graph["accept"] is hard_accept
+    assert soft.graph["initial"] is soft_initial
+    assert soft.graph["accept"] is soft_accept
+    assert original_metadata["hard_initial"] == ["h0"]
+    assert original_metadata["hard_accept"] == ["h1"]
+    assert original_metadata["soft_initial"] == ["s0"]
+    assert original_metadata["soft_accept"] == ["s2"]
+    for source, targets in second.adjacency():
+        if source[2] == 1:
+            expected_level = 2 if source[0] == "h0" else 1
+        else:
+            expected_level = 1 if source[1] == "s1" else 2
+        assert {target[2] for target in targets} == {expected_level}

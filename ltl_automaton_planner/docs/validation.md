@@ -4899,3 +4899,41 @@ parser 除 `ORExpression.distance` 外的 AST 与基线相同。parser 源码 SH
 `/tmp/ltl_ros2_completion_20261006/or_distance_fc6fdba`；首次 bash 包装命令在资格启动前
 因 PATH 特殊字符退出1，随后唯一正式脚本运行退出0。compile、flake8、pep257 和 diff
 检查通过；本轮未重跑七包、整体性能、provider、benchmark 或实机验证。
+
+### 11.124 Büchi membership 局部索引（2026-10-08）
+
+基线为 `f84c939dade3c8fbccac339e1e2db54813f375fb`。在有效组件图、稳定字符串状态及
+initial/accept 列表范围内，`duo_buchi_from_ltls` 在组合节点循环前为 hard/soft 的四份
+metadata 各建立一次局部 `frozenset`，随后复用 membership；不修改组件 graph metadata，
+不跨调用缓存。9个场景、10个阶段覆盖 duplicate metadata、空成员、空组件、blocked
+component 及 metadata/guard 重建；旧 Git 方法与当前实现的完整节点/边属性、顺序、初始/
+接受集合、symbols、接受层级、guard identity 及输入保持一致。除组合函数外其它 AST 相同。
+canonical 2x3 fixture 的 metadata `list.__contains__` 查询为
+42→0，wide 16x12 为1536→0；新实现每次调用仅遍历四份原 metadata 列表一次，未据此声称
+所有查询、整体速度或内存收益。
+
+环境为 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4；实际导入绑定
+当前 checkout，原生 `ltl2ba` 路径与 SHA 沿用11.122。命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_3ef7856/install/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+python3 -m pytest -q ltl_automaton_planner_core/test/test_buchi.py \
+  ltl_automaton_planner_core/test/test_buchi_integration.py \
+  ltl_automaton_planner_core/test/test_product.py \
+  ltl_automaton_planner_core/test/test_ltl_planner.py \
+  ltl_automaton_planner_core/test/test_irl.py \
+  --junitxml=/tmp/ltl_ros2_completion_20261006/buchi_membership_f84c939/pytest.xml
+```
+
+共收集97项，实际97 passed、0 skip/error/failure；pytest耗时2.34秒，wrapper wall time
+2.9375862秒，保留两项既有 `np.int` 警告，原生 ltl2ba integration 未跳过。源码
+`buchi.py` SHA256 为
+`7c83483cc119beca2b982831003a3889864982661de3e04ce740767727039b72`，测试文件 SHA256 为
+`e6b9005090befe06f8acaf1532e5b5a6c3245302abfd62945a7c81542cd3860f`；XML SHA256 为
+`ac6c91015c07e4b2b984c66a0bf11f07e0a50e2b6c621768d8ba7c0193640caf`，日志 SHA256 为
+`18649c29434c2a1162e1e002389289259edd1a37b6ce2651dda203d3c8127ded`。证据目录为
+`/tmp/ltl_ros2_completion_20261006/buchi_membership_f84c939`。compile、ament_flake8（99列）、
+ament_pep257 和 git diff --check 均通过；本轮未重跑七包、整体性能、provider、benchmark、
+LLM、实机或 Jazzy 验证。

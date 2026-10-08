@@ -92,6 +92,10 @@ def duo_buchi_from_ltls(hard_spec, soft_spec):
     symbols = set(hard_buchi.graph["symbols"]).union(
         soft_buchi.graph["symbols"]
     )
+    hard_initial = frozenset(hard_buchi.graph["initial"])
+    soft_initial = frozenset(soft_buchi.graph["initial"])
+    hard_accept = frozenset(hard_buchi.graph["accept"])
+    soft_accept = frozenset(soft_buchi.graph["accept"])
 
     duo_buchi = DiGraph(
         type="safe_buchi",
@@ -124,14 +128,14 @@ def duo_buchi_from_ltls(hard_spec, soft_spec):
         )
 
         if (
-            hard_node in hard_buchi.graph["initial"]
-            and soft_node in soft_buchi.graph["initial"]
+            hard_node in hard_initial
+            and soft_node in soft_initial
             and level == 1
         ):
             initial_states.add(duo_node)
 
         if (
-            hard_node in hard_buchi.graph["accept"]
+            hard_node in hard_accept
             and level == 1
         ):
             accepting_states.add(duo_node)
@@ -169,13 +173,13 @@ def duo_buchi_from_ltls(hard_spec, soft_spec):
         if source_level == 1:
             target_level = (
                 2
-                if source_hard in hard_buchi.graph["accept"]
+                if source_hard in hard_accept
                 else 1
             )
         else:
             target_level = (
                 1
-                if source_soft in soft_buchi.graph["accept"]
+                if source_soft in soft_accept
                 else 2
             )
 
