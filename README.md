@@ -729,20 +729,20 @@ git diff --check
 
 四项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
-### 最近七包组合记录（源码 `3ef7856`，2026-10-08）
+### 最近七包组合记录（源码 `62b94b3`，2026-10-08）
 
-这是包含 TS 后继坐标复用和 resolver 来源 ID 收集修改的独立 Humble 组合记录；该记录早于 Boolean OR 距离短路和 Büchi membership 索引两次修改。构建和默认并行整包测试各 exit 0：
+这是包含 TS 后继坐标复用、resolver 来源 ID 收集、Boolean OR 距离短路及 Büchi membership 索引修改的独立 Humble 组合记录。构建和默认并行整包测试各执行一次，均 exit 0：
 
 | 包 | tests / passed / skipped |
 |---|---:|
 | `ltl_automaton_msgs` | 11 / 11 / 0 |
-| `ltl_automaton_planner_core` | 195 / 194 / 1 |
+| `ltl_automaton_planner_core` | 200 / 199 / 1 |
 | `ltl_automaton_planner` | 188 / 187 / 1 |
 | `ltl_automaton_execution` | 143 / 143 / 0 |
 | `ltl_automaton_hil_mic` | 131 / 130 / 1 |
 | `ltl_automaton_std_transition_systems` | 51 / 50 / 1 |
 
-合计 **719 tests = 715 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。CTest wrapper 另1项通过，查询为720。保留18模块字节、生成消息、原生 `ltl2ba`、四真实 DDS、Studio、完整20步 IRL及日志/警告证据；stderr为5份/4615字节，既有依赖警告保留。详见 [validation.md 11.122](ltl_automaton_planner/docs/validation.md)。
+合计 **724 tests = 720 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。CTest wrapper 另1项通过，查询为725。724个完整用例身份及 skip flags 与执行前冻结清单一致，新增5项；保留20模块字节、生成消息、原生 `ltl2ba`、四真实 DDS、Studio、完整20步 IRL及日志/警告证据。stderr为5份/4615字节，既有依赖警告保留。详见 [validation.md 11.125](ltl_automaton_planner/docs/validation.md)。
 
 ### 历史验证索引
 

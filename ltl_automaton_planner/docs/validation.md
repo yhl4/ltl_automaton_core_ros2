@@ -4937,3 +4937,38 @@ python3 -m pytest -q ltl_automaton_planner_core/test/test_buchi.py \
 `/tmp/ltl_ros2_completion_20261006/buchi_membership_f84c939`。compile、ament_flake8（99列）、
 ament_pep257 和 git diff --check 均通过；本轮未重跑七包、整体性能、provider、benchmark、
 LLM、实机或 Jazzy 验证。
+
+### 11.125 OR/Büchi 优化后的七包组合资格（2026-10-08）
+
+资格源码为 `62b94b39318afe120345fb5189a80a4f7c9e214f`，包含第11.123–11.124节的
+两项核心优化。在 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4
+下使用全新 `/tmp/ltl_ros2_combo_62b94b3`。构建和默认并行整包测试各执行一次，均退出0：
+
+```bash
+source /opt/ros/humble/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+colcon --log-base /tmp/ltl_ros2_combo_62b94b3/log_combo_62b94b3 build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_62b94b3/build --install-base /tmp/ltl_ros2_combo_62b94b3/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_62b94b3/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_62b94b3/log_combo_62b94b3 test --build-base /tmp/ltl_ros2_combo_62b94b3/build --install-base /tmp/ltl_ros2_combo_62b94b3/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+```
+
+实际构建 wall time 为62.239563875秒，测试为58.183837999秒。六份 JUnit 为：
+msgs 11/11/0、planner_core 200/199/1、planner 188/187/1、execution 143/143/0、
+HIL 131/130/1、standard TS 51/50/1（tests/passed/skipped）。合计 **724 = 720
+passed + 4 skipped**，0 errors/failures；四项 skip 均为既有 copyright。CTest wrapper
+另1项通过，实际查询为725，无 stale XML。
+
+原3ef7856的719个完整 `(classname, name, skipped)` 加新增5项在构建前冻结，执行后
+724项逐一匹配；两份当前测试文件只收集、不执行以核对新增身份。其余测试、IDL和包依赖
+相对3ef7856未变。20个生产模块实际导入的完整字节与资格源码一致，其中包括 parser 和
+Büchi；生成消息来自本次新 build，原生 `ltl2ba` 路径及 SHA256 沿用第11.119节。
+四个真实 DDS 场景、Studio、完整20步 IRL及提交、启动8项、payload准备6项及既有
+事务/history/HIL/2D/6D用例通过。5份 stderr 共4615字节，仅保留既有
+`np.int`/`SelectableGroups` 警告，无 unread-Future 诊断。
+
+证据目录为 `/tmp/ltl_ros2_combo_62b94b3`，含 `verified_summary_62b94b3.json`、
+`case_inventory_checked_62b94b3.json`、`inspected_combo_receipts_62b94b3.json`、完整日志
+及 `verified_results_62b94b3/sha256_manifest.json`（87文件）；辅助源/receipt另冻结22项。
+1,602份历史文件和原3ef7856的87文件闭包哈希保持。准备阶段的头绑定、历史目录及清单
+草稿错误在构建前更正，原草稿和修正记录保留；没有重启已完成的构建或测试。
+本资格不与局部计数相加，不证明整体加速、IRL科学效果、实机、Jazzy、LLM或provider结果。
