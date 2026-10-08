@@ -718,7 +718,20 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前局部验证：执行来源 ID 收集（2026-10-08）
+### 当前局部验证：TS 后继坐标复用（2026-10-08）
+
+`TSModel.compose_edges` 对每个来源节点和 factor 只在第一条 guard 允许的后继
+出现时创建一次坐标列表；同一 factor 的后续边复用该列表并各自构造目标 tuple，
+不同 factor 不共享列表。这样保持 guard 求值、边插入顺序、后维度覆盖、缺字段
+优先级和缺失 factor 状态错误不变。
+
+9 个案例、10 个阶段的新旧结果和 guard 检查完全相同：`list(node)` 计数分别为
+12→6、48→24、40→20，重建为4→2；全 false guard 和无后继均为0。既有
+`test_ts.py` 收集并通过17项，0 error/failure/skip；compile、flake8、pep257
+和 diff 检查通过。本轮只验证局部复制行为，不作整体速度或内存收益声明。证据见
+[validation.md 第 11.121 节](ltl_automaton_planner/docs/validation.md)。
+
+### 此前局部验证：执行来源 ID 收集（2026-10-08）
 
 执行解析器复用已去重、排序的当前 Product ID 顺序，每个有匹配边的来源
 只追加一次，避免重新建立来源集合及第二次排序。目标 ID 仍完整去重并排序，

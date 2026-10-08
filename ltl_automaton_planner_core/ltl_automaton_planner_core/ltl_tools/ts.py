@@ -124,6 +124,7 @@ class TSModel(DiGraph):
                         for successor_state in graph.successors(state)
                     )
                     successor_tables[i][state] = state_successors
+                successor_state_node = None
                 for successor_state, edge_data in state_successors:
                     guard = edge_data['guard']
                     if guard not in guard_checks:
@@ -134,7 +135,8 @@ class TSModel(DiGraph):
                     if not guard_checks[guard]:
                         continue
 
-                    successor_state_node = list(node)
+                    if successor_state_node is None:
+                        successor_state_node = list(node)
                     successor_state_node[i] = successor_state[0]
                     successor_node = tuple(successor_state_node)
                     self.add_edge(

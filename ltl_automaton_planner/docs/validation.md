@@ -4790,3 +4790,48 @@ sha256_manifest.json冻结11个原始文件，保留4个draft文件。
 LF及diff检查通过。31项仅为resolver局部功能验证，不与历史719/715结果
 相加；不重跑colcon整包、DDS闭环、LLM、benchmark、物理仿真或实机，
 不测整体速度，也不据此扩大已有性能或科学效果结论。
+
+
+### 11.121 TS 后继坐标列表复用（2026-10-08）
+
+基线为 `5aeea47b830424b0f1d3f5ecb6a507186f2aefb6`。本轮仅修改
+`ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ts.py` 的
+`TSModel.compose_edges`：每个 factor 的来源状态只在首条允许后继时创建一次
+`list(node)`，后续允许边复用该列表并立即构造独立目标 tuple；false guard 和空后继不
+分配列表，不同 factor 不共享列表。其余方法的 AST 与 Git 基线相同，未改
+测试或算法接口。
+
+固定的9个案例为 `shared_two_factors`、`all_true_three_factors`、
+`mixed_three_factors`、`all_false_two_factors`、`no_successors`、
+`guard_rebuild`（两个阶段）、`missing_weight`、`missing_action_and_weight`
+和 `missing_factor_state`，共10个等价阶段。新旧图节点、边、guard 检查、错误
+类型与文字均相同；`list(node)` 计数为12→6、48→24、40→20、重建4→2，
+全 false guard 和无后继均为0。缺少 `weight`、缺少 `action` 与 `weight` 的
+字段访问优先级，以及缺失 factor 节点的 NetworkX 错误均保持。
+
+环境为 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4。
+实际命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_04c9833/install/setup.bash
+python3 -m pytest ltl_automaton_planner_core/test/test_ts.py \
+  --junitxml=/tmp/ltl_ros2_completion_20261006/ts_buffers_5aeea47/pytest.xml
+```
+
+测试收集17项，实际17 passed、0 error、0 failure、0 skipped，退出码0；pytest
+输出耗时约1.30秒，含两项既有 `np.int` 依赖警告；`run.json` 记录的进程 wall
+time 为2.1089496秒。源码 SHA256 为
+`c4edb61c9215032b6fde74291bcec9ab8d6248a051a9db7fa8baf80e62dbbe6a`，测试文件
+SHA256 为
+`2f56e536fbaac16498f32aa03dedd36e6507fb97e6e1c04066f5f8c1ff058a58`。compile、
+`ament_flake8`（99列）、`ament_pep257` 和 `git diff --check` 均通过。本轮未
+重跑七包、DDS、provider、benchmark 或 planner，也不作整体速度声明。
+
+原始证据位于 `/tmp/ltl_ros2_completion_20261006/ts_buffers_5aeea47/`：
+`scope.json`、`collection.json`、`equivalence.json`、`run.json`、
+`verified.json`、`pytest.xml` 和 `pytest.log`。`pytest.xml` SHA256 为
+`1493ac4a79a83e70282c8a37396022e978a3fdc1f8c616e51849b54a9276be33`，日志
+SHA256 为 `cc25b99a9bc8cd9428857cb771d4620d52d129f7fff9d606ce967b7010d2cd72`。
+实际源码路径绑定当前 checkout；旧方法来自 Git，除 `compose_edges` 外其他方法
+AST 相同。
