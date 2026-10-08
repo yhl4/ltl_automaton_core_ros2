@@ -5542,3 +5542,50 @@ AST保持；prepare、build、runtime、test及audit均一次，没有重跑已�
 发布只更新README与本记录，前137节全部历史字节和138份资格源码/构建文件保持。
 这是Humble符号级组合验证，不证明整体加速、内存收益或IRL科学效果；本轮未执行新性能
 profile、provider、整套benchmark、物理仿真、实机或Jazzy。各版本及局部计数不相加。
+
+
+### 11.139 前驱 key memo 候选评价与拒绝（2026-10-08）
+
+工作树基线 `67dd013a54929f7d40883eace0ea0c260ee5a22b`，生产Core仍为第11.138节资格源码。
+只读既有KTH profile显示完整deepcopy是主要重规划热点。单次tuple定位记录74次dispatch、
+56个唯一tuple；分类计数属于唯一对象。未标记的Product形tuple只支持来源推断，
+不能当作前驱key的直接id证明。候选只在原节点循环补充 `graph.predecessors(node)`
+及同一 `remember_node`，保持原类型限制、标量memo、边扫描和完整deepcopy。
+候选方法SHA256为 `4c3c984d28d98b4f1c395d4c13812616505d2363d6b848da52f865add3354859`，未写入生产。
+
+执行前冻结门槛：语义/隔离/hook/异常断言全部通过，tuple及total deepcopy调用严格减少、
+dict/list不变，六组交替纯复制的候选中位数不高于旧memo。WSL Ubuntu-22.04-D、Humble、
+Python3.10.12、NetworkX2.4、原生ltl2ba与KTH配置保持，beta=1000/gamma=10。
+评价单独新构造一次标准KTH static planner（36节点/72边），cold旧/候选对照及三条路径
+的复制计数完成。普通/旧/候选的deepcopy分别5187/2649/2601，tuple1150/74/50；
+旧/候选dict352、list43、atomic638均保持。计数用插桩和cProfile，不用其时间作速度结果。
+
+辅助失败均保留：最初定位的shell重定向失败在Python前，错误tuple handler签名的定位
+在复制时失败，修正helper另一次成功；初版评价在import前置失败，run2草稿未执行。
+root helper先在缩进匹配前置断言失败；修正后cold/计数已完成，但第一条纯旧memo复制后，
+错误比较回读对象与原pickle文件字节而中止，未落盘该次耗时及直接id归因。只做loads/dumps、
+不规划或复制的最小诊断也出现字节变化，故此辅助断言不能判断candidate语义。
+
+保留失败与三份pstats，仅续未完成阶段，未重构planner或重跑cold/计数。修正计时输入为同一
+已加载的固定实例，用该实例复制前后的完整pickle作不变性检查，未预热新pred View。
+成功续行固定六组12次纯复制，检查与序列化在计时区间外；计入前次失败的旧复制，
+实际共13次计时调用，不能称为全部原流程一次成功。每组旧/候选的完整pickle、输入不变、
+TS/Product内部edge alias、可变隔离通过；两次副本隔离、既有custom key、hook顺序与
+精确 `ValueError("custom node deepcopy failed")` 对照通过。未保存的id记录未恢复或伪造。
+
+修正后六组旧/候选复制中位数为 **0.0023533 / 0.00319085秒**，候选五组更慢。
+`median_not_slower=false`，其余三项资源门槛为true，最终 `accepted=false`。
+因此拒绝额外前驱扫描，不改变条件、不加跑，也不以调用减少宣称整体加速。
+结果只属于此固定KTH复制探针及修正后的辅助控制，不是新的七包测试或端到端重规划结果。
+本轮未运行测试、provider、完整benchmark、物理仿真或实机，生产代码保持。
+
+证据副本在 `/tmp/ltl_replan_predecessor_publication_67dd013`：原manifest42文件及
+补充manifest45项保留。原summary误述成功tuple定位的id未保存，追加更正说明
+56个id/label实际已在JSON中，缺失的是root run2前驱对应记录；原summary及manifest未改。
+补充manifest SHA256为 `01a5161180bd76f6bd32b94169de14e38810ab3ff2eada69b768875b792a1d96`。
+独立直接路径检查发现补充manifest使用虚拟frozen/metadata前缀，不能当作实际文件路径；
+另加 `canonical_manifest.json`，用实际相对路径绑定原42文件及四份metadata，46项回读
+哈希/大小通过，SHA256为 `1175af4777278224b37e8a37065a9e58074128c87956c33ebddc6db7e8d22e54`。
+最初shell工具回执与序列化诊断原stdout未另存文件，不将说明当作原始日志。最新803组合
+53文件本轮只读回读通过，未称作本轮执行前后核对；138份资格源码/构建文件及前138节
+历史字节保持。本次只发布README与本记录，不更新七包或各局部测试计数。
