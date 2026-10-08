@@ -5365,3 +5365,63 @@ deepcopy调用仍分别为0/3060/3100。耗时有升有降，单次插桩记录�
 `d7480909c6a1649c0ef6014f3a4f32016bec258b49e3b66406ea9a0acc32b98c`。
 前134节历史字节保持。第11.134节744项组合先于此修改；本轮未重跑七包/DDS、provider、
 整套benchmark、物理仿真、实机或Jazzy，局部结果不能替代组合资格或IRL科学效果验证。
+
+### 11.136 可达 SCC 拓扑物化（2026-10-08）
+
+基线为干净提交 `3df6e238a6b9abc298b55f8b8276c51520120c97`。`dijkstra_plan_networkX` 的
+SCC 可达图现在只物化 `prefix_dist` 中的可达节点及其全部结构边，使用普通 `DiGraph`；
+节点、边属性不复制，`weight=None` 的隐藏边仍保留给结构 SCC，而全部加权搜索、闭合边
+筛选和路径恢复继续读取原 Product。新增临时拓扑的空间开销为 O(Vr+Er)，不宣称整体加速
+或内存收益。
+
+在 Humble、Ubuntu-22.04-D、Python3.10.12、NetworkX2.4 下，定向命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_ab45b9b/install/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+export PYTHONPATH="/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core:$PYTHONPATH"
+cd /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2
+python3 -m pytest -q --junitxml=/tmp/ltl_scc_topology_3df6e23_final4/pytest.xml \
+  ltl_automaton_planner_core/test/test_discrete_plan.py \
+  ltl_automaton_planner_core/test/test_ltl_planner.py \
+  ltl_automaton_planner_core/test/test_irl.py
+```
+
+最终 `final4` 为 **85 passed、0 skipped/errors/failures**，pytest 显示 2 项既有
+`np.int` warning、2.82 秒；py_compile、ament_flake8（99列）、ament_pep257 和
+`git diff --check` 均通过，原84项身份保持、恰好新增一项回归。
+另行完成31组完整 Run/精确错误对照及输入图保持检查；
+新增回归使用 `s→a/b`、`a→b` 的隐藏边、`b→a` 权重2和 `a` 自环权重3，验证
+`a` 的 prefix/suffix/total 为 1/3/31，并由真实 suffix 搜索观察到 `b→a` 距离2，
+而 `None` 边不参与有限距离。96节点/96边探针的 filtered coreview 调用为 2111→0，
+手算成本为 23/2/43。首次 review 的 pickle 断言失败来自普通 `NetworkX.nodes` 访问
+创建懒 NodeView；priming 后的独立复核通过，不是算法差异。
+
+KTH 三阶段只执行一次，旧/候选 elapsed（秒）分别为 static `.006306400/.009907600`、
+状态重规划 `.005541900/.016026900`、任务重规划 `.009253599/.019327200`；完整
+snapshot（除 planning_time）及成本 70/60/670、60/60/660、20/20/220 保持，
+三阶段候选记录均高于旧记录；这是单次插桩观察，不作稳定速度结论。两个非静态阶段的
+pstats 分别记录 atomic dispatch 854→890、865→895，deepcopy 3060→3132、
+3100→3157，tuple 259→286、273→294；dict 分别保持352/352，list 分别保持43/45。
+这些是不同进程的单次计数，不能据此归因或宣称整体收益。
+三阶段 generic_graph_view、subgraph_view 与 filtered coreview 调用均为0；
+Dijkstra 核心调用分别保持3/3/7，mission_to_buchi保持1/0/1。
+固定96节点、6组交替的无cProfile局部对照，预先固定协议与23/2/43成本，规划耗时
+中位数旧/新为 `.002141050/.001063950` 秒，12次完整 Run 相同；该小图结果只作局部证据，不是统计或整体
+速度结论。证据位于 `/tmp/ltl_scc_topology_3df6e23`、其 `final2`/`final3`/`final4`、
+`/tmp/ltl_scc_topology_review_3df6e23_retry`、`/tmp/ltl_kth_scc_topology_3df6e23` 和
+`/tmp/ltl_scc_topology_pair_3df6e23`；发布冻结目录为
+`/tmp/ltl_scc_topology_publication_3df6e23/sha256_manifest.json` 冻结61份独立副本并回读
+哈希/大小，含源码、失败/中间/最终XML与日志、旧/新profile、review、小图协议及辅助源；
+旧46文件闭包保持。冻结脚本初次将final2 XML哈希漏抄末位，归档创建前失败；
+新脚本按原文件纠正后通过，旧脚本保留，没有重跑已完成测试或profile。
+候选生产源码SHA256为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`。
+首次review失败未单独保存stdout文件，仅保留原helper和工具回执标识，不能重标为通过。
+
+初始 fixture 运行的 84+1 失败来自建图时直接使用 `None` 权重；`final2` 的 84+1
+失败来自场景使用 `s` 而 helper 默认 initial 为 `s0`。`final3` 的 85 passed 早于
+真实 suffix distance 断言，`final4` 为最终版本。最新 744 项 `ab45b9b` 组合早于
+基础标量 memo 与本节 SCC 修改；本节未重跑七包、DDS、provider、benchmark、实机或
+Jazzy，局部结果不能替代新组合资格或IRL科学效果验证。前135节历史字节保持。

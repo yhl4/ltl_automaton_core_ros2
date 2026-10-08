@@ -733,8 +733,9 @@ git diff --check
 | guard lexer 模板复用（对照基线 `c3a74d1`） | 104/104 passed；0 skip/error/failure；192对真值/距离、18类无效输入和26组token序列对照一致；KTH三阶段路径、动作与成本保持 | [11.132](ltl_automaton_planner/docs/validation.md) |
 | 重规划复制中的不可变状态 key 复用（对照基线 `989bb8e`） | 83/83 passed；0 skip/error/failure；完整复制与内部别名一致、可变数据隔离；7类custom key及精确异常对照；KTH路径/动作/成本保持 | [11.133](ltl_automaton_planner/docs/validation.md) |
 | 重规划复制中的基础标量 memo（对照基线 `a9f0207`） | 84/84 passed；0 skip/error/failure；完整复制、边属性别名、hook顺序及可变隔离保持；KTH atomic dispatch 1695→854、1718→865，dict/list复制次数保持 | [11.135](ltl_automaton_planner/docs/validation.md) |
+| 可达 SCC 拓扑物化（对照基线 `3df6e23`） | 85/85 passed；0 skip/error/failure；96节点/96边 probe 的过滤 view 调用 2111→0；完整 Run、None 隐藏边与输入图保持 | [11.136](ltl_automaton_planner/docs/validation.md) |
 
-十一项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+十二项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -785,6 +786,11 @@ memo 有开销，小图/特殊 key 不保证收益，操作计数不代表总内
 基础标量优化还在本次 memo 中复用普通边属性中的精确 str/int/float/bool/None，
 字典继续在原遍历时点完整深复制，自定义值保持原复制路径；额外边扫描也有开销。
 第11.135节84项局部验证与单次KTH诊断独立计数，耗时有升有降；上述744项组合先于此修改。
+
+SCC 检查现在临时构造可达节点及全部结构边的普通 DiGraph，额外空间为 O(Vr+Er)；
+加权搜索仍读取原 Product。96节点小图六组交替对照的规划耗时中位数为旧/新
+2.141/1.064 ms；KTH 三阶段的单次候选记录均更慢，不作为整体加速结果。
+第11.136节85项局部验证也晚于上述744项组合；该组合尚未覆盖标量 memo 和 SCC 修改。
 
 此前源码 `ce014f7` 的740项、`683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
 第11.131、11.128、11.125节，各版本计数不相加。

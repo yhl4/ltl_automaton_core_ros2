@@ -10,7 +10,6 @@ from networkx import DiGraph
 from networkx import multi_source_dijkstra_path_length
 from networkx import single_source_dijkstra_path_length
 from networkx import strongly_connected_components
-from networkx.classes.graphviews import generic_graph_view
 
 from .product import ProdAut_Run
 
@@ -54,10 +53,14 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
 
     target_components = {}
     # Any accepting cycle used by a valid run must be prefix reachable.
-    reachable_product = generic_graph_view(
-        product,
-        create_using=DiGraph,
-    ).subgraph(prefix_dist)
+    reachable_product = DiGraph()
+    reachable_product.add_nodes_from(prefix_dist)
+    reachable_product.add_edges_from(
+        (source, target)
+        for source in prefix_dist
+        for target in product.adj[source]
+        if target in prefix_dist
+    )
     for component in strongly_connected_components(reachable_product):
         reachable_targets = component & reachable_accepting
         for target in reachable_targets:

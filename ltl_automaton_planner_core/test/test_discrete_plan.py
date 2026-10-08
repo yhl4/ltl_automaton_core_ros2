@@ -691,6 +691,89 @@ def test_closing_cycle_without_usable_predecessor_returns_no_run():
     assert product.graph["accept_with_cycle"] == cycles
 
 
+def test_scc_topology_keeps_none_edges_without_copying_product_state(monkeypatch):
+    """Keep structural SCC links while ignoring hidden edges for distances."""
+    edges = [
+        ("s", "a", 1), ("s", "b", 1),
+        ("a", "b", 0), ("b", "a", 2), ("a", "a", 3),
+    ]
+
+    product_b = make_weighted_product(edges, initial="s", accepting="b")
+    product_b.edges[("a", "q0"), ("b", "q0")]["weight"] = None
+    product_b.graph["ts"].edges["a", "b"]["weight"] = None
+    before_b_edges = [
+        (source, target, dict(data))
+        for source, target, data in product_b.edges(data=True)
+    ]
+    before_b_initial = product_b.graph["initial"]
+    before_b_accept = product_b.graph["accept"]
+    before_b_cycles = product_b.graph["accept_with_cycle"]
+    before_b_possible = product_b.possible_states
+    before_b_ts = product_b.graph["ts"]
+    assert dijkstra_plan_networkX(product_b, gamma=10) == (None, None)
+    assert list(product_b.edges(data=True)) == before_b_edges
+    assert product_b.graph["initial"] is before_b_initial
+    assert product_b.graph["accept"] is before_b_accept
+    assert product_b.graph["accept_with_cycle"] is before_b_cycles
+    assert product_b.possible_states is before_b_possible
+    assert product_b.graph["ts"] is before_b_ts
+
+    product = make_weighted_product(edges, initial="s", accepting="a")
+    product.edges[("a", "q0"), ("b", "q0")]["weight"] = None
+    product.graph["ts"].edges["a", "b"]["weight"] = None
+    product.graph["accept"].add(("b", "q0"))
+    product.build_accept_with_cycle()
+    a = ("a", "q0")
+    b = ("b", "q0")
+    assert a in product.graph["accept_with_cycle"]
+    assert b in product.graph["accept_with_cycle"]
+    before_edges = [
+        (source, target, dict(data))
+        for source, target, data in product.edges(data=True)
+    ]
+    before_nodes = [
+        (node, dict(data))
+        for node, data in product.nodes(data=True)
+    ]
+    before_initial = product.graph["initial"]
+    before_accept = product.graph["accept"]
+    before_cycles = product.graph["accept_with_cycle"]
+    before_possible = product.possible_states
+    before_ts = product.graph["ts"]
+    before_buchi = product.graph["buchi"]
+    suffix_distances = {}
+    original_search = discrete_plan.single_source_dijkstra_path_length
+
+    def record_search(graph, source, **kwargs):
+        distances = original_search(graph, source, **kwargs)
+        suffix_distances[source] = distances
+        return distances
+
+    monkeypatch.setattr(
+        discrete_plan,
+        "single_source_dijkstra_path_length",
+        record_search,
+    )
+
+    run, _ = dijkstra_plan_networkX(product, gamma=10)
+
+    assert run is not None
+    assert suffix_distances[b][a] == 2
+    assert b not in suffix_distances[a]
+    assert run.prefix == [("s", "q0"), a]
+    assert run.suffix == [a]
+    assert (run.precost, run.sufcost, run.totalcost) == (1, 3, 31)
+    assert b not in run.suffix
+    assert list(product.nodes(data=True)) == before_nodes
+    assert list(product.edges(data=True)) == before_edges
+    assert product.graph["initial"] is before_initial
+    assert product.graph["accept"] is before_accept
+    assert product.graph["accept_with_cycle"] is before_cycles
+    assert product.possible_states is before_possible
+    assert product.graph["ts"] is before_ts
+    assert product.graph["buchi"] is before_buchi
+
+
 def test_dijkstra_closing_edges_keep_default_hidden_and_input_semantics():
     """Use one closing adjacency read while preserving complete run output."""
     product = make_weighted_product([
