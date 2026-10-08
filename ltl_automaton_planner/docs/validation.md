@@ -4661,3 +4661,39 @@ GREEN XML SHA 73327dc8e9e80982e5c6d8b59c436099cb946dc6575b8ac12647efb8ea6cd026�
 GREEN日志SHA 3f626e6ce13fe278290b8ee72aab935e64dd329f7d7807d9d022a129f2fdb564。
 同步两份README，前116节正文保留。96项为局部资格，不与旧125/705或局部
 结果相加；未重跑colcon整包、Trap/IRL launch、DDS闭环、LLM、benchmark或实机。
+
+### 11.118 2D station 请求先匹配再检查名单（2026-10-08）
+
+基线55df4d7e175b2367a2541e7853e4b104e4e140bf。_find_region原对每个候选
+先检查name in self.stations再比较单个station请求；stations为list，无关
+请求也反复线性扫描。只交换这两个布尔条件，先检查请求相等；保留候选
+list拷贝、两轮顺序、station优先、状态赋值和其余方法/容器类型。普通TS
+字符串名下选择规则不变，不调整四元数、几何、滞回、规划或IRL语义。
+加两项update行为回归：请求square或未知名字仍返回所在square。
+
+在既有WSL Ubuntu-22.04-D/Humble环境，四个导入的监控/生成器/core配置
+模块完整字节核对；非2D monitor模块等于基线。两个installed示例YAML
+与当前Git基线相同，两个实际launch入口来自既有隔离install；Pose来自
+Humble，ClosestState来自既有生成build。scope.json在结果前冻结源码/
+三个测试文件/入口/配置SHA、七组序列、1000 station检查及原生launch项。
+collection.json在测试执行前保存全部48个pytest项和两个pre-shutdown/
+一个post-shutdown原生用例，默认launch_testing和launch_ros收集器启用。
+
+七组状态序列涵盖默认/合法station/square/未知请求、square及station滞回、
+释放station后移动，与从Git基线提取的查找方法返回及状态完全一致。
+1000 station夹具只计station-list __contains__调用：无请求1000→0，命中
+末尾station为1000→1，返回一致；仍使用原list membership，不测整体速度。
+test_region_models.py、test_monitor_inputs.py、test_monitor_launch.py共
+48项通过，0失败/错误/跳过；其中一个pytest launch wrapper实际运行2D/6D
+通信两项及关闭一项，不另加为51项。pytest3.48秒、调用4.476709699秒，
+退出0；两份修改Python文件compile/flake8/pep257及diff通过。完整ROS输出、
+关闭调度debug提示及既有optparse lint警告均保留。
+
+证据目录/tmp/ltl_ros2_completion_20261006/region_request_55df4d7保存scope、
+collection/local_checks/run/verified.json和pytest.xml；完整输出为同级
+region_request_55df4d7_run.log。生产SHA
+0a117af6caa6e6a4e7fc614c6960308f088a3963f97efeb4283a4e9ba77b2ea7；
+XML SHA d0f95e4dbc916f15087ef7e9dae03dadb24a936fd30363da03b3fde3485b2331，
+日志SHA b57e47405a81cc2e301654911d6e41b532bb0d9e0627f9aa1486a9f56d9cea88。
+同步两份README，前117节保留；未重跑colcon整包、规划/执行DDS闭环、
+HIL/IRL launch、LLM、benchmark、物理仿真或实机，不与历史计数相加。

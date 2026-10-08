@@ -41,6 +41,11 @@ Programmatic model calls also report overflow in the x/y or quaternion
 finite-value check as the existing `ValueError`, retaining the original cause.
 The planar model continues to ignore the position z coordinate.
 
+Region search checks the station request before scanning the station-name list.
+For ordinary TS string names, an empty request or a requested name absent from
+the candidates skips that list check. Stations still take priority over squares, and
+candidate order, strict boundaries and hysteresis remain unchanged.
+
 ## 6D joint-space monitor
 
 ```bash

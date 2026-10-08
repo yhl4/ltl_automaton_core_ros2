@@ -213,6 +213,22 @@ def test_2d_model_tracks_cells_station_request_and_closest_region():
     assert model.update(_pose(1.5, 0.5)) == "r2"
 
 
+@pytest.mark.parametrize(
+    "station_request", ["r1", "missing"],
+    ids=["square-request", "unknown-request"],
+)
+def test_2d_model_ignores_nonstation_access_requests(station_request):
+    """Nonstation requests must leave square selection unchanged."""
+    transition_system = generate_regions_and_actions(_definition())
+    model = Region2DPoseModel(
+        transition_system["state_models"]["2d_pose_region"]
+    )
+    model.station_access_request = station_request
+
+    assert model.update(_pose(0.5, 0.5)) == "r1"
+    assert model.state == "r1"
+
+
 def test_6d_model_reports_connected_and_unconnected_transitions():
     model = Region6DJointspaceModel(
         {

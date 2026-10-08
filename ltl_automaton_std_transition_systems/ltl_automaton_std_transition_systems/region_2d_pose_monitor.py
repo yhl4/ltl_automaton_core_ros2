@@ -131,8 +131,8 @@ class Region2DPoseModel:
         names = list(region_names)
         for name in names:
             if (
-                name in self.stations
-                and self.station_access_request == name
+                self.station_access_request == name
+                and name in self.stations
                 and self.is_in_station(pose, name)
             ):
                 self.state = name
