@@ -5004,3 +5004,29 @@ compile、ament_flake8（99列）、ament_pep257、git diff --check 通过。首
 Promela SHA256 为 `5aedbeac65d76b23deed04513aa27e6c59587ad865dd379d3adc05a6b9c5b234`。
 任意深括号或连续否定仍受递归限制；没有修改 IDL、接受性、source-label 或成本定义。
 本轮未重跑七包组合、IRL学习、整体性能、provider、benchmark、实机或 Jazzy。
+
+### 11.127 一维 TS 同来源 guard 求值复用（2026-10-08）
+
+对照基线为 `310adda47b4db68c6d55e52ef0008c79bb0edb90`。一维 TS 原先逐边
+求值相同来源/guard，虽复用已解析表达式，仍重复检查标签。现按来源 adjacency
+顺序使用局部结果字典，每次 build 新建，保留最后统一移除拒绝边的流程。
+公开 `is_action_allowed` 不缓存 truth；多维构建和动态 Product helper 不变。
+
+默认 Humble 环境下，TS、transition-system 配置、Product、LTLPlanner、IRL 五份
+定向文件一次 pytest：**124 passed，0 skip/error/failure**，pytest耗时1.83秒，
+wrapper wall time2.523767336秒，保留两项既有 `np.int` 警告。
+新增两项参数化回归覆盖显式 set 标签与 fallback 来源 tuple、精确求值/边顺序、
+完整边属性、重复构建、guard 变化及标签变化后的重建，公开 checker 按标签求值。
+
+旧实现/候选另作9场景、12阶段完整图、节点/边属性、插入顺序和输入保持对照，
+覆盖 fallback、set/frozenset/list/tuple 标签、true/false 常量、空图、标签/guard
+变化和删边重建。示例8条输入边保留5条，求值8→4；常量true/false为8→2，空图为0。
+六类错误输入的异常类型、精确消息及失败时完整图状态一致，包括 false guard 后
+缺字段的情形，未提前移除边。该操作计数不证明整体加速或内存收益。
+
+compile、ament_flake8（99列）、ament_pep257、git diff --check通过。证据位于
+`/tmp/ltl_ts_single_guard_310adda`，含基线源码、reproduction/qualification JSON、
+完整日志/XML、候选源码及辅助脚本，`sha256_manifest.json`冻结16文件。
+候选TS源码SHA256为 `08ae086ebb8212f6eeb24110c63a73c3832bef95be0601ad8a40fa2a42792d0d`。
+适用范围为构建期间稳定的 guard 字符串与标签；没有改变 source-label、成本或
+IRL学习规则。本轮未重跑七包组合、DDS、整体性能、provider、benchmark、实机或 Jazzy。

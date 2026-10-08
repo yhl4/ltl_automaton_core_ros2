@@ -249,6 +249,89 @@ def test_single_dimension_guard_is_enforced():
     assert not model.has_edge(("r1",), ("r2",))
 
 
+@pytest.mark.parametrize("explicit_label", [False, True], ids=["fallback", "explicit"])
+def test_single_factor_reuses_guards_per_source_and_refreshes(explicit_label, monkeypatch):
+    """Reuse each source guard result without sharing truth across labels."""
+    factor = DiGraph(initial={("r1",)}, ts_state_format="region")
+    for name in ("r1", "r2", "t1", "t2", "t3", "t4"):
+        node = (name,)
+        if explicit_label or name not in {"r1", "r2"}:
+            factor.add_node(node, label={name})
+        else:
+            factor.add_node(node)
+
+    for source in ("r1", "r2"):
+        for index, target in enumerate(("t1", "t2", "t3", "t4")):
+            factor.add_edge(
+                (source,),
+                (target,),
+                action=f"{source}_{target}",
+                guard="r1" if index < 3 else "1",
+                weight=float(index + 1),
+            )
+
+    model = TSModel([factor])
+    checks = _record_guard_checks(monkeypatch, model)
+    model.build_full()
+    labels = (("r1",), ("r2",))
+    expected_checks = [
+        ("r1", labels[0]), ("1", labels[0]),
+        ("r1", labels[1]), ("1", labels[1]),
+    ]
+    assert checks == expected_checks
+    expected_edges = [
+        (("r1",), ("t1",), "r1_t1", "r1", 1.0),
+        (("r1",), ("t2",), "r1_t2", "r1", 2.0),
+        (("r1",), ("t3",), "r1_t3", "r1", 3.0),
+        (("r1",), ("t4",), "r1_t4", "1", 4.0),
+        (("r2",), ("t4",), "r2_t4", "1", 4.0),
+    ]
+    assert list(model.edges) == [
+        (source, target) for source, target, *_ in expected_edges
+    ]
+    for source, target, action, guard, weight in expected_edges:
+        assert model.edges[source, target] == dict(
+            action=action,
+            guard=guard,
+            weight=weight,
+        )
+
+    model.build_full()
+    assert checks == expected_checks * 2
+
+    for source in ("r1", "r2"):
+        for target in ("t1", "t2", "t3"):
+            factor.edges[(source,), (target,)]["guard"] = "r2"
+    checks.clear()
+    model.build_full()
+    assert checks == [
+        ("r2", labels[0]), ("1", labels[0]),
+        ("r2", labels[1]), ("1", labels[1]),
+    ]
+    assert list(model.edges) == [
+        (("r1",), ("t4",)),
+        (("r2",), ("t1",)),
+        (("r2",), ("t2",)),
+        (("r2",), ("t3",)),
+        (("r2",), ("t4",)),
+    ]
+    assert model.is_action_allowed("r2", labels[0]) is False
+    assert model.is_action_allowed("r2", labels[1]) is True
+
+    if explicit_label:
+        factor.nodes[("r1",)]["label"] = {"r2"}
+        factor.nodes[("r2",)]["label"] = {"r1"}
+        checks.clear()
+        model.build_full()
+        assert checks == [
+            ("r2", labels[1]), ("1", labels[1]),
+            ("r2", labels[0]), ("1", labels[0]),
+        ]
+        assert list(model.edges) == [
+            (source, target) for source, target, *_ in expected_edges
+        ]
+
+
 def make_factor_model(states, initial):
     """Create an edgeless factor for Cartesian composition checks."""
     graph = DiGraph(initial=set(initial))

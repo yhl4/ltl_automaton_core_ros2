@@ -32,12 +32,18 @@ class TSModel(DiGraph):
                              ts_state_format=copy(
                                  self.state_models[0].graph['ts_state_format']
                              ))
-            disallowed = [
-                (source, target) for source, target, data in self.edges(data=True)
-                if not self.is_action_allowed(
-                    data['guard'], self.nodes[source].get('label', source)
-                )
-            ]
+            disallowed = []
+            for source, successors in self.adjacency():
+                guard_checks = {}
+                for target, data in successors.items():
+                    guard = data['guard']
+                    if guard not in guard_checks:
+                        guard_checks[guard] = self.is_action_allowed(
+                            guard,
+                            self.nodes[source].get('label', source),
+                        )
+                    if not guard_checks[guard]:
+                        disallowed.append((source, target))
             self.remove_edges_from(disallowed)
 
         # If more than one, build a combined TS model
