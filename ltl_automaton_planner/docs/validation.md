@@ -4697,3 +4697,55 @@ XML SHA d0f95e4dbc916f15087ef7e9dae03dadb24a936fd30363da03b3fde3485b2331，
 日志SHA b57e47405a81cc2e301654911d6e41b532bb0d9e0627f9aa1486a9f56d9cea88。
 同步两份README，前117节保留；未重跑colcon整包、规划/执行DDS闭环、
 HIL/IRL launch、LLM、benchmark、物理仿真或实机，不与历史计数相加。
+
+### 11.119 当前七包独立构建与默认整包验证（2026-10-08）
+
+资格源码完整提交 04c9833624a94fbd7bebcdccb2e442df1c92c997，测试期间工作树干净。
+只进行既有包的构建与测试，本阶段不改生产源码、测试、IDL或算法参数。
+复用既有 WSL Ubuntu-22.04-D/Humble、Python 3.10.12、NetworkX 2.4，
+原生 ltl2ba 路径 /home/yuhling/.local/bin/ltl2ba，完整 SHA256 为
+d4785c387b67be41052800f6913b8476dbaff56730ef962553fd3d339c378ed3。
+
+使用全新 /tmp/ltl_ros2_combo_04c9833 的 build/install/log/results，
+不复用历史 build 或测试 XML。构建前冻结七包发现、源码/测试 SHA、
+环境和预期人口：旧 d5f2faa 的705项加IRL独立单元6项、HIL溢出6项及
+standard TS请求2项，共719；不把已有launch内部单元另算到JUnit。
+默认launch_testing/launch_ros收集器和已有测试条件保持。
+
+构建原命令为 colcon --log-base /tmp/ltl_ros2_combo_04c9833/log_combo_04c9833
+build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2
+--build-base /tmp/ltl_ros2_combo_04c9833/build
+--install-base /tmp/ltl_ros2_combo_04c9833/install --symlink-install
+--packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON。
+构建后source新install，再核对实际导入路径和完整Git字节。
+测试原命令为 colcon --log-base /tmp/ltl_ros2_combo_04c9833/log_combo_04c9833
+test --build-base /tmp/ltl_ros2_combo_04c9833/build
+--install-base /tmp/ltl_ros2_combo_04c9833/install --packages-select
+ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core
+ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic
+ltl_automaton_std_transition_systems --return-code-on-test-failure。
+各执行一次，实际exit均0；构建92.682801705秒，
+测试82.386151206秒。保留完整原命令、时序及stdout/stderr。
+
+六份fresh JUnit实测：msgs11/0 skip，planner_core195/1，planner188/1，
+execution143/0，HIL131/1，standard TS51/1。
+总计719 tests =715 passed+4 skipped，0 errors、0 failures；四项均既有
+copyright skip。额外一份fresh CTest wrapper内一项通过，实际build查询
+为720 tests/0 errors/0 failures/4 skipped，不将wrapper或launch内部用例
+重复加到719。所有结果mtime晚于本次测试开始，没有stale XML。
+
+保留并核对旧required cases，含四个真实DDS执行场景、Studio消费闭环、
+原生翻译器、完整二十步IRL及提交、启动故障8项、候选payload准备故障6项、
+重规划事务及Core history回归；新增14项逐个检查完整参数名并均通过。
+17个生产模块加TS模块共18份实际导入的完整字节与资格Git提交一致，
+生成接口来自本次build。历史证据1602份SHA校验保持，前118节不改。
+
+证据目录 /tmp/ltl_ros2_combo_04c9833 保存 verification、changed/TS import
+proof、完整colcon query及verified_summary_04c9833.json。
+verified_results_04c9833/sha256_manifest.json冻结87个结果/receipt/
+完整日志文件，并独立核对哈希、字节、时序及包聚合依赖。stderr共
+5份/4615字节，原有依赖警告及其他实际诊断保持；未发现
+Future exception was never retrieved。详细诊断见inspected_combo_receipts。
+同步根README，Markdown本地链接、LF及diff检查通过；本阶段不重跑
+LLM/provider、benchmark、多seed、物理仿真或实机，不建立Jazzy资格，
+不据此声称整体加速、IRL科学效果或硬件效果。

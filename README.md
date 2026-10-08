@@ -718,7 +718,30 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前局部验证：2D station 请求查找（2026-10-08）
+### 当前七包组合验证（源码 04c9833，2026-10-08）
+
+当前干净源码在全新隔离目录构建七个包，并执行默认并行整包测试；两条命令
+均 exit 0。近期 IRL 恢复及单元入口、执行快照校验、HIL 数值拒绝和 station
+请求筛选与既有事务、DDS、Studio、原生翻译器及监控回归同时通过。
+
+| 包 | tests | passed | skipped |
+| --- | ---: | ---: | ---: |
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 195 | 194 | 1 |
+| ltl_automaton_planner | 188 | 187 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 131 | 130 | 1 |
+| ltl_automaton_std_transition_systems | 51 | 50 | 1 |
+
+合计 **719 tests = 715 passed / 4 skipped**，0 errors、0 failures。
+四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，实际隔离
+build 的 colcon 查询为 720 tests。原生 launch 内部用例不另加到 JUnit 总数。
+18 个生产模块完整字节、生成消息路径和原生 `ltl2ba` 均核对当前源码；旧
+结果及失败日志保留，本次没有复用旧测试 XML。详细记录见
+[validation.md 第 11.119 节](ltl_automaton_planner/docs/validation.md)。
+这是 Humble 下的符号级功能验证，不证明整体加速、IRL 科学效果或实机效果。
+
+### 此前局部验证：2D station 请求查找（2026-10-08）
 
 区域查找先匹配 station 请求，再检查 station 名单，减少无关请求的线性
 名单扫描；保持 station 优先级、候选顺序、严格边界与滞回行为。
@@ -820,7 +843,7 @@ IRL 仍只学习 β 且默认关闭；新鲜度检查和成功发布顺序保持
 **699 tests = 695 passed / 4 skipped**，0 errors、0 failures；接口 wrapper
 另有一项通过，实际隔离 build 查询为 700 tests。完整记录保留在
 [validation.md 第 11.109 节](ltl_automaton_planner/docs/validation.md)。
-各版组合与局部验证分别计数，不累加到当前 705 项人口。
+各版组合与局部验证分别计数，不累加到其他组合人口。
 
 ### 此前局部验证：启动规划的准备与提交（2026-10-07）
 
