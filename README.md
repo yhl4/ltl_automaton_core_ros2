@@ -718,226 +718,34 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 当前局部验证：TS 后继坐标复用（2026-10-08）
+### 最近局部验证（2026-10-08）
 
-`TSModel.compose_edges` 对每个来源节点和 factor 只在第一条 guard 允许的后继
-出现时创建一次坐标列表；同一 factor 的后续边复用该列表并各自构造目标 tuple，
-不同 factor 不共享列表。这样保持 guard 求值、边插入顺序、后维度覆盖、缺字段
-优先级和缺失 factor 状态错误不变。
+| 范围 | 实际结果 | 记录 |
+|---|---|---|
+| TS 后继坐标复用（源码 `e6e22c3`；原始对照基线 `5aeea47`） | 17/17 passed；0 skip/error/failure；9案例、10阶段等价；`list(node)` 12→6、48→24、40→20、重建4→2，false/空后继为0 | [11.121](ltl_automaton_planner/docs/validation.md) |
+| Execution resolver 来源 ID 收集（源码 `5aeea47`） | 31/31 passed；0 skip/error/failure | [11.120](ltl_automaton_planner/docs/validation.md) |
 
-9 个案例、10 个阶段的新旧结果和 guard 检查完全相同：`list(node)` 计数分别为
-12→6、48→24、40→20，重建为4→2；全 false guard 和无后继均为0。既有
-`test_ts.py` 收集并通过17项，0 error/failure/skip；compile、flake8、pep257
-和 diff 检查通过。本轮只验证局部复制行为，不作整体速度或内存收益声明。证据见
-[validation.md 第 11.121 节](ltl_automaton_planner/docs/validation.md)。
+两项均为局部验证，不作整体速度、内存、IRL 科学效果或实机声明；上述局部修改后未重跑七包整包资格。
 
-### 此前局部验证：执行来源 ID 收集（2026-10-08）
+### 最近七包组合记录（源码 `04c9833`，2026-10-08）
 
-执行解析器复用已去重、排序的当前 Product ID 顺序，每个有匹配边的来源
-只追加一次，避免重新建立来源集合及第二次排序。目标 ID 仍完整去重并排序，
-保留无匹配来源的省略、全部候选、歧义判断、错误顺序和快照缓存规则。
-既有 resolver 完整测试文件 **31 项通过**，含六组乱序/重复输入、多目标和
-部分来源匹配回归；compile、flake8、pep257 和 diff 检查通过。
-本轮是局部功能验证，未测整体速度，也未重跑七包或 DDS 闭环。记录见
-[validation.md 第 11.120 节](ltl_automaton_planner/docs/validation.md)。
+这是局部修改前的独立 Humble 组合记录；构建和默认并行整包测试各 exit 0：
 
-### 此前七包组合验证（源码 04c9833，2026-10-08）
+| 包 | tests / passed / skipped |
+|---|---:|
+| `ltl_automaton_msgs` | 11 / 11 / 0 |
+| `ltl_automaton_planner_core` | 195 / 194 / 1 |
+| `ltl_automaton_planner` | 188 / 187 / 1 |
+| `ltl_automaton_execution` | 143 / 143 / 0 |
+| `ltl_automaton_hil_mic` | 131 / 130 / 1 |
+| `ltl_automaton_std_transition_systems` | 51 / 50 / 1 |
 
-当时的干净源码 `04c9833` 在全新隔离目录构建七个包，并执行默认并行整包测试；两条命令
-均 exit 0。近期 IRL 恢复及单元入口、执行快照校验、HIL 数值拒绝和 station
-请求筛选与既有事务、DDS、Studio、原生翻译器及监控回归同时通过。
+合计 **719 tests = 715 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。CTest wrapper 另1项通过，查询为720。保留18模块字节、生成消息、原生 `ltl2ba`、四真实 DDS、Studio、完整20步 IRL及日志/警告证据；stderr为5份/4615字节，既有依赖警告保留。详见 [validation.md 11.119](ltl_automaton_planner/docs/validation.md)。
 
-| 包 | tests | passed | skipped |
-| --- | ---: | ---: | ---: |
-| ltl_automaton_msgs | 11 | 11 | 0 |
-| ltl_automaton_planner_core | 195 | 194 | 1 |
-| ltl_automaton_planner | 188 | 187 | 1 |
-| ltl_automaton_execution | 143 | 143 | 0 |
-| ltl_automaton_hil_mic | 131 | 130 | 1 |
-| ltl_automaton_std_transition_systems | 51 | 50 | 1 |
+### 历史验证索引
 
-合计 **719 tests = 715 passed / 4 skipped**，0 errors、0 failures。
-四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，实际隔离
-build 的 colcon 查询为 720 tests。原生 launch 内部用例不另加到 JUnit 总数。
-18 个生产模块完整字节、生成消息路径和原生 `ltl2ba` 均核对当前源码；旧
-结果及失败日志保留，本次没有复用旧测试 XML。详细记录见
-[validation.md 第 11.119 节](ltl_automaton_planner/docs/validation.md)。
-这是 Humble 下的符号级功能验证，不证明整体加速、IRL 科学效果或实机效果。
-
-### 此前局部验证：2D station 请求查找（2026-10-08）
-
-区域查找先匹配 station 请求，再检查 station 名单，减少无关请求的线性
-名单扫描；保持 station 优先级、候选顺序、严格边界与滞回行为。
-模型、输入及监控 launch 三个测试文件 **48 项通过**，包含真实 2D/6D
-节点通信和关闭检查；七组状态序列与基线 55df4d7 一致。1000 个 station
-夹具中，名单检查由每次 1000 次降为无请求时 0 次、末尾请求命中时 1 次。
-这是检查次数测量，未测整体速度，也未重跑整包或七包测试。记录见
-[validation.md 第 11.118 节](ltl_automaton_planner/docs/validation.md)。
-
-### 此前局部验证：HIL 数值溢出拒绝与恢复（2026-10-08）
-
-速度策略的 Python 接口遇到超大整数时，将有限值检查的溢出转为既有
-`ValueError`，保留异常原因；仲裁回调因此能按原规则取消查询、使用有效导航
-回退并接受后续合法输入。这类整数不能进入 ROS float64 消息。
-修复前六个超大整数用例失败，原 ROS NaN/Inf 两项通过；修复后策略与异步
-仲裁两个完整测试文件 **96 项通过**，lint、compile 和 diff 检查通过。
-未重跑 HIL 整包或七包测试，记录见
-[validation.md 第 11.117 节](ltl_automaton_planner/docs/validation.md)。
-
-### 此前局部验证：执行快照校验的临时内存（2026-10-08）
-
-执行端校验完整 Product 快照的维度时改为顺序迭代，避免复制长度为 N-1 的
-节点 tuple；保留首节点维度顺序、空图和不一致维度的错误行为。
-既有执行节点测试 **36 项通过**，六个定向场景与基线 60f9d60 的结果一致。
-10 万节点夹具中，仅该方法的临时分配峰值从 800,080 降为 48 字节；夹具
-本身在追踪前建立。这不是整体内存或速度测量，本轮未重跑七包测试。
-记录见 [validation.md 第 11.116 节](ltl_automaton_planner/docs/validation.md)。
-
-### 此前 HIL 包验证（源码 0c151a2，2026-10-07）
-
-在独立临时目录构建 HIL 包，并通过常规 `colcon test` 自动发现全部测试：
-**125 项 = 124 passed + 1 skipped**，0 errors、0 failures。跳过项为既有
-copyright 检查。原 119 个 pytest 项保留，移出的六个 IRL 单元用例独立计数；
-原 HIL 仲裁、异步回调、Trap/IRL launch 和真实 β preference 同时通过。
-本轮验证范围为 HIL 包，其他包沿用既有依赖环境，生产源码和测试未改。
-完整记录见 [validation.md 第 11.114 节](ltl_automaton_planner/docs/validation.md)。
-
-### 此前局部验证：IRL 测试入口拆分（源码 0c151a2，2026-10-07）
-
-六个 fake-host 单元用例移至 `test_irl_plugin_unit.py`，原文件保留 ROS launch
-用例；所有测试正文和生产代码保持。默认 launch-testing 插件启用时可直接选择
-单元类，无需关闭收集插件：
-
-```bash
-python3 -m pytest ltl_automaton_hil_mic/test/test_irl_plugin_unit.py::TestIRLPluginFakeHost
-```
-
-直接选择单元类并与原 launch、β preference、safety 一次组合运行，**10 passed**
-（单元6、launch1、preference1、safety2），编译和 lint 通过。本轮未重跑七包；
-完整记录见 [validation.md 第 11.113 节](ltl_automaton_planner/docs/validation.md)。
-
-### 历史七包组合验证（源码 d5f2faa，2026-10-07）
-
-历史记录中，干净源码 `d5f2faa` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
-Action/IRL 六项消息准备失败及重试回归纳入完整组合；启动规划八项与此前
-事务、DDS、HIL 和标准 TS 回归均执行。
-
-| 包 | tests | passed | skipped |
-| --- | ---: | ---: | ---: |
-| ltl_automaton_msgs | 11 | 11 | 0 |
-| ltl_automaton_planner_core | 195 | 194 | 1 |
-| ltl_automaton_planner | 188 | 187 | 1 |
-| ltl_automaton_execution | 143 | 143 | 0 |
-| ltl_automaton_hil_mic | 119 | 118 | 1 |
-| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
-
-合计 **705 tests = 701 passed / 4 skipped**，0 errors、0 failures。
-四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
-对实际隔离 build 的 colcon 查询为 706 tests。四个真实 DDS 场景、Studio consumer、
-IRL 完整二十步与事务提交、HIL 及标准 TS/monitor 同时覆盖。
-18 个生产模块的完整字节、近期源码及测试 SHA、生成消息路径和原生 `ltl2ba` 已核对。
-完整原命令、时序、日志与历史结果保留；详细记录见
-[validation.md 第 11.111 节](ltl_automaton_planner/docs/validation.md)。
-符号级组合通过不证明整体加速、IRL 科学效果或实机效果。
-
-### 此前局部验证：IRL 不一致反馈恢复（源码 9d51dfb，2026-10-07）
-
-HIL fake-host、IRL preference DDS 与 safety 回归共 **9 passed**，0 errors、
-0 failures、0 skipped。覆盖反馈无法延伸候选 Product 路径时停止记录、清空
-示范缓存、不请求空学习，以及随后直接或经 `False` 后再次 `True` 开始新记录。
-该局部结果不并入历史七包组合计数；完整记录见
-[validation.md 第 11.112 节](ltl_automaton_planner/docs/validation.md)。
-
-### 此前局部验证：Action 与 IRL 的消息准备（2026-10-07）
-
-Action 与 IRL 在新鲜度检查通过后，先准备计划消息和完整成功结果，再提交新计划。
-这两类准备失败返回内部错误并保留旧活动计划、TS、快照和执行身份，释放事务，
-后续有效重试只开启一次新 generation。READY、ACTIVE Action 与 IRL 各覆盖两类
-故障，共六项新增回归；原源码上均失败，修复后三个完整相关测试文件
-**110 passed**（Action 58、节点 38、序列化 14），编译、flake8、pep257 通过。
-IRL 仍只学习 β 且默认关闭；新鲜度检查和成功发布顺序保持。
-原收集脚本错误和原代码失败均保留，详见
-[validation.md 第 11.110 节](ltl_automaton_planner/docs/validation.md)。
-该次仅执行相关验证，110 项局部结果与随后七包组合分别计数。
-
-### 此前七包组合基线（源码 02d426f，2026-10-07）
-
-干净源码 `02d426f` 的七包构建和默认并行测试各执行一次，均 exit 0。
-**699 tests = 695 passed / 4 skipped**，0 errors、0 failures；接口 wrapper
-另有一项通过，实际隔离 build 查询为 700 tests。完整记录保留在
-[validation.md 第 11.109 节](ltl_automaton_planner/docs/validation.md)。
-各版组合与局部验证分别计数，不累加到其他组合人口。
-
-### 此前局部验证：启动规划的准备与提交（2026-10-07）
-
-初始规划在候选代价、快照和计划消息全部准备成功后才提交。准备失败返回 READY，
-保留有效 TS，无活动计划、快照或执行身份；有效重试只开启一次新 generation。
-直接初始化和等待机器人初态各覆盖三类准备失败及真实代价溢出，共八项新增回归。
-原代码上八项均失败；首次修复验证因误用检查函数出现 8 failed / 96 passed，
-更正调用后，三个完整相关测试文件 **104 passed**（节点 38、Action 52、序列化 14）。
-原失败记录保留；测试字节和验收条件保持。编译、flake8、pep257 通过，详见
-[validation.md 第 11.108 节](ltl_automaton_planner/docs/validation.md)。
-该次仅执行相关验证，104 项局部资格不与各版七包结果相加。
-
-### 此前七包组合基线（源码 917c4cc，2026-10-07）
-
-干净源码 `917c4cc` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
-历史遍历、旧 `/replanning` 和意外状态恢复纳入完整组合；合计
-**691 tests = 687 passed / 4 skipped**，0 errors、0 failures。
-接口 CTest wrapper 另有一项通过，实际隔离 build 查询为 692 tests。
-完整记录保留在 [validation.md 第 11.107 节](ltl_automaton_planner/docs/validation.md)。
-该基线与局部 50/93/96/104/110 项分别计数，不累加到其他组合人口。
-
-### 此前局部验证：意外状态恢复的事务提交（2026-10-07）
-
-修复自动恢复在快照准备失败后泄漏异常、或接受非有限候选代价的问题。
-失败保留原计划和执行身份，同时保留最新观测状态；成功只提交一次新 generation。
-三个新增回归及一个既有延迟恢复用例先在旧源码上复现失败；修复后三个完整
-相关测试文件 **96 passed**，包括准备失败后恢复和有限代价的有效恢复。
-源码和测试编译、flake8、pep257 通过；详见
-[validation.md 第 11.106 节](ltl_automaton_planner/docs/validation.md)。
-该次仅执行相关验证，局部计数不与七包结果相加。
-
-### 此前局部验证：旧重规划服务的事务提交（2026-10-07）
-
-修复旧 `/replanning` 在快照准备失败后泄漏异常、或接受非有限候选代价的问题。
-三个新增回归先在旧源码上复现失败；修复后三个完整相关测试文件
-**93 passed**，包含失败后的旧 authority 保持及有效服务请求恢复。
-源码和测试编译、flake8、pep257 通过；详见
-[validation.md 第 11.105 节](ltl_automaton_planner/docs/validation.md)。
-该次仅执行相关验证，局部计数不与七包结果相加。
-
-### 此前局部验证：历史重规划遍历（2026-10-07）
-
-历史重规划改用 `islice` 遍历尾部，省去 `trace[1:]` 的临时列表。
-输入仍为调用期间保持稳定的可索引历史序列，实际 Planner 传入新建列表；
-来源标签、Product 后继、历史次序与 γ 选择保持。
-两个完整既有测试文件 **50 passed**，另有 48 组稳定 list/tuple 旧新对照，
-包括 4097 状态的历史。切片计数由 1 降为 0，未测量整体加速。
-编译及源码 lint 通过，详见
-[validation.md 第 11.104 节](ltl_automaton_planner/docs/validation.md)。
-该次仅执行相关验证，局部计数不与七包结果相加。
-
-### 此前七包组合基线（源码 0b6b7eb，2026-10-07）
-
-干净源码 `0b6b7eb` 的七包构建和默认并行整包测试各执行一次，均 exit 0。
-Product 权重更新与 TS 维度名容器隔离纳入完整组合，新单维/双维回归均执行；
-此前初始容器隔离、frozenset 快照、Trap、2D/6D monitor、IRL、HIL Future
-与 driver 修复同时覆盖。
-
-合计 **685 tests = 681 passed / 4 skipped**，0 errors、0 failures。
-四项跳过均为既有 copyright；接口 CTest wrapper 另有一项通过，
-对实际隔离 build 的 colcon 查询为 686 tests。保留 np.int/
-SelectableGroups 依赖弃用警告，五包 stderr 非空；历史 XML
-按测试开始时间排除。完整记录见
-[validation.md 第 11.103 节](ltl_automaton_planner/docs/validation.md)。
-旧源码的 673/683 项组合和局部资格保留在第 11.97–11.102 节，
-权重更新的 57 项与维度名隔离的 61 项局部运行及独立旧新对照
-不累加到本轮测试人口。
-
-快照隔离/HIL 恢复、IRL 与执行索引的局部对照、旧版本资格、原始失败，以及
-命令、日志和冻结哈希清单的位置见同一验证记录，按源码版本分别计数。
-符号级组合通过不证明整体加速、IRL 科学效果或实机效果。
+历史命令、局部失败、日志、XML 与冻结哈希的位置见
+[`validation.md`](ltl_automaton_planner/docs/validation.md)，各版本按源码和范围分别计数，不相加。
 
 ---
 
