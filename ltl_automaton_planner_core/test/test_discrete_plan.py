@@ -689,3 +689,45 @@ def test_closing_cycle_without_usable_predecessor_returns_no_run():
     assert list(product.edges(data=True)) == before
     assert product.graph["initial"] == initial
     assert product.graph["accept_with_cycle"] == cycles
+
+
+def test_dijkstra_closing_edges_keep_default_hidden_and_input_semantics():
+    """Use one closing adjacency read while preserving complete run output."""
+    product = make_weighted_product([
+        ("s0", "goal", 2), ("goal", "goal", 10),
+        ("goal", "tail", 1), ("tail", "goal", 1),
+        ("goal", "hidden", 0), ("hidden", "goal", 0),
+        ("outside", "goal", 0),
+    ], accepting="goal")
+    goal = ("goal", "q0")
+    tail = ("tail", "q0")
+    product.edges[("hidden", "q0"), goal]["weight"] = None
+    initial = set(product.graph["initial"])
+    acceptance = set(product.graph["accept"])
+    cycles = set(product.graph["accept_with_cycle"])
+    before_edges = [
+        (source, target, dict(data))
+        for source, target, data in product.edges(data=True)
+    ]
+    run, _ = dijkstra_plan_networkX(product, gamma=10)
+
+    assert run.prefix == [("s0", "q0"), goal]
+    assert run.suffix == [goal, tail]
+    assert run.pre_plan == ["s0_to_goal"]
+    assert run.suf_plan == ["goal_to_tail", "tail_to_goal"]
+    assert run.pre_plan_cost == [0, 2]
+    assert run.suf_plan_cost == [0, 1, 1]
+    assert (run.precost, run.sufcost, run.totalcost) == (2, 2, 22)
+    assert list(product.edges(data=True)) == before_edges
+    assert product.graph["initial"] == initial
+    assert product.graph["accept"] == acceptance
+    assert product.graph["accept_with_cycle"] == cycles
+
+    product.edges[tail, goal]["weight"] = 3
+    product.graph["ts"].edges["tail", "goal"]["weight"] = 3
+    run, _ = dijkstra_plan_networkX(product, gamma=10)
+
+    assert run.prefix == [("s0", "q0"), goal]
+    assert run.suffix == [goal, tail]
+    assert run.suf_plan_cost == [0, 1, 3]
+    assert (run.precost, run.sufcost, run.totalcost) == (2, 4, 42)

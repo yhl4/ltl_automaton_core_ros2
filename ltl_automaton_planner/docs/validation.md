@@ -5099,3 +5099,40 @@ pytest日志/XML、计数纠正、耗时原值及辅助脚本。独立核对13�
 候选源码SHA256为 `5fd19945dce25d23945402f8d676a2eb814c1a90d0699ed91d9971fe2c94fd77`。
 本轮未重跑七包组合、DDS、IRL学习、provider、整套benchmark、实机或Jazzy；第11.128节
 的737项组合是本次修改之前的源码资格，不能作为本次后继复用的组合证据。
+
+### 11.130 完整搜索直接读取邻接边属性（2026-10-08）
+
+对照基线为 `7db6c74ae52d3ad78e22fbc2d8d635897816aa8d`。完整 NetworkX 搜索中，
+接受环闭合边原先逐一通过 `product.edges[u, v]` 查权重；现遍历公开
+`product.pred[target].items()`，直接使用同一边属性字典。紧路径恢复则每个当前节点
+读取公开 `product.adj[current]`，保留先检查已发现 parent、再读取边属性的顺序。
+适用于标准一致的 DiGraph / ProdAut，遍历顺序、默认权重1、`None` 隐藏边、精确紧边
+相等判定、完整搜索、接受性、source-label 及 β/γ代价定义保持。其他生产函数的AST不变。
+
+WSL Ubuntu-22.04-D、ROS 2 Humble，使用第11.128节安装环境。Core 离散规划、
+LTLPlanner 和 IRL 三份定向文件一次 pytest：**81 passed，0 skip/error/failure**，
+pytest耗时2.71秒，保留两项既有 NetworkX `np.int` 警告。新增回归检查完整 prefix、
+suffix、动作、成本及查询间权重变化：γ=10，闭合边权重1→3，总代价22→42。
+既有默认权重、隐藏边、零成本及IRL20次margin回归也执行。compile、ament_flake8
+（99列，两改动文件）、ament_pep257、git diff --check通过，最终runner session34204 exit0。
+
+旧/新独立对照6项路径场景及6项实际 `ProdAut.build_full` 的完整Run场景。路径包含
+零成本环/并列首parent、0.1+0.2与0.3的精确判定、多初始状态、隐藏边及两类精确异常；
+完整Run覆盖 γ=0/1/10、缺省闭合权重与改为3后的查询，prefix/suffix、Product边、
+动作和所有成本字段一致，输入Product、TS、Büchi属性及顺序保持。
+恢复路径示例的额外 EdgeView 键查找 **3→0**，完整搜索示例 **7→0**；仍读取边属性并
+遍历原有边，这不是全部图访问为零。64状态链、每来源16条死分支的六组交替耗时对照，
+median旧/新分别为0.001343550/0.001067450秒，有一组候选更慢；原值全部保留，
+只描述该小图恢复函数，不作整套或统计加速结论。
+
+初次计数探针试图替换只读 `edges` 属性失败，保留原helper，重试helper改为局部
+包装 EdgeView 方法并按所属图计数。首次执行runner在检查前因PowerShell展开bash变量
+产生语法错误；改用独立runner后，指定pytest仅执行一次。失败摘要和计数探针原helper保留。
+三个关键模块在同安装环境下的实际导入路径/哈希绑定本仓库；81项JUnit身份/状态核对，
+`/tmp/ltl_dijkstra_adjacency_7db6c74/verified_evidence/sha256_manifest.json` 冻结17份
+源码、测试、完整日志/XML、两阶段对照、辅助脚本和失败摘要，并逐一读取核对哈希/大小。
+部分runner/日志/XML文件名沿用 `3ba0374` 字样，真实基线以 `verified_summary.json`
+中的7db6c74及字节哈希为准。候选源码SHA256为
+`62c659febcceace79ac782de1440349025459d86a820dfac1899826ad2b2221b`。
+本轮未重跑七包组合、DDS、provider、整套benchmark、实机或Jazzy；第11.128节737项
+组合未包含本节修改，局部81项不能替代新的组合资格或IRL科学效果验证。

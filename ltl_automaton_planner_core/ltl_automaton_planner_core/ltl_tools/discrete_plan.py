@@ -86,11 +86,8 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         optimal_predecessor = None
         suffix_cost = None
         found_cycle = False
-        for target_pred in product.predecessors(prod_target):
-            edge_weight = product.edges[target_pred, prod_target].get(
-                "weight",
-                1,
-            )
+        for target_pred, edge_data in product.pred[prod_target].items():
+            edge_weight = edge_data.get("weight", 1)
             if target_pred in loop_dist and edge_weight is not None:
                 candidate_cost = (
                     loop_dist[target_pred]
@@ -187,13 +184,11 @@ def _restore_tight_path(product, distances, sources, target):
         if current == target:
             break
         current_distance = distances[current]
-        for successor in product.successors(current):
+        successors = product.adj[current]
+        for successor in successors:
             if successor in parent:
                 continue
-            edge_weight = product.edges[current, successor].get(
-                "weight",
-                1,
-            )
+            edge_weight = successors[successor].get("weight", 1)
             if edge_weight is None:
                 continue
             if (
