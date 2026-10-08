@@ -1,12 +1,93 @@
+import threading
 from itertools import product
 
 import pytest
 
+from ltl_automaton_planner_core.boolean_formulas import lexer as lexer_module
 from ltl_automaton_planner_core.boolean_formulas.parser import (
     Parser,
     SymbolExpression,
     parse,
 )
+
+
+def test_lexer_template_is_built_once_and_clones_are_independent(monkeypatch):
+    """Reuse one validated lexer template without sharing input state."""
+    lexer_module._lexer_template.cache_clear()
+    original_lex = lexer_module.lex.lex
+    build_count = 0
+
+    def counted_lex(*args, **kwargs):
+        nonlocal build_count
+        build_count += 1
+        kwargs.setdefault("module", lexer_module)
+        return original_lex(*args, **kwargs)
+
+    monkeypatch.setattr(lexer_module.lex, "lex", counted_lex)
+    try:
+        first = lexer_module.get_lexer()
+        second = lexer_module.get_lexer()
+        third = lexer_module.get_lexer()
+
+        assert build_count == 1
+        assert len({id(first), id(second), id(third)}) == 3
+        first.input("a\n")
+        second.input("b")
+        first.lineno = 17
+        assert next(first).value == "a"
+        assert first.lineno == 17
+        assert next(second).value == "b"
+        assert third.lineno == 1
+
+        invalid = lexer_module.get_lexer()
+        invalid.input("a@")
+        assert next(invalid).value == "a"
+        with pytest.raises(ValueError, match=r"Illegal guard character '@'"):
+            next(invalid)
+        fresh = lexer_module.get_lexer()
+        fresh.input("c")
+        assert next(fresh).value == "c"
+    finally:
+        lexer_module._lexer_template.cache_clear()
+
+
+def test_lexer_state_stack_and_warmed_threaded_parsing_are_isolated():
+    """Keep lexer state stacks local while warmed parser clones run concurrently."""
+    lexer_module._lexer_template.cache_clear()
+    try:
+        stacked = lexer_module.get_lexer()
+        stacked.push_state("INITIAL")
+        clean = lexer_module.get_lexer()
+        assert stacked.lexstatestack == ["INITIAL"]
+        assert clean.lexstatestack == []
+        assert lexer_module.get_lexer().lexstatestack == []
+
+        barrier = threading.Barrier(3)
+        results = {}
+
+        def parse_in_thread(name, formula, label):
+            barrier.wait()
+            expression = parse(formula)
+            results[name] = expression.check(label)
+
+        threads = [
+            threading.Thread(
+                target=parse_in_thread,
+                args=("left", "a && !b", {"a"}),
+            ),
+            threading.Thread(
+                target=parse_in_thread,
+                args=("right", "x || y", {"y"}),
+            ),
+        ]
+        for thread in threads:
+            thread.start()
+        barrier.wait()
+        for thread in threads:
+            thread.join()
+        assert results == {"left": True, "right": True}
+    finally:
+        lexer_module._lexer_template.cache_clear()
 
 
 def test_and_not_expression() -> None:

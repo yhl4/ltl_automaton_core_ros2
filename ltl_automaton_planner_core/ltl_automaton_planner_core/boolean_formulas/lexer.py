@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 import ply.lex as lex
 
 tokens = (
@@ -22,5 +24,14 @@ def t_error(t):
     raise ValueError("Illegal guard character %r" % t.value[0])
 
 
-def get_lexer():
+@lru_cache(maxsize=1)
+def _lexer_template():
+    """Build the validated PLY lexer template lazily."""
     return lex.lex()
+
+
+def get_lexer():
+    """Return an independent lexer clone with an empty state stack."""
+    lexer = _lexer_template().clone()
+    lexer.lexstatestack = []
+    return lexer

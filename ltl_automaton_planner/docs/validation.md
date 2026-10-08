@@ -5174,3 +5174,56 @@ msgs 11/11/0、Core 216/215/1、planner 188/187/1、execution 143/143/0、HIL
 README当前计数更新，全部历史验证字节保留；发布只更新README和本记录。
 这是Humble符号级组合资格，不证明整体加速、IRL科学效果、LLM/provider、整套benchmark、
 物理仿真、实机或Jazzy结果。
+
+### 11.132 KTH 性能定位与 guard lexer 模板复用（2026-10-08）
+
+对照基线 `c3a74d1badb05466eec68f10bfed224aa9e1ae2f`，实际源码只有
+`boolean_formulas/lexer.py` 修改，另新增两项 Boolean 测试。现有 KTH TS/task YAML、
+β=1000、γ=10、原生ltl2ba及第11.131节 Humble安装环境保持。依次运行静态规划、
+从(r2,unloaded)状态重规划、替换为配置中的r3任务并从(r1,unloaded)开始。
+基线 profile 显示静态/任务规划反复构建 PLY lexer，规则校验反复读取源文件；
+状态重规划则主要花在 deepcopy。保留后者的隔离与回滚边界，本次只改 lexer。
+
+固定模块规则首次调用时通过原有 `lex.lex()` 完整校验，私有懒模板由单项
+`lru_cache` 保存，后续通过 `clone()` 复用规则，每次独立输入/行号，显式创建独立
+状态栈。没有语法树、truth或distance缓存，没有启用PLY optimize或写入lextab。
+实际PLY3.11的clone浅复制源码及[官方 cloning 说明](https://ply.readthedocs.io/en/latest/ply.html#lexer-cloning)
+均已核对；现有规则没有类/closure的可变状态。并发首次cache miss可能重复等价构建，
+没有“并发首次恰好构建一次”的保证；两线程定向回归使用暖模板。
+
+Boolean、Promela、LTLPlanner、IRL四份定向文件最终 **104 passed，0 skip/error/failure**，
+pytest1.34秒，两项既有NetworkX np.int警告。新回归覆盖顺序调用只构建一次、实例身份、
+交错输入/lineno、非法字符恢复、独立push-state及暖模板并发解析。独立旧/新对照：
+12条有效公式×16标签的192对truth/distance、18种无效输入的精确异常类型/信息、
+26组token(type/value/lineno/lexpos)及非法字符前已产生的token均保持。parser源码SHA256
+保持 `af0c2b9003979a20fef6e59f774d8fb9257d42c1c371fece46de9a1c211ffc36`。
+compile、ament_flake8（99列，两改动文件）、ament_pep257及git diff --check通过。
+
+旧/新每阶段各一次cProfile记录如下；全部成功，Run的prefix/suffix、TS路径、动作和
+prefix/suffix/total成本九字段及图大小、当前状态、trace保持：
+
+| 阶段 | profile wall seconds 旧 / 新 | Product nodes/edges | pre/suf/total |
+|---|---:|---:|---:|
+| static | 0.037084201 / 0.004790600 | 36/72 | 70/60/670 |
+| 状态重规划 | 0.009136901 / 0.009034800 | 36/72 | 60/60/660 |
+| 任务重规划 | 0.027311600 / 0.012189100 | 24/44 | 20/20/220 |
+
+阶段内 `get_lexer` 调用数仍为11/0/4，PLY `lex()`构建为旧11/0/4→新0/0/0；
+原生ltl2ba调用保持2/0/2。`state_models_from_ts`在profile前已解析guard，候选模板
+已暖，首次构建及TS配置准备均排除在阶段计时之外。单次记录含插桩、文件系统和运行
+波动，不证明冷启动、稳定或整套加速；没有取消deepcopy或改变搜索及IRL定义。
+
+首次定向pytest为103 passed+1 failure：计数wrapper改变PLY反射调用上下文，补上
+显式module后最终104项通过；原失败日志/XML保留。首次static因PATH覆盖移除ROS CLI，
+ament_flake8未找到，修正环境后通过。基线profile启动辅助曾在实际profile前有参数、
+CRLF和导入拼写错误（执行代理记录）；成功结果使用独立retry目录，原目录保留。
+两个版本成功profile各只执行一次，不重跑已完成profile或历史组合阶段。
+
+基线 `/tmp/ltl_kth_profile_c3a74d1_retry`、候选
+`/tmp/ltl_kth_profile_c3a74d1_lexer`、语义对照 `/tmp/ltl_lexer_review_c3a74d1`。
+独立核对全部104项JUnit身份/状态、三个阶段pstats计数及输入/runtime哈希后，
+`/tmp/ltl_lexer_publication_c3a74d1/sha256_manifest.json` 冻结39份独立副本，逐一回读
+哈希/大小，包含成功/失败日志、XML、旧/新profile、源码、辅助脚本和PLY3.11源码。
+候选lexer SHA256为 `e535ce360181c4f3b014d2bf0948de21b8f4d7b21c73fe026d1e0e1a25ccf436`。
+第11.131节740项组合发生在此次lexer修改之前；本次未重跑七包/DDS、provider、
+整套benchmark、实机或Jazzy，局部验证不能替代新的组合资格或IRL科学效果验证。

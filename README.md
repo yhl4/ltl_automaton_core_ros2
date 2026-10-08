@@ -730,6 +730,7 @@ git diff --check
 | 一维 TS 同来源 guard 求值复用（对照基线 `310adda`） | 124/124 passed；0 skip/error/failure；9场景/12阶段完整图等价；示例求值8→4，常量8→2 | [11.127](ltl_automaton_planner/docs/validation.md) |
 | 历史重规划后继复用（对照基线 `3ba0374`） | 52/52 passed；0 skip/error/failure；完整候选状态及 γ=1/10 的路径、动作、成本一致；循环邻接读取5→2 | [11.129](ltl_automaton_planner/docs/validation.md) |
 | 完整搜索邻接属性读取（对照基线 `7db6c74`） | 81/81 passed；0 skip/error/failure；6路径/6完整Run对照一致；示例额外EdgeView查找3→0、7→0 | [11.130](ltl_automaton_planner/docs/validation.md) |
+| guard lexer 模板复用（对照基线 `c3a74d1`） | 104/104 passed；0 skip/error/failure；192对真值/距离、18类无效输入和26组token序列对照一致；KTH三阶段路径、动作与成本保持 | [11.132](ltl_automaton_planner/docs/validation.md) |
 
 八项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
@@ -750,7 +751,7 @@ Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文
 
 ### 最近七包组合记录（源码 `ce014f7`，2026-10-08）
 
-这是覆盖上述八项局部修改的独立 Humble 组合记录，包含历史重规划后继复用和
+这是覆盖第11.130节及此前八项局部修改的独立 Humble 组合记录，包含历史重规划后继复用和
 完整搜索邻接属性读取。在全新 `/tmp/ltl_ros2_combo_ce014f7` 构建和默认并行
 整包测试各执行一次，均 exit 0：
 
@@ -770,6 +771,11 @@ CTest wrapper 另1项通过，查询为741。旧724项加新增16项的完整身
 5份 stderr 共4615字节，仅保留既有依赖警告；53文件证据闭包已冻结核对。
 旧87文件及后续53/20/17文件闭包在执行前后保持，计数不证明整体加速。
 详见 [validation.md 11.131](ltl_automaton_planner/docs/validation.md)。
+
+该组合执行于 lexer 模板复用修改之前。最新 lexer 修改只执行上述104项定向测试；
+七包计数未更新。固定 guard 规则首次使用时完整校验，后续每次返回独立 lexer clone，
+输入、行号与状态栈隔离。KTH 示例的初始规划和任务重规划减少了重复规则构建；
+单次带插桩记录排除 TS 准备/首次模板构建，不作为冷启动或稳定的整体加速结果。
 
 此前源码 `683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
 第11.128、11.125节，各版本计数不相加。
