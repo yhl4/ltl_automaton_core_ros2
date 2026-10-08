@@ -5425,3 +5425,77 @@ Dijkstra 核心调用分别保持3/3/7，mission_to_buchi保持1/0/1。
 真实 suffix distance 断言，`final4` 为最终版本。最新 744 项 `ab45b9b` 组合早于
 基础标量 memo 与本节 SCC 修改；本节未重跑七包、DDS、provider、benchmark、实机或
 Jazzy，局部结果不能替代新组合资格或IRL科学效果验证。前135节历史字节保持。
+
+### 11.137 重规划邻接目标 tuple 的本次 memo 复用（2026-10-08）
+
+对照基线 `f8d367c965b795e262e1dd85ef349141a202f3ea`。`ProdAut.composition` 在相同节点
+已存在时仍返回新建 tuple；NetworkX2.4 的 DiGraph 允许邻接字典保留相等但对象不同的
+端点 key。原 `_copy_for_replanning` 只预置 canonical 图节点，可能遗漏这些目标 key。
+本次只在既有 `edges(data=True)` 遍历中，将符合原类型限制的目标 tuple 及一层内 tuple
+加入本次 memo：精确 tuple，元素为精确 str/int 或只含精确 str/int 的一层 tuple。
+已有 memo 条目跳过重复检查，全部可变对象仍在原遍历时点完整 deepcopy；标量处理、
+自定义类型回退、规划控制流、source-label、β/γ目标和IRL保持。
+没有增加 predecessor 扫描或跨调用缓存；额外每边memo查询及临时条目有成本。
+
+独立临时候选先于仓库修改，生产文件与该候选字节相同，SHA256为
+`83efed9c6bbd4117edf86be592b5db52e52c790a0a32e7075625afa86a67f6fd`。
+仅复制helper的生产AST改变。普通deepcopy、基线helper和候选完整pickle逐字节相同，
+覆盖跨TS/Product/Run/planner别名、再次复制独立性、可变属性隔离、custom scalar、
+实际edge dict subclass、复制期间hook及精确异常。失败异常三者均为
+`ValueError: edge value copy failure`；没有省略任何字典或列表复制。
+
+手工图的单次cProfile记录：tuple复制16→11、deepcopy539→529，dict62、list26及
+atomic174保持。预先固定六组交替、无cProfile的复制耗时中位数旧/新为
+0.000794250/0.000695200秒，全部复制内容一致；三组候选更慢，不能作稳定或整体速度
+结论。图准备及校验在复制计时外；没有translator、provider或整套benchmark调用。
+证据位于 `/tmp/ltl_replan_endpoint_review_f8d367c`，八份文件按原manifest回读哈希/大小；
+包含预先协议、完整辅助源、旧/候选源码、pstats及全部六对原始耗时。
+
+同Humble环境、最新ab45b9b overlay及原生ltl2ba下，discrete-plan、LTLPlanner、IRL
+三份文件一次运行：**85 passed，0 skip/error/failure**，pytest2.02秒、两项既有np.int
+警告。原85项身份与状态保持，没有新增或跳过测试。py_compile、ament_flake8（99列）、
+ament_pep257及diff检查通过；最终日志/XML位于 `/tmp/ltl_replan_endpoint_f8d367c`。
+
+KTH沿用同一配置、β=1000、γ=10，辅助profile源只更改输出目录，三阶段各一次。
+旧记录保留实际3df6e23+dirty metadata，其生产模块字节与f8d367c相同，不重标为新执行；
+候选记录实际f8d367c+生产文件和两文档dirty。完整snapshot除planning_time外相同，
+包含Run九字段、图大小、trace与当前状态；成本保持70/60/670、60/60/660、20/20/220。
+
+| 阶段 | profile wall seconds 旧 / 候选 | tuple复制 旧 / 候选 | deepcopy 旧 / 候选 | atomic分派 旧 / 候选 |
+|---|---:|---:|---:|---:|
+| static | 0.009907600 / 0.010200700 | 0 / 0 | 0 / 0 | 0 / 0 |
+| 状态重规划 | 0.016026900 / 0.010067200 | 286 / 74 | 3132 / 2645 | 890 / 638 |
+| 任务重规划 | 0.019327200 / 0.013172301 | 294 / 88 | 3157 / 2685 | 895 / 649 |
+
+dict分别保持0/352/352，list保持0/43/45，Dijkstra核心调用保持3/3/7。
+两次重规划记录更快，初始规划略慢；不同进程单次插桩不证明稳定或端到端加速，也不证明
+内存收益。TS准备及lexer冷构建仍在profile外，候选输出在
+`/tmp/ltl_kth_replan_endpoint_f8d367c`。本次未重跑七包、DDS、provider、整套benchmark、
+物理仿真、实机或Jazzy；第11.134节744项组合先于标量memo、SCC和本节修改。
+
+本次测试使用source后的WSL环境，未显式覆盖PATH/PYTHONPATH；实际命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_ab45b9b/install/setup.bash
+cd /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2
+python3 -m pytest -q --junitxml=/tmp/ltl_replan_endpoint_f8d367c/pytest.xml \
+  ltl_automaton_planner_core/test/test_discrete_plan.py \
+  ltl_automaton_planner_core/test/test_ltl_planner.py \
+  ltl_automaton_planner_core/test/test_irl.py
+```
+
+独立定位probe的最终输出 `/tmp/ltl_replan_tuple_keys_f8d367c_run4` 绑定基线d748090源码。
+手工三状态图的旧memo有18项预置，canonical/inner tuple及initial/accept命中，
+等值异对象的succ目标、pred来源及Run key未显式预置；Python普通deepcopy仍返回这些
+不可变tuple原对象。本次只补充succ目标覆盖，未声称覆盖全部不可变对象。
+该probe先后遇到shell展开、自检、错误包名及TS tuple身份fixture错误；前两目录空，
+run3仅留下中间pstats，最终helper曾原地修正，未保存各失败源快照及独立stdout。
+这些工具失败按执行记录保留，不将空目录或中间pstats作为最终资格。
+
+`/tmp/ltl_replan_endpoint_publication_f8d367c/sha256_manifest.json` 冻结44份独立副本并
+逐一回读哈希/大小，含最终源码、85项XML/日志、静态状态、旧/新profile、定位及review
+源、协议、原始六对耗时和执行记录。旧61文件闭包保持。KTH原manifest按原字节保留，
+后来另存helper副本和补充manifest；补充执行回执来自实际工具结果的记录，未保存原始
+stdout文件，不将记录重标为原始日志。独立核对85项身份/状态、runtime/配置/模块字节、
+完整snapshot和pstats；没有重跑已完成阶段。前136节历史字节保持。

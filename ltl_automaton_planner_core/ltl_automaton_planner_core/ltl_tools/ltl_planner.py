@@ -81,16 +81,22 @@ class LTLPlanner:
             return True
 
         memo = {}
+
+        def remember_node(node):
+            if id(node) in memo or not is_immutable_node(node):
+                return
+            memo[id(node)] = node
+            for item in node:
+                if type(item) is tuple:
+                    memo[id(item)] = item
+
         scalar_types = (str, int, float, bool, type(None))
         graphs = (self.ts,) if self.product is None else (self.ts, self.product)
         for graph in graphs:
             for node in graph:
-                if is_immutable_node(node):
-                    memo[id(node)] = node
-                    for item in node:
-                        if type(item) is tuple:
-                            memo[id(item)] = item
-            for _, _, data in graph.edges(data=True):
+                remember_node(node)
+            for _, target, data in graph.edges(data=True):
+                remember_node(target)
                 if type(data) is dict:
                     for key, value in data.items():
                         if type(key) in scalar_types:
