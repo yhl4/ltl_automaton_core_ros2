@@ -181,8 +181,11 @@ class ORExpression(BinExpression):
 
     def distance(self, label):
         ldist = self.left.distance(label)
+        # NNF distances are non-negative, so zero is the smallest OR result.
+        if ldist == 0:
+            return 0
         rdist = self.right.distance(label)
-        return min([ldist, rdist])
+        return min(ldist, rdist)
 
 
 class ANDExpression(BinExpression):

@@ -104,3 +104,50 @@ def test_long_flat_guard_preserves_operand_order_and_distance(operator):
         else:
             assert expression.check(label) == bool(label)
             assert expression.distance(label) == int(not label)
+
+
+class CountingLabel(set):
+    """Count stable membership checks without changing their results."""
+
+    def __init__(self, values=()):
+        super().__init__(values)
+        self.contains_count = 0
+
+    def __contains__(self, value):
+        self.contains_count += 1
+        return super().__contains__(value)
+
+
+@pytest.mark.parametrize(
+    "label_values, expected_distance, expected_contains",
+    [
+        ("first", 0, 1),
+        ("last", 0, 256),
+        ("none", 1, 256),
+    ],
+)
+def test_or_distance_short_circuits_only_at_zero(
+    label_values, expected_distance, expected_contains
+):
+    """Stop OR distance traversal at a zero lower bound."""
+    names = [f"p{index}" for index in range(256)]
+    expression = parse(" || ".join(names))
+    values = {
+        "first": {names[0]},
+        "last": {names[-1]},
+        "none": set(),
+    }[label_values]
+    label = CountingLabel(values)
+
+    assert expression.distance(label) == expected_distance
+    assert label.contains_count == expected_contains
+
+
+def test_distance_constants_and_nested_and_keep_hand_values():
+    """Keep constant, infinite, zero, and nested AND distances unchanged."""
+    assert parse("1 || a").distance(set()) == 0
+    assert parse("!1 || a").distance(set()) == 1
+    assert parse("!1 || !1").distance(set()) == float("inf")
+    assert parse("a && (!b || c)").distance({"a"}) == 0
+    assert parse("a && (!b || c)").distance({"a", "b"}) == 1
+    assert parse("!1 && a").distance(set()) == float("inf")

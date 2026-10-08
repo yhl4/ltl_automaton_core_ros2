@@ -4867,3 +4867,35 @@ passed + 4 skipped**，0 errors/failures；4 个 skip 均为既有 copyright，C
 `verified_summary_3ef7856.json`、`verified_results_3ef7856/sha256_manifest.json`、
 `case_inventory_checked_3ef7856.json` 及完整日志。此资格不证明整体速度、IRL科学效果、
 实机、Jazzy、LLM、benchmark 或 provider 结果；不与局部验证计数相加。
+
+### 11.123 Boolean OR 距离零下界短路（2026-10-08）
+
+基线为 `fc6fdba106865de6ff2190356a4bd3b946e99e3d`。仅在解析器生成的 NNF
+距离表达式中，`ORExpression.distance` 在左距离为零时直接返回；非零左距离仍按原顺序
+计算右分支。该优化保持正常字符串标签、解析错误、AND/NNF、truth 和距离数值语义，
+不覆盖任意手造负距离表达式或无效标签的异常顺序。
+
+环境为 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4；实际导入
+绑定当前 checkout，使用 `/tmp/ltl_ros2_combo_3ef7856/install/setup.bash`，原生 `ltl2ba`
+路径与 SHA 沿用11.122。实际命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_3ef7856/install/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+python3 -m pytest -q ltl_automaton_planner_core/test/test_boolean_formulas.py ltl_automaton_planner_core/test/test_buchi.py ltl_automaton_planner_core/test/test_product.py ltl_automaton_planner_core/test/test_ltl_planner.py ltl_automaton_planner_core/test/test_irl.py --junitxml=/tmp/ltl_ros2_completion_20261006/or_distance_fc6fdba/pytest.xml
+```
+
+收集108项，实际108 passed、0 skip/error/failure；pytest 2.32秒，subprocess wall
+2.903701544秒，保留两项既有 `np.int` 警告。另以12个公式、16个标签和
+set/frozenset/tuple/list四种稳定容器共768组，对照旧实现、候选实现和手算距离，结果与
+truth 全部一致。256叶 OR 的首项满足访问由256降为1，末项和全不满足仍为256。
+
+parser 除 `ORExpression.distance` 外的 AST 与基线相同。parser 源码 SHA256 为
+`5ee8dbba45138ca421ce6227319816e49a34979d9297ff9b97907a5c42276abc`，测试文件 SHA256 为
+`1c6a1153780c75ada7500b7a6d79f73f3e7820d207c80eb8591a1aa06d2ff026`；XML SHA256 为
+`786df69ac7c2997d87fc66068e912a3b8c2c479cf8af7800b4dc3e9258e8c300`，日志 SHA256 为
+`c463f042430a15ce03aa073f9324aafb3257ef9c2e550704e7564778420a3f6c`。证据目录为
+`/tmp/ltl_ros2_completion_20261006/or_distance_fc6fdba`；首次 bash 包装命令在资格启动前
+因 PATH 特殊字符退出1，随后唯一正式脚本运行退出0。compile、flake8、pep257 和 diff
+检查通过；本轮未重跑七包、整体性能、provider、benchmark 或实机验证。
