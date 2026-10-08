@@ -4749,3 +4749,44 @@ Future exception was never retrieved。详细诊断见inspected_combo_receipts�
 同步根README，Markdown本地链接、LF及diff检查通过；本阶段不重跑
 LLM/provider、benchmark、多seed、物理仿真或实机，不建立Jazzy资格，
 不据此声称整体加速、IRL科学效果或硬件效果。
+
+### 11.120 执行解析器复用已排序来源 ID 顺序（2026-10-08）
+
+基线352cc80e1cc1223fc6a96628a2f2781521139119。resolve首先将possible Product IDs
+去重排序为current_ids，原本再对匹配来源逐边set.add并在返回前sorted。
+只将来源收集改为list：按current_ids顺序读取一次匹配目标，非空时append
+该来源一次，再完整遍历目标。返回tuple(source list)，省去来源set和第二次
+排序；目标set/sorted、状态比较、全部候选、歧义与错误顺序、index/cache、
+返回字段及其他方法保持。不存在额外None fallback，不调整规划或IRL语义。
+
+复用WSL Ubuntu-22.04-D/Humble、Python3.10.12、pytest6.2.5，source既有
+/tmp/ltl_ros2_combo_04c9833/install/setup.bash。实际resolver模块路径绑定
+本checkout，源码完整SHA 0d9610b6c9eac1899bf800371dd796728f0235b2ba7aa7e400e7699c743d8278。
+测试文件完整SHA 52ab23495a337898b067313ec776a2cd953822b3ccc2c7f3ec1aa75ea0737df6，
+models完整SHA c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371；
+两者完整字节与基线一致。AST检查除resolve外所有函数与基线相同。
+
+最终运行脚本为LF，在结果前保存provenance完整源码/测试/models SHA和
+--collect-only完整31节点。实际命令python3 -m pytest
+ltl_automaton_execution/test/test_accepted_run_resolver.py
+--junitxml=/tmp/resolver_sources_352cc80_final.xml。
+31 collected/31 passed，0失败、错误、跳过，pytest0.65秒、退出0；脚本以
+捕获的pytest退出码结束。XML与collection完整名称一致，含既有完整候选6项：
+乱序/重复possible IDs、同来源多个目标、无匹配来源、完整来源/目标tuple、
+不可hash的TS字符串和重复cache调用；其他身份、闭环、错误先后及缓存恢复
+回归同时通过。生产文件py_compile、ament_flake8(99列)、pep257、diff检查
+通过。本轮未新增或修改测试文件。
+
+首轮临时脚本的31项pytest也通过，但尾部CRLF造成额外shell行错误；首轮
+输出/provenance/XML均保留，不计为最终稿资格。去掉草稿or ()并修正脚本LF
+后使用新唯一final路径验证，未覆盖首轮。证据复制到
+/tmp/ltl_ros2_completion_20261006/resolver_sources_352cc80，包含最终
+provenance/receipt/static/collection/XML/log、LF脚本、draft和verified.json；
+sha256_manifest.json冻结11个原始文件，保留4个draft文件。
+最终XML SHA 603399976e940f48e41cf588af23dafd76fe0c10251845ed5977071d027e4ba1，
+最终日志SHA 044187ebbdb582da8ee2aa593e1b4f8e013f7a4e935bcf9f831e412bd0e9ea80。
+
+同步根README和执行包README，前119节完整正文保持，Markdown本地链接、
+LF及diff检查通过。31项仅为resolver局部功能验证，不与历史719/715结果
+相加；不重跑colcon整包、DDS闭环、LLM、benchmark、物理仿真或实机，
+不测整体速度，也不据此扩大已有性能或科学效果结论。

@@ -41,13 +41,15 @@ its tail. It retains the first node's dimension order and the original empty or
 inconsistent-schema errors.
 
 Command resolution visits every retained edge matching the current Product IDs
-and action, accumulating the complete source and target ID sets directly. IDs
-are still returned sorted, current nodes with no matching edge are omitted,
-and all target IDs must represent one symbolic TS state. This avoids a temporary
-list of candidate pairs without pruning the matches or changing ambiguity rules.
-State grouping uses `SymbolicState` value equality, including valid string
-subclasses with unhashable instances. It keeps the original values and requires
-no state-hash sets; source and target Product ID sets remain complete and sorted.
+and action. Current IDs are normalized once to a unique sorted sequence; each
+source with matching edges is appended once in that order, avoiding a source-ID
+set and a second sort. Target IDs still use a complete set and are returned sorted.
+Current nodes with no matching edge are omitted, and all target IDs must represent
+one symbolic TS state. This avoids a temporary list of candidate pairs without
+pruning the matches or changing ambiguity rules. State grouping uses
+`SymbolicState` value equality, including valid string subclasses with unhashable
+instances. It keeps the original values and requires no state-hash sets; source
+and target Product ID tuples remain complete and sorted.
 
 The suffix omits the repeated start node at the end and closes through an implicit
 final edge.

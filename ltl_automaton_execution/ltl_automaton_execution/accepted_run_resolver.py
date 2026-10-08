@@ -41,20 +41,22 @@ class AcceptedRunResolver:
                 "Possible Product nodes represent distinct symbolic TS states."
             )
 
-        source_product_node_ids = set()
+        source_product_node_ids = []
         target_product_node_ids = set()
         target_state = None
         ambiguous_target = False
         for source_id in current_ids:
-            for target_id in retained_targets.get(
+            matching_targets = retained_targets.get(
                 (source_id, observation.next_action), ()
-            ):
+            )
+            if matching_targets:
+                source_product_node_ids.append(source_id)
+            for target_id in matching_targets:
                 candidate_state = nodes[target_id].ts_state
                 if not target_product_node_ids:
                     target_state = candidate_state
                 elif candidate_state != target_state:
                     ambiguous_target = True
-                source_product_node_ids.add(source_id)
                 target_product_node_ids.add(target_id)
 
         if not target_product_node_ids:
@@ -73,7 +75,7 @@ class AcceptedRunResolver:
             action=observation.next_action,
             source_state=source_state,
             target_state=target_state,
-            source_product_node_ids=tuple(sorted(source_product_node_ids)),
+            source_product_node_ids=tuple(source_product_node_ids),
             target_product_node_ids=tuple(sorted(target_product_node_ids)),
         )
 
