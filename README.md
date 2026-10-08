@@ -748,30 +748,31 @@ Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文
 接受环闭合边及紧路径恢复直接从标准 DiGraph 的 `pred` / `adj` 读取边属性，
 减少额外 EdgeView 查找；仍按相同顺序遍历边、处理默认权重与 `None` 隐藏边。
 
-### 最近七包组合记录（源码 `683c333`，2026-10-08）
+### 最近七包组合记录（源码 `ce014f7`，2026-10-08）
 
-这是包含前六项局部修改（含长 guard 和一维 TS guard 复用）的独立 Humble 组合记录，
-未包含第11.129–11.130节的历史重规划后继复用和邻接属性读取；
-这两次修改分别作上述52项和81项局部验证。
-在新目录构建和默认并行整包测试各执行一次，均 exit 0：
+这是覆盖上述八项局部修改的独立 Humble 组合记录，包含历史重规划后继复用和
+完整搜索邻接属性读取。在全新 `/tmp/ltl_ros2_combo_ce014f7` 构建和默认并行
+整包测试各执行一次，均 exit 0：
 
 | 包 | tests / passed / skipped |
 |---|---:|
 | `ltl_automaton_msgs` | 11 / 11 / 0 |
-| `ltl_automaton_planner_core` | 213 / 212 / 1 |
+| `ltl_automaton_planner_core` | 216 / 215 / 1 |
 | `ltl_automaton_planner` | 188 / 187 / 1 |
 | `ltl_automaton_execution` | 143 / 143 / 0 |
 | `ltl_automaton_hil_mic` | 131 / 130 / 1 |
 | `ltl_automaton_std_transition_systems` | 51 / 50 / 1 |
 
-合计 **737 tests = 733 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。
-CTest wrapper 另1项通过，查询为738。旧724项加新增13项的完整身份及 skip flags
+合计 **740 tests = 736 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。
+CTest wrapper 另1项通过，查询为741。旧724项加新增16项的完整身份及 skip flags
 与执行前冻结清单逐一一致。22模块导入字节与资格源码一致，生成消息来自本次新构建。
 原生 `ltl2ba`、四真实 DDS 符号执行、Studio、完整20步 IRL及提交、启动和事务恢复通过。
 5份 stderr 共4615字节，仅保留既有依赖警告；53文件证据闭包已冻结核对。
-详见 [validation.md 11.128](ltl_automaton_planner/docs/validation.md)。
+旧87文件及后续53/20/17文件闭包在执行前后保持，计数不证明整体加速。
+详见 [validation.md 11.131](ltl_automaton_planner/docs/validation.md)。
 
-此前源码 `62b94b3` 的724项组合记录保留在第11.125节，各版本计数不相加。
+此前源码 `683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
+第11.128、11.125节，各版本计数不相加。
 
 ### 历史验证索引
 

@@ -5136,3 +5136,41 @@ median旧/新分别为0.001343550/0.001067450秒，有一组候选更慢；原�
 `62c659febcceace79ac782de1440349025459d86a820dfac1899826ad2b2221b`。
 本轮未重跑七包组合、DDS、provider、整套benchmark、实机或Jazzy；第11.128节737项
 组合未包含本节修改，局部81项不能替代新的组合资格或IRL科学效果验证。
+
+### 11.131 两处规划热点修改后的七包组合验证（2026-10-08）
+
+资格源码 `ce014f78c17eaff523a0af541ff065793a10fc74` 包含第11.129–11.130节修改。
+WSL Ubuntu-22.04-D、ROS 2 Humble、Python3.10.12、NetworkX2.4及原生ltl2ba保持。
+在全新 `/tmp/ltl_ros2_combo_ce014f7` 执行七包构建和默认并行测试，各一次、均exit0：
+
+```bash
+source /opt/ros/humble/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+colcon --log-base /tmp/ltl_ros2_combo_ce014f7/log build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_ce014f7/build --install-base /tmp/ltl_ros2_combo_ce014f7/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_ce014f7/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_ce014f7/log test --build-base /tmp/ltl_ros2_combo_ce014f7/build --install-base /tmp/ltl_ros2_combo_ce014f7/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+colcon --log-base /tmp/ltl_ros2_combo_ce014f7/query_log test-result --test-result-base /tmp/ltl_ros2_combo_ce014f7/build --verbose
+```
+
+wrapper wall time：构建77.528334224秒、测试56.748037802秒。六份JUnit分别为
+msgs 11/11/0、Core 216/215/1、planner 188/187/1、execution 143/143/0、HIL
+131/130/1、standard TS 51/50/1（tests/passed/skipped）。合计 **740 = 736 passed +
+4既有copyright skip**，0 errors/failures；CTest wrapper另1项通过，实际查询741。
+
+执行前使用62b94b3的724项完整身份，加当前四文件只收集得到的16项新增用例，冻结
+全部740项的(classname/name/skip)；执行后逐项匹配。新增16项为此前长guard/TS的13项
+和本次2项历史重规划、1项邻接属性读取回归。138份Python/IDL/包构建文件与Git资格源码
+字节绑定；22个关键模块实际导入路径/哈希匹配，生成消息来自本次新build。
+四个真实DDS符号执行、Studio、IRL完整20次margin更新及提交、HIL偏好提交通过；
+初始化准备6项及overflow2项、payload准备6项和本次3个新增回归均明确核对为通过。
+
+证据包括 `prepared.json`、build/test receipt、runtime、`verified_summary.json`、
+完整JUnit/CTest XML、日志和实际辅助源；`verified_evidence/sha256_manifest.json`
+冻结53文件，独立逐一读取核对哈希/大小及740项身份/状态。36份日志无未读取Future
+异常诊断；5份stderr各923字节，保留既有 `np.int` / `SelectableGroups` 警告。
+旧62b94b3的87文件、683c333的53文件、历史重规划20文件及邻接读取17文件闭包，在
+执行前后哈希均保持。辅助脚本准备时发现的用例字典路径、新增列表及源清单错误在
+执行前修正；没有重跑已完成的prepare、构建、测试或audit阶段。
+README当前计数更新，全部历史验证字节保留；发布只更新README和本记录。
+这是Humble符号级组合资格，不证明整体加速、IRL科学效果、LLM/provider、整套benchmark、
+物理仿真、实机或Jazzy结果。
