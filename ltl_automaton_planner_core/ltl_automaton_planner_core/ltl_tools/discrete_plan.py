@@ -533,12 +533,17 @@ def prod_states_given_history(product, trace):
         for buchi_state in product.graph["buchi"].graph["initial"]
         if (trace[0], buchi_state) in product
     }
+    successor_tables = {}
 
     for ts_state in islice(trace, 1, None):
         next_states = set()
 
         for product_node in possible_states:
-            for successor in product.successors(product_node):
+            successors = successor_tables.get(product_node)
+            if successors is None:
+                successors = tuple(product.successors(product_node))
+                successor_tables[product_node] = successors
+            for successor in successors:
                 if successor[0] == ts_state:
                     next_states.add(successor)
 

@@ -1,5 +1,7 @@
 """Tests for discrete prefix-suffix planning."""
 
+from collections import Counter
+
 from networkx import DiGraph
 from networkx import single_source_dijkstra_path_length
 import pytest
@@ -503,6 +505,70 @@ def test_product_history_follows_complete_product_successors():
     assert prod_states_given_history(product, ["s0", "s0"]) == set()
     assert improve_plan_given_history(product, ["unknown"]) is None
     assert improve_plan_given_history(product, ["s0", "s0"]) is None
+
+
+def _make_repeated_history_product():
+    """Create a small converging Product graph for history filtering."""
+    product = DiGraph()
+    product.graph["buchi"] = DiGraph(initial={"q0"})
+    for node in (
+        ("s0", "q0"), ("s0", "q1"),
+        ("s1", "q0"), ("s1", "q1"),
+    ):
+        product.add_node(node)
+
+    for source in (("s0", "q0"), ("s0", "q1")):
+        product.add_edge(source, ("s1", "q0"))
+        product.add_edge(source, ("s1", "q1"))
+    for source in (("s1", "q0"), ("s1", "q1")):
+        product.add_edge(source, ("s0", "q0"))
+        product.add_edge(source, ("s0", "q1"))
+    return product
+
+
+def test_history_reuses_successors_per_call_and_preserves_belief(monkeypatch):
+    """Enumerate each repeated Product source once within one history call."""
+    product = _make_repeated_history_product()
+    trace = ["s0", "s1", "s0", "s1", "s0"]
+    before_trace = list(trace)
+    calls = []
+    original_successors = product.successors
+
+    def record_successors(node):
+        calls.append(node)
+        return original_successors(node)
+
+    monkeypatch.setattr(product, "successors", record_successors)
+    result = prod_states_given_history(product, trace)
+
+    expected_sources = {
+        ("s0", "q0"), ("s0", "q1"),
+        ("s1", "q0"), ("s1", "q1"),
+    }
+    assert result == {("s0", "q0"), ("s0", "q1")}
+    assert Counter(calls) == Counter({source: 1 for source in expected_sources})
+    assert trace == before_trace
+
+
+def test_history_successors_refresh_between_calls_and_empty_cases_remain():
+    """Read changed edges on the next call and preserve empty-history results."""
+    product = _make_repeated_history_product()
+    trace = ["s0", "s1", "s0"]
+    assert prod_states_given_history(product, trace) == {
+        ("s0", "q0"), ("s0", "q1"),
+    }
+
+    for source in (("s1", "q0"), ("s1", "q1")):
+        product.remove_edge(source, ("s0", "q0"))
+    product.add_node(("s0", "q2"))
+    product.add_edge(("s1", "q1"), ("s0", "q2"))
+    assert prod_states_given_history(product, trace) == {
+        ("s0", "q1"), ("s0", "q2"),
+    }
+
+    assert prod_states_given_history(product, []) == set()
+    assert prod_states_given_history(product, ["unknown"]) == set()
+    assert prod_states_given_history(product, ["s0", "dead"]) == set()
 
 
 def test_history_replanning_passes_gamma_to_networkx_search():

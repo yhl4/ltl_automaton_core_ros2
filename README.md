@@ -728,8 +728,9 @@ git diff --check
 | Büchi membership 局部索引（对照基线 `f84c939`） | 97/97 passed；0 skip/error/failure；初始/接受 membership 与重建 metadata 语义保持 | [11.124](ltl_automaton_planner/docs/validation.md) |
 | 长 Boolean guard 与 Promela 分支合并（对照基线 `7717e76`） | 122/122 passed；0 skip/error/failure；2048项原递归错误修复，1280组旧/新/手算对照一致 | [11.126](ltl_automaton_planner/docs/validation.md) |
 | 一维 TS 同来源 guard 求值复用（对照基线 `310adda`） | 124/124 passed；0 skip/error/failure；9场景/12阶段完整图等价；示例求值8→4，常量8→2 | [11.127](ltl_automaton_planner/docs/validation.md) |
+| 历史重规划后继复用（对照基线 `3ba0374`） | 52/52 passed；0 skip/error/failure；完整候选状态及 γ=1/10 的路径、动作、成本一致；循环邻接读取5→2 | [11.129](ltl_automaton_planner/docs/validation.md) |
 
-六项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+七项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -739,9 +740,14 @@ Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文
 一维 TS 构建也按来源节点复用相同 guard 的求值结果，每次重建重新检查；
 适用于构建期间稳定的标签。公开 `is_action_allowed` 仍逐次求值。
 
+历史重规划在单次查询内按 Product 来源保存有序后继，重复历史仍逐步过滤，
+下一次查询重新读取图。适用于查询期间固定的 Product；临时 tuple 会增加存储，
+短或不重复的历史可能增加分配开销。小规模耗时对照波动明显，不据此声称稳定加速。
+
 ### 最近七包组合记录（源码 `683c333`，2026-10-08）
 
-这是包含上述六项局部修改（含长 guard 和一维 TS guard 复用）的独立 Humble 组合记录。
+这是包含前六项局部修改（含长 guard 和一维 TS guard 复用）的独立 Humble 组合记录，
+未包含第11.129节的历史重规划后继复用；该修改仅作上述52项局部验证。
 在新目录构建和默认并行整包测试各执行一次，均 exit 0：
 
 | 包 | tests / passed / skipped |

@@ -5063,3 +5063,39 @@ JUnit/CTest XML、日志和辅助源；`verified_evidence/sha256_manifest.json` 
 5份stderr均923字节，仅有既有 `np.int` 和 `SelectableGroups` 警告。原62b94b3的87文件
 证据闭包在执行前后哈希保持。README当前计数更新，历史验证全文保留。
 这不是整体加速、IRL科学效果、LLM/provider、benchmark、物理仿真、实机或Jazzy证据。
+
+### 11.129 历史重规划单次查询后继复用（2026-10-08）
+
+对照基线为 `3ba0374f7a23815f338294399ae014f359823f38`。循环历史会再次访问相同
+Product 来源；`prod_states_given_history` 现以单次调用内的字典保存有序后继 tuple。
+每个历史步骤仍按原顺序筛选 TS 状态，完整候选集合与后续 prefix–suffix 搜索保持。
+缓存不跨调用，下一次查询会读取新增或删除的边；未增加按观测 TS 状态索引的缓存。
+适用条件为查询期间固定的 Product 图及普通稳定状态值；临时 tuple 增加存储，短或
+不重复历史可能增加分配开销。AST 对照确认该函数之外的生产模块不变。
+
+WSL Ubuntu-22.04-D、ROS 2 Humble 环境，实际导入绑定本仓库候选源码，使用第11.128节
+安装环境。`test_discrete_plan.py` 和 `test_ltl_planner.py` 一次 pytest：
+**52 passed，0 skip/error/failure**，pytest耗时3.27秒，保留两项既有 NetworkX
+`np.int` 警告。两项新增回归检查分支/汇合、每个 Product 来源读取一次及跨调用图变化。
+另与旧实现对照多初始状态、空/未知/死历史、tuple轨迹容器、后续不可哈希观测值及输入
+图属性/插入顺序/轨迹保持。实际 `ProdAut.build_full` 小图上的完整 Run 字段保持：
+重复历史下 γ=1 选择 a 接受自环，总代价4；γ=10 选择 b 接受自环，总代价18，包含
+prefix/suffix、Product 边、动作及成本。接受性、source-label、β和γ代价定义不变。
+
+六状态双节点循环的 `successors` 调用及底层 generator 邻居读取均为 **5→2**。
+该计数不包括每个历史步骤继续扫描缓存 tuple 的筛选工作，不证明整体加速。
+原资格JSON的邻居读取字面值误写为10→4；保留原文件，`counter_erratum.json` 追加
+纠正，独立计数探针核对5→2，未重跑pytest。初次 Python lint wrapper 将
+`main_with_errors` 的 tuple 返回值误判为失败，尚未进入pytest；改用既有 CLI 后
+compile、ament_flake8（99列，两改动文件）、ament_pep257、git diff --check通过。
+
+固定1001个历史状态、每来源32条无关后继的小规模耗时对照，六组交替旧/新查询的
+median分别为0.001837850和0.001722600秒，有两组候选更慢；完整原始值保留于
+`tiny_timing.json`。这只是该小图函数的波动记录，没有稳定、整体或统计加速结论。
+
+证据位于 `/tmp/ltl_history_successors_3ba0374`，含旧源码、两阶段资格记录、完整
+pytest日志/XML、计数纠正、耗时原值及辅助脚本。独立核对13文件输入哈希与52项JUnit
+状态后，`verified_evidence/sha256_manifest.json` 冻结20份独立副本，保留原误写记录。
+候选源码SHA256为 `5fd19945dce25d23945402f8d676a2eb814c1a90d0699ed91d9971fe2c94fd77`。
+本轮未重跑七包组合、DDS、IRL学习、provider、整套benchmark、实机或Jazzy；第11.128节
+的737项组合是本次修改之前的源码资格，不能作为本次后继复用的组合证据。
