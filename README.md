@@ -733,7 +733,7 @@ git diff --check
 | guard lexer 模板复用（对照基线 `c3a74d1`） | 104/104 passed；0 skip/error/failure；192对真值/距离、18类无效输入和26组token序列对照一致；KTH三阶段路径、动作与成本保持 | [11.132](ltl_automaton_planner/docs/validation.md) |
 | 重规划复制中的不可变状态 key 复用（对照基线 `989bb8e`） | 83/83 passed；0 skip/error/failure；完整复制与内部别名一致、可变数据隔离；7类custom key及精确异常对照；KTH路径/动作/成本保持 | [11.133](ltl_automaton_planner/docs/validation.md) |
 
-八项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+十项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -750,39 +750,39 @@ Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文
 接受环闭合边及紧路径恢复直接从标准 DiGraph 的 `pred` / `adj` 读取边属性，
 减少额外 EdgeView 查找；仍按相同顺序遍历边、处理默认权重与 `None` 隐藏边。
 
-### 最近七包组合记录（源码 `ce014f7`，2026-10-08）
+### 最近七包组合记录（源码 `ab45b9b`，2026-10-08）
 
-这是覆盖第11.130节及此前八项局部修改的独立 Humble 组合记录，包含历史重规划后继复用和
-完整搜索邻接属性读取。在全新 `/tmp/ltl_ros2_combo_ce014f7` 构建和默认并行
+这是覆盖上述十项局部修改的独立 Humble 组合记录，包含 lexer 模板和重规划复制优化。
+在全新 `/tmp/ltl_ros2_combo_ab45b9b` 构建和默认并行
 整包测试各执行一次，均 exit 0：
 
 | 包 | tests / passed / skipped |
 |---|---:|
 | `ltl_automaton_msgs` | 11 / 11 / 0 |
-| `ltl_automaton_planner_core` | 216 / 215 / 1 |
+| `ltl_automaton_planner_core` | 220 / 219 / 1 |
 | `ltl_automaton_planner` | 188 / 187 / 1 |
 | `ltl_automaton_execution` | 143 / 143 / 0 |
 | `ltl_automaton_hil_mic` | 131 / 130 / 1 |
 | `ltl_automaton_std_transition_systems` | 51 / 50 / 1 |
 
-合计 **740 tests = 736 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。
-CTest wrapper 另1项通过，查询为741。旧724项加新增16项的完整身份及 skip flags
-与执行前冻结清单逐一一致。22模块导入字节与资格源码一致，生成消息来自本次新构建。
+合计 **744 tests = 740 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。
+CTest wrapper 另1项通过，查询为745。此前740项加新增4项的完整身份及 skip flags
+与执行前冻结清单逐一一致。23模块导入字节与资格源码一致，生成消息来自本次新构建。
 原生 `ltl2ba`、四真实 DDS 符号执行、Studio、完整20步 IRL及提交、启动和事务恢复通过。
 5份 stderr 共4615字节，仅保留既有依赖警告；53文件证据闭包已冻结核对。
-旧87文件及后续53/20/17文件闭包在执行前后保持，计数不证明整体加速。
-详见 [validation.md 11.131](ltl_automaton_planner/docs/validation.md)。
+此前组合53文件及 lexer/复制局部39/43文件闭包在执行前后保持，计数不证明整体加速。
+详见 [validation.md 11.134](ltl_automaton_planner/docs/validation.md)。
 
-该组合执行于 lexer 模板和重规划复制修改之前。两轮分别执行104、83项定向测试；
-七包计数未更新。固定 guard 规则首次使用时完整校验，后续每次返回独立 lexer clone，
+lexer 模板和重规划复制的两轮局部验证分别为104、83项，上述组合覆盖两处修改。
+固定 guard 规则首次使用时完整校验，后续每次返回独立 lexer clone，
 输入、行号与状态栈隔离。KTH 示例的初始规划和任务重规划减少了重复规则构建；
 单次带插桩记录排除 TS 准备/首次模板构建，不作为冷启动或稳定的整体加速结果。
 状态/任务重规划只在本次 deepcopy 的 memo 中复用精确 str/int 组成的状态 tuple；
 图、可变属性、Run、日志和执行字段仍完整深复制，失败回滚边界保持。临时 key 扫描与
 memo 有开销，小图/特殊 key 不保证收益，操作计数不代表总内存或端到端加速。
 
-此前源码 `683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
-第11.128、11.125节，各版本计数不相加。
+此前源码 `ce014f7` 的740项、`683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
+第11.131、11.128、11.125节，各版本计数不相加。
 
 ### 历史验证索引
 
