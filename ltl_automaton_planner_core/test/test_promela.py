@@ -115,6 +115,13 @@ def test_duplicate_branch_guards_are_or_merged(
     guard = parse_guard(edges[("T0_init", "accept_S1")])
 
     assert len(edges) == 2
+    assert edges[("T0_init", "accept_S1")] == (
+        "((cargo)) || ((carry && ready)) || ((danger && alert))"
+    )
+    assert list(edges) == [
+        ("T0_init", "accept_S1"),
+        ("accept_S1", "accept_S1"),
+    ]
     assert guard.check(label) is expected_truth
     assert guard.distance(label) == expected_distance
 
@@ -150,6 +157,49 @@ def test_duplicate_branch_guard_merge_is_order_independent() -> None:
     assert [forward.distance(label) for label in labels] == [
         reverse.distance(label) for label in labels
     ]
+
+
+@pytest.mark.parametrize(
+    "label, expected_truth",
+    [
+        ({"p0"}, True),
+        ({"p2047"}, True),
+        (set(), False),
+    ],
+    ids=["first", "last", "empty"],
+)
+def test_large_duplicate_branch_guard_is_flat_and_ordered(label, expected_truth):
+    """Keep a large same-target branch group parseable and ordered."""
+    conditions = [f"(p{index})" for index in range(2048)]
+    branches = "\n".join(
+        f"    :: {condition} -> goto accept_S1"
+        for condition in conditions
+    )
+    promela = (
+        "never { /* large duplicate branches */\n"
+        "T0_init:\n"
+        "    if\n"
+        f"{branches}\n"
+        "    fi;\n"
+        "accept_S1:\n"
+        "    skip\n"
+        "}\n"
+    )
+
+    edges = parse(promela)
+    expected_formula = " || ".join(f"({condition})" for condition in conditions)
+
+    assert edges[("T0_init", "accept_S1")] == expected_formula
+    assert list(edges) == [
+        ("T0_init", "accept_S1"),
+        ("accept_S1", "accept_S1"),
+    ]
+    assert edges[("accept_S1", "accept_S1")] == "1"
+
+    guard = parse_guard(edges[("T0_init", "accept_S1")])
+    assert guard.check(label) is expected_truth
+    expected_distance = 0 if expected_truth else 1
+    assert guard.distance(label) == expected_distance
 
 
 @pytest.mark.parametrize(

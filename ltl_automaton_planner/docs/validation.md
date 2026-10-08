@@ -4972,3 +4972,35 @@ Büchi；生成消息来自本次新 build，原生 `ltl2ba` 路径及 SHA256 �
 1,602份历史文件和原3ef7856的87文件闭包哈希保持。准备阶段的头绑定、历史目录及清单
 草稿错误在构建前更正，原草稿和修正记录保留；没有重启已完成的构建或测试。
 本资格不与局部计数相加，不证明整体加速、IRL科学效果、实机、Jazzy、LLM或provider结果。
+
+### 11.126 长 guard 的递归深度与重复分支合并（2026-10-08）
+
+对照基线为 `7717e76ba3aa02689ac1a987c1db2a9ebac36419`。默认递归限制1000下，
+2048项平坦 AND、平坦 OR、同目标 Promela 分支合并后的 guard 均实测触发
+`RecursionError`。同级运算数改为相邻配对构造平衡二叉树；Promela 条件先按 edge
+收集，完成原校验后一次 OR join，避免反复复制并包裹整个已合并字符串。
+保留 token 消费和错误诊断、优先级、NNF、叶顺序、原输入 formula、edge 首插顺序、
+`false` 孤立状态和 `skip` 的 `"1"` 自环。单分支文本保持；三条及以上重复分支的
+guard 字符串及快照 `guard_formula` 字段减少冗余括号，不宣称与旧字符串逐字节相同。
+
+WSL Ubuntu-22.04-D / ROS 2 Humble / Python3.10.12 / NetworkX2.4 下，七份定向文件
+（Boolean、Promela、Büchi、原生 ltl2ba integration、Product、planning snapshot、
+snapshot service copy）一次 pytest：**122 passed，0 skip/error/failure**，pytest
+耗时2.97秒，wrapper wall time3.931753887秒，保留两项既有 `np.int` 警告。
+2048项普通和外层否定 guard 的树深度不超过12，首项、末项、全空、全满标签的真值
+及距离符合手算值；2048条合并分支可解析，边顺序和 skip 保持。未调整递归限制。
+
+另有20公式 × 16标签 × 4稳定容器，共1280组旧实现/候选/手算真值与距离对照，
+包含否定、常量、无限距离及奇数项；check/distance 的叶子 membership 访问顺序一致。
+12个 malformed guard 和8个 malformed claim 的异常类型、精确消息一致；claim 的
+消费位置与已声明状态也一致。3条 edge × 16标签共48组 Promela 真值/距离等价，
+实际生成消息的 snapshot 节点和端点保持，新的 guard 字符串仍可正确解释。
+
+compile、ament_flake8（99列）、ament_pep257、git diff --check 通过。首次 lint CLI
+参数不被当前 ament 接受，保留错误日志并改用 `--linelength`，未重跑已通过的 pytest。
+证据位于 `/tmp/ltl_guard_depth_7717e76`：`reproduction.json`、`qualification.json`、
+完整日志/XML、基线与候选源及辅助脚本，`sha256_manifest.json` 冻结23文件。
+候选 parser SHA256 为 `af0c2b9003979a20fef6e59f774d8fb9257d42c1c371fece46de9a1c211ffc36`，
+Promela SHA256 为 `5aedbeac65d76b23deed04513aa27e6c59587ad865dd379d3adc05a6b9c5b234`。
+任意深括号或连续否定仍受递归限制；没有修改 IDL、接受性、source-label 或成本定义。
+本轮未重跑七包组合、IRL学习、整体性能、provider、benchmark、实机或 Jazzy。

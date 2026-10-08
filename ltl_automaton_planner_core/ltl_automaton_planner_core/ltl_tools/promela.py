@@ -83,11 +83,9 @@ class Parser:
                 while edge is not None:
                     edge_key = (vertex_name, edge["dest"])
                     if edge_key in edges:
-                        edges[edge_key] = (
-                            f"({edges[edge_key]}) || ({edge['cond']})"
-                        )
+                        edges[edge_key].append(edge["cond"])
                     else:
-                        edges[edge_key] = edge["cond"]
+                        edges[edge_key] = [edge["cond"]]
                     edge_count += 1
                     edge = self.accept(self.edge_regex)
 
@@ -102,7 +100,7 @@ class Parser:
 
             elif self.accept(self.skip_regex) is not None:
                 # A skip statement represents a self-loop.
-                edges[(vertex_name, vertex_name)] = "1"
+                edges[(vertex_name, vertex_name)] = ["1"]
 
             elif self.accept(self.false_regex) is not None:
                 # A false statement declares an isolated blocking state.
@@ -141,7 +139,12 @@ class Parser:
                 + ", ".join(sorted(undeclared_targets))
             )
 
-        return edges
+        return {
+            edge_key: conditions[0]
+            if len(conditions) == 1
+            else " || ".join(f"({condition})" for condition in conditions)
+            for edge_key, conditions in edges.items()
+        }
 
 
 def parse(promela):

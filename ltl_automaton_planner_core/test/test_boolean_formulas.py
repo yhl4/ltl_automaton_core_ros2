@@ -106,6 +106,61 @@ def test_long_flat_guard_preserves_operand_order_and_distance(operator):
             assert expression.distance(label) == int(not label)
 
 
+@pytest.mark.parametrize("operator", ["&&", "||"])
+@pytest.mark.parametrize(
+    "label_kind",
+    ["none", "first", "last", "all"],
+)
+def test_large_flat_guards_balance_without_changing_formula_semantics(
+    operator, label_kind
+):
+    """Balance 2048 operands while retaining formula text and leaf order."""
+    names = [f"p{index}" for index in range(2048)]
+    formula = f" {operator} ".join(names)
+    labels = {
+        "none": set(),
+        "first": {names[0]},
+        "last": {names[-1]},
+        "all": set(names),
+    }
+    label = labels[label_kind]
+
+    expression = parse(formula)
+    negated = parse(f"!({formula})")
+
+    def depth(root):
+        maximum = 0
+        stack = [(root, 1)]
+        while stack:
+            node, node_depth = stack.pop()
+            maximum = max(maximum, node_depth)
+            stack.extend((child, node_depth + 1) for child in node.children())
+        return maximum
+
+    assert expression.formula == formula
+    assert negated.formula == f"!({formula})"
+    assert [item.symbol for item in expression if hasattr(item, "symbol")] == names
+    assert [item.symbol for item in negated if hasattr(item, "symbol")] == names
+    assert depth(expression) <= 12
+    assert depth(negated) <= 12
+
+    if operator == "&&":
+        expected_truth = len(label) == len(names)
+        expected_distance = len(names) - len(label)
+        expected_negated_truth = not expected_truth
+        expected_negated_distance = int(expected_truth)
+    else:
+        expected_truth = bool(label)
+        expected_distance = int(not label)
+        expected_negated_truth = not expected_truth
+        expected_negated_distance = len(label)
+
+    assert expression.check(label) is expected_truth
+    assert expression.distance(label) == expected_distance
+    assert negated.check(label) is expected_negated_truth
+    assert negated.distance(label) == expected_negated_distance
+
+
 class CountingLabel(set):
     """Count stable membership checks without changing their results."""
 

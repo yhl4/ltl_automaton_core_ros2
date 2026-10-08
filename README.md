@@ -726,8 +726,14 @@ git diff --check
 | Execution resolver 来源 ID 收集（源码 `5aeea47`） | 31/31 passed；0 skip/error/failure | [11.120](ltl_automaton_planner/docs/validation.md) |
 | Boolean OR 距离零下界短路（对照基线 `fc6fdba`） | 108/108 passed；0 skip/error/failure；768 个公式/标签/容器组合与旧实现、候选及手算值一致 | [11.123](ltl_automaton_planner/docs/validation.md) |
 | Büchi membership 局部索引（对照基线 `f84c939`） | 97/97 passed；0 skip/error/failure；初始/接受 membership 与重建 metadata 语义保持 | [11.124](ltl_automaton_planner/docs/validation.md) |
+| 长 Boolean guard 与 Promela 分支合并（对照基线 `7717e76`） | 122/122 passed；0 skip/error/failure；2048项原递归错误修复，1280组旧/新/手算对照一致 | [11.126](ltl_automaton_planner/docs/validation.md) |
 
-四项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+五项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+
+同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
+Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
+重复分支的 `guard_formula`（含快照字段）会减少冗余括号，语义与距离保持。
+任意深度的手写括号或连续否定仍受递归限制。
 
 ### 最近七包组合记录（源码 `62b94b3`，2026-10-08）
 
@@ -743,6 +749,8 @@ git diff --check
 | `ltl_automaton_std_transition_systems` | 51 / 50 / 1 |
 
 合计 **724 tests = 720 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。CTest wrapper 另1项通过，查询为725。724个完整用例身份及 skip flags 与执行前冻结清单一致，新增5项；保留20模块字节、生成消息、原生 `ltl2ba`、四真实 DDS、Studio、完整20步 IRL及日志/警告证据。stderr为5份/4615字节，既有依赖警告保留。详见 [validation.md 11.125](ltl_automaton_planner/docs/validation.md)。
+
+这次七包记录早于第11.126节的长 guard 修复；后者目前具有上述122项局部验证，未重跑七包组合。
 
 ### 历史验证索引
 

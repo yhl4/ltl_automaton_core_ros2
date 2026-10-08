@@ -201,6 +201,19 @@ class ANDExpression(BinExpression):
         return self.left.distance(label) + self.right.distance(label)
 
 
+def _balanced_expression(operands, expression_type):
+    """Combine operands in adjacent pairs until one expression remains."""
+    while len(operands) > 1:
+        paired = [
+            expression_type(left, right)
+            for left, right in zip(operands[0::2], operands[1::2])
+        ]
+        if len(operands) % 2:
+            paired.append(operands[-1])
+        operands = paired
+    return operands[0]
+
+
 class Parser(object):
     def __init__(self, formula):
         if not isinstance(formula, str) or not formula.strip():
@@ -226,34 +239,26 @@ class Parser(object):
         return expr
 
     def orx(self):
-        lhs = self.andx()
+        operands = [self.andx()]
         if len(self.tokens) == 0 or self.tokens[0].type == "RPAREN":
-            return lhs
+            return operands[0]
         elif self.tokens[0].type == "OR":
-            self.tokens.popleft()
-            rhs = self.andx()
-            lhs = ORExpression(lhs, rhs)
             while len(self.tokens) > 0 and self.tokens[0].type == "OR":
                 self.tokens.popleft()
-                rhs = self.andx()
-                lhs = ORExpression(lhs, rhs)
-            return lhs
+                operands.append(self.andx())
+            return _balanced_expression(operands, ORExpression)
         else:
             raise ValueError("Expected OR, RPAREN or nothing but got %s" % self.tokens[0])
 
     def andx(self):
-        lhs = self.notx()
+        operands = [self.notx()]
         if len(self.tokens) == 0 or self.tokens[0].type in ["OR", "RPAREN"]:
-            return lhs
+            return operands[0]
         elif self.tokens[0].type == "AND":
-            self.tokens.popleft()
-            rhs = self.notx()
-            lhs = ANDExpression(lhs, rhs)
             while len(self.tokens) > 0 and self.tokens[0].type == "AND":
                 self.tokens.popleft()
-                rhs = self.notx()
-                lhs = ANDExpression(lhs, rhs)
-            return lhs
+                operands.append(self.notx())
+            return _balanced_expression(operands, ANDExpression)
         else:
             raise ValueError("Expected OR, AND or nothing but got %s" % self.tokens[0])
 
