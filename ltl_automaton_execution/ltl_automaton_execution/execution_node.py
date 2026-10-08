@@ -453,8 +453,9 @@ class ExecutionManagerNode(Node):
     def _snapshot_dimensions(snapshot):
         if not snapshot.product_nodes:
             raise ValueError("Planning snapshot has no Product nodes.")
-        dimensions = snapshot.product_nodes[0].ts_state.dimension_names
-        for node in snapshot.product_nodes[1:]:
+        nodes = iter(snapshot.product_nodes)
+        dimensions = next(nodes).ts_state.dimension_names
+        for node in nodes:
             if node.ts_state.dimension_names != dimensions:
                 raise ValueError(
                     "Planning snapshot has inconsistent TS dimension order."

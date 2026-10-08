@@ -4598,3 +4598,33 @@ Optional IRL 部分同步11.112已实现的恢复约定：无一致延伸路径�
 均存在且通过。IRL恢复源码及单元正文与11.114的14模块/125项证据一致。
 正文按当前源码核对，Markdown本地链接、LF和diff检查通过。上述运行均为
 既有资格，未在本轮重跑测试，也不增加测试计数或扩大科学结论。
+
+### 11.116 执行快照维度校验避免完整节点尾切片（2026-10-08）
+
+基线60f9d60904276cf7137bd9d93f76c16ce8091cdc。只改变执行节点
+_snapshot_dimensions：保留空节点检查，以iter/next读取首节点，再顺序
+比较其余维度，移除原product_nodes[1:]的N-1引用tuple。其他生产函数、
+测试、IDL、规划与IRL规则均保持。同步两份README，前115节正文保持。
+
+在既有WSL Ubuntu-22.04-D/Humble环境运行，六个实际导入的执行模块完整
+字节核对当前工作树；除本方法外均等于基线。生成的execution observation
+和snapshot service接口来自既有隔离build。scope.json在读取检查结果前
+冻结源码/测试SHA、六个场景和100000节点分配夹具；collection.json在测试
+执行前保存完整节点文件的36个项目。空图、单节点、一致维度及首/中/末
+维度不一致的返回值或异常类型/文字与从Git基线提取的方法完全一致。
+
+tracemalloc只追踪方法调用，节点夹具已提前建立。基线峰值800080字节，
+当前峰值48字节，两个调用返回后保留量均0；这不计图构造、ROS转换或
+整个进程内存，不测速度。原test_execution_node.py全部36项通过，
+0失败/错误/跳过，pytest报告1.38秒，调用记录2.228284694秒、退出0。
+源码compile、flake8、pep257和diff检查通过，保留既有optparse lint警告。
+
+证据目录/tmp/ltl_ros2_completion_20261006/snapshot_iteration_60f9d60保存
+scope/collection/local_checks/run/verified.json与pytest.xml；完整输出另存
+同级snapshot_iteration_60f9d60_run.log。源码SHA
+8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72，
+未修改测试SHA ab1e191d14188583d2a35e42bef5a21236f47bc9f858c7a8514a198d60e79843，
+XML SHA c1634a94ca66eac98fd8ed9de37351d9ee73ccabe7e09926b8f9cd2ece051337，
+日志SHA 4a2c126493b030a76a45d94a79bbb2fdbf41444c8646e9136651175349c4659a。
+本轮未重跑colcon整包、真实DDS闭环、LLM、benchmark、物理仿真或实机；
+36项不与历史局部或七包计数相加，不证明整体加速。

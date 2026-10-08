@@ -36,6 +36,10 @@ values share one immutable `SymbolicState` within that conversion. Product node
 IDs and order remain distinct. Each new message is converted independently;
 string subclasses and malformed inputs retain the original validation path.
 
+Snapshot dimension validation iterates the complete node tuple without copying
+its tail. It retains the first node's dimension order and the original empty or
+inconsistent-schema errors.
+
 Command resolution visits every retained edge matching the current Product IDs
 and action, accumulating the complete source and target ID sets directly. IDs
 are still returned sorted, current nodes with no matching edge are omitted,
