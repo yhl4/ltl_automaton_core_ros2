@@ -64,6 +64,33 @@ class LTLPlanner:
         self.segment = "line"
         self.next_move = None
 
+    def _copy_for_replanning(self):
+        """Deep-copy the planner while reusing immutable graph node keys."""
+        def is_immutable_node(node):
+            if type(node) is not tuple:
+                return False
+            for item in node:
+                if type(item) in (str, int):
+                    continue
+                if (
+                    type(item) is tuple
+                    and all(type(inner) in (str, int) for inner in item)
+                ):
+                    continue
+                return False
+            return True
+
+        memo = {}
+        graphs = (self.ts,) if self.product is None else (self.ts, self.product)
+        for graph in graphs:
+            for node in graph:
+                if is_immutable_node(node):
+                    memo[id(node)] = node
+                    for item in node:
+                        if type(item) is tuple:
+                            memo[id(item)] = item
+        return deepcopy(self, memo)
+
     def optimal(self, style="static"):
         """Construct or update the product and compute an accepting run."""
         _LOGGER.info(
@@ -332,7 +359,7 @@ class LTLPlanner:
             )
             return False
 
-        candidate = deepcopy(self)
+        candidate = self._copy_for_replanning()
         candidate_target_ts = (
             candidate.ts
             if candidate.product is None
@@ -378,7 +405,7 @@ class LTLPlanner:
             )
             return False
 
-        candidate = deepcopy(self)
+        candidate = self._copy_for_replanning()
         candidate_target_ts = (
             candidate.ts
             if candidate.product is None

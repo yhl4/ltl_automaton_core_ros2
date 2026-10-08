@@ -115,6 +115,102 @@ def create_branching_transition_system():
     return TSModel(state_models)
 
 
+def _graph_copy_signature(graph):
+    """Capture graph order, attributes, and non-graph metadata for comparison."""
+    def normalize(value):
+        if isinstance(value, dict):
+            return {
+                key: normalize(item)
+                for key, item in value.items()
+            }
+        if isinstance(value, (tuple, list)):
+            return type(value)(normalize(item) for item in value)
+        if isinstance(value, (set, frozenset)):
+            return type(value)(normalize(item) for item in value)
+        if hasattr(value, "formula"):
+            return (type(value).__name__, value.formula, repr(value))
+        return value
+
+    metadata = {
+        key: normalize(value)
+        for key, value in graph.graph.items()
+        if not isinstance(value, DiGraph)
+    }
+    return (
+        [
+            (node, normalize(data))
+            for node, data in graph.nodes(data=True)
+        ],
+        [
+            (source, target, normalize(data))
+            for source, target, data in graph.edges(data=True)
+        ],
+        metadata,
+    )
+
+
+def _run_copy_signature(run):
+    """Compare all Run fields while materializing its one-shot edge iterators."""
+    return {
+        key: list(value)
+        if key in {"pre_ts_edges", "suf_ts_edges"}
+        else value
+        for key, value in run.__dict__.items()
+    }
+
+
+class CustomTuple(tuple):
+    """Tuple subclass that must follow the normal deepcopy path."""
+
+
+class CustomInt(int):
+    """Integer subclass that must follow the normal deepcopy path."""
+
+
+class CustomStr(str):
+    """String subclass that must follow the normal deepcopy path."""
+
+
+class CustomLeaf:
+    """Hashable custom value nested in a tuple node key."""
+
+    def __init__(self, value):
+        self.value = value
+
+    def __hash__(self):
+        return hash(self.value)
+
+    def __eq__(self, other):
+        return isinstance(other, CustomLeaf) and self.value == other.value
+
+
+class MutableHashable:
+    """Hashable node key with mutable payload for deepcopy isolation checks."""
+
+    def __init__(self, name):
+        self.name = name
+        self.payload = [name]
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        return isinstance(other, MutableHashable) and self.name == other.name
+
+
+class ExplodingKey:
+    """Custom node key whose deepcopy failure must propagate unchanged."""
+
+    def __hash__(self):
+        return hash("exploding")
+
+    def __eq__(self, other):
+        return isinstance(other, ExplodingKey)
+
+    def __deepcopy__(self, memo):
+        raise ValueError("custom node deepcopy failed")
+
+
 @pytest.mark.parametrize("name", ["beta", "gamma"])
 @pytest.mark.parametrize("value", [-1.0, float("nan"), float("inf"), True])
 def test_invalid_planning_weights_are_rejected(name, value):
@@ -182,6 +278,91 @@ def test_static_planning_finds_accepting_run():
     assert planner.opt_log
     assert planner.opt_log[-1][1] == planner.run.pre_plan
     assert planner.opt_log[-1][2] == planner.run.suf_plan
+
+
+def test_replanning_copy_matches_deepcopy_and_isolates_standard_graph_state():
+    """Preserve graph aliases and deep-copy mutable planner state."""
+    planner = LTLPlanner(
+        create_transition_system(),
+        hard_spec="<> r2",
+        soft_spec="(r2 || !r2)",
+    )
+    assert planner.optimal()
+
+    baseline = deepcopy(planner)
+    optimized = planner._copy_for_replanning()
+
+    assert _graph_copy_signature(optimized.ts) == _graph_copy_signature(baseline.ts)
+    assert _graph_copy_signature(optimized.product) == _graph_copy_signature(
+        baseline.product
+    )
+    assert _graph_copy_signature(
+        optimized.product.graph["buchi"]
+    ) == _graph_copy_signature(baseline.product.graph["buchi"])
+    assert optimized.run.pre_ts_edges is not baseline.run.pre_ts_edges
+    assert optimized.run.suf_ts_edges is not baseline.run.suf_ts_edges
+    assert _run_copy_signature(optimized.run) == _run_copy_signature(baseline.run)
+    for name in ("hard_spec", "soft_spec", "beta", "gamma", "trace", "traj", "opt_log"):
+        assert getattr(optimized, name) == getattr(baseline, name)
+
+    assert optimized.product.graph["ts"] is optimized.ts
+    assert optimized.ts is not planner.ts
+    assert optimized.product.graph["buchi"] is not planner.product.graph["buchi"]
+    for original_node in planner.ts:
+        copied_node = next(node for node in optimized.ts if node == original_node)
+        baseline_node = next(node for node in baseline.ts if node == original_node)
+        assert copied_node is original_node
+        assert baseline_node is original_node
+
+    original_initial = set(planner.ts.graph["initial"])
+    original_weight = planner.ts.edges[("r1",), ("r2",)]["weight"]
+    optimized.ts.graph["initial"].clear()
+    optimized.ts.edges[("r1",), ("r2",)]["weight"] = 99
+    optimized.run.pre_plan.append("mutated")
+    optimized.trace.append(("mutated",))
+    optimized.opt_log.append(("mutated",))
+    second = planner._copy_for_replanning()
+
+    assert planner.ts.graph["initial"] == original_initial
+    assert planner.ts.edges[("r1",), ("r2",)]["weight"] == original_weight
+    assert "mutated" not in planner.run.pre_plan
+    assert ("mutated",) not in planner.trace
+    assert ("mutated",) not in second.trace
+
+
+def test_replanning_copy_preserves_custom_key_deepcopy_behavior():
+    """Leave custom keys on the normal deepcopy path, including failures."""
+    planner = LTLPlanner(create_transition_system(), "1", "1")
+    mutable = MutableHashable("mutable")
+    custom_keys = [
+        CustomTuple(("custom", "tuple")),
+        CustomInt(7),
+        CustomStr("custom_string"),
+        mutable,
+        (CustomLeaf("nested"),),
+    ]
+    for key in custom_keys:
+        planner.ts.add_node(key, label={"custom"})
+    planner.extra_state = {"mutable": mutable, "keys": custom_keys}
+
+    baseline = deepcopy(planner)
+    optimized = planner._copy_for_replanning()
+    assert [type(node) for node in optimized.ts] == [
+        type(node) for node in baseline.ts
+    ]
+    assert optimized.extra_state == baseline.extra_state
+    assert optimized.extra_state["mutable"] is not mutable
+    assert optimized.extra_state["mutable"].payload == ["mutable"]
+    assert optimized.extra_state["keys"][-1] is not custom_keys[-1]
+
+    failing = LTLPlanner(create_transition_system(), "1", "1")
+    exploding = ExplodingKey()
+    failing.ts.add_node(exploding, label={"bad"})
+    with pytest.raises(ValueError, match="custom node deepcopy failed"):
+        deepcopy(failing)
+    with pytest.raises(ValueError, match="custom node deepcopy failed"):
+        failing._copy_for_replanning()
+    assert failing.ts.has_node(exploding)
 
 
 def test_unknown_planning_style_is_rejected():

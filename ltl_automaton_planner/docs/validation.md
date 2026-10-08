@@ -5227,3 +5227,55 @@ CRLF和导入拼写错误（执行代理记录）；成功结果使用独立retr
 候选lexer SHA256为 `e535ce360181c4f3b014d2bf0948de21b8f4d7b21c73fe026d1e0e1a25ccf436`。
 第11.131节740项组合发生在此次lexer修改之前；本次未重跑七包/DDS、provider、
 整套benchmark、实机或Jazzy，局部验证不能替代新的组合资格或IRL科学效果验证。
+
+### 11.133 重规划深复制中的不可变状态 key 复用（2026-10-08）
+
+对照基线 `989bb8effc41226b4d3e478a0e760f2f5998eb0d`。状态和任务重规划原先
+完整 `deepcopy(self)`；现在私有 `_copy_for_replanning` 扫描TS/Product节点，
+只识别精确tuple及其中的精确str/int或一层同样组成的tuple，将合格key和内tuple
+id→自身预置到本次fresh memo，随后仍完整deepcopy。Python3.10.12实际copy.py
+源码核对表明这些tuple原本也返回原对象，只是反复遍历其元素；
+[Python deepcopy 文档](https://docs.python.org/3.10/library/copy.html)的memo接口保持。
+不跨重规划保存memo，custom/subclass key不预置；图、属性、Run、日志、执行字段
+及其内部别名继续深复制，目标初始状态、style、控制流和失败回滚边界不变。
+新增key扫描与临时memo有开销，小图或不命中的key不保证收益。生产AST对照确认
+除新增helper和两个candidate赋值外不变，接受性、source-label、β/γ目标和IRL不变。
+
+Humble环境下，LTLPlanner、discrete-plan、IRL三份定向文件最终 **83 passed，
+0 skip/error/failure**，pytest1.19秒，保留两项既有np.int警告。两个新增回归覆盖
+完整图/Run属性对照、内部TS别名、可变图属性/Run列表/历史/日志隔离、独立再次复制，
+及custom tuple/int/str、可变hashable key、custom叶tuple和copy异常。
+compile、ament_flake8（99列，两改动文件）、ament_pep257、git diff --check通过。
+初始两次各82 passed+1 failure，原因依次为独立guard对象和zip迭代器的身份比较。
+改为guard公式/结构及全部Run字段内容比较，保持clone迭代器独立后，中间83项通过；
+补齐内tuple memo和独立性断言后，再执行最终83项。失败和中间记录均保留。
+
+独立小图将普通deepcopy与候选完整pickle序列逐字节比较，含图、Run所有字段、
+TS/Product/Run/自身别名和跨容器共享可变列表；修改候选后原始序列保持。
+另有7类自定义key对照，包括tuple内的str/int subclass，类型、复制内容和隔离保持；
+自定义copy失败的精确异常一致。该夹具deepcopy调用1178→660，tuple复制243→23；
+它是确定性小图检查，没有provider、正式实验或整套性能含义。
+
+沿用第11.132节KTH配置、β=1000、γ=10、原生ltl2ba，候选三阶段各执行一次。
+历史profile捕获于989bb8e发布前，其metadata仍为c3a74d1加未提交lexer修改；
+保留原metadata，独立核对其实际导入模块字节与989bb8e Git一致，未重标为新执行。
+原有39文件闭包保持；候选实际模块绑定本仓库，TS/lexer另作实际导入哈希核对。
+两个版本Run九字段、图大小、trace及当前状态保持，三阶段成本仍为70/60/670、
+60/60/660、20/20/220，原生翻译器调用仍为2/0/2。
+
+| 阶段 | profile wall seconds 历史 / 候选 | deepcopy调用 | tuple复制调用 |
+|---|---:|---:|---:|
+| static | 0.004790600 / 0.004986700 | 0 / 0 | 0 / 0 |
+| 状态重规划 | 0.009034800 / 0.005766300 | 5183 / 3060 | 1150 / 259 |
+| 任务重规划 | 0.012189100 / 0.009169500 | 5170 / 3100 | 1139 / 273 |
+
+重规划的dict复制均352→352，list分别43→43、45→45。单次带插桩观察包含运行波动，
+不证明稳定/端到端加速或RSS收益；TS配置准备仍在profile外，模板已暖。
+证据位于 `/tmp/ltl_replan_copy_989bb8e`、`/tmp/ltl_kth_replan_copy_989bb8e`、
+`/tmp/ltl_replan_copy_review_989bb8e`；独立核对83项JUnit身份/状态、输入/runtime、
+源和pstats后，`/tmp/ltl_replan_copy_publication_989bb8e/sha256_manifest.json`
+冻结43份独立副本并逐一回读哈希/大小，含失败/中间/最终日志/XML、源码、Python
+copy.py、profile及辅助脚本。候选源码SHA256为
+`07ebbb1fab1cbcb3d5329ae2955f9e9f3687f7df24d35b10cc9b20c551d1ab6b`。
+第11.131节740项组合先于lexer及本节修改；本次未重跑七包/DDS、provider、整套
+benchmark、实机或Jazzy，83项局部验证不能替代新的组合资格或IRL科学效果验证。
