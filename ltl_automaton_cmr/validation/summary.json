@@ -1,0 +1,132 @@
+{
+  "schema": "cmr-local-validation-v1",
+  "date": "2026-10-08",
+  "local_only": true,
+  "publishing": "WAITING_FOR_EXPLICIT_AUTHORIZATION",
+  "tested_baseline": {
+    "repository": "https://github.com/yhl4/ltl_automaton_core_ros2",
+    "main": "2624458c15799aa7784d3ca6ee75da02ca785204",
+    "pr": 10,
+    "pr_state": "open/unmerged",
+    "head": "989bb8effc41226b4d3e478a0e760f2f5998eb0d",
+    "basis": "authorized fixed PR10 snapshot"
+  },
+  "final_remote_observation": {
+    "pr": 10,
+    "state": "open",
+    "merged": false,
+    "head": "ab45b9b7333ead2e371211a3ccb932dfb254fdad",
+    "main": "2624458c15799aa7784d3ca6ee75da02ca785204",
+    "later_head_included": false
+  },
+  "runtime": {
+    "ros": "Humble",
+    "distro": "WSL Ubuntu-22.04-D",
+    "python": "3.10.12",
+    "pytest": "6.2.5",
+    "office_python": "Windows CPython 3.12.0"
+  },
+  "tests": {
+    "cmr_colcon": {
+      "tests": "97",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "6.921",
+      "timestamp": "2026-10-08T16:37:22.935782"
+    },
+    "legacy_core": {
+      "tests": "218",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "1",
+      "time": "9.791",
+      "timestamp": "2026-10-08T16:34:25.303912"
+    },
+    "legacy_symbolic_execution": {
+      "tests": "72",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "time": "0.763",
+      "timestamp": "2026-10-08T16:34:40.041755"
+    },
+    "legacy_skip_reason": "pre-existing copyright placeholder test"
+  },
+  "build": {
+    "packages_up_to": "ltl_automaton_cmr",
+    "packages_succeeded": 5,
+    "status": "PASS",
+    "final_package_rebuild": "PASS"
+  },
+  "frozen_sources": {
+    "count": 12,
+    "status": "ALL_GIT_BLOBS_AND_SHA256_MATCH"
+  },
+  "office": {
+    "query": "D2",
+    "formula": "F(p=E)",
+    "arm": "AP",
+    "benchmark_sweep": false,
+    "status": "OPTIMALITY_CERTIFIED",
+    "objective": {
+      "text": "20",
+      "numerator": 20,
+      "denominator": 1
+    },
+    "total_seconds": 98.74130240000068,
+    "precisions": [
+      [
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1,
+        2
+      ],
+      [
+        0,
+        1,
+        2,
+        3
+      ]
+    ],
+    "lower_bounds": [
+      "14",
+      "18",
+      "19",
+      "20"
+    ],
+    "final_upper_bound": "20",
+    "edge_replay": "PASS",
+    "record": "validation/office_d2_ap.json"
+  },
+  "unrun": [
+    "Office FULL/FAMILY large solves",
+    "all-query/full benchmark",
+    "hardware execution",
+    "general LTL parser",
+    "dynamic TS/IRL",
+    "planning cancellation/deadline",
+    "later PR10 ab45b9b snapshot regression",
+    "query-independent budgets",
+    "controlled cold/warm cache parity",
+    "cancellation isolation"
+  ],
+  "capabilities": {
+    "cost_certification": "int/Fraction only",
+    "ros_costs": "lossless float64 only; explicit rejection otherwise",
+    "snapshot_graph": "retained concrete occurrence graph",
+    "selfloop_feedback": "one action-caused new stamped observation per dispatch"
+  },
+  "original_dirty_file_sha256": {
+    "ltl_planner.py": "07EBBB1FAB1CBCB3D5329AE2955F9E9F3687F7DF24D35B10CC9B20C551D1AB6B",
+    "test_ltl_planner.py": "8CF427E01211D43E4E9FD4C4624CD4ADE6BFB14608B5448CE15B16132D0B585E",
+    "entry_exit_file_hashes_match": true
+  },
+  "timing_scope": "engine call and phases only; no whole-request deadline or Office/model load time claim"
+}

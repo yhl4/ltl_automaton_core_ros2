@@ -1,0 +1,10 @@
+/cmr/cmr_planner:
+  ros__parameters:
+    arm: AP
+    query_id: D2
+    # Empty selects the source-fixed Office RF={0,1,2,3}.
+    family_prior_json: ""
+    # Empty selects the frozen Office initial snapshot. A supplied mapping
+    # must name all ten dimensions and use their exact named domain values.
+    initial_state_json: ""
+    records_directory: ""

@@ -1,0 +1,1226 @@
+{
+  "schema": "ltl-automaton-cmr-plan-v1",
+  "status": "OPTIMALITY_CERTIFIED",
+  "arm": "AP",
+  "initial_precision": [
+    1
+  ],
+  "final_precision": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "family_prior": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "gamma": {
+    "text": "10",
+    "numerator": 10,
+    "denominator": 1
+  },
+  "objective": {
+    "text": "20",
+    "numerator": 20,
+    "denominator": 1
+  },
+  "rounds": [
+    {
+      "round": 0,
+      "precision": [
+        1
+      ],
+      "task_ap_support": [
+        1
+      ],
+      "ts_states": 8,
+      "ts_edges": 270,
+      "product_states": 16,
+      "product_edges": 575,
+      "search": {
+        "expanded_states": 33,
+        "shortest_path_calls": 4,
+        "queue_pushes": 35,
+        "queue_pops": 33,
+        "prefix_expansions": 16,
+        "suffix_expansions": 1,
+        "prefix_settled": 16,
+        "lower_bound_settled": 16,
+        "suffix_settled": 1,
+        "reachable_nodes": 16,
+        "product_states_unique": 16,
+        "qualifying_sccs": 1,
+        "candidate_entries": 8,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 7
+      },
+      "abstraction_provenance": "reachable TS existential projection; same-witness minimum cost; initial-label Product",
+      "kernel_timing_ns": {
+        "T_full_ts_ns": 4419313700,
+        "T_reduction_ns": 2375069800,
+        "T_product_ns": 1915800,
+        "intervals_ns": {
+          "T_full_ts": [
+            4403568391200,
+            4407987704900
+          ],
+          "T_reduction": [
+            4407987707500,
+            4410362777300
+          ],
+          "T_product": [
+            4410362778700,
+            4410364694500
+          ]
+        }
+      },
+      "phase_seconds": {
+        "abstraction": 6.8018699000003835,
+        "exact_search": 2.2722678999998607,
+        "concretization": 0.00013699999999516876,
+        "certificate": 3.5000002753804438e-06,
+        "refinement": 9.319999935542e-05
+      },
+      "lower_bound": "14",
+      "upper_bound": null,
+      "candidate_prefix_actions": [
+        "pick_parcel[M]",
+        "place_parcel[E]"
+      ],
+      "candidate_suffix_actions": [
+        "close_door"
+      ],
+      "restoration": {
+        "old_precision": [
+          1
+        ],
+        "new_precision": [
+          0,
+          1
+        ],
+        "added_dimension": 0,
+        "candidate_action_occurrences": [
+          "pick_parcel[M]",
+          "place_parcel[E]",
+          "close_door"
+        ],
+        "hidden_support_by_action": [
+          {
+            "action": "close_door",
+            "dimensions": [
+              0,
+              2
+            ]
+          },
+          {
+            "action": "pick_parcel[M]",
+            "dimensions": [
+              0
+            ]
+          },
+          {
+            "action": "place_parcel[E]",
+            "dimensions": [
+              0
+            ]
+          }
+        ],
+        "occurrence_counts": [
+          {
+            "dimension": 0,
+            "count": 3
+          },
+          {
+            "dimension": 2,
+            "count": 1
+          }
+        ],
+        "tie_break": "descending occurrence frequency, then ascending dimension ID",
+        "fallback_used": false,
+        "certificate_status": "NOT_CONCRETIZABLE_AT_CURRENT_PRECISION"
+      },
+      "lower_bound_exact": {
+        "text": "14",
+        "numerator": 14,
+        "denominator": 1
+      },
+      "restoration_scores": [
+        {
+          "dimension": 0,
+          "count": 3
+        },
+        {
+          "dimension": 2,
+          "count": 1
+        },
+        {
+          "dimension": 3,
+          "count": 0
+        },
+        {
+          "dimension": 4,
+          "count": 0
+        },
+        {
+          "dimension": 5,
+          "count": 0
+        },
+        {
+          "dimension": 6,
+          "count": 0
+        },
+        {
+          "dimension": 7,
+          "count": 0
+        },
+        {
+          "dimension": 8,
+          "count": 0
+        },
+        {
+          "dimension": 9,
+          "count": 0
+        }
+      ],
+      "status": "NOT_CONCRETIZABLE_AT_CURRENT_PRECISION",
+      "lift_status": "NOT_CONCRETIZABLE",
+      "lift_reason": "no finite full-Product recurrent lift",
+      "upper_bound_exact": null,
+      "ell": null,
+      "m": null,
+      "seconds": 9.07459370000015
+    },
+    {
+      "round": 1,
+      "precision": [
+        0,
+        1
+      ],
+      "task_ap_support": [
+        1
+      ],
+      "ts_states": 56,
+      "ts_edges": 422,
+      "product_states": 112,
+      "product_edges": 898,
+      "search": {
+        "expanded_states": 226,
+        "shortest_path_calls": 4,
+        "queue_pushes": 231,
+        "queue_pops": 226,
+        "prefix_expansions": 112,
+        "suffix_expansions": 2,
+        "prefix_settled": 112,
+        "lower_bound_settled": 112,
+        "suffix_settled": 2,
+        "reachable_nodes": 112,
+        "product_states_unique": 112,
+        "qualifying_sccs": 1,
+        "candidate_entries": 56,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 55
+      },
+      "abstraction_provenance": "reachable TS existential projection; same-witness minimum cost; initial-label Product",
+      "kernel_timing_ns": {
+        "T_full_ts_ns": 4740932300,
+        "T_reduction_ns": 8400846400,
+        "T_product_ns": 5259400,
+        "intervals_ns": {
+          "T_full_ts": [
+            4412642988000,
+            4417383920300
+          ],
+          "T_reduction": [
+            4417383921900,
+            4425784768300
+          ],
+          "T_product": [
+            4425784770600,
+            4425790030000
+          ]
+        }
+      },
+      "phase_seconds": {
+        "abstraction": 13.217980800000078,
+        "exact_search": 2.0732952999996996,
+        "concretization": 0.0005424000000857632,
+        "certificate": 4.300000000512227e-06,
+        "refinement": 0.0001097999993362464
+      },
+      "lower_bound": "18",
+      "upper_bound": null,
+      "candidate_prefix_actions": [
+        "move[R,H]",
+        "move[H,M]",
+        "pick_parcel[M]",
+        "move[M,H]",
+        "move[H,E]",
+        "place_parcel[E]"
+      ],
+      "candidate_suffix_actions": [
+        "close_door"
+      ],
+      "restoration": {
+        "old_precision": [
+          0,
+          1
+        ],
+        "new_precision": [
+          0,
+          1,
+          2
+        ],
+        "added_dimension": 2,
+        "candidate_action_occurrences": [
+          "move[R,H]",
+          "move[H,M]",
+          "pick_parcel[M]",
+          "move[M,H]",
+          "move[H,E]",
+          "place_parcel[E]",
+          "close_door"
+        ],
+        "hidden_support_by_action": [
+          {
+            "action": "close_door",
+            "dimensions": [
+              2
+            ]
+          },
+          {
+            "action": "move[H,E]",
+            "dimensions": [
+              2
+            ]
+          },
+          {
+            "action": "move[H,M]",
+            "dimensions": []
+          },
+          {
+            "action": "move[M,H]",
+            "dimensions": []
+          },
+          {
+            "action": "move[R,H]",
+            "dimensions": []
+          },
+          {
+            "action": "pick_parcel[M]",
+            "dimensions": []
+          },
+          {
+            "action": "place_parcel[E]",
+            "dimensions": []
+          }
+        ],
+        "occurrence_counts": [
+          {
+            "dimension": 2,
+            "count": 2
+          }
+        ],
+        "tie_break": "descending occurrence frequency, then ascending dimension ID",
+        "fallback_used": false,
+        "certificate_status": "NOT_CONCRETIZABLE_AT_CURRENT_PRECISION"
+      },
+      "lower_bound_exact": {
+        "text": "18",
+        "numerator": 18,
+        "denominator": 1
+      },
+      "restoration_scores": [
+        {
+          "dimension": 2,
+          "count": 2
+        },
+        {
+          "dimension": 3,
+          "count": 0
+        },
+        {
+          "dimension": 4,
+          "count": 0
+        },
+        {
+          "dimension": 5,
+          "count": 0
+        },
+        {
+          "dimension": 6,
+          "count": 0
+        },
+        {
+          "dimension": 7,
+          "count": 0
+        },
+        {
+          "dimension": 8,
+          "count": 0
+        },
+        {
+          "dimension": 9,
+          "count": 0
+        }
+      ],
+      "status": "NOT_CONCRETIZABLE_AT_CURRENT_PRECISION",
+      "lift_status": "NOT_CONCRETIZABLE",
+      "lift_reason": "no finite full-Product recurrent lift",
+      "upper_bound_exact": null,
+      "ell": null,
+      "m": null,
+      "seconds": 15.292166199999883
+    },
+    {
+      "round": 2,
+      "precision": [
+        0,
+        1,
+        2
+      ],
+      "task_ap_support": [
+        1
+      ],
+      "ts_states": 112,
+      "ts_edges": 796,
+      "product_states": 224,
+      "product_edges": 1694,
+      "search": {
+        "expanded_states": 451,
+        "shortest_path_calls": 4,
+        "queue_pushes": 458,
+        "queue_pops": 451,
+        "prefix_expansions": 224,
+        "suffix_expansions": 3,
+        "prefix_settled": 224,
+        "lower_bound_settled": 224,
+        "suffix_settled": 3,
+        "reachable_nodes": 224,
+        "product_states_unique": 224,
+        "qualifying_sccs": 1,
+        "candidate_entries": 112,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 111
+      },
+      "abstraction_provenance": "reachable TS existential projection; same-witness minimum cost; initial-label Product",
+      "kernel_timing_ns": {
+        "T_full_ts_ns": 4587022200,
+        "T_reduction_ns": 23022248800,
+        "T_product_ns": 45178700,
+        "intervals_ns": {
+          "T_full_ts": [
+            4427935153100,
+            4432522175300
+          ],
+          "T_reduction": [
+            4432522178700,
+            4455544427500
+          ],
+          "T_product": [
+            4455544429000,
+            4455589607700
+          ]
+        }
+      },
+      "phase_seconds": {
+        "abstraction": 27.783299599999737,
+        "exact_search": 4.192474199999197,
+        "concretization": 0.0012618000000657048,
+        "certificate": 1.049999991664663e-05,
+        "refinement": 0.00023289999990083743
+      },
+      "lower_bound": "19",
+      "upper_bound": null,
+      "candidate_prefix_actions": [
+        "move[R,H]",
+        "move[H,M]",
+        "pick_parcel[M]",
+        "move[M,H]",
+        "open_door_from_hub",
+        "move[H,E]",
+        "place_parcel[E]"
+      ],
+      "candidate_suffix_actions": [
+        "standby"
+      ],
+      "restoration": {
+        "old_precision": [
+          0,
+          1,
+          2
+        ],
+        "new_precision": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "added_dimension": 3,
+        "candidate_action_occurrences": [
+          "move[R,H]",
+          "move[H,M]",
+          "pick_parcel[M]",
+          "move[M,H]",
+          "open_door_from_hub",
+          "move[H,E]",
+          "place_parcel[E]",
+          "standby"
+        ],
+        "hidden_support_by_action": [
+          {
+            "action": "move[H,E]",
+            "dimensions": []
+          },
+          {
+            "action": "move[H,M]",
+            "dimensions": []
+          },
+          {
+            "action": "move[M,H]",
+            "dimensions": []
+          },
+          {
+            "action": "move[R,H]",
+            "dimensions": []
+          },
+          {
+            "action": "open_door_from_hub",
+            "dimensions": [
+              3
+            ]
+          },
+          {
+            "action": "pick_parcel[M]",
+            "dimensions": []
+          },
+          {
+            "action": "place_parcel[E]",
+            "dimensions": []
+          },
+          {
+            "action": "standby",
+            "dimensions": []
+          }
+        ],
+        "occurrence_counts": [
+          {
+            "dimension": 3,
+            "count": 1
+          }
+        ],
+        "tie_break": "descending occurrence frequency, then ascending dimension ID",
+        "fallback_used": false,
+        "certificate_status": "NOT_CONCRETIZABLE_AT_CURRENT_PRECISION"
+      },
+      "lower_bound_exact": {
+        "text": "19",
+        "numerator": 19,
+        "denominator": 1
+      },
+      "restoration_scores": [
+        {
+          "dimension": 3,
+          "count": 1
+        },
+        {
+          "dimension": 4,
+          "count": 0
+        },
+        {
+          "dimension": 5,
+          "count": 0
+        },
+        {
+          "dimension": 6,
+          "count": 0
+        },
+        {
+          "dimension": 7,
+          "count": 0
+        },
+        {
+          "dimension": 8,
+          "count": 0
+        },
+        {
+          "dimension": 9,
+          "count": 0
+        }
+      ],
+      "status": "NOT_CONCRETIZABLE_AT_CURRENT_PRECISION",
+      "lift_status": "NOT_CONCRETIZABLE",
+      "lift_reason": "no finite full-Product recurrent lift",
+      "upper_bound_exact": null,
+      "ell": null,
+      "m": null,
+      "seconds": 31.977679099999477
+    },
+    {
+      "round": 3,
+      "precision": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "task_ap_support": [
+        1
+      ],
+      "ts_states": 224,
+      "ts_edges": 1472,
+      "product_states": 448,
+      "product_edges": 3131,
+      "search": {
+        "expanded_states": 899,
+        "shortest_path_calls": 4,
+        "queue_pushes": 906,
+        "queue_pops": 899,
+        "prefix_expansions": 448,
+        "suffix_expansions": 3,
+        "prefix_settled": 448,
+        "lower_bound_settled": 448,
+        "suffix_settled": 3,
+        "reachable_nodes": 448,
+        "product_states_unique": 448,
+        "qualifying_sccs": 1,
+        "candidate_entries": 224,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 223
+      },
+      "abstraction_provenance": "reachable TS existential projection; same-witness minimum cost; initial-label Product",
+      "kernel_timing_ns": {
+        "T_full_ts_ns": 6600983200,
+        "T_reduction_ns": 33407219200,
+        "T_product_ns": 16748400,
+        "intervals_ns": {
+          "T_full_ts": [
+            4459912835800,
+            4466513819000
+          ],
+          "T_reduction": [
+            4466513820900,
+            4499921040100
+          ],
+          "T_product": [
+            4499921042600,
+            4499937791000
+          ]
+        }
+      },
+      "phase_seconds": {
+        "abstraction": 40.084415100000115,
+        "exact_search": 2.3091874000001553,
+        "concretization": 0.0015463999998246436,
+        "certificate": 0.0012864000000263331
+      },
+      "lower_bound": "20",
+      "upper_bound": "20",
+      "candidate_prefix_actions": [
+        "take_badge",
+        "move[R,H]",
+        "move[H,M]",
+        "pick_parcel[M]",
+        "move[M,H]",
+        "open_door_from_hub",
+        "move[H,E]",
+        "place_parcel[E]"
+      ],
+      "candidate_suffix_actions": [
+        "standby"
+      ],
+      "restoration": null,
+      "lower_bound_exact": {
+        "text": "20",
+        "numerator": 20,
+        "denominator": 1
+      },
+      "restoration_scores": [
+        {
+          "dimension": 4,
+          "count": 0
+        },
+        {
+          "dimension": 5,
+          "count": 0
+        },
+        {
+          "dimension": 6,
+          "count": 0
+        },
+        {
+          "dimension": 7,
+          "count": 0
+        },
+        {
+          "dimension": 8,
+          "count": 0
+        },
+        {
+          "dimension": 9,
+          "count": 0
+        }
+      ],
+      "status": "OPTIMALITY_CERTIFIED",
+      "lift_status": "CONCRETIZABLE",
+      "lift_reason": "",
+      "upper_bound_exact": {
+        "text": "20",
+        "numerator": 20,
+        "denominator": 1
+      },
+      "ell": 0,
+      "m": 1,
+      "seconds": 42.3967348999995
+    }
+  ],
+  "lasso": {
+    "prefix": [
+      {
+        "state": [
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+      },
+      {
+        "state": [
+          0,
+          2,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+      },
+      {
+        "state": [
+          1,
+          2,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+      },
+      {
+        "state": [
+          2,
+          2,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+      },
+      {
+        "state": [
+          2,
+          7,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+      },
+      {
+        "state": [
+          1,
+          7,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+      },
+      {
+        "state": [
+          1,
+          7,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+      },
+      {
+        "state": [
+          4,
+          7,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+      },
+      {
+        "state": [
+          4,
+          4,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[],0,[],true]"
+      }
+    ],
+    "suffix": [
+      {
+        "state": [
+          4,
+          4,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[],0,[],true]"
+      },
+      {
+        "state": [
+          4,
+          4,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "buchi": "[[],0,[],true]"
+      }
+    ],
+    "prefix_edges": [
+      {
+        "source": {
+          "state": [
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "action": "take_badge",
+        "target": {
+          "state": [
+            0,
+            2,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "cost": {
+          "text": "1",
+          "numerator": 1,
+          "denominator": 1
+        }
+      },
+      {
+        "source": {
+          "state": [
+            0,
+            2,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "action": "move[R,H]",
+        "target": {
+          "state": [
+            1,
+            2,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "cost": {
+          "text": "1",
+          "numerator": 1,
+          "denominator": 1
+        }
+      },
+      {
+        "source": {
+          "state": [
+            1,
+            2,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "action": "move[H,M]",
+        "target": {
+          "state": [
+            2,
+            2,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "cost": {
+          "text": "1",
+          "numerator": 1,
+          "denominator": 1
+        }
+      },
+      {
+        "source": {
+          "state": [
+            2,
+            2,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "action": "pick_parcel[M]",
+        "target": {
+          "state": [
+            2,
+            7,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "cost": {
+          "text": "2",
+          "numerator": 2,
+          "denominator": 1
+        }
+      },
+      {
+        "source": {
+          "state": [
+            2,
+            7,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "action": "move[M,H]",
+        "target": {
+          "state": [
+            1,
+            7,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "cost": {
+          "text": "1",
+          "numerator": 1,
+          "denominator": 1
+        }
+      },
+      {
+        "source": {
+          "state": [
+            1,
+            7,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "action": "open_door_from_hub",
+        "target": {
+          "state": [
+            1,
+            7,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "cost": {
+          "text": "1",
+          "numerator": 1,
+          "denominator": 1
+        }
+      },
+      {
+        "source": {
+          "state": [
+            1,
+            7,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "action": "move[H,E]",
+        "target": {
+          "state": [
+            4,
+            7,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "cost": {
+          "text": "1",
+          "numerator": 1,
+          "denominator": 1
+        }
+      },
+      {
+        "source": {
+          "state": [
+            4,
+            7,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[[\"F\",\"p=E\"]],0,[],false]"
+        },
+        "action": "place_parcel[E]",
+        "target": {
+          "state": [
+            4,
+            4,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[],0,[],true]"
+        },
+        "cost": {
+          "text": "2",
+          "numerator": 2,
+          "denominator": 1
+        }
+      }
+    ],
+    "suffix_edges": [
+      {
+        "source": {
+          "state": [
+            4,
+            4,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[],0,[],true]"
+        },
+        "action": "standby",
+        "target": {
+          "state": [
+            4,
+            4,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "buchi": "[[],0,[],true]"
+        },
+        "cost": {
+          "text": "1",
+          "numerator": 1,
+          "denominator": 1
+        }
+      }
+    ],
+    "ell": 0,
+    "m": 1,
+    "prefix_cost": {
+      "text": "10",
+      "numerator": 10,
+      "denominator": 1
+    },
+    "suffix_cost": {
+      "text": "1",
+      "numerator": 1,
+      "denominator": 1
+    },
+    "objective": {
+      "text": "20",
+      "numerator": 20,
+      "denominator": 1
+    },
+    "suffix_representation": "closed: final state repeats suffix entry"
+  },
+  "total_seconds": 98.74130240000068,
+  "infeasibility_reason": null,
+  "kernel": {
+    "repository": "https://github.com/yhl4/CMR-LTL",
+    "commit": "dad230c2f54d9d5eb85d5e8dfd01e2d6c229afbc",
+    "path": "reproducibility/paper_20261005_r2/core/qualified_p1/ecc_p1_formal_kernel/ecc_p1",
+    "license": "MIT"
+  },
+  "query": {
+    "id": "D2",
+    "formula": "F(p=E)"
+  }
+}

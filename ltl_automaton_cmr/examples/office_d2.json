@@ -1,0 +1,25 @@
+{
+  "engine": "cmr",
+  "arm": "AP",
+  "office_query": "D2",
+  "hard_task": "F(p=E)",
+  "family_prior": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "source_commit": "dad230c2f54d9d5eb85d5e8dfd01e2d6c229afbc",
+  "initial_state": {
+    "r": "R",
+    "p": "M",
+    "d": "closed",
+    "b": "desk",
+    "f": "dirty",
+    "l": "off",
+    "c": "off",
+    "w": "empty",
+    "j": "queued",
+    "s": "empty"
+  }
+}
