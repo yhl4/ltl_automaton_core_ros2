@@ -330,6 +330,57 @@ def test_replanning_copy_matches_deepcopy_and_isolates_standard_graph_state():
     assert ("mutated",) not in second.trace
 
 
+class MutatingEdgeScalar:
+    """Custom edge value that mutates its owner during deepcopy."""
+
+    def __init__(self, owner):
+        self.owner = owner
+
+    def __deepcopy__(self, memo):
+        self.owner["weight"] += 1
+        return type(self)(None)
+
+    def __eq__(self, other):
+        return type(other) is type(self)
+
+
+def test_replanning_copy_preserves_scalar_memo_and_edge_hook_order():
+    """Keep scalar memoization compatible with ordinary edge deepcopy order."""
+    def make_planner():
+        planner = LTLPlanner(create_transition_system(), "1", "1")
+        planner.ts.build_full()
+        edge = planner.ts.edges[("r1",), ("r2",)]
+        edge.clear()
+        hook = MutatingEdgeScalar(edge)
+        edge["hook"] = hook
+        edge["weight"] = 1
+        edge["action"] = "shared"
+        planner.shared_edge = edge
+        planner.ts.graph["shared_edge"] = edge
+        return planner
+
+    baseline_planner = make_planner()
+    optimized_planner = make_planner()
+    baseline = deepcopy(baseline_planner)
+    optimized = optimized_planner._copy_for_replanning()
+
+    source = ("r1",)
+    target = ("r2",)
+    assert _graph_copy_signature(optimized.ts) == _graph_copy_signature(baseline.ts)
+    assert optimized.ts.edges[source, target]["weight"] == 2
+    assert baseline.ts.edges[source, target]["weight"] == 2
+    assert optimized_planner.ts.edges[source, target]["weight"] == 2
+    assert optimized.ts.graph["shared_edge"] is optimized.ts.edges[source, target]
+    assert baseline.ts.graph["shared_edge"] is baseline.ts.edges[source, target]
+    assert optimized.ts.edges[source, target] is optimized.shared_edge
+    assert baseline.ts.edges[source, target] is baseline.shared_edge
+
+    optimized.ts.edges[source, target]["weight"] = 99
+    assert optimized_planner.ts.edges[source, target]["weight"] == 2
+    assert optimized_planner.ts.graph["shared_edge"]["weight"] == 2
+    assert baseline.ts.edges[source, target]["weight"] == 2
+
+
 def test_replanning_copy_preserves_custom_key_deepcopy_behavior():
     """Leave custom keys on the normal deepcopy path, including failures."""
     planner = LTLPlanner(create_transition_system(), "1", "1")

@@ -5319,3 +5319,49 @@ audit各只执行一次，没有重跑已完成阶段，也未改变验收条件
 发布只更新README与本记录，前133节全部历史字节保留，138份资格源码/构建文件保持。
 这是Humble符号级组合验证，不证明整体加速、内存收益或IRL科学效果；未执行provider、
 整套benchmark、物理仿真、实机或Jazzy。局部与各版本组合计数分别保留，不相加。
+
+### 11.135 重规划复制中的基础标量 memo（2026-10-08）
+
+对照基线 `a9f02079d7f9d649c12a21c8926c8def93cf5819` 的生产源码与第11.134节ab45b9b相同。
+现有KTH profile中，状态/任务重规划仍有1695/1718次 `_deepcopy_atomic` 分派。
+`_copy_for_replanning` 保留原tuple memo，在同一TS/Product的普通边属性dict中，
+只将精确str/int/float/bool/None的key/value id→原对象预置本次memo。最终仍完整
+`deepcopy(self, memo)`，字典、列表及全部可变状态在原遍历时点深复制；custom scalar
+和dict subclass不预置，不跨调用缓存。新增边扫描及memo有成本，不保证小图收益。
+仅该helper的生产AST改变，其余规划控制流、接受性、source-label、β/γ目标及IRL保持。
+
+提前浅复制scalar边字典的首个方案虽有84项通过，但独立反例表明custom deepcopy hook
+改写原weight时，普通复制读到2、提前字典读到1，因此否决，未纳入最终资格。该轮只保留
+helper、XML及日志，未保存其独立源码快照，不能追溯为最终候选源码。改为标量memo后，
+新增fixture漏掉TS build_full导致83 passed+1 failure；补齐fixture后最终 **84 passed，
+0 skip/error/failure**，pytest1.26秒、两项既有np.int警告。文件为LTLPlanner、discrete-plan、
+IRL三份；新增hook/边字典/图metadata/planner引用别名及隔离回归，原83项身份保持。
+compile、ament_flake8（99列）、ament_pep257及diff检查通过；静态启动的PowerShell
+quoting/PATH错误也未重标为通过。最终测试及静态证据在
+`/tmp/ltl_replan_edge_copy_a9f0207_final2`，旧两轮按原输出路径分别保留。
+
+独立小图将普通deepcopy、旧tuple memo及最终候选的完整pickle逐字节比较，覆盖
+跨图/Run/planner边字典别名、再次复制独立性、custom scalar、可变列表、实际edge dict
+subclass、复制期间hook及精确异常。候选保持全部内容和可变隔离；atomic dispatch
+283→174，deepcopy均539、dict均62、tuple均16，没有省略字典复制。
+
+沿用第11.133节同一KTH配置、β=1000、γ=10及原生ltl2ba，候选三阶段各一次。
+辅助profile源仅更改输出目录；TS准备及lexer冷构建仍在profile之外。旧/新完整snapshot
+除planning_time外一致，包含Run九字段、图大小、trace与当前状态，成本保持70/60/670、
+60/60/660、20/20/220。候选保留实际a9f0207+两文件dirty metadata及运行源码哈希。
+
+| 阶段 | profile wall seconds 旧 / 候选 | atomic dispatch 旧 / 候选 | dict / list / tuple复制（保持） |
+|---|---:|---:|---:|
+| static | 0.004986700 / 0.006306400 | 0 / 0 | 0 / 0 / 0 |
+| 状态重规划 | 0.005766300 / 0.005541900 | 1695 / 854 | 352 / 43 / 259 |
+| 任务重规划 | 0.009169500 / 0.009253599 | 1718 / 865 | 352 / 45 / 273 |
+
+deepcopy调用仍分别为0/3060/3100。耗时有升有降，单次插桩记录不证明稳定或端到端加速，
+也不证明内存收益。`/tmp/ltl_replan_atomic_publication_a9f0207/sha256_manifest.json`
+冻结46份独立副本并回读哈希/大小，包含最终源码、失败/弃用/最终日志与XML、profile、
+反例、review、Python copy.py及辅助源；旧43文件闭包保持。独立审阅确认84项身份及状态、
+输入/runtime绑定、完整snapshot及pstats计数；审阅辅助源的JUnit classname前缀在冻结前
+纠正，没有重跑已完成测试或profile。候选源码SHA256为
+`d7480909c6a1649c0ef6014f3a4f32016bec258b49e3b66406ea9a0acc32b98c`。
+前134节历史字节保持。第11.134节744项组合先于此修改；本轮未重跑七包/DDS、provider、
+整套benchmark、物理仿真、实机或Jazzy，局部结果不能替代组合资格或IRL科学效果验证。

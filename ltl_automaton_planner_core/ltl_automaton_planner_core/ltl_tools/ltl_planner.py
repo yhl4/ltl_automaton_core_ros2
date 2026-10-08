@@ -65,7 +65,7 @@ class LTLPlanner:
         self.next_move = None
 
     def _copy_for_replanning(self):
-        """Deep-copy the planner while reusing immutable graph node keys."""
+        """Deep-copy while reusing immutable keys and scalar objects."""
         def is_immutable_node(node):
             if type(node) is not tuple:
                 return False
@@ -81,6 +81,7 @@ class LTLPlanner:
             return True
 
         memo = {}
+        scalar_types = (str, int, float, bool, type(None))
         graphs = (self.ts,) if self.product is None else (self.ts, self.product)
         for graph in graphs:
             for node in graph:
@@ -89,6 +90,13 @@ class LTLPlanner:
                     for item in node:
                         if type(item) is tuple:
                             memo[id(item)] = item
+            for _, _, data in graph.edges(data=True):
+                if type(data) is dict:
+                    for key, value in data.items():
+                        if type(key) in scalar_types:
+                            memo[id(key)] = key
+                        if type(value) in scalar_types:
+                            memo[id(value)] = value
         return deepcopy(self, memo)
 
     def optimal(self, style="static"):

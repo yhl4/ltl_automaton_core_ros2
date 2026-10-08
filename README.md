@@ -732,8 +732,9 @@ git diff --check
 | 完整搜索邻接属性读取（对照基线 `7db6c74`） | 81/81 passed；0 skip/error/failure；6路径/6完整Run对照一致；示例额外EdgeView查找3→0、7→0 | [11.130](ltl_automaton_planner/docs/validation.md) |
 | guard lexer 模板复用（对照基线 `c3a74d1`） | 104/104 passed；0 skip/error/failure；192对真值/距离、18类无效输入和26组token序列对照一致；KTH三阶段路径、动作与成本保持 | [11.132](ltl_automaton_planner/docs/validation.md) |
 | 重规划复制中的不可变状态 key 复用（对照基线 `989bb8e`） | 83/83 passed；0 skip/error/failure；完整复制与内部别名一致、可变数据隔离；7类custom key及精确异常对照；KTH路径/动作/成本保持 | [11.133](ltl_automaton_planner/docs/validation.md) |
+| 重规划复制中的基础标量 memo（对照基线 `a9f0207`） | 84/84 passed；0 skip/error/failure；完整复制、边属性别名、hook顺序及可变隔离保持；KTH atomic dispatch 1695→854、1718→865，dict/list复制次数保持 | [11.135](ltl_automaton_planner/docs/validation.md) |
 
-十项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+十一项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -752,7 +753,7 @@ Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文
 
 ### 最近七包组合记录（源码 `ab45b9b`，2026-10-08）
 
-这是覆盖上述十项局部修改的独立 Humble 组合记录，包含 lexer 模板和重规划复制优化。
+这是覆盖第11.133节及此前十项局部修改的独立 Humble 组合记录，包含 lexer 模板和不可变 key 复制优化。
 在全新 `/tmp/ltl_ros2_combo_ab45b9b` 构建和默认并行
 整包测试各执行一次，均 exit 0：
 
@@ -780,6 +781,10 @@ lexer 模板和重规划复制的两轮局部验证分别为104、83项，上述
 状态/任务重规划只在本次 deepcopy 的 memo 中复用精确 str/int 组成的状态 tuple；
 图、可变属性、Run、日志和执行字段仍完整深复制，失败回滚边界保持。临时 key 扫描与
 memo 有开销，小图/特殊 key 不保证收益，操作计数不代表总内存或端到端加速。
+
+基础标量优化还在本次 memo 中复用普通边属性中的精确 str/int/float/bool/None，
+字典继续在原遍历时点完整深复制，自定义值保持原复制路径；额外边扫描也有开销。
+第11.135节84项局部验证与单次KTH诊断独立计数，耗时有升有降；上述744项组合先于此修改。
 
 此前源码 `ce014f7` 的740项、`683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
 第11.131、11.128、11.125节，各版本计数不相加。
