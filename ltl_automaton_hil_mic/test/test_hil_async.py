@@ -86,6 +86,14 @@ def velocity(value):
     return message
 
 
+def oversized_velocity(value):
+    """Create a Python-only Twist-shaped command with an oversized component."""
+    return SimpleNamespace(
+        linear=SimpleNamespace(x=value, y=0.0, z=0.0),
+        angular=SimpleNamespace(x=0.0, y=0.0, z=0.0),
+    )
+
+
 def state(kind, changed=False):
     """Create a valid source or alternate state for the selected controller."""
     message = TransitionSystemStateStamped()
@@ -561,12 +569,26 @@ def test_real_steady_timer_cancels_unanswered_query(kind, monkeypatch):
         assert len(client.futures) == 2
 
 
-def test_invalid_human_cancels_pending_query_and_valid_input_can_retry(velocity_runtime):
+@pytest.mark.parametrize(
+    "invalid_kind",
+    ["nan-twist", "positive-python-integer", "negative-python-integer"],
+    ids=["nan-twist", "positive-python-integer", "negative-python-integer"],
+)
+def test_invalid_human_cancels_pending_query_and_valid_input_can_retry(
+    velocity_runtime, invalid_kind
+):
     """Invalid human input cannot become a saturated command or revive old work."""
     runtime = velocity_runtime
     start_check(runtime, finish_closest=False)
     old = runtime.closest.futures[-1]
-    runtime.node._human_callback(velocity(float("nan")))
+    invalid = (
+        velocity(float("nan"))
+        if invalid_kind == "nan-twist"
+        else oversized_velocity(
+            10**400 if invalid_kind == "positive-python-integer" else -(10**400)
+        )
+    )
+    runtime.node._human_callback(invalid)
     assert old.cancelled
     assert runtime.node.human_command is None
     assert [message.linear.x for message in runtime.messages] == [0.1]
@@ -578,12 +600,26 @@ def test_invalid_human_cancels_pending_query_and_valid_input_can_retry(velocity_
     assert [message.linear.x for message in runtime.messages] == [0.1, 0.3]
 
 
-def test_invalid_navigation_preserves_valid_cache_and_allows_retry(velocity_runtime):
+@pytest.mark.parametrize(
+    "invalid_kind",
+    ["inf-twist", "positive-python-integer", "negative-python-integer"],
+    ids=["inf-twist", "positive-python-integer", "negative-python-integer"],
+)
+def test_invalid_navigation_preserves_valid_cache_and_allows_retry(
+    velocity_runtime, invalid_kind
+):
     """A malformed navigation sample cannot replace the valid fallback."""
     runtime = velocity_runtime
     start_check(runtime, finish_closest=False)
     old = runtime.closest.futures[-1]
-    runtime.node._navigation_callback(velocity(float("inf")))
+    invalid = (
+        velocity(float("inf"))
+        if invalid_kind == "inf-twist"
+        else oversized_velocity(
+            10**400 if invalid_kind == "positive-python-integer" else -(10**400)
+        )
+    )
+    runtime.node._navigation_callback(invalid)
     assert old.cancelled
     assert [message.linear.x for message in runtime.messages] == [0.1]
     assert runtime.node._latest_navigation_command.linear.x == 0.1

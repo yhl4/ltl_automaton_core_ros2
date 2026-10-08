@@ -4628,3 +4628,36 @@ XML SHA c1634a94ca66eac98fd8ed9de37351d9ee73ccabe7e09926b8f9cd2ece051337，
 日志SHA 4a2c126493b030a76a45d94a79bbb2fdbf41444c8646e9136651175349c4659a。
 本轮未重跑colcon整包、真实DDS闭环、LLM、benchmark、物理仿真或实机；
 36项不与历史局部或七包计数相加，不证明整体加速。
+
+### 11.117 HIL Python 数值检查溢出按既有拒绝路径恢复（2026-10-08）
+
+基线feb1ccb4041556fa7e959ab7aced7a03609580fd。速度策略有限值检查仅捕获
+TypeError，程序化±10**400输入使math.isfinite抛OverflowError；直接调用
+human/navigation回调时也跳过既有无效输入的查询清理。只将五个有限值
+检查处理器扩为TypeError/OverflowError，保留ValueError文字及异常cause。
+tuple参数转换、所有数值计算、限速、gain曲线、默认值、IDL和IRL保持。
+这类Python整数不能进入ROS float64消息，不将本轮结果描述成其DDS传输。
+
+测试先加入并冻结：两项策略检查覆盖标量、轴限制、命令、gain和mix distance；
+两个既有异步恢复场景各保留原ROS NaN/Inf输入，再加正负Python整数。
+在WSL Ubuntu-22.04-D/Humble的原依赖环境，RED选择八项，六项因未捕获
+OverflowError失败、原两项通过；pytest退出1，资格脚本确认预期失败后退出0。
+GREEN执行test_policies.py及test_hil_async.py全部96项，0失败/错误/跳过；
+pytest4.72秒，调用5.478415790秒，退出0。包含原NaN/Inf、巨大有限float、
+tiny epsilon和独立Decimal曲线检查，以及取消、缓存、旧回调和合法恢复。
+三份修改Python文件compile/flake8/pep257/diff通过，既有optparse警告保留。
+
+实际导入的policies、两个mixer及core配置模块完整字节核对；非policies
+模块均等于基线。Twist来自Humble，两个服务接口来自既有隔离build。
+scope.json在RED结果前冻结源码/测试SHA、RED选择和GREEN完整文件范围；
+每次collection.json在执行前保存清单，GREEN包含RED全部八项，测试字节
+期间不变，最终生产字节只含已指定的五处异常范围变更。
+
+证据目录/tmp/ltl_ros2_completion_20261006/hil_overflow_feb1ccb保留scope、
+red/green imports/collection/run、verified.json及两份XML；完整输出为同级
+hil_overflow_feb1ccb_red.log和hil_overflow_feb1ccb_green.log。生产源码SHA
+e75d529cd4d5a04ee9bb61cb997ef2a9e91284d650842ce6dd59b1af8c9d79dd；
+GREEN XML SHA 73327dc8e9e80982e5c6d8b59c436099cb946dc6575b8ac12647efb8ea6cd026，
+GREEN日志SHA 3f626e6ce13fe278290b8ee72aab935e64dd329f7d7807d9d022a129f2fdb564。
+同步两份README，前116节正文保留。96项为局部资格，不与旧125/705或局部
+结果相加；未重跑colcon整包、Trap/IRL launch、DDS闭环、LLM、benchmark或实机。

@@ -211,6 +211,34 @@ def test_velocity_policy_rejects_nonfinite_distance(distance):
         policy.mix(_twist(0.4), _twist(0.1), distance)
 
 
+@pytest.mark.parametrize(
+    "oversized", [10**400, -(10**400)],
+    ids=["positive-python-integer", "negative-python-integer"],
+)
+def test_velocity_policy_rejects_integer_overflow_as_finite_error(oversized):
+    """Convert oversized Python integers into the existing finite error."""
+    checks = [
+        lambda: VelocityCommandPolicy(epsilon=oversized),
+        lambda: VelocityCommandPolicy(max_linear=(oversized, 0.5, 0.5)),
+        lambda: VelocityCommandPolicy.validate_command(
+            SimpleNamespace(
+                linear=SimpleNamespace(x=oversized, y=0.0, z=0.0),
+                angular=SimpleNamespace(x=0.0, y=0.0, z=0.0),
+            )
+        ),
+        lambda: VelocityCommandPolicy().human_gain(oversized),
+        lambda: VelocityCommandPolicy().mix(
+            _twist(0.4), _twist(0.1), oversized
+        ),
+    ]
+    for check in checks:
+        with pytest.raises(ValueError, match="finite") as caught:
+            check()
+        assert isinstance(caught.value.__cause__, OverflowError)
+    result = VelocityCommandPolicy().mix(_twist(0.4), _twist(0.1), 1.5)
+    assert math.isfinite(result.linear.x)
+
+
 def test_velocity_policy_magnitude_avoids_square_overflow():
     policy = VelocityCommandPolicy()
     assert policy.magnitude(_twist(1e200)) == 1e200

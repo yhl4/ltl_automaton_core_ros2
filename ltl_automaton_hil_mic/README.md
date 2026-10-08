@@ -65,6 +65,11 @@ keep their existing passthrough behavior. Magnitude and smooth gain use stable
 calculations to handle large finite components and tiny positive `epsilon`
 without changing the mathematical deadband, safety-zone or blending rules.
 
+Programmatic policy calls report overflow during these finite-value checks as
+the existing `ValueError`, retaining its `OverflowError` cause. A Python command
+with an oversized integer follows the same rejection and query-cleanup path as
+non-finite input. Such integers are not representable in ROS float64 messages.
+
 Both launch files accept `safety_check_timeout` (default `1.0` seconds, finite
 and positive). It bounds the complete safety query; the velocity controller's
 closest-region and trap requests share that deadline. A 0.1-second steady-clock

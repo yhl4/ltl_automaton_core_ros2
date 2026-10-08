@@ -100,7 +100,7 @@ class VelocityCommandPolicy:
         ):
             try:
                 finite = math.isfinite(value)
-            except TypeError as error:
+            except (TypeError, OverflowError) as error:
                 raise ValueError(f"{name} must be finite.") from error
             if not finite:
                 raise ValueError(f"{name} must be finite.")
@@ -124,7 +124,7 @@ class VelocityCommandPolicy:
             for value in values:
                 try:
                     finite = math.isfinite(value)
-                except TypeError as error:
+                except (TypeError, OverflowError) as error:
                     raise ValueError(f"{name} values must be finite.") from error
                 if not finite or value < 0.0:
                     raise ValueError(
@@ -163,7 +163,7 @@ class VelocityCommandPolicy:
             raise ValueError("Command must provide six Twist components.") from error
         try:
             finite = all(math.isfinite(value) for value in values)
-        except TypeError as error:
+        except (TypeError, OverflowError) as error:
             raise ValueError("Twist components must be finite numbers.") from error
         if not finite:
             raise ValueError("Twist components must be finite numbers.")
@@ -207,7 +207,7 @@ class VelocityCommandPolicy:
         """Return the smooth human-command gain in the safety buffer."""
         try:
             finite = math.isfinite(distance_to_trap)
-        except TypeError as error:
+        except (TypeError, OverflowError) as error:
             raise ValueError("Distance to trap must be finite.") from error
         if not finite:
             raise ValueError("Distance to trap must be finite.")
@@ -234,7 +234,7 @@ class VelocityCommandPolicy:
         if distance_to_trap is not None:
             try:
                 finite = math.isfinite(distance_to_trap)
-            except TypeError as error:
+            except (TypeError, OverflowError) as error:
                 raise ValueError("Distance to trap must be finite.") from error
             if not finite:
                 raise ValueError("Distance to trap must be finite.")
