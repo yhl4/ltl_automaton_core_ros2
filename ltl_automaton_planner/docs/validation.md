@@ -5030,3 +5030,36 @@ compile、ament_flake8（99列）、ament_pep257、git diff --check通过。证�
 候选TS源码SHA256为 `08ae086ebb8212f6eeb24110c63a73c3832bef95be0601ad8a40fa2a42792d0d`。
 适用范围为构建期间稳定的 guard 字符串与标签；没有改变 source-label、成本或
 IRL学习规则。本轮未重跑七包组合、DDS、整体性能、provider、benchmark、实机或 Jazzy。
+
+### 11.128 长 guard / 一维 TS 修改后的七包组合验证（2026-10-08）
+
+资格源码 `683c333cb6028b752b80f91ce07448f6db9a3f80` 包含第11.126–11.127节修改。
+WSL Ubuntu-22.04-D、ROS 2 Humble、Python3.10.12、NetworkX2.4、原生 ltl2ba 环境
+保持，在全新 `/tmp/ltl_ros2_combo_683c333` 执行以下构建与默认并行测试，各一次，均exit0：
+
+```bash
+source /opt/ros/humble/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+colcon --log-base /tmp/ltl_ros2_combo_683c333/log build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_683c333/build --install-base /tmp/ltl_ros2_combo_683c333/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_683c333/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_683c333/log test --build-base /tmp/ltl_ros2_combo_683c333/build --install-base /tmp/ltl_ros2_combo_683c333/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+colcon --log-base /tmp/ltl_ros2_combo_683c333/query_log test-result --test-result-base /tmp/ltl_ros2_combo_683c333/build --verbose
+```
+
+构建 wall time44.054874841秒，测试44.468077318秒。六份JUnit分别为 msgs 11/11/0、
+Core 213/212/1、planner 188/187/1、execution 143/143/0、HIL 131/130/1、standard TS
+51/50/1（tests/passed/skipped）。合计 **737 = 733 passed + 4既有copyright skip**，
+0 errors/failures；CTest wrapper另1项通过，实际查询738。没有复用或重启旧构建/测试。
+
+执行前从62b94b3的724项完整身份与skip flags，加当前三份文件只收集得到的13个新增
+用例，冻结全部737项；执行后逐一匹配。138份Python/IDL/包构建文件字节与Git资格源码
+绑定；22个关键模块实际导入字节匹配，生成消息位于本次新build。四个真实DDS符号执行
+场景、Studio、IRL完整20次margin更新、IRL提交及HIL偏好提交通过，启动准备8项与
+payload准备6项均执行。其余既有完整覆盖由全部用例身份匹配保留，不改验收或skip规则。
+
+证据包含 `prepared.json`、两阶段receipt、runtime、`verified_summary.json`、完整
+JUnit/CTest XML、日志和辅助源；`verified_evidence/sha256_manifest.json` 冻结53文件。
+独立读取闭包重新核对哈希和737项状态，检查36份日志，无未读取Future异常诊断。
+5份stderr均923字节，仅有既有 `np.int` 和 `SelectableGroups` 警告。原62b94b3的87文件
+证据闭包在执行前后哈希保持。README当前计数更新，历史验证全文保留。
+这不是整体加速、IRL科学效果、LLM/provider、benchmark、物理仿真、实机或Jazzy证据。

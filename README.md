@@ -739,23 +739,28 @@ Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文
 一维 TS 构建也按来源节点复用相同 guard 的求值结果，每次重建重新检查；
 适用于构建期间稳定的标签。公开 `is_action_allowed` 仍逐次求值。
 
-### 最近七包组合记录（源码 `62b94b3`，2026-10-08）
+### 最近七包组合记录（源码 `683c333`，2026-10-08）
 
-这是包含 TS 后继坐标复用、resolver 来源 ID 收集、Boolean OR 距离短路及 Büchi membership 索引修改的独立 Humble 组合记录。构建和默认并行整包测试各执行一次，均 exit 0：
+这是包含上述六项局部修改（含长 guard 和一维 TS guard 复用）的独立 Humble 组合记录。
+在新目录构建和默认并行整包测试各执行一次，均 exit 0：
 
 | 包 | tests / passed / skipped |
 |---|---:|
 | `ltl_automaton_msgs` | 11 / 11 / 0 |
-| `ltl_automaton_planner_core` | 200 / 199 / 1 |
+| `ltl_automaton_planner_core` | 213 / 212 / 1 |
 | `ltl_automaton_planner` | 188 / 187 / 1 |
 | `ltl_automaton_execution` | 143 / 143 / 0 |
 | `ltl_automaton_hil_mic` | 131 / 130 / 1 |
 | `ltl_automaton_std_transition_systems` | 51 / 50 / 1 |
 
-合计 **724 tests = 720 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。CTest wrapper 另1项通过，查询为725。724个完整用例身份及 skip flags 与执行前冻结清单一致，新增5项；保留20模块字节、生成消息、原生 `ltl2ba`、四真实 DDS、Studio、完整20步 IRL及日志/警告证据。stderr为5份/4615字节，既有依赖警告保留。详见 [validation.md 11.125](ltl_automaton_planner/docs/validation.md)。
+合计 **737 tests = 733 passed / 4 skipped**，0 errors/failures；四项跳过均为既有 copyright。
+CTest wrapper 另1项通过，查询为738。旧724项加新增13项的完整身份及 skip flags
+与执行前冻结清单逐一一致。22模块导入字节与资格源码一致，生成消息来自本次新构建。
+原生 `ltl2ba`、四真实 DDS 符号执行、Studio、完整20步 IRL及提交、启动和事务恢复通过。
+5份 stderr 共4615字节，仅保留既有依赖警告；53文件证据闭包已冻结核对。
+详见 [validation.md 11.128](ltl_automaton_planner/docs/validation.md)。
 
-这次七包记录早于第11.126–11.127节的长 guard 修复及一维 TS 优化；
-后两项分别具有上述122项、124项局部验证，未重跑七包组合。
+此前源码 `62b94b3` 的724项组合记录保留在第11.125节，各版本计数不相加。
 
 ### 历史验证索引
 
