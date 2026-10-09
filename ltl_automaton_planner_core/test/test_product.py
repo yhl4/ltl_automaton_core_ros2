@@ -622,7 +622,7 @@ def test_run_output_reuses_each_edge_lookup_and_refreshes_repeated_actions(monke
     assert run.suf_plan_cost == [0, 1.0]
     assert (run.precost, run.sufcost, run.totalcost) == (4, 1, 14)
     assert list(run.pre_ts_edges) == list(run.suf_ts_edges) == []
-    assert lookups == ["s0", "s1", "s1", "s1"]
+    assert lookups == []
     assert list(product.edges(data=True)) == before
     assert list(ts.edges(data=True)) == before_ts
     old_outputs = (run.pre_plan, run.suf_plan, run.pre_plan_cost, run.suf_plan_cost)
@@ -630,7 +630,7 @@ def test_run_output_reuses_each_edge_lookup_and_refreshes_repeated_actions(monke
     updated_ts = [(source, target, dict(data)) for source, target, data in ts.edges(data=True)]
     lookups.clear()
     run.plan_output(product)
-    assert lookups == ["s0", "s1", "s1", "s1"]
+    assert lookups == []
     assert run.pre_plan == ["goto_s1", "changed_stay", "changed_stay"]
     assert run.suf_plan == ["changed_stay"]
     assert run.pre_plan_cost == [0, 2.0, 7, 7]
@@ -642,6 +642,23 @@ def test_run_output_reuses_each_edge_lookup_and_refreshes_repeated_actions(monke
         (run.pre_plan, run.suf_plan, run.pre_plan_cost, run.suf_plan_cost), old_outputs,
     ))
     assert list(product.edges(data=True)) == before
+    assert list(ts.edges(data=True)) == updated_ts
+    replacement_ts = DiGraph(ts)
+    replacement_ts.edges["s1", "s1"].update(action="replacement_stay", weight=9)
+    previous_outputs = (run.pre_plan, run.suf_plan, run.pre_plan_cost, run.suf_plan_cost)
+    product.graph["ts"] = replacement_ts
+    lookups.clear()
+    run.plan_output(product)
+    assert lookups == []
+    assert run.pre_plan == ["goto_s1", "replacement_stay", "replacement_stay"]
+    assert run.suf_plan == ["replacement_stay"]
+    assert run.pre_plan_cost == [0, 2.0, 9, 9]
+    assert run.suf_plan_cost == [0, 9]
+    assert previous_outputs == (["goto_s1", "changed_stay", "changed_stay"],
+                                ["changed_stay"], [0, 2.0, 7, 7], [0, 7])
+    assert all(new is not old for new, old in zip(
+        (run.pre_plan, run.suf_plan, run.pre_plan_cost, run.suf_plan_cost), previous_outputs,
+    ))
     assert list(ts.edges(data=True)) == updated_ts
 
 
@@ -743,7 +760,7 @@ def test_run_output_keeps_empty_prefix_and_single_node_suffix(empty_prefix, monk
     assert run.suf_prod_edges == [(goal, goal)]
     assert run.pre_plan == [] and run.pre_plan_cost == [0]
     assert run.suf_plan == ["stay_s1"] and run.suf_plan_cost == [0, 1.0]
-    assert lookups == ["s1"]
+    assert lookups == []
 
 
 @pytest.mark.parametrize("missing_field", ["action", "weight"])
@@ -770,3 +787,26 @@ def test_run_output_edge_error_preserves_action_before_weight(missing_field):
     assert list(run.pre_ts_edges) == [("s1", "s1")]
     assert list(run.suf_ts_edges) == [("s1", "s1")]
     assert list(ts.edges(data=True)) == before
+
+
+def test_run_output_respects_custom_ts_getitem_actions():
+    """Keep observable actions provided by a custom TS adjacency lookup."""
+    class WrappedTS(DiGraph):
+        """Expose altered actions through the public adjacency lookup."""
+
+        def __getitem__(self, source):
+            """Return ordinary edge costs with wrapped actions."""
+            return {
+                target: dict(data, action="wrapped_" + data["action"])
+                for target, data in super().__getitem__(source).items()
+            }
+
+    product = ProdAut(create_test_ts(), create_test_buchi())
+    product.build_full()
+    product.graph["ts"] = WrappedTS(product.graph["ts"])
+    start, goal = ("s0", "q0"), ("s1", "q1")
+    run = ProdAut_Run(product, [start, goal], 2, [goal], 1, 12)
+    assert run.pre_plan == ["wrapped_goto_s1"]
+    assert run.suf_plan == ["wrapped_stay_s1"]
+    assert run.pre_plan_cost == [0, 2.0]
+    assert run.suf_plan_cost == [0, 1.0]

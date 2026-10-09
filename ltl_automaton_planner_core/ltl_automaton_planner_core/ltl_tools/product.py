@@ -8,6 +8,7 @@ from networkx import strongly_connected_components
 from networkx.classes.digraph import DiGraph
 
 from .buchi import check_label_for_buchi_edge
+from .ts import TSModel
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -369,9 +370,21 @@ class ProdAut_Run(object):
         # Initialize pre_plan cost
         self.pre_plan_cost = [0, ]
 
+        ts_adjacency = None
+        check_ts_adjacency = type(product.graph) is dict
+
         # Iterate over the nodes associated with the prefix (see pre_ts_edges)
         for ts_edge in self.pre_ts_edges:
-            edge = product.graph['ts'][ts_edge[0]][ts_edge[1]]
+            if check_ts_adjacency:
+                ts = product.graph['ts']
+                if type(ts) in (DiGraph, TSModel):
+                    ts_adjacency = ts._adj
+                check_ts_adjacency = False
+            edge = (
+                ts_adjacency[ts_edge[0]][ts_edge[1]]
+                if ts_adjacency is not None
+                else product.graph['ts'][ts_edge[0]][ts_edge[1]]
+            )
 
             # Extract 'action' label between the two consecutive TS nodes of the
             # prefix plan and add it to the pre_plan
@@ -387,7 +400,16 @@ class ProdAut_Run(object):
 
         # Iterate over the nodes associated with the suffix (see suf_ts_edges)
         for ts_edge in self.suf_ts_edges:
-            edge = product.graph['ts'][ts_edge[0]][ts_edge[1]]
+            if check_ts_adjacency:
+                ts = product.graph['ts']
+                if type(ts) in (DiGraph, TSModel):
+                    ts_adjacency = ts._adj
+                check_ts_adjacency = False
+            edge = (
+                ts_adjacency[ts_edge[0]][ts_edge[1]]
+                if ts_adjacency is not None
+                else product.graph['ts'][ts_edge[0]][ts_edge[1]]
+            )
 
             # Extract 'action' label between the two consecutive TS nodes of the
             # suffix plan and add it to the suf_plan

@@ -6044,3 +6044,71 @@ lint或七包组合，未运行 provider、DDS、benchmark、新KTH三阶段、�
 `98e6ae5eae9560641c420ce6484f116df8c1d42b03e8104485b0353599f836a7`。
 本节之前420704 bytes原文保持，旧SHA256为
 `c1815845efcc8c87c06f4b53c383392199700683a9f98fe24f3ffebd63460de3`。
+
+### 11.149 Run 输出阶段的 TS 邻接复用（2026-10-09）
+
+对照基线为 `3c278b19cebd8bb6cb523157321da830dd96b7c3`，旧 `product.py` SHA256 为
+`78cb32ba52e4b52fca5fa0679b273e0ea7fef7c781da4946ae18f6fcf5641060`。
+只读已有 N64 pstats 后，定位到 `ProdAut_Run.plan_output` 的逐边 Graph/AtlasView 查询；
+该阶段约占那次完整 kernel profile 的2.3%，不是主要搜索耗时。没有新增探索搜索或构图。
+
+本次仅在 `plan_output` 首条实际 TS 边时惰性绑定邻接：Product metadata 须为 exact dict，
+TS 须为 exact `DiGraph` 或 `TSModel`，随后直接读取该次调用的 `_adj[u][v]`。
+绑定只存在于本次调用；下一次重新读取 TS，包括整个 TS 对象被替换的情况。
+custom TS/subclass、MultiDiGraph 或 custom metadata mapping 保留公共查询路径。
+动作先追加、再读取权重的顺序，以及原 edge/action 引用、路径 tuple 快照、zip 迭代器、
+成本列表、输入 prefix/suffix 引用、possible_states 和异常保持。
+适用条件是一次输出期间原生 Product metadata 与 TS 邻接稳定；不支持在该调用中途替换 TS。
+未修改搜索算法、tie 顺序、prefix/suffix 目标函数或 IRL 的 β 学习范围。
+
+原始 helper、fix1、fix2 只做静态准备，均未执行。root 在执行前修正辅助编码比较、
+mutation 的输出隔离门槛和部分计时失败保存；候选、输入、规模与采用门槛保持。
+fix3 compile/pyflakes/bash-n 与33项静态绑定通过后，只执行一次：
+16类常规场景各 old/new 加跨调用修改，共36 semantic；2 profile；1680 timed，合计1718次。
+17个语义控制全部通过，包括 TSModel、空前缀、重复边、128步环、tuple/list、缺 TS/source/
+target/action/weight、空 suffix、自定义 TS/metadata/edge hook 和 MultiDiGraph 异常。
+错误保留类型、args 与部分输出；缺 weight 时保留已经追加的动作。
+跨调用替换 TS 后，四个输出列表均重新建立，旧输出列表、路径别名和总成本字段保持。
+完整 Run、代价类型、动作引用及源图内容/身份/raw 检查通过。
+
+128步 Run profile 中 TS `__getitem__` 为128→0；仅统计 fixture TS 的真实查询。
+计时按每个输入固定6组交替顺序，Run1/Run128 每侧每组50次完整构造，N64/KTH 为20次
+完整 kernel，包含 SCC、搜索、恢复和 Run 构造。输入向量在计时外建立；计数、profile、
+断言、序列化和IO在计时外。每侧每批保存最后一次完整 Run，全部批次 Run/source/alias
+检查通过；不是对每次计时调用逐一序列化验收。原始 ns 与所有批次输出保留：
+
+| fixture | 每侧每批次数 | old median / candidate median | candidate slower |
+|---|---:|---:|---:|
+| Run1 | 50 | 0.2995495 / 0.2684500 ms | 0/6 |
+| Run128 | 50 | 6.9386470 / 2.5918985 ms | 0/6 |
+| N64 | 20 | 92.3682105 / 91.0305605 ms | 3/6 |
+| KTH | 20 | 7.4393930 / 6.9836440 ms | 2/6 |
+
+N64 保持全部64个接受目标。KTH 只加载已绑定的旧 `warmed_planner.pkl` 一次（10636 bytes，
+SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`）；
+实际 TS 为 exact TSModel，没有重新翻译任务或执行新三阶段。最终 KTH 源图保持。
+Humble + 803 overlay，Python3.10.12 / NetworkX2.4，实际六核心与四测试、NetworkX源文件
+绑定；HASHSEED 未设置。预设 Run128、N64、KTH 中位数均不得更慢，三项通过，Run1只报告。
+`gate=true`，采用冻结候选 SHA256
+`74fc26ec60964c3a8fe313c7b7247aa28efe37c3be29155b659f28cc74c2d103`。
+没有补采样或改门槛；N64仍有3/6组、KTH有2/6组更慢，不能声称稳定或整套加速。
+
+应用后只更新 Product 源码与其定向测试：更新既有公共查询计数断言，补充整个 TS 对象替换
+后的刷新/旧列表隔离和 custom TS `__getitem__` 动作回归。测试源码 SHA256 为
+`0e890bcd00826696ee1613f1a6923ec51bdc0113ae10a1315708d4efc89363b6`。
+四个相关模块一次 pytest：Product34、discrete-plan28、LTLPlanner29、IRL28，共119 passed，
+0 skipped/errors/failures，保留2条 np.int 警告；完整20步 margin/β 与复制/hook 回归保持。
+实际六个核心模块和四测试导入/hash与资格源码绑定。改动的两个文件各一次 compile、
+ament_flake8（linelength99）、ament_pep257，六个实际阶段均 rc0。
+两个外层 runner 最终 `exit` 因 CRLF 报 numeric argument required，外层工具退出码未单独
+持久化；事后转录明确标记，实际 pytest/lint/compile rc 与 JUnit 原件均保存，不重跑。
+未进行新七包、DDS、provider、benchmark、仿真、实机或Jazzy验证；803f28e七包资格仍独立。
+累计采用17项局部优化；没有新增 IRL 科学效果或内存收益声明。
+
+证据冻结于 `/tmp/ltl_run_output_adj_publication_3c278b1`，manifest SHA256 为
+`120145c6beea5faabafb72d90840c2624b6d13e5b8e08329d68be0fdb36a1177`。373条目独立回读：366个文件原件与副本、4条 Git 基线对象
+与副本、3份归档生成记录单独验证，共743次 size/SHA256 核验，无不一致。
+基线 Product/test_product 在应用后按同一 HEAD 从 Git 取回，与执行前绑定 SHA 完全一致；
+应用后资格源码另存。首次回读器把 Git/归档标识当文件路径而停止，随后仅修正读取分类，
+没有改归档或运行结果。本节之前425420 bytes原文保持，旧 SHA256 为
+`71545917e0d68835d58d5778c1e763a96eff83648669904e224307f1ae65d5ec`。
