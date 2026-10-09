@@ -5869,3 +5869,56 @@ source导入绑定通过。三份既有 discrete-plan/LTLPlanner/IRL 测试只�
 manifest SHA256为 `2ed9208ab865bab28e5590305765b3baceaeefb386ed6f399572e1a58dc7dfd2`。
 本节之前409506 bytes原文保持，旧SHA256为
 `45c0cf640a5d887667306090e4aa08865cc40e75f54195407d0984c589943fdd`。
+
+### 11.146 完整搜索共享 SCC 带权图复用候选未采用（2026-10-09）
+
+本轮基线为 HEAD `7614d9dc6bfad0ecda1b1407f652e24f62e94425`，原始
+`discrete_plan.py` SHA256 为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`，
+冻结候选 SHA256 为
+`8ccae8f851a8803d9cc95514227ae201d6a4c618068f4465eb94be2198bd437f`。
+候选只对 exact `DiGraph`/`ProdAut` 的多目标 SCC 建立一次临时带权 `DiGraph`，
+读取 exact edge dict 和 native `int/float/bool/None` 权重；custom graph、MultiDiGraph、
+edge-dict subclass 和 custom numeric weight 回退原 `component_weight` 路径。临时图只在
+单次调用内存在，会增加额外空间成本，不跨调用缓存，也不修改源图。历史
+`warmed_planner.pkl` SHA256 为
+`32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`，仅作为历史 KTH
+输入；本轮执行该保存图上的完整搜索，没有重跑 KTH 构图、翻译或三阶段场景。
+
+独立结构 inventory 成功执行一次：36节点、72边、21个 SCC（一个16节点 SCC和20个
+singleton）；两个 `accept_with_cycle` 目标共享该16节点 SCC。首次 inventory 的输出目录
+创建失败证据保留，没有覆盖后续 inventory。
+
+原 helper/fix1 仅准备。fix2 首次实际执行完成32次 semantic control，随后在
+snapshot/profile/timing 前停止；原因是 capture 先 pickle、后首次读取 NetworkX
+`nodes`/`NodeView` 缓存，导致 raw bytes 不同。完整 pickle、日志和失败产物保留，
+root 的 pickletools 只读诊断没有新增搜索。fix3 在保存比较前先完成签名初始化，
+保留严格 raw 相等条件，不删除缓存或归一化 pickle；候选、样本与时间门槛保持。执行一次：
+32 semantic、2 profile、720 timed，合计754次；snapshot加载1次。15个语义控制、手算
+成本、路线、动作引用、输入/source检查全部通过，跨调用权重和边修改使总成本
+`31→22`。
+
+profile 中 old/candidate 的 `component_weight` 调用为 `4096→0`，但本机 weighted
+实现的 native lambda 调用为 `64→4160`；两种权重回调合计均为4160次。两侧均为
+64 loop wrapper、1 prefix boundary，多源函数总调用65，完整 Run 和 source 检查通过。
+
+计时采用 N=1、N=64 和历史 KTH 图，各6组交替、每侧每组20次完整 kernel；计时包含
+临时图、SCC 和路径恢复，只有一轮720次，无重跑。原始 ns 已保存：
+
+| fixture | old median / candidate median | candidate slower |
+|---|---:|---:|
+| N=1 | 0.651150 / 0.677850 ms | 3/6 |
+| N=64 | 73.269250 / 77.385650 ms | 6/6 |
+| KTH | 5.934200 / 7.536700 ms | 6/6 |
+
+`source_raw=true`、`source_signature=true`。预设 N=64 与 KTH 候选中位数不慢门槛未通过，
+因此 `gate=false`，评估完成，结论为 `not_adopted`。fix2 的32次与
+fix3的754次分开计数；累计搜索调用为786，但不合并为754的资格分母。wrapper工具
+exit为1，runner rc 分别为 fix2=`2`、fix3=`4`，均独立保留。
+
+本轮没有生产或测试修改，未重跑现有85项核心测试、compile、lint、七包重建、翻译、
+provider、DDS、仿真或实机。312份证据副本逐项回读size/SHA256一致，冻结发布目录为
+`/tmp/ltl_dp_shared_scc_publication_7614d9d`，manifest SHA256 为
+`414f75a6b47749bf32a07f3916fe7436d2ec6009fed15065cc2382e7920bdb64`。
+本节之前412770 bytes原文保持，旧SHA256为
+`49589f9c4b3e40252c10a05888f043af395237a48b7a6fb462a84936af871288`。
