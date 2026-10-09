@@ -6376,3 +6376,76 @@ compile/lint、七包、DDS、provider、benchmark、仿真、实机或Jazzy资�
 与完整20步IRL为dd56790的既有资格，七包仍为803f28e独立旧资格。局部结果不证明稳定
 或整体加速、内存收益或IRL科学效果。本节之前445506 bytes原文保持，旧SHA256为
 `a57a21cd3983e43def5e7b9b54d737916095bf0c5093dc42e5cecb7359c8c8ee`。
+
+
+### 11.154 纯有向环的线性后缀距离候选（2026-10-09）
+
+基线 `af9c605ba279095c6f209fd870bc2fa5559031fb`，DP SHA256 为
+`56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7`。
+只读结构 inventory 使用同一10636-byte保存图，加载1次、不调用planner/profile/timer；
+36节点72边、21个SCC中没有纯有向环。该分析的load1与下面probe的load1独立，不合并。
+历史ring64 profile显示后缀heap累计4096次，因此准备线性遍历候选。
+
+候选仅接受 exact DiGraph/ProdAut、原生后继/边字典，整图每节点恰一个后继。
+先检查字典形状，再确认原生str/int或两级tuple节点键，以免调用custom key比较。
+只认证有可达接受目标且唯一后继在分量内的SCC，权重限exact非负int，缺省仍为1；
+缓存本次环的(successor, weight)，每接受目标沿环累加有序距离。float/Fraction/bool、
+None、负权、custom对象/字典、分支和出口沿用原heap。下一调用重新认证；适用于整个
+搜索期间图、节点hash/equality稳定的场景。prefix、接受目标/前驱选择、gamma目标函数、
+tight恢复和完整Run保持。即使不用heap，后缀搜索次数和返回节点仍64/1及4096/64。
+
+候选SHA256 `77e06aff8999dc5985f330ba3b7506ed4cef1ce5731bf8e372da6d1bb755f88d`，
+25079 bytes；未应用到生产。fix1/fix2只静态，root fix3修正候选map、资格fixture、实际
+manifest路径与heap builtin提取，格式化AST等价；候选/测试/helper compile及runner
+bash-n通过。候选测试只准备，未执行pytest；pyflakes不可用、未安装。
+63项执行前manifest为 `d662958683e1092611ec77128f0f2cd08f30c1f67026baa8c6a69bbfeae34211`。
+
+首轮实际76 semantic、37组控制通过（27 regular、1 mutation、9 direct groups），
+包含完整Run、成本类型/距离次序、默认/None权重、tie、numeric事件、源图和动作引用；
+跨调用成本31→22保持。另16项环资格控制、26次直接distance调用与3项classifier-only
+控制通过，独立于1040混合调用计数。零权、缺省权和异权环有手算有序距离参照。
+4 profile完成：ring heap push/pop各4160→64，prefix仍64、suffix4096→0；
+带分支图两侧各128=prefix64+suffix64，native lambda65为边评估数。
+恢复各2次，edge/node视图查询ring各63、bounded各0，临时建边1、multi-source1保持。
+
+首轮main/protocol错误要求bounded heap129而非128，runner rc3/outer rc1，实际计时0、
+snapshot0。只读caller核对确认唯一失败是该辅助计数，其他resource predicates通过。
+原protocol、profile、failure与receipt均保留，不将首轮描述为全绿。
+timing-only continuation重新绑定270份首轮原件，manifest为
+`892e1ad0f0e523ba6c48225296be041171f73f7c53c39b9f3e5541f7025f1d2d`；
+修正确定性的资源定义，不修改候选、输入或时间门槛，也不重跑semantic/profile。
+一次执行前把Python script SHA误当runner SHA的preflight停止已保存，未执行新phase。
+continuation实际0 semantic、0 profile、960 timed、snapshot1；全轮合计1040混合调用。
+
+固定六组交替、每侧每批20次完整kernel，包含SCC、搜索、恢复和Run；计时内没有profile、
+counter、序列化、断言或IO。每侧每批最后Run/source/alias检查通过，全部原始ns保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1（仅报告） | 0.585550 / 0.678100 ms | 6/6 |
+| N64 ring | 49.206050 / 19.638900 ms | 0/6 |
+| N64 bounded | 7.407850 / 7.514700 ms | 4/6 |
+| KTH保存图 | 5.242600 / 5.219150 ms | 3/6 |
+
+预设ring/bounded/KTH三个中位数均不得更慢。虽然ring约低60.088%，bounded约增1.442%，
+gate=false/not_adopted；未补采样、改时间门槛或采用。continuation runner rc4/outer rc1
+原件保留，不推断退出码差异原因。Humble+803 overlay，Python3.10.12/NetworkX2.4，
+HASHSEED继承并记录。旧snapshot只在此probe加载一次，无新翻译、构图或三阶段执行。
+
+结果SHA256 `6c3dc34e16f95c5137c112a2bd26ffc67f860b686f22bc1a5b8f552564908753`。
+独立重算中位数一致；首轮62组与continuation48组普通capture、18组direct图raw、
+6组direct输入及KTH raw保持。独立reader首次误读HashNode的events字段，改按实际
+hash_count/labels检查；两侧hash30保持，结果与执行阶段未改。
+
+归档 `/tmp/ltl_dp_single_cycle_publication_af9c605`，536条目含12个显式Git基线。
+原manifest将归档生成summary误标物理file，原件/receipt保持；独立reader因此停止。
+另存 `manifest_fix1.json`，明确523份物理原件、12个Git对象与1份生成metadata；
+SHA256 `5ab8ef22de1302a15057a019e045a912ab77902d548cc4faa8107362b3a6b240`。
+原件/副本双回读及生成metadata一次回读共1071次size/SHA检查，0不一致。
+两次root reader失败的原外层receipt未单独持久化，错误转录明确标记；成功回读另存。
+
+本輪只更新README/验证记录。生产六核心、四测试及采用数十九保持，dd56790的既有
+120项与完整20步IRL资格保持；未新增pytest/生产lint、七包、DDS、provider、benchmark、
+仿真、实机或Jazzy资格。七包仍为803f28e的独立旧资格。本次局部候选结果不证明整体
+或稳定加速、内存收益或IRL科学效果。本节之前451283 bytes原文保持，旧SHA256为
+`82fa829cd931e7a73c7d5d0d63ba643e86ff73b057ca4035b55d60f2a963bfeb`。
