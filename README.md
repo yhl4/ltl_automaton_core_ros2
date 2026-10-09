@@ -1033,3 +1033,11 @@ SCC lowlink 的 min 两参数候选本轮未采用：完整Run与回调检查通
 ROS2 V0.2接口及默认关闭、从示范轨迹学习软任务权重β的IRL范围保持。
 本轮验证结果不构成新的性能测量或实机资格。详见
 [validation.md 11.162](ltl_automaton_planner/docs/validation.md)。
+
+
+SCC 首次 DFS 的邻居迭代器缓存候选本轮未采用：分量顺序、完整 Run、代价类型、
+动作引用及自定义节点/映射回调检查通过，但固定批次在 ring/bounded/KTH 上的
+中位耗时分别约增1.45%/6.50%/5.27%，未达到四项预设性能门槛，未补采样。
+生产源码和测试保持；累计采用仍为二十二项，第11.162节七包组合资格继续绑定
+原源码 bd75495，可选IRL范围保持。详见
+[validation.md 11.163](ltl_automaton_planner/docs/validation.md)。

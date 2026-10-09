@@ -7004,3 +7004,89 @@ ROS2 V0.2接口和可选IRL原范围保持。验证包含ROS2 DDS与符号执行
 未执行provider、完整benchmark、物理仿真、实机或Jazzy。
 本节之前489926 bytes验证正文保持，旧SHA
 `d15eab07d639a580ae32e92115960a9e79b0ce32863eba813e99a38a6c71c4e9`。
+
+
+### 11.163 SCC 首次 DFS 邻居迭代器缓存候选评估（2026-10-10，未采用）
+
+本轮基线提交 `d4f5d7efb4bf3ecb3cf75d4501fe672c3f136fc4`，生产字节与第11.162节源码bd75495及
+第11.160节4c5ab12一致。先只读四份历史pstats定位SCC首次DFS的重复扫描，
+未将历史profile当作新测量。候选仅改`_reachable_components`：exact DiGraph、
+普通_node/_succ/inner dict及受限exact str/int/tuple节点形状下，每个首次访问节点
+保存一个邻居迭代器；第二次lowlink扫描、min列表表达式、分量队列与yield逻辑保持。
+自定义图使用原NetworkX回退；自定义节点或映射使用原手工遍历。
+迭代器为单次调用内保存，增加O(V)迭代器存储；本轮未测总内存。
+
+候选27764 bytes，SHA `beba05ce45bfd26a5cdaff2533e25f04b4e1b7ca60d0a5f88369d4512408de5c`；
+基线26588 bytes，SHA `da118889531ed9a65695423e982f5b398fe35da392308f277e7f507e27914d26`。
+原helper的custom图observer未覆盖exact-DiGraph的新增guard，fix1补充这些分支；
+fix1中二节点手算计数7在执行前修正为6（三次while访问加三次邻居检查）。
+原版与fix1均未执行且完整保留。更早的模块级草稿未在静态替换前保存，
+protocol明确记录不可恢复，未声称存在重建原件。
+
+唯一实际执行`helper_fix2.py`，SHA `a68e155d2e28e97ea7fd7e497acdfa5fd30a730f358e1092d50e98e40a537bd8`；
+manifest39项，SHA `3cb3d86470783a5a78189390d65d094dc11083ce9f4cba59a7707e2dd7e56ca3`。
+环境仍为Ubuntu-22.04-D、ROS2 Humble、Python3.10.12、NetworkX2.4，
+source Humble及第11.162节新install；六个实际核心import、四份测试、六份NetworkX文件、
+HEAD/clean与全部冻结输入在前后回读一致。只载入原始warm KTH快照一次，
+且发生于synthetic语义与资源门槛之后；未重建KTH或重跑三阶段演示。
+
+实际完成4组直接SCC/8次调用、32组原语义/66次调用、8次profile、12000次计时，
+原阶段合计12082次。另有独立7组observer/14次AST克隆调用，合计12096次。
+observer只替换preorder为计数dict并记录显式iter，不进入实际profile/计时函数。
+ring3的preorder检查10→8、dense2为9→7，candidate显式iter各3/2次；
+自定义图及exact-DiGraph的_node、outer、inner映射与HashNode四个独立回退组，
+两侧显式iter均为0；exact二节点回退的preorder检查均6次。
+分量顺序及fallback membership/映射/hash事件两侧相等。
+
+全部手算/完整Run/代价类型/动作和来源引用/异常及回调检查通过。
+四图profile保留prefix1、restore2、suffix搜索64/1/1/2、返回suffix节点4096/64/64/32、
+heap push/pop各4160/128/128/48；拓扑、距离次序、SCC生成器恢复次数、输入原字节保持。
+SCC内min调用两侧仍64/65/4096/31，Graph getitem两侧均0；
+显式builtins.iter caller由0变为64/64/64/16，均核对为候选SCC函数。
+主代理独立核对39项冻结输入、134对原始pickle及KTH前后原字节；没有反序列化快照。
+
+计时仍为五图各六对交替顺序、每侧200次完整planner调用；四项强制门槛为
+candidate批次中位数<=baseline，N1仅报告，未放宽、截断或补采样。
+以下单位为200次调用的批次ms，变化为candidate/old−1。
+
+| fixture | old median ms | candidate median ms | 变化 | candidate较慢对数 | 门槛 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| N1 | 4.3175000 | 4.8861000 | +13.1697% | 6/6 | 仅报告 |
+| N64ring | 460.2540505 | 466.9326005 | +1.4511% | 4/6 | 未通过 |
+| N64bounded | 43.1123000 | 45.9142500 | +6.4992% | 6/6 | 未通过 |
+| N64dense | 1049.8415505 | 1022.8402005 | -2.5719% | 2/6 | 通过 |
+| KTH | 45.1902000 | 47.5695500 | +5.2652% | 4/6 | 未通过 |
+
+全部六对批次ms原值（每格old/candidate）：
+
+| fixture | pair0 | pair1 | pair2 | pair3 | pair4 | pair5 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| N1 | 4.4900000/5.1845000 | 4.6128000/5.1271000 | 4.1321000/4.4899000 | 4.2210000/6.3022000 | 4.3548000/4.6451000 | 4.2802000/4.5607000 |
+| N64ring | 481.2467010/503.0596000 | 472.1600000/473.6798000 | 456.4727000/461.5291000 | 449.0301000/472.3361010 | 454.4964000/452.8029000 | 464.0354010/452.1240000 |
+| N64bounded | 43.3754000/46.5272000 | 44.8898000/46.5622000 | 46.3031000/47.3481000 | 42.7614000/45.0290000 | 42.8492000/45.3013000 | 42.6146000/45.0300000 |
+| N64dense | 973.6147010/1012.5177000 | 1205.9218010/996.7527010 | 1071.9757010/1033.4253000 | 1020.2529010/1000.6914010 | 1027.7074000/1053.2215010 | 1127.9850000/1033.1627010 |
+| KTH | 46.0912000/48.4748000 | 47.3461010/46.4022000 | 46.0973000/45.5353000 | 42.9899000/47.1917000 | 42.8506000/50.0183000 | 44.2892000/47.9474000 |
+
+三项强制中位数变慢，最终gate=false，Linux runner记录rc4；同一exec session35096
+最终工具/PowerShell外层退出为1，两值分别保存，未把外层值覆盖成Linux值。
+首版独立reader在误将两者要求相等处停止；修正仅分别记录两层退出值，
+再次只读核对，未重跑planner/profile/计时。stderr保留六条语义控制中的
+no-accepting-run诊断，未清除失败信息。
+准备时未cd的失败diff重定向曾在checkout产生0字节candidate.diff；执行者已确认来源，
+主代理可逆移动并保留在TEMP，实际1923字节diff独立保留，执行前checkout clean。
+
+归档 `/tmp/ltl_dp_scc_neighbors_publication_d4f5d7e`：504项=491份原文件+12份基线
+Git blob+1份生成metadata，manifest SHA
+`edd07932344eb33d8c8014de4cec965c25ecfd11879575049975ef9aae5c0262`。
+主代理独立完成1007项原件/副本size及SHA核对，0 mismatch、0 missing original；
+生成metadata只核对一次，manifest/receipt不自校验。原件producer、未执行准备、
+完整输出/捕获/30对计时、历史profile、reader失败与修正、空diff均保留。
+实际result5060231 bytes，SHA `974b91ce02fab7d5fd4e5268ece358b6b7cc2e4bb130720ca9ccd80d7e91b91d`。
+
+候选未采用，本轮只追加README与验证记录，生产和测试不变，累计仍二十二项。
+既有四模块126项及第11.162节754个JUnit用例继续绑定各自qualified源码，
+不将本轮控制调用计入回归、不声称新pytest或新的七包执行。
+ROS2 V0.2接口、默认关闭的示范轨迹软权重β学习与完整20轮IRL资格保持；
+未执行provider、完整benchmark、物理仿真、实机或Jazzy。
+本节之前494956 bytes验证正文保持，旧SHA
+`7be65e3e599a699509d1fe0bfc4e844d788145d6591518617b2f8ae3394626d0`。
