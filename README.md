@@ -938,3 +938,12 @@ RTPS_TRANSPORT_SHM Error: Failed init_port ...
 
 在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证；真实机器人示范与物理执行验证
 需使用对应环境另行开展。
+
+
+tight 路径恢复的原生 AtlasView 候选（基线 dd56790）未纳入：37组语义控制及完整Run、
+源图、custom view/inner dict读取事件保持，恢复的边视图查询63→0。唯一六组每20次完整
+搜索中位数旧/候选：N64 ring50.562/49.475 ms，单接受目标7.657/7.651 ms，KTH保存图
+5.045/5.060 ms；KTH未通过既定门槛，未补采样或改门槛。首runner因错误恢复计数停止，
+保留76次语义/4次profile原件；复核后只继续尚未执行的960次计时，各阶段不重复。
+本轮只更新文档，十九项优化及既有120项回归资格保持；
+详见 [validation.md 11.153](ltl_automaton_planner/docs/validation.md)。

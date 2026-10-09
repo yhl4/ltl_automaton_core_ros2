@@ -6300,3 +6300,79 @@ README同步，累计采用十九项局部优化。未新增七包、DDS、provi
 实机或Jazzy资格；七包仍为803f28e的独立旧资格。上述局部结果不证明整体稳定加速、
 内存收益或IRL科学效果。本节之前440028 bytes原文保持，旧SHA256为
 `5e1d7a133939f385edeb9e71b9a62c854c05d0dfc0f33b37fe81a8f2b8b792ee`。
+
+
+### 11.153 tight 路径恢复的原生 AtlasView 候选（2026-10-09）
+
+基线为 `dd5679081ca331993bacb9a7ec087a8220cc7419`，DP SHA256 为
+`56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7`。
+只读上一轮绑定相同 DP/Product 字节的候选 pstats 定位热点，它们是 e4156ca 探针的历史
+记录，包含完整 Run。ring64 的 `_restore_tight_path` 各2次，贡献63次 AdjacencyView
+节点查询与63次 AtlasView 边数据查询；Graph.__getitem__ 191次来自SCC，不是恢复。
+bounded64 两次恢复立即命中target，未产生这两类查询，不将总view计数误作恢复贡献。
+
+候选保留 `product.adj[current]` 原查询；仅 exact NetworkX AtlasView 且内部 `_atlas`
+为 exact dict 时复用该字典。迭代次序、原data引用、parent检查后才读取data/weight、
+零代价tie、算术与错误保持；view subclass或custom inner dict沿用原查询。适用条件是
+原生NetworkX2.4视图实现与恢复期间稳定的邻接。只增加import和两行type guard/赋值，
+候选SHA256为 `ba21c614bb9dd5f9d4bf3e3e85af34355a765e801360ea76ecbd95c76cc2e2af`。
+AST loader为两侧分别加载各自dijkstra/component/restore函数及同一原生AtlasView，
+确保候选恢复函数实际参与对照。候选未应用到生产或测试。
+
+初稿只静态准备；执行前root修正继承的hash差断言为0（component未变，两侧均30次），
+并在protocol明确恢复各2次、suffix搜索64/1次，所有输入和计时门槛保持。
+最终helper为 `888c7c98af5e5ecd7cd30ce785243d9e17a4f16005c17166916a42f03ccd71e2`，
+32项manifest为 `77895deebbfd015ba64c3f01c10293ce822b1bfdf462b58f2b00b81f71e1e207`。
+候选/helper AST与compile、LF runner/bash-n及绑定回读通过；pyflakes不可用，未安装。
+
+首轮实际76 semantic（54 regular、4 mutation、12 prior direct distance、6 direct
+restore）、37控制全部通过，4 profile完成。新增三类恢复控制：native exact view、
+view subclass和custom inner dict；固定selfloop/返边/tie图手算路径为s→a→j。
+读取weight事件严格为s-a、s-b、a-j，default均1；已在parent中的self/返s不读data。
+custom iter各2次、getitem键顺序a/b/j保持，完整事件、图内容/身份/raw及距离/来源输入保持。
+完整Run、代价类型、动作引用、SCC/后缀距离/来源次序保持；跨调用成本仍31→22。
+ring恢复的AtlasView边查询63→0、AdjacencyView节点查询63→63；bounded两者均0。
+实际恢复2/2、suffix搜索64/1、返回节点4096/64、native lambda64/65、临时建边1/1保持。
+上述caller只匹配精确coreviews.py:53/80及两侧恢复函数文件，不把其他调用混入。
+
+首轮helper的main仍误将restore_helper_calls要求为64/1；实际是2/2，因此runner rc3、
+外层工具rc1，未计时、未加载snapshot。原helper、protocol、manifest、failure、profiles
+和actual tool receipt均保留。只读诊断确认这一条与执行前protocol的2/2定义不一致，
+其余语义/资源/源图检查全部通过。没有修改原件或重新执行这些已完成阶段。
+
+root另建timing-only continuation：242份首轮原件及新runner在执行前冻结，manifest为
+`51e7b3c61b4af4ba1df7546756233a604f1e633bd5c1a4da79d14d3a0b881749`。
+重新核验同一HEAD/32项源绑定、37控制、原资源定义和raw前后后，继承已执行76/4计数；
+新进程实际只执行0 semantic、0 profile、960 timed及一次snapshot加载。明确区分继承
+计数与新执行计数，不把首轮说成全绿，也没有新增warmup/planner调用或重复计时。
+全轮合计1040混合调用，首轮76+4与continuation960分别保存。
+
+每输入仍固定6组交替，每侧每批20次完整kernel，包括SCC、搜索、恢复与Run；
+profile/counter/断言/序列化/IO在计时外。每侧每批只核对最后Run/source/alias，
+不逐次序列化全部计时调用，所有原始ns保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1（仅报告） | 0.573150 / 0.560550 ms | 1/6 |
+| N64 ring | 50.561600 / 49.475050 ms | 2/6 |
+| N64 bounded | 7.657400 / 7.650750 ms | 2/6 |
+| KTH 保存图 | 5.045150 / 5.059900 ms | 3/6 |
+
+预设三个主要输入candidate中位数均不得更慢；KTH增加约0.292%，未通过，gate=false，
+not_adopted。即使ring约低2.149%，也不忽略KTH；未补采样或改门槛。continuation
+runner rc4/真实外层工具rc1保留，不推断外层退出差异原因。Humble+803 overlay、
+Python3.10.12/NetworkX2.4、HASHSEED继承环境。旧KTH snapshot仅加载一次，10636 bytes，
+SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`；无新翻译、构图或三阶段。
+
+结果SHA256为 `37a8da2a938b00619b2d2a5fa92a0eb292689e3965a3d560c3e0c8da2bd897bf`。
+证据归档 `/tmp/ltl_dp_tight_atlas_publication_dd56790`，manifest SHA256为
+`a72677e355d77415bdd04394cb7dfabde28e1ef3f965a34a1c409121030d0ddd`。
+457条目含12个显式Git基线，文档修改前原件/副本独立914次size/SHA回读，0不一致。
+首轮62组普通capture与continuation48组、18组direct图raw共128组前后保持；
+另6组direct距离/来源输入及KTH raw保持，中位数独立重算一致。
+
+本轮只更新README和验证记录，生产/测试字节与采用数十九保持。未新增pytest或生产
+compile/lint、七包、DDS、provider、benchmark、仿真、实机或Jazzy资格。最近四模块120项
+与完整20步IRL为dd56790的既有资格，七包仍为803f28e独立旧资格。局部结果不证明稳定
+或整体加速、内存收益或IRL科学效果。本节之前445506 bytes原文保持，旧SHA256为
+`a57a21cd3983e43def5e7b9b54d737916095bf0c5093dc42e5cecb7359c8c8ee`。
