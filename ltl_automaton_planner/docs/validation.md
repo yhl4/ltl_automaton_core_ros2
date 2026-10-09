@@ -5922,3 +5922,62 @@ provider、DDS、仿真或实机。312份证据副本逐项回读size/SHA256一�
 `414f75a6b47749bf32a07f3916fe7436d2ec6009fed15065cc2382e7920bdb64`。
 本节之前412770 bytes原文保持，旧SHA256为
 `49589f9c4b3e40252c10a05888f043af395237a48b7a6fb462a84936af871288`。
+
+### 11.147 完整搜索闭合 SCC 原生权重复用候选未采用（2026-10-09）
+
+本轮基线 HEAD 为 `02d8a494fa559402b5c401024f3aa54447947c34`；原始
+`discrete_plan.py` SHA256 仍为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`，
+独立候选 SHA256 为
+`4748797f89bc3e8fd9154a3388506e99815e02ebadc60666e492f428c60d768d`。
+候选不建立额外带权图或预扫描：第一次受限 suffix Dijkstra 若覆盖完整 SCC，且扫描
+中未发现任何分量外边，才允许该分量后续接受目标使用原 Product 的 `weight="weight"`。
+仅 exact `DiGraph`/`ProdAut` 可用；custom graph/MultiDiGraph 保持原 callback。内部
+None 隐藏边可存在，但部分覆盖不能认证闭合；即使 None 出口也阻止复用。此证明依赖
+单次搜索期间图和权重稳定，目标集合只在本次调用存在，下一次重新检查。
+
+独立结构 inventory 只执行一次 snapshot 加载和一次 SCC 枚举，没有 planner 搜索。
+历史图36节点、72边、21个 SCC；两个接受环目标所在分量为16节点、31条内部边、
+0条出口，输入 pickle 前后原始字节相等。历史 snapshot SHA256 为
+`32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`；
+后续探针另加载该 snapshot 一次，只在保存图上完整搜索，没有新构图、翻译或 KTH 三阶段运行。
+
+原 helper/fix1 只准备，执行前补齐定义、实际导入路径和 runner rc/exit 传播；原稿保留。
+fix2 首次实际执行36次语义调用后停止，profile/timing/snapshot 加载均为0：辅助断言
+错误地要求内部隐藏边场景始终使用 callback，而路径、动作、手算代价及源图已相等。
+fix3 只观察既有搜索返回的节点数，按完整覆盖条件检查路线，并纠正协议中的旧文件名和
+fallback 标签；候选、输入、严格 source/Run 检查、样本和时间门槛保持。修正后该场景
+实际为先 callback 覆盖1节点，再 callback 覆盖4节点，最后两次 native 各覆盖4节点。
+
+fix3 仅执行一次，17个场景全部通过：36 semantic、2 profile、720 timed，合计758次；
+含默认权重、None 内部边/出口、零成本并列、Fraction/custom numeric、custom edge dict、
+custom graph/MultiDiGraph、显式与不连通起点、无接受目标及跨调用修改。跨调用修改的
+总成本仍为 `31→22`。完整 Run 所有字段、代价类型、动作引用及源图内容/身份/raw 检查通过。
+Humble + 803 overlay 下实际导入绑定当前源码；Python3.10.12、NetworkX2.4，HASHSEED 未设置。
+
+N64 profile 的 old/candidate `component_weight` 调用为 `4096→64`，native lambda 为
+`64→4096`，总权重回调仍为4160。两侧均64次 suffix、1次 prefix，多源函数总调用65；
+profile 的完整 Run 与源图检查通过。回调类型变化不等于搜索次数减少。
+
+各输入固定6组交替，每侧每组20次完整 kernel；计时包括 SCC、闭合确认、路径恢复和
+Run 构造，计数/序列化/断言/IO在计时外。唯一一轮720次原始 ns 及每组 Run/source 检查保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N=1 | 0.768100 / 0.796100 ms | 4/6 |
+| N=64 | 87.676750 / 86.743200 ms | 2/6 |
+| KTH 保存图 | 7.072750 / 7.121600 ms | 4/6 |
+
+每组路径与源图保持；最终 `source_raw=true`、`source_signature=true`。预设采用条件为
+N64 和 KTH 候选中位数均不更慢，N1只报告；KTH 未通过，故 `gate=false`、`not_adopted`。
+没有补采样或修改门槛。fix2 的36次与 fix3 的758次独立计数；wrapper工具 exit 均为1，
+runner rc 为 fix2=`2`、fix3=`4`。fix3 stderr 中六条无接受运行消息对应既定负例，原文保留。
+
+本轮仅发布 README/验证记录，没有生产或测试修改，未重跑现有85项核心测试、compile、
+lint或七包组合；未运行 provider、DDS、benchmark、仿真、实机或Jazzy。此前资格与
+未采用候选的结论保持，采用优化数量仍为16项。
+352份实际证据副本逐项独立回读原件/副本size与SHA256一致，冻结目录为
+`/tmp/ltl_dp_sink_reuse_publication_02d8a49`，manifest SHA256 为
+`e18ca9afc4c2af5e1c72d2769b524b72530995ddb216a15232f2ddb292da86d1`。
+本节之前416280 bytes原文保持，旧SHA256为
+`3553205de47c8390f80a5a75b950fd04c9e3b7069369d9cf6f0f302b0af33982`。
