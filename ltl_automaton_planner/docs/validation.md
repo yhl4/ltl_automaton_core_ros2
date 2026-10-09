@@ -6640,3 +6640,77 @@ generated一次检查计算1191，没有将生成记录当作独立原件/副本
 compile/bash-n与上述局部probe，不作稳定或整套速度/内存/IRL科学效果声明。
 本节之前465998 bytes验证正文保持，旧SHA
 3eb6294feef3f9b544a6dace6293051eb2972066a225bd8c6cb38dc75f871ceb。
+
+
+### 11.158 history TS 状态索引候选（未采用，2026-10-10）
+
+基线6aa81125aa1da68480db415b8499b631fb2abdf4，DP SHA
+f140302778648b08bfed00d1af2d016f024f37eb2e87af9fdd7de5e456326dff。
+候选只在同一次history调用重复访问、后继数大于1时，按TS状态建立原生索引；
+首次访问继续扫描，索引保留后继次序和原tuple引用，不跨调用缓存或提前截断trace。
+源Product节点和观测TS键只支持exact str/int及一层嵌套原生tuple；后继须为exact
+非空tuple且TS键原生，Buchi分量保留原引用。上述键/tuple含bool/float、子类、
+自定义hash/eq/getitem或更深tuple时继续旧扫描。调用期间图与hash/equality须稳定。
+初始候选将建索引放在cache miss路径，静态修正后才执行fix1：26188 bytes，SHA
+93ce03314419096641c7986c926119b8dc21804af9497847fbc6ac263817ad0a。
+除history函数和两个新helper外，所有既有函数AST相同；未应用到生产。
+
+准备阶段helper_fix1只是计划计数，helper_fix2存在不完整分支图、无效数值/tuple
+场景、KTH替代图与轨迹配方、计时混入校验、交替侧标签错误等问题；两版均未执行，
+草稿与manifest保留。根代理重建真实64条双向分支、数值/tuple图、原始回调及
+完整Run检查，并冻结33条目，manifest SHA
+749118ff82469f88682a3f22178fbd4344798cdaf88da103c0668f17f8422716。
+root_fix3 helper SHA c2d47e02f2788261f326d3fdf624eda9b4f00e721b7b8726f7b953dbfc73fe1a；
+首轮26次helper资格及22次历史调用通过后，在构造custom_buchi图时因NetworkX2.4
+无clear_edges停止，profile/timed/snapshot均0，runner/outer rc1，失败完整保留。
+
+root_fix4仅将尚未执行场景的构图改为remove_edges_from(tuple(edges))，读取已通过
+记录，只执行余下14次历史调用、6次profile、9600次timed与1次snapshot加载；
+没有重复已完成阶段。continuation冻结175条目，manifest SHA
+90a2040a710221dec6368d919bd18f231085bdc47d7ae60bdac19878ab86df47；helper SHA
+e591034560123df48480fddba1c75bebf74a28f5d9d9c62fd5a36674904360a5；protocol SHA
+c798b55a65200ce4158cee6a11aa1abe8e25b11ce055b74ae2afa4bf88893340。
+
+累计20项key与6项index资格，共26次direct独立计数；16组历史语义32次调用加
+跨调用删/增边刷新4次，共17组36次。覆盖空/未知、歧义/不同分支、长历史、
+bool/int及float/int相等、NaN后继续消费完整trace、自定义str/tuple/Buchi回调、
+原生/过深tuple、malformed successor的原IndexError；结果与手算值、原引用、
+回调/异常顺序、输入内容/身份/raw保持。完整Run各字段、代价类型、动作原引用保持。
+
+synthetic语义和profile门槛通过后，保存的KTH warmed_planner.pkl仅加载1次，
+SHA 32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554。
+观测配方为原prefix加8个完整闭合suffix循环，共56个观测；未替代为合成图。
+single2/branch64长历史各129观测，shortBranch64为3观测。
+profile旧/候选history过滤行访问single2 128/128、branch64 4160/128、KTH280/24；
+successors调用各2/2、2/2、10/10。候选分别建立0/1/10个索引；branch/KTH
+native key检查190/248次，索引与类型检查开销保留。prefix搜索各1次、suffix各1/1/2次，
+heap push/pop各4/130/48、返回prefix节点2/65/16和suffix节点[2]/[65]/[16,16]保持。
+
+计时调用plain完整improve_plan_given_history，source/Run检查在计时外；每fixture
+六组交替pair，每侧每批200次，按old/new标签重算中位数。累计36 semantic +
+6 profile +9600 timed =9642混合调用，26 direct另计；没有缩短、提前停止或补采样。
+
+| fixture | old ms | candidate ms | candidate slower |
+| --- | ---: | ---: | ---: |
+| single2，129观测 | 16.8119 | 18.67855 | 6/6 |
+| branch64，129观测 | 195.881549 | 175.697699 | 1/6 |
+| shortBranch64，3观测，仅报告 | 135.312 | 137.0506 | 4/6 |
+| KTH，56观测 | 60.4059 | 82.7338995 | 5/6 |
+
+执行前固定single2/branch64/KTH三项候选中位数均不高于旧版；single2与KTH
+分别约增加11.1031%与36.9633%，gate=false，候选未采用，runner/outer均rc4。
+branch64本轮约降10.3041%不能替代另外两项门槛；减扫描不构成整套性能改善。
+result 30065534 bytes，SHA cb640d7379b64e033acad191eb2f4a52b55effdbb99ad650c691c083484553d3。
+
+归档/tmp/ltl_history_index_publication_6aa8112，574项含561 file、12 Git、1 generated，
+manifest SHA f42dccc95bb4336974da6437b001f00feb18430112dcbe4071d310889b4cbcbf。
+独立reader对原件/副本和generated自身一次共1147项size/SHA检查，0 mismatch；
+另核对175冻结输入与90组记录的180对原始graph/trace bytes、完整中位数、侧标签、
+实际失败/continuation计数。pickle仅probe内加载上述snapshot，归档/reader未加载。
+
+本轮只追加README/验证记录。六核心、四测试、ROS2 V0.2接口与可选IRL学习范围保持；
+二十项已采用优化及84a0cd1的既有四模块123项/完整20步margin/β资格保持，未新增
+pytest、生产lint、七包、DDS、provider、benchmark、仿真、实机或Jazzy资格。
+局部probe不证明稳定加速、内存收益或IRL科学效果。
+本节之前470185 bytes验证正文保持，旧SHA
+9c1f576214f00bba265a3090bc02d07bed29a924d7be530943ab34259436d85f。
