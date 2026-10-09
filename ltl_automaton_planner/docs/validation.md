@@ -7205,3 +7205,102 @@ ROS2 V0.2接口及默认关闭、从示范轨迹学习软任务权重β的IRL原
 未新增provider、完整benchmark、DDS、物理仿真、实机或Jazzy执行。
 本节之前501500 bytes验证正文保持，旧SHA
 `d8949f3e04027f33b50cb692dd916a4ce88bae08eee1b01313cc919cb49249a6`。
+
+
+### 11.165 前驱外层视图候选评估（2026-10-10，未采用）
+
+本轮从独立ROS2 checkout的干净HEAD
+`582cf9406f51e4458daf139bdead68e6130b40e1`开始。
+仅评估关闭边扫描的外层前驱视图开销，没有改变目标函数、初始状态、接受性或IRL范围。
+生产源码、四测试输入保持，最终只追加README及本节。
+
+历史只读盘点`/tmp/ltl_dp_hotspot_inventory_582cf94/inventory.json`绑定当前十份源码/测试及
+上轮四份candidate pstats；其SHA为
+`3d7f1f0c5c23291a4c48e6e7cca77fe603b72982929d291cdf0f6641995d912d`。
+盘点使用上轮已执行的profile，不能作为本轮当前性能实测。
+盘点中coreviews.py:80的类名标签应为`AdjacencyView.__getitem__`，该函数构造AtlasView；
+原盘点保持，修正说明保存在主代理静态源码凭据中。
+
+候选冻结于`/tmp/ltl_dp_pred_view_probe_582cf94`。
+baseline DP26719 bytes，SHA
+`d740e5e7c610b4c9d320016972415a61187d26c0c7d00df66f103821640a5b5c`；
+candidate DP26952 bytes，SHA
+`2477bd83f37becc16285a985011a51a7e26a0dd738b94b28474ceaeb68aa0219`。
+候选只新增AtlasView导入，并在每个接受目标的关闭边扫描前，对精确DiGraph/ProdAut使用
+`AtlasView(product._pred[prod_target])`；自定义图类型保留`product.pred[prod_target]`。
+逐目标重新读取outer mapping，内层Mapping.items/AtlasView迭代与key读取保持，
+没有改为直接dict.items；其余函数AST和源码保持。
+
+提交原稿、fix1和root fix2均未执行并原样保留。
+静态修正涉及旧restore getter计数、前驱方向与edge-data alias、实际action引用、
+Run迭代器消费顺序、手算成本、rebound预期，以及PATH转义和Windows proof的Linux路径。
+fix3首次真实运行的tool/Linux/outer rc均为1：SCC8 calls、restore18 calls及前四组pred8 calls
+已经完成；在第五组exact_pred_inner的调用前，pickle触发夹具的PredInner.items禁止检查而失败。
+这次共34混合调用，semantic/profile/timing/snapshot均0，未进入计时。
+原failure_fix3只记录PHASE，遗漏独立restore/pred计数；18次由完成restore原件证明，
+8次pred由八份完整结果及失败traceback发生于下一次计数增加前证明，保留该记录限制。
+没有重建缺失原始工具输出。
+
+root fix4仅让PredInner.items禁止检查在完整kernel执行期间生效，
+序列化期间正常调用dict.items；原始pickle没有去缓存、清洗或归一化。
+failure记录补充独立计数，固定语义/资源/性能门槛保持。
+所有124份冻结输入size/SHA及当前Git输入字节在执行前后核对；
+环境为Humble+combo_bd75495/install、Python3.10.12/NetworkX2.4，
+没有手工repo PYTHONPATH，六个实际core import均来自当前仓库。
+fix4 runner只执行一次并真实终止，tool/Linux/outer rc均为4，结果完整。
+
+本次fix4：四组直接SCC8 calls，九组路径恢复18 calls，七组完整kernel前驱控制14 calls，
+32组原语义66 calls、四图双侧profile8 calls、固定计时12000 calls，共12114混合调用；
+warm KTH snapshot加载一次。加上fix3失败前34次，累计12148，不合并两次采样统计。
+原稿/fix1/fix2 preparation为零运行；没有继承上轮SCC调用冒充当前实测。
+七组pred覆盖exact DiGraph、native ProdAut、custom pred getter、exact outer、
+exact inner、HashNode、首次读取后替换outer mapping。
+手算prefix `[0]`、suffix `[0,1]`，int prefix/suffix/total cost为0/2/20；
+完整Run字段、输出action和返回node的源对象引用、前驱/后继edge-data alias、
+九次weight.get及默认值1、inner/getter/hash事件顺序均保持。
+rebound保留真实raw变化，且old/new post raw一致；其余raw均前后相等。
+此前32组语义、九组restore及RuntimeError类型/完整args检查均通过。
+
+八份原始pstats独立回读：`dijkstra_plan_networkX`精确caller的coreviews.py:80次数
+ring/bounded/dense/KTH从64/1/1/2降为0；line53主函数caller仍均为0，
+line53所有caller总数分别64/2/64/4，两侧保持并保存完整caller明细。
+restore helper对line53/80计数两侧均0。
+suffix搜索64/1/1/2、返回距离节点4096/64/64/32、heap push/pop4160/128/128/48，
+单次prefix搜索、两次restore及此前SCC资源约束均保持。
+134组常规原始capture、18组restore raw、14组pred raw及KTH before/after原件独立回读；
+reader没有加载原始snapshot、重跑planner/profile或额外计时。
+
+每图六对交替顺序、每侧200次完整kernel调用。预设四项必须各自candidate中位数不高于baseline，
+N1仅报告；没有删掉慢对、缩短批次、重采样或放宽门槛。
+
+| 输入 | baseline批次中位ms | candidate批次中位ms | 相对变化 | 较慢对/6 | 预设结果 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| N1 | 4.610696 | 4.761796 | +3.277% | 4 | 仅报告 |
+| N64ring | 467.9997005 | 466.573756 | -0.305% | 2 | 通过 |
+| N64bounded | 42.8585335 | 44.1456315 | +3.003% | 4 | 失败 |
+| N64dense | 1034.644417 | 1036.665749 | +0.195% | 4 | 失败 |
+| KTH | 40.535797 | 40.256697 | -0.689% | 3 | 通过 |
+
+候选总体gate=false，只能支持上述固定运行的结果，不能声称稳定或整套加速。
+`result_fix4.json`5134770 bytes，SHA
+`bd9eb738e1ceddb7a71f6ee7d4f14e88cb84068b90017ddb76c89b8830149ff2`。
+结果、全部实际计时/profile/capture、首次失败和各未执行稿都保留。
+主归档`/tmp/ltl_dp_pred_view_publication_582cf94`有637项
+（624原始file、12不可变Git blob、1生成metadata），manifest SHA
+`644d3686191d0d7fe9e66a614408154d286f6a1025d194d531b79735ce6c525a`。
+独立1273次原件/副本size+SHA核对，0 mismatch/缺件，归档/reader均零runtime和snapshot加载。
+原准备稿及fix1的producer/patch只有执行者内联工具调用，没有单独保存脚本；
+两次外层PowerShell wrapper也只有内联调用，保存的outer rc为原件。
+root fix2/fix3/fix4 producer和Linux runner、stdout/stderr/rc均有文件。
+另存authored provenance说明这些边界，不把它冒充原始工具transcript。
+复制文件名中的original_unexecuted指本轮未执行的继承稿；其来源是上轮已执行并通过的
+restore-view harness，不声称它在历史上从未执行。
+
+生产源码和测试完全保持第11.164节字节，累计采用仍为二十三项。
+已有四模块130项资格与完整20轮可选IRL检查仍绑定该未改动源码；本轮没有执行pytest/compile/lint。
+第11.162节七包754项资格继续绑定原源码bd75495，不与130相加，也不声称新跑七包。
+ROS2 V0.2接口及默认关闭、从示范轨迹学习软任务权重β的IRL原范围保持。
+未新增provider、完整benchmark、DDS、仿真、实机或Jazzy执行。
+本节之前510499 bytes验证正文及52703 bytes README前缀保持，旧SHA分别
+`f42fbb74247ec778c2e5053b83f67d4d57ebdb6a7324b0511f0df3287b150194`与
+`7e93de16b65b74d2d0d4dca979394a38b7da8367e6c56a917e6e510e4c59b4de`。
