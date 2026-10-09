@@ -6714,3 +6714,86 @@ pytest、生产lint、七包、DDS、provider、benchmark、仿真、实机或Ja
 局部probe不证明稳定加速、内存收益或IRL科学效果。
 本节之前470185 bytes验证正文保持，旧SHA
 9c1f576214f00bba265a3090bc02d07bed29a924d7be530943ab34259436d85f。
+
+
+### 11.159 可达 SCC 来源邻接直接迭代（2026-10-10）
+
+基线e1126ce7c8b3d22d2bb48cbc7c116699f7f05e58，DP SHA
+f140302778648b08bfed00d1af2d016f024f37eb2e87af9fdd7de5e456326dff。
+只在dijkstra_plan_networkX的拓扑生成器中，对exact DiGraph/ProdAut绑定product._succ，
+按原prefix_dist和内层邻接顺序迭代；其他图仍逐source读取product.adj[source]。
+保留add_nodes_from/add_edges_from、SCC、None结构边、权重/前缀/后缀/恢复与目标函数。
+与11.143仅绑定AdjacencyView、11.151直接写临时图不同，此候选只省去来源图的包装。
+新DP 24861 bytes，SHA
+06c485fd0afff5b4c084a073a03c2835763c4844d72d2aae753df3b969a61f03；
+仅此函数AST变化，无新import/helper，其他五核心、四测试及BSD notice保持。
+适用冻结的NX2.4原生图实现及搜索期间稳定的图/hash/equality；ordinary映射的
+getitem/iter事件保持，不保证运行中类猴子补丁或caller frame反射的语义。
+
+helper由已资格化prefix-inline helper派生，旧reference只冻结、未执行；未沿用旧资格
+fragment或运行与此改动无关的direct helper控制。执行前27输入manifest SHA
+d0a460ec49a079a4555a119555352e2cb4a1c072b923dc99a3073e8dfdc935c1；helper SHA
+16745372c0da30064f5deba304e2126513576729e5181cd92502339ef215af3c；protocol SHA
+8966d5a71c25e88f6ab77a2c43c63a1d21cb0e36a47a14814c06805157cca9f1。
+唯一probe helper_fix1完成：27 regular各两侧54次，跨调用修改4次，四个新source
+控制各两侧8次，共32组66 semantic；8 profile、12000 timed，共12074混合调用。
+snapshot仅在synthetic门槛通过后加载1次，没有探索inventory、失败后续跑或补采样。
+
+既有default/None/zero tie、Fraction/custom numeric、custom graph/MultiDiGraph、
+显式/无接受/不连通起点、overflow/精确异常与跨调用成本31→22均通过。
+新增控制覆盖原生ProdAut、外层dict subclass、内层dict subclass及custom adj getter；
+每侧外层getitem 15次；内层items8/iter7次；自定义getter7次，事件顺序相同。
+完整Run各字段、代价类型/有序距离、动作原引用、临时拓扑节点/邻接/前驱顺序及边alias
+保持；输入内容/身份与134对capture原始pickle字节和KTH源字节保持。
+
+profile的来源拓扑adj getter旧/新：ring64、bounded64、dense64各64→0，KTH16→0；
+prefix各1次，suffix各64/1/1/2次，返回suffix节点4096/64/64/32，heap push/pop
+4160/128/128/48，restore各2次、临时add_edges_from各1次保持。没有裁剪节点或减少
+搜索次数。历史KTH snapshot SHA
+32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554；
+只执行保存Product的完整kernel，没有重新翻译、构图、三阶段或provider调用。
+
+计时plain完整kernel，每fixture六组交替、每侧每批200次；计数、profile、原始源检查、
+最后Run/动作引用校验及IO都在计时外。原始ns按明确侧标签独立重算：
+
+| fixture | old ms | candidate ms | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1，仅报告 | 5.3658995 | 5.2709 | 0/6 |
+| N64 ring | 496.0914945 | 485.64454 | 1/6 |
+| N64 bounded | 70.3512505 | 62.93305 | 0/6 |
+| N64 dense | 1070.3221885 | 1051.1463895 | 2/6 |
+| KTH | 53.850398 | 52.2244985 | 1/6 |
+
+执行前固定四个主要fixture候选中位数均不高于旧版，本轮全部通过，gate=true、
+runner/outer均rc0，未执行后改门槛。局部降幅约2.1059%/10.5445%/1.7916%/3.0193%，
+不作稳定、整体速度、内存或IRL科学效果声明。result SHA
+4bebd7fb173e484920f8f9e9d2eec45f1bfbbc5675fe11f96f9f67f5b7861a25。
+
+probe归档/tmp/ltl_dp_scc_source_adj_publication_e1126ce，480项含467 file、12 Git、
+1 generated；manifest SHA
+f4d94eaf3802629bf091682f39ef8f7a25adedb380a0c501b2e57df1d3ffe953。
+原receipt报告959项原件/副本检查；独立reader发现清单指向的临时归档脚本原件已缺失，
+该1项只能核对归档副本。原manifest/receipt不改：实际958项size/SHA核对包括466对
+物理原件/副本、12对Git/副本、归档脚本自身一次和generated自身一次，0 mismatch、
+1 missing original。此脚本副本SHA
+8280ff1c4f910c8be47b8ca8d07e0d16347ab4fc8c1cc877c6b353d4b361e7da；
+缺失声明与修正版reader单列，不将脚本副本伪装为独立原件。候选/输入/结果原件均存在。
+归档冻结后新增的lint文件另归下述补充档，不修改已冻结清单。
+
+同一候选字节py_compile/flake8(99列)通过。首python -m pep257因模块不存在rc1，
+实际未启动该lint；保留失败后只用已有ament_pep257执行此项，rc0，没有安装依赖或
+重复compile/flake8。精确应用后一次四模块123 passed、0 skip/error/failure，
+Product/DP/LTLPlanner/IRL为34/32/29/28，含完整20步margin/β、复制/hook/跨调用刷新。
+保留2个既有np.int警告，pytest 1.07s、runner/outer0；六source实际import与四测试
+前后size/SHA相同，绑定新DP。首reader误要求DeprecationWarning标签出现2次，实际
+pytest将两个来源合并为一个Warning段；修正版只读取既有stdout/JUnit，没有重跑pytest。
+
+补充回归/lint归档/tmp/ltl_dp_scc_source_adj_regression_publication_e1126ce，
+55项；manifest SHA f94f0ddce4a203c1c974a6892871b574f7e76f3dc6dce5174284d2c2170a49ed。
+独立原件/副本与generated自身一次共109项size/SHA检查，0 mismatch；
+同时保存首lint/reader失败、归档路径修正、runtime/JUnit与十个新资格source/test字节。
+
+累计采用二十一项；本次局部source资格不替代803f28e的旧七包组合，未新增七包、DDS、
+provider、benchmark、仿真、实机或Jazzy。ROS2 V0.2接口与可选IRL原范围保持。
+本节之前475525 bytes验证正文保持，旧SHA
+a8476286321d9992a834f16f7245ca43877b36cc27fd4e849cad2c27be3f8525。

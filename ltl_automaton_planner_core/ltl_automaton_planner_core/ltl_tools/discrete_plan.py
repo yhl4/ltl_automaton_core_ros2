@@ -54,12 +54,21 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
     # Any accepting cycle used by a valid run must be prefix reachable.
     reachable_product = DiGraph()
     reachable_product.add_nodes_from(prefix_dist)
-    reachable_product.add_edges_from(
-        (source, target)
-        for source in prefix_dist
-        for target in product.adj[source]
-        if target in prefix_dist
-    )
+    if type(product) is DiGraph or type(product) is ProdAut:
+        source_adjacency = product._succ
+        reachable_product.add_edges_from(
+            (source, target)
+            for source in prefix_dist
+            for target in source_adjacency[source]
+            if target in prefix_dist
+        )
+    else:
+        reachable_product.add_edges_from(
+            (source, target)
+            for source in prefix_dist
+            for target in product.adj[source]
+            if target in prefix_dist
+        )
     for component in strongly_connected_components(reachable_product):
         reachable_targets = component & reachable_accepting
         for target in reachable_targets:

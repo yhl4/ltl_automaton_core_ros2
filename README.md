@@ -718,7 +718,7 @@ colcon test-result --verbose
 git diff --check
 ```
 
-### 最近局部验证（2026-10-09）
+### 最近局部验证（2026-10-10）
 
 | 范围 | 实际结果 | 记录 |
 |---|---|---|
@@ -742,8 +742,9 @@ git diff --check
 | suffix 单源 distance-only Dijkstra 内联（对照基线 `bcdd2b2`） | 120/120 passed；DP/testDP compile、flake8、pep257通过；ring64 callback 4096→0、bounded callback 65→0；N64 ring、N64 bounded、KTH 中位数门槛通过 | [11.150](ltl_automaton_planner/docs/validation.md) |
 | suffix 松弛复用弹出距离（基线 `e4156ca`，DP `56f8c6c4`） | 四模块120/120 passed，完整20步IRL保持；34组对照通过；N64 ring/bounded/KTH每20次中位数分别降低约7.1%/5.4%/2.3%，仅本轮局部结果 | [11.152](ltl_automaton_planner/docs/validation.md) |
 | prefix 原生权重查询内联（基线 `635e9fd`，DP `f1403027`） | 四模块123/123 passed，完整20步IRL保持；13项额外资格与37组控制通过；每200次完整搜索的dense/bounded/KTH中位数本轮约降4.3%/2.6%/0.8% | [11.156](ltl_automaton_planner/docs/validation.md) |
+| 可达 SCC 来源邻接直接迭代（基线 `e1126ce`，DP `06c485fd`） | 四模块123/123 passed，完整20步IRL保持；32组控制通过；本轮ring/bounded/dense/KTH完整搜索中位数约降2.1%/10.5%/1.8%/3.0% | [11.159](ltl_automaton_planner/docs/validation.md) |
 
-二十项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+二十一项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -996,3 +997,10 @@ history TS 状态索引候选本轮未采用：64 分支、129 个观测的完�
 6次profile及9600次完整重规划计时保留；首轮构图异常与仅续跑未执行阶段的记录
 一并归档。二十项已采用优化、既有123项回归和完整20步可选IRL资格保持；
 本轮只更新文档。详见 [validation.md 11.158](ltl_automaton_planner/docs/validation.md)。
+
+
+SCC 拓扑扫描现在对标准 DiGraph/ProdAut 直接迭代来源邻接，省去每个可达节点的
+邻接视图包装；自定义图保持原 getter 路径。四项预设中位数门槛本轮通过，
+完整 Run、拓扑次序、代价类型、动作引用及 outer/inner/getter 回调保持。
+应用后一次四模块 **123 passed**，含完整20步IRL；compile/flake8/ament_pep257通过。
+累计采用二十一项，详见 [validation.md 11.159](ltl_automaton_planner/docs/validation.md)。
