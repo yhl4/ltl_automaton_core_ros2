@@ -819,6 +819,11 @@ compile、flake8、pep257 通过。普通 DiGraph 的128边局部探针中，每
 生产代码未修改，用于三份既有核心测试的 runner 未执行；全部结果保留在
 [validation.md 11.143](ltl_automaton_planner/docs/validation.md)。
 
+节点属性标量遍历融合的后续候选（基线 `bf32f29`）也暂未纳入：现有生产方法只完成
+一次复制，最后字节检查之前的别名与可变对象隔离断言通过，但严格 pickle 相等门槛
+因一个 set 的四项引用顺序旋转失败。候选、控制与计时调用均为0，生产和测试字节未改；
+本次完整失败副本及只读归因见 [validation.md 11.144](ltl_automaton_planner/docs/validation.md)。
+
 此前源码 `ce014f7` 的740项、`683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
 第11.131、11.128、11.125节，各版本计数不相加。
 

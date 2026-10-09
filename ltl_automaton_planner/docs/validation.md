@@ -5779,3 +5779,50 @@ ament_flake8 --linelength 99与ament_pep257均rc0。首版runner因已冻结目�
 未修改生产或测试，用于三份既有核心测试的单个 runner 未执行；没有新增 pytest、compile、lint 或七包组合资格，也未重跑 DDS、KTH 阶段/profile、复制、provider、完整 benchmark、仿真、实机或 Jazzy。旧七包资格仍绑定 803f28e，不包含后续 IRL/Product 字节，各局部与组合计数不相加。
 manifest 绑定 26 份实际文件，逐一回读 size/SHA256 通过，位于 `/tmp/ltl_dp_scc_adj_publication_d49fedd`；manifest SHA256 为 `dffb013e2696b92b74f413f6c72f5adcdf703d0fae0a33266adb9c7436d7cb86`。
 原 validation 前 402656 bytes 保持不变，旧 SHA256 为 `9ce3a73f77b2976c9fe20bb4ad366c10d42d720b33458655f74672e2b8933209`。
+
+### 11.144 节点属性标量遍历融合候选的前置复制停止（2026-10-09）
+
+基线为 `bf32f2907f171a99ca38e6fbfacc15a72a142996`，生产 `ltl_planner.py` SHA256
+仍为 `83efed9c6bbd4117edf86be592b5db52e52c790a0a32e7075625afa86a67f6fd`。
+新候选完整文件 SHA256 为 `2b47a408f1268a3b99edb15d4760a8350f82fee851977d84675194fa42a61759`：
+只对精确 DiGraph/TSModel/ProdAut 与精确 dict 节点表，将节点属性基础标量收集并入
+现有节点遍历；自定义图/节点表保留原迭代，节点属性 dict 子类不扫描。边处理与完整
+deepcopy 保持。这是新候选，不替代第11.140节独立扫描候选或其缺失的首次失败副本。
+
+执行前冻结原门槛：old profile 完整字节/隔离通过后才调用候选；atomic dispatch 严格
+减少、deepcopy 总数与 dict/list/tuple 次数不变；6类控制各3种操作，全部通过后才做
+六组交替纯计时，并要求候选中位数不更慢。上限32次复制，没有选定或设置 HASHSEED。
+复用原 `warmed_planner.pkl`，SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`；
+没有重新构建或规划 KTH，没有普通 deepcopy profile。
+
+原 helper 与 fix1 仅准备、未执行。fix2 helper 一次在 snapshot 加载前停止，所有复制
+调用为0：协议中的 copy.py SHA 只有63位，末位5漏写。修订单独冻结为 fix3，校验值为
+`27dcfc53a4b9d4fbc3d90c74e549eb6eca9301524d6d2fbff9a6589cf51b6fd5`；仅修正该值
+及新输出名称，绑定全部 fix2 失败产物，候选、门槛、控制和计时协议保持。直接执行
+fix2 shell 曾因无执行权限停止、helper未启动，其工具回执未单独归档；随后使用 bash。
+
+fix3 helper 只执行一次、snapshot 加载一次；Humble + 803 overlay、Python3.10.12、
+NetworkX2.4、5个 Core source 导入与8个源码/测试输入绑定通过，HASHSEED 实际为 null。
+仅完成现有生产方法一次 cProfile copy：deepcopy/atomic/tuple/dict/list 调用分别为
+2649/638/74/352/43。源 before、after 及 after-check 完全相等，均为10661 bytes、SHA256
+`dda202fb7a0aa7d6962bdbd525f27926e6a41f417dd60467121a57a10a171bc1`；clone 与 after-check
+副本均为10661 bytes、SHA256 `f3b7461b5cb6187bd15e0ece3cc05e881c37703c31b4e98e7a5a50abf8592826`。
+完整 raw pickle 和 pstats 在断言之前保存。check_clone 的别名/隔离断言完成，最后
+`packed(clone) == packed(source)` 失败，状态为 `stopped_old_raw_gate`、gate=false。
+candidate、18项控制及12次计时均未执行。runner记录 fix2 rc=1、fix3 rc=3；fix3工具
+wrapper exit=1且输出为空，转录明确标注，未声称独立捕获 helper OS exit。
+
+只读 pickletools 检查不反序列化或重写 pickle，也不再调用复制。两侧4517个opcode，
+差异严格限于 EMPTY_SET/MEMOIZE/MARK 后的 `[3469,3480)` 字节区间、ADDITEMS之前：
+source引用顺序为229/228/340/230，clone为340/229/228/230，全部引用及次数保持，区间外
+所有字节完全相同。本次 raw 失败归因为一个 set 的成员输出顺序差异；不据此推断
+第11.140节缺失副本的原因，也未放宽或重跑原门槛。首个诊断因目录已存在而失败，
+原helper/日志保留；后续按ADDITEMS分段的报告包含非set指令，root另做精确边界检查。
+
+本候选仍为 incomplete / not_adopted，无候选性能或语义资格；生产和测试未修改，
+准备的节点hook永久测试未执行，未新增 pytest/compile/lint 或七包资格，也未运行
+DDS、provider、完整benchmark、仿真、实机或Jazzy。70份原件副本逐一回读size/SHA256，
+冻结于 `/tmp/ltl_replan_node_fused_publication_bf32f29`，manifest SHA256为
+`2d04c88bf977a7d57f1afea05a1750ca19e8d67f5123ee113cc1f406f25c2a08`。
+本节之前405580 bytes原文保持，旧SHA256为
+`a50fc911cc530b4f702421be75a73c51fe6e933428c49c42655f7bcd0c5d2b18`。
