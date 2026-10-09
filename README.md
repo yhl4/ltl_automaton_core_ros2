@@ -735,8 +735,9 @@ git diff --check
 | 重规划复制中的基础标量 memo（对照基线 `a9f0207`） | 84/84 passed；0 skip/error/failure；完整复制、边属性别名、hook顺序及可变隔离保持；KTH atomic dispatch 1695→854、1718→865，dict/list复制次数保持 | [11.135](ltl_automaton_planner/docs/validation.md) |
 | 可达 SCC 拓扑物化（对照基线 `3df6e23`） | 85/85 passed；0 skip/error/failure；96节点/96边 probe 的过滤 view 调用 2111→0；完整 Run、None 隐藏边与输入图保持 | [11.136](ltl_automaton_planner/docs/validation.md) |
 | 重规划邻接目标 tuple memo（对照基线 `f8d367c`） | 85/85 passed；0 skip/error/failure；完整复制、别名及hook顺序保持；KTH tuple复制286→74、294→88，dict/list次数保持 | [11.137](ltl_automaton_planner/docs/validation.md) |
+| IRL 路径软距离的边视图复用（对照基线 `84c159a`） | 85/85 passed；完整20步 margin 与 β 序列保持；128边路径的 EdgeView 访问128→1，空路径零访问；短路径存在额外开销 | [11.141](ltl_automaton_planner/docs/validation.md) |
 
-十三项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+十四项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -792,8 +793,16 @@ lexer首次完整校验固定规则，每次clone隔离输入、行号和状态�
 
 节点属性标量 memo 候选暂不纳入：评估在标准 deepcopy 的完整 pickle 检查处停止，
 额外诊断未复现，首次失败副本未保存，原因未确定。尚无候选调用数或耗时结果；
-生产代码和上述组合资格保持。本轮准备、失败及诊断记录见
+该节点 memo 候选未改变生产代码，上述旧组合资格保持。准备、失败及诊断记录见
 [validation.md 11.140](ltl_automaton_planner/docs/validation.md)。
+
+后续 IRL 路径评分只在单次调用内惰性复用边视图，下次调用重新读取图，保持浮点
+累加顺序、异常及输入图。三份核心测试一次 **85 passed**，包含完整20步 margin；
+compile、flake8、pep257 通过。普通 DiGraph 的128边局部探针中，每200次调用的
+六组批次中位数旧/新为 **38.161/9.685 ms**；单边为 **0.448/0.451 ms**。
+这是局部合成路径结果，新 IRL 字节尚未进行新的七包组合验证，不代表端到端加速。
+全部计时、首次探针失败与复制失败的独立续查见
+[validation.md 11.141](ltl_automaton_planner/docs/validation.md)。
 
 此前源码 `ce014f7` 的740项、`683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
 第11.131、11.128、11.125节，各版本计数不相加。

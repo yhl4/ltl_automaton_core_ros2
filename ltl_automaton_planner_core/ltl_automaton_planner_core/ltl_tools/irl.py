@@ -33,10 +33,14 @@ def _finite_nonnegative(value, name):
 
 
 def _path_soft_distance(product, path):
-    return sum(
-        product.edges[source, target]["soft_task_dist"]
-        for source, target in zip(path, islice(path, 1, None))
-    )
+    def distances():
+        edges = None
+        for source, target in zip(path, islice(path, 1, None)):
+            if edges is None:
+                edges = product.edges
+            yield edges[source, target]["soft_task_dist"]
+
+    return sum(distances())
 
 
 def _validate_runs(product, possible_runs):

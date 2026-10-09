@@ -5633,3 +5633,65 @@ pickletools反汇编diff为空。这次诊断未复现，且before SHA不同于�
 metadata保持。补充 `publication_manifest.json` 绑定47份实际文件，逐一回读size/SHA
 通过，SHA256为 `6290a4cda21d989e92b289300b12a7369eae1e8fdf77cfe325d3a93359faf072`。
 root前置失败的工具消息为标注转录，不冒充原始重定向日志；评估和诊断的原始日志保留。
+
+### 11.141 IRL 路径软距离的单次边视图复用（2026-10-09）
+
+基线为 `84c159a4d9c344aa7e2f2a89ffd9888813498ab0`。NetworkX 2.4 的普通
+DiGraph.edges 每次属性访问构造 OutEdgeView；原 `_path_soft_distance` 每条边访问一次。
+本次只在该函数内用局部 generator 惰性取得一次边视图，再按原 zip/islice 顺序查找
+soft_task_dist 并交给原 sum 累加。没有跨调用缓存或路径复制；空/单节点路径仍不访问
+边视图，下次调用读取当前图。其余 IRL AST 保持，示范选择、margin、β 更新、步长、
+最多20次迭代及停止规则不变。完整 irl.py SHA256 从
+`e1dcbdb08cb86dc4071f9bf69cb77d441ba37ba059b5fb1e2528f81f15eea263` 变为
+`d53a06d1eced93a76f4437ba003f17e8e1ceca5a9a4a2c55fea3f33b1329e2c8`。
+冻结候选函数301字节，SHA256为
+`aaf727ddc42e0794a92128ed2814ef4dc984d0d4637f6d2f1fbbd6de134c605c`。
+
+带访问计数的探针确认0/1/2/128边路径的旧/新 EdgeView 访问为0/0、1/1、2/1、128/1。
+重复边、自环、浮点累加顺序、缺边/缺 soft_task_dist 的精确异常类型与args、generator
+消耗顺序、下一次调用修改边值以及输入图保持对照通过。首次修改值控制误用同一图，
+使旧/新得到不同起始数据；失败结果和日志保留，修正为各自新图后通过。修正时完整重复
+了带计数计时，两轮合计14400 timed calls；首版helper源已覆盖而无法补回，当前helper
+仅绑定修正轮，不将两轮视为同一源码资格。两轮计时包含计数包装，不用于普通图速度声明。
+
+为排除计数包装，仅新增一次精确普通 DiGraph 的纯批次计时：1/2/128边，各六组交替
+old/candidate，每批200次，共7200 timed calls。计时内只有批次循环与函数调用，不含
+计数器、profiler、断言、快照或IO；每批结束后验证结果和图不变。执行前固定条件为
+前述语义/资源通过且128边候选中位数不更慢；短路径只报告，不据结果调整门槛。
+
+| 边数 | 旧/新批次中位数（ms，每200次调用） | 候选更慢的组数 |
+|---:|---:|---:|
+| 1 | 0.4475 / 0.4513 | 2/6 |
+| 2 | 0.7048 / 0.4974 | 0/6 |
+| 128 | 38.1612495 / 9.68495 | 0/6 |
+
+普通图探针 accepted=true，采用该局部候选。短路径可能增加开销，结果只属于合成路径
+微对照，不证明稳定、整套规划/重规划或完整 IRL 加速，也不证明内存或科学效果。
+
+同 Humble、Python 3.10 与第11.138节803 overlay，前置当前源Core及原生ltl2ba PATH，
+实际导入 irl.py 与新哈希匹配。discrete-plan、LTLPlanner、IRL 三份既有测试只运行一次：
+**85 passed，0 skip/error/failure**，2项既有 np.int 警告。JUnit逐项回读85个testcase，
+`test_learning_keeps_all_twenty_margin_updates_on_one_private_product` 通过，覆盖完整20步
+margin、β序列及源边不变；既有复制、alias、hook和隔离检查也通过。compileall、
+ament_flake8 `--linelength 99`、ament_pep257 通过。首版shell的未定义环境变量、错误
+lint参数与未正确加载环境的启动失败源/命令和日志保留，修正仅续未执行检查，没有重跑
+已通过pytest或compile。该新 IRL 字节没有新的七包组合资格；第11.138节746项仍绑定
+803f28e，不能当作新字节的组合验证或与85项相加。
+
+复制失败的独立续查未执行节点memo候选：只读清单发现三个多元素set，分别位于
+Product.graph.accept、Product.graph.accept_with_cycle 与 Product.graph.buchi.graph.symbols。
+copy.py 的set reduce及pickle迭代路径只能说明序列化可能受迭代顺序影响，不能证明首次
+失败原因。另一次明确 PYTHONHASHSEED=0 的ordinary复制完成后，后处理因把Product
+集合误定位到Büchi而KeyError；保存的before/after/clone实际字节相同，均10661字节，SHA256
+`421d0935109423b9e914da7c5bfeae081732a7d19342fed097ce630d7487a858`。
+原helper与字节保留，但没有成功result.json，原工具回执未另存为重定向日志。加上第11.140
+节两次，该节点memo评估及诊断的ordinary复制累计三次；两次额外诊断均未复现，首次原因仍unknown，节点memo
+仍incomplete / not_adopted，没有候选调用数或计时，不放宽原pickle门槛。
+
+已有probe、纯批次结果、runner/命令、日志/XML、源/测试副本及复制续查按实际相对路径
+冻结于 `/tmp/ltl_irl_path_view_publication_84c159a`。manifest绑定80份文件，逐一回读
+size/SHA256通过，manifest SHA256为
+`a31096c9ad42db1be5777856f8ef02d52921101ca4ea1258a8ed8066a07085d8`。
+完整env dump不在冻结范围，保留命令和实际模块身份。前140节393247字节保持，旧SHA256为
+`4486e071d816a1c6b91577a67f51e3d676e78496b717fae07fe536593d39e450`。
+本轮未重跑七包、DDS、provider、完整benchmark、物理仿真、实机或Jazzy。
