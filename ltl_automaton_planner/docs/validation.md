@@ -6175,3 +6175,58 @@ Jazzy 未验证，当前七包仍为 `803f28e` 的独立旧资格；这项局部
 不变。首轮失败 checks 与 fix1 成功 checks 分开保存，旧 DP/testDP 由 HEAD 的 Git 对象独立取回。
 本节之前430953 bytes原文保持，旧SHA256为
 `72abae9a9abf45910f9c227c897e9e0af78843be68587151c168542925089452`。
+
+
+### 11.151 可达 SCC 临时拓扑直接建边候选（2026-10-09）
+
+对照基线为 `9681280a3663623a0c49d719e33afedd2e2fa713`，旧 DP SHA256 为
+`81d4551190cfeebbe7d030f27b97d2205e1f0296ac67ae8426e0b637c842fdcc`。
+只读前轮 ring64/bounded64 candidate pstats；它们绑定相同 DP/Product 字节，包含
+Run 的 `__init__` 与 `plan_output`，用于定位已有热点，不是本轮新增探索 profile。
+候选 `_reachable_topology` 保留先加入全部可达节点，再按原 Product.adj 次序扫描结构边。
+临时图的 _succ/_pred 为 exact dict，inner/edge factories 为 dict 时，直接插入双向邻接，
+每边创建独立空属性字典，并保持后继/前驱属性 alias；否则沿用原 add_edges_from。
+None 结构边、节点/邻接/前驱顺序保持，不复制 weight/metadata，搜索仍读取原 Product。
+节点 hash/equality 须在构建期间稳定；不声称临时图内部 hash 调用次数保持。
+候选 SHA256 为 `cb3732b7d542f8e51bebfbf8e803012a27c2fd4991bb66094c269a6456cdea56`。
+
+原稿与 fix1 仅静态准备，未执行。root fix2 在执行前修正直接建图控制、custom 标签手算
+预期、计数、regular topology 落盘与逐侧 source 检查；输入、候选和时间门槛保持。
+root 静态 writer 首次因结果文件名断言停止，修正映射后才生成执行文件，未调用 planner。
+唯一 fix2 执行：27 regular 各 old/new 共54次、mutation4次、六 direct topology 各两次
+共12次，合计70 semantic；34组控制全部通过。四次 profile、960 timed，共1034混合调用。
+普通两SCC、零权tie、空可达集合、None结构边及 edge/inner/outer custom factories
+控制通过独立手算节点/邻接/前驱与属性 alias/独立性。工厂 fallback 事件一致，edge 为
+E次初始化/2E次update，inner为2V次初始化/E次get，outer为2次初始化/2V次set。
+完整 Run、代价类型、动作引用、SCC拓扑、有序 suffix 距离/来源与源图内容/身份/raw保持；
+跨调用成本仍31→22。ring64/bounded64 的临时 add_edges_from 为1→0、helper为0→1，
+实际 suffix 搜索仍64/1次，返回节点仍4096/64，未减少搜索或裁剪节点。
+
+每种输入固定6组交替，每侧每批20次完整 kernel，包含工厂检查、拓扑、SCC、搜索、恢复
+与 Run；profile/counter/断言/序列化/IO在计时外。每侧每批仅检查最后一次 Run/source/alias，
+不逐次序列化全部计时调用。所有原始 ns、输出、静态原稿与失败均保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1（仅报告） | 0.580500 / 0.537700 ms | 2/6 |
+| N64 ring | 49.378451 / 50.457350 ms | 3/6 |
+| N64 bounded | 7.441200 / 6.642150 ms | 0/6 |
+| KTH 保存图 | 5.140050 / 4.725000 ms | 1/6 |
+
+预设三个主要输入的候选中位数均不得更慢；N64 ring未通过，`gate=false`、`not_adopted`。
+未补采样、修改门槛或应用候选。runner rc4与真实外层工具rc1分别保存，不推断退出码差异原因。
+Humble+803 overlay、Python3.10.12/NetworkX2.4、HASHSEED未设置；仅加载一次旧KTH
+snapshot（10636 bytes，SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`），
+没有新任务翻译、KTH图构建或三阶段。
+
+证据冻结于 `/tmp/ltl_dp_topology_insert_publication_9681280`，manifest SHA256 为
+`d35d82bf910d6288d514f43e53d4dfff50a56cfe557c73cc47cadeb59de2ce1b`。
+468条目含4个显式Git基线；文档修改前原件与副本独立936次size/SHA回读，0不一致。
+122组capture原始字节前后及KTH原始字节保持；全部六组中位数独立重算一致。
+首次reader对/mnt/d的UNC访问被拒绝，随后仅改为native drive映射，归档与结果保持。
+
+本轮只更新README与验证记录，生产和测试字节保持，采用优化数量仍18项。
+未新增核心pytest/compile/lint、七包、DDS、provider、benchmark、仿真、实机或Jazzy资格。
+最近四模块120项及完整20步IRL margin/β为9681280的既有资格；七包仍为803f28e的独立旧资格。
+局部结果不代表整体稳定加速、内存收益或IRL科学效果。本节之前435721 bytes原文保持，
+旧SHA256为 `3e3af611fe1e33f20a93647315ec3fe3f8a0163a015f63481074dc36579a4901`。
