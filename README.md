@@ -956,3 +956,13 @@ tight 路径恢复的原生 AtlasView 候选（基线 dd56790）未纳入：37�
 带分支图约慢1.442%，未通过原定门槛，未补采样或应用。首轮资源计数误将128写成129，
 保留失败后只继续未执行的960次计时；生产、十九项优化及既有120项资格保持。
 详见 [validation.md 11.154](ltl_automaton_planner/docs/validation.md)。
+
+
+### 可达接受目标阈值的 cycle-dispatch 候选（未采用）
+
+679f834 基线上的候选，只对至少四个可达接受目标且同一 SCC 包含至少四个目标的
+原生闭环启用本次调用的 cycle map；prefix 可达节点须覆盖整图，其余输入保留原搜索。
+ring64 的 heap push/pop 各4160→64，bounded64 各128保持。固定六组每20次完整搜索的
+中位数旧/候选为 ring46.788/19.131 ms、bounded6.811/6.724 ms、KTH6.161/6.650 ms。
+KTH 门槛未通过，候选未采用，未补采样；生产、十九项优化及既有120项资格保持。
+详见 [validation.md 11.155](ltl_automaton_planner/docs/validation.md)。

@@ -6449,3 +6449,56 @@ SHA256 `5ab8ef22de1302a15057a019e045a912ab77902d548cc4faa8107362b3a6b240`。
 仿真、实机或Jazzy资格。七包仍为803f28e的独立旧资格。本次局部候选结果不证明整体
 或稳定加速、内存收益或IRL科学效果。本节之前451283 bytes原文保持，旧SHA256为
 `82fa829cd931e7a73c7d5d0d63ba643e86ff73b057ca4035b55d60f2a963bfeb`。
+
+
+### 11.155 可达接受目标阈值的 cycle-dispatch 候选（2026-10-09）
+
+本节基线为 commit 679f8349db2b3e1ea883701d843254dfe8c80c22，生产 DP SHA 为
+56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7。候选为 25637 bytes，
+SHA 为 f882bb9c0af7f1e48eea8db3e350ecf19743eda5a7720bfc729bd1aad7c1f271。
+
+可达接受目标至少为4时才调用全图形状认证：exact DiGraph/ProdAut、原生后继字典，
+len(product._succ) 须等于 len(prefix_dist)，每节点恰一个后继；键限原生str/int或两级tuple。
+同一 SCC 的可达接受目标也至少为4才认证闭环：原生边字典及str键、唯一后继在分量内、
+权重为exact非负int（缺省仍1），随后绑定本次 successor-weight map；其他输入回退。
+原三参数 component distance helper 的 AST 与 fallback 保持。cycle distance 不读取
+Product、不使用 heap，也不跨调用缓存；图及节点hash/equality须在完整搜索期间稳定。
+prefix、SCC 和目标遍历顺序、tie、gamma、Run、动作引用、异常参数及输入图别名保持检查。
+
+本轮资格控制为 17 个 case（28 次 direct distance、3 个 classifier-only），37 个语义
+控制共 76 次 semantic calls；另有 accepting target 数 1/2/3/4 的真实 old/new 路由控制
+8 次调用。总量为 76 semantic + 8 route + 4 profile + 960 timed = 1048 calls；额外的
+17项资格控制及其28次direct distance不并入此混合计数。历史 warmed snapshot 加载1次，SHA 为
+32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554。独立 inventory 的
+snapshot load 为另一项只读分析，不并入本 probe phase count。
+
+资源结果中，ring64 的 component/cycle 调用为 64→0 / 0→64，heap push 与 heap pop
+均为 4160→64；bounded64 保持 component 1、heap push/pop 各 128。37 个控制、路由、
+source/raw、Run 和资源检查全部通过。
+
+每个 fixture 固定 6 组交替 pair，每侧每批 20 次完整搜索；所有原始 ns、失败边界和最后
+一次 Run/source 检查均保留，未补采样或修改门槛。中位数（旧/候选，ms）与较慢 pair 数为：
+
+| fixture | old | candidate | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1（仅报告） | 0.528050 | 0.549550 | 4/6 |
+| N64 ring | 46.788205 | 19.130702 | 0/6 |
+| N64 bounded | 6.810601 | 6.723551 | 3/6 |
+| KTH | 6.1608505 | 6.650401 | 4/6 |
+
+N64 ring、N64 bounded 和 KTH 是预设门槛；KTH 候选较旧值增加约 7.946%，因此整体
+gate=false，候选 not_adopted。未新增生产 pytest、compile 或 lint；本轮只
+完成静态 compile/bash-n 检查与 probe，未运行七包、DDS、provider、benchmark、物理仿真
+或 Jazzy 验证。采用数保持十九项；dd56790 的既有 120 项与完整 20 步 IRL 资格保持，
+803f28e 七包资格仍是独立旧边界。
+
+证据绑定：helper SHA f5846fbd8eeb56c01fc86d12051d502ffc7aa2d29f035edd8be470449598702f，
+preflight manifest SHA 606daa5b5eef48d52340b78d46c2d72b94f376ec329da9f3c7b37e40211e45dc，
+publication manifest SHA 9d4fc8067f0ca071cf9a789ffb7f0a199b4c8768cb77ee84055bcb628764f719，
+result SHA b853059723b47d6ed76947d0a29beb56a8405069948422d6ff99d6f1284234d0。归档位于
+/tmp/ltl_dp_cycle_dispatch_publication_679f834，包含 514 file、12 git、1 generated，共
+1053 项 size/SHA 检查且无 mismatch；独立 reader 保留 118 普通 raw pairs、18 direct 图、
+6 direct 输入与 KTH raw。runner rc 为 4，outer receipt rc 为 1，均保留原件。
+
+fix0、fix1 和 prebind 仅为静态稿；唯一执行的是 final fix2。生产与测试字节未改，未新增
+本轮 pytest 或测试资格。
