@@ -5589,3 +5589,47 @@ TS/Product内部edge alias、可变隔离通过；两次副本隔离、既有cus
 最初shell工具回执与序列化诊断原stdout未另存文件，不将说明当作原始日志。最新803组合
 53文件本轮只读回读通过，未称作本轮执行前后核对；138份资格源码/构建文件及前138节
 历史字节保持。本次只发布README与本记录，不更新七包或各局部测试计数。
+
+### 11.140 节点属性标量 memo 的未完成对照（2026-10-09）
+
+基线为 `3ea98c182f88de7050989811ff8d11a79c260d0d`。复用已保存的 KTH planner
+快照 `warmed_planner.pkl`（SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`），
+不重新构建或规划。准备统计发现节点属性相对现有边标量 memo 新增4个对象id、120次
+出现：label key 6、unvisited value 42、buchi key 36、ts key 36；出现次数不是复制调用数。
+候选只扫描精确dict节点表及精确dict节点属性，用既有类型限制预置基础标量，仍完整
+deepcopy。候选方法SHA256为 `6fcd0969b79ff17073592e9ee81ed59b4ed55d8845b6db52177f94602bc7d669`，
+没有写入生产代码。
+
+执行前按本机 Python3.10 copy.py 更正资源预期：标量 memo 减少的是 atomic 分派，
+deepcopy函数入口及dict/list/tuple次数应保持。冻结条件为 atomic 减少、其余上述入口
+次数相同、六组交替纯复制的候选中位数不更慢，以及完整状态、alias、hook和隔离通过。
+没有观察候选结果后调整条件。准备使用了仓库内旧overlay，目标两模块仍从当前源Core
+导入且哈希匹配；后续评估改用第11.138节803组合overlay并校验Core实际导入路径。
+两份存在输入重载/字典控制或导入集合问题的未执行稿保留；修正前SHA转录少一位使
+前置guard拒绝，尚未修改文件或执行复制，失败源和修正源均保留。
+
+固定评估只执行一次，exit=1。第一条ordinary deepcopy已经完成，其原始pstats记录为
+deepcopy **5187**、atomic **3420**、tuple **1150**、dict **352**、list **43**，
+随后 `packed(source)==before and packed(clone)==before` 检查失败。此前实际实例的
+before为10661字节，SHA256 `b8487117c3e92ac20582ad5a82ec7594be0270651c8ff857127c8b09ec2920c4`。
+首次未分开记录两个子条件，也未保存after/clone字节，因此不能确定失败项或原因；
+不能将原始调用计数当作已通过语义检查。old/candidate profile、六组计时、后续
+custom/hook/mapping/独立性控制均未执行，没有候选调用数、中位数或接受结果。
+
+仅对未完成正确性阶段做一次额外ordinary复制诊断，没有重跑已完成profile。该新进程
+只加载一次同一快照，保存的before/after/clone均为10661字节，SHA256均为
+`4dd4d940eea0a1b71dfeee75aec5bc4a4b972218088ddc25a3a07b36cd4a6fe2`，
+pickletools反汇编diff为空。这次诊断未复现，且before SHA不同于首次实例，不能恢复
+首次失败字节或证明其原因，不归因于set顺序。本轮实际ordinary复制共两次，原失败
+保留；没有执行候选、计时、测试、provider、benchmark、物理仿真或实机。
+
+本轮结论为 **incomplete / not_adopted**，不判定候选性能通过或失败，不增加测试计数。
+生产保持，第11.138节746项组合资格保持；本轮只读核对其prepared记录中的138份
+源码/IDL/构建字节全部匹配，没有重跑七包，也不称作本轮执行前后核对。
+准备、两份未执行稿、失败pstats/日志、独立诊断和源码副本保存于
+`/tmp/ltl_replan_node_scalar_publication_3ea98c1`，按实际相对路径的manifest核对。
+原canonical manifest绑定40份副本，原summary误记两份root Temp源缺失；实际源位于
+明确的 `/mnt/c/Users/Yuhling/AppData/Local/Temp`，另补两份源及audit correction，原
+metadata保持。补充 `publication_manifest.json` 绑定47份实际文件，逐一回读size/SHA
+通过，SHA256为 `6290a4cda21d989e92b289300b12a7369eae1e8fdf77cfe325d3a93359faf072`。
+root前置失败的工具消息为标注转录，不冒充原始重定向日志；评估和诊断的原始日志保留。
