@@ -6230,3 +6230,73 @@ snapshot（10636 bytes，SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97
 最近四模块120项及完整20步IRL margin/β为9681280的既有资格；七包仍为803f28e的独立旧资格。
 局部结果不代表整体稳定加速、内存收益或IRL科学效果。本节之前435721 bytes原文保持，
 旧SHA256为 `3e3af611fe1e33f20a93647315ec3fe3f8a0163a015f63481074dc36579a4901`。
+
+
+### 11.152 后缀松弛复用刚弹出的距离（2026-10-09）
+
+基线为 `e4156ca91e8aa04edd832f9208e00d17b126e4d3`，DP SHA256 为
+`81d4551190cfeebbe7d030f27b97d2205e1f0296ac67ae8426e0b637c842fdcc`。
+只读前轮绑定相同生产 DP/Product 字节的 ring64/bounded64 old pstats 定位热点，没有新增
+探索 profile。候选仅将 `_component_distances` 的 `distances[current] + cost` 改为
+`distance + cost`；distances[current] 刚被赋为弹出的同一 distance 对象，减少每个有效
+松弛边的一次字典读取。搜索期间图及节点 hash/equality 须稳定；内部节点 hash 调用次数
+有意减少，不承诺动态 hash/equality hook 的调用次序保持。不新增检查、fallback 或配置。
+heap/counter/tie、source=None 早停、成员过滤、default/None weight、自定义 numeric 对象与
+add/radd/lt/eq 事件、异常 args、prefix/SCC/恢复/Run、目标函数及 IRL 范围保持。
+候选与最终 DP SHA256 为 `56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7`，
+22536 bytes；完整 NetworkX BSD notice 保留，其他五核心与四测试字节不变。
+
+初稿及修复稿均只静态准备；执行前修正直接控制的同图输入、实际返回键编码、非空
+operand identity 事件、真实源图 content/identity/raw 检查和 literal shell 退出码保存。
+root 最后排除两侧不同证据路径对辅助 equal 字段的影响；手算门槛、候选与输入保持。
+最终 helper SHA256 为 `8ef8f23b3477aa8f3a5d00f5bc5615bc2060338eaec512281d36fe0b40868b30`，
+35项输入 manifest 为 `03b25c037b0bf3949edc4efbebbf72ee5e500de01493a5503e1ddfc23e0a96c9`。
+AST/compile、LF runner 与 bash -n 静态检查通过；pyflakes 不可用，未安装。
+
+唯一一次执行：27 regular 各两侧共54次、cross-call mutation4次、六 direct distance
+各两侧共12次，共70 semantic/34控制组；4 profile、960 timed，合计1034混合调用。
+missing-source、undirected zero tie/component exit、source=None、自定义 edge.get/numeric
+事件、操作数身份、有序距离与类型、跨调用成本31→22、完整Run/动作引用与源图全部通过。
+四节点四边 stable HashNode 控制的 helper 内 hash 次数34→30，真实返回顺序 n0..n3，
+距离0/1/2/3保持；cProfile不测量字典 BINARY_SUBSCR 次数，该直接控制也不推断所有图收益。
+ring64/bounded64 的 suffix 搜索仍64/1次、返回节点4096/64，native lambda64/65；
+临时 SCC add_edges_from 两侧均1次，topology helper均0次，拓扑/距离/来源顺序保持。
+
+每输入固定6组交替，每侧每批20次完整 kernel，包括SCC、搜索、恢复与Run；
+profile/counter/断言/序列化/IO在计时外。每侧每批检查最后一次Run/source/alias，
+不逐次序列化所有计时调用，全部原始ns保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1（仅报告） | 0.549350 / 0.552001 ms | 5/6 |
+| N64 ring | 48.323156 / 44.890905 ms | 0/6 |
+| N64 bounded | 7.301401 / 6.906501 ms | 1/6 |
+| KTH 保存图 | 5.011351 / 4.896301 ms | 3/6 |
+
+三个主要输入均通过预设 candidate median <= old 门槛，`gate=true`，采用此一行修改；
+N1仅报告，略慢。没有补采样、修改门槛或裁剪搜索。runner和真实外层工具均rc0。
+Humble+803 overlay、Python3.10.12/NetworkX2.4，HASHSEED继承环境；旧KTH snapshot仅
+加载一次（10636 bytes，SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`），
+没有新任务翻译、KTH构图或三阶段执行。
+
+结果 SHA256 为 `565878b2af10c2a7fb008a709aeeaaccc7ea516b98826904d3734ffb22c1bd18`。
+探针归档 `/tmp/ltl_dp_popped_distance_publication_e4156ca` 的 manifest SHA256 为
+`d7b4bcdca7a75732aa25b0738fbd0561a1a781ced0f9ffe8773d3f896a2d7a60`；
+428条目含12个显式Git基线，采用前原件/副本独立856次size/SHA回读一致。
+独立重算六组中位数一致；110组普通capture与12组direct原始字节前后保持，KTH raw保持。
+首次root reader误用前轮122组capture断言；只读计数确认本轮220个capture文件对应110组，
+另有12组direct文件后，仅修正reader计数。原reader与错误转录保留，未重跑探针。
+一次 PowerShell JSON 查看因大整数解析失败；Python读取原件后完成检查，结果未改。
+
+应用后四模块 pytest 一次120 passed（Product34、DP29、LTLPlanner29、IRL28），
+0 skip/error/failure，2条既有np.int警告；完整20步margin/β与复制/hook回归保持。
+首个runner误沿用testDP compile/flake8及DP/testDP pep257；实际这些检查均rc0，记录保留。
+之后只补跑改变的DP文件compile/flake8各一次，均rc0；已通过pytest和DP pep257不重复。
+六核心/四测试的真实导入路径、size/SHA按本次候选字节另行校验，全部匹配。
+资格归档 `/tmp/ltl_dp_popped_distance_checks_publication_e4156ca` 的 manifest SHA256 为
+`173015a575c6e4c6f2045611949291ab4ba2920fd9025720fb8456d1171c307a`，487条目原件/副本独立974次size/SHA回读一致。
+
+README同步，累计采用十九项局部优化。未新增七包、DDS、provider、benchmark、仿真、
+实机或Jazzy资格；七包仍为803f28e的独立旧资格。上述局部结果不证明整体稳定加速、
+内存收益或IRL科学效果。本节之前440028 bytes原文保持，旧SHA256为
+`5e1d7a133939f385edeb9e71b9a62c854c05d0dfc0f33b37fe81a8f2b8b792ee`。

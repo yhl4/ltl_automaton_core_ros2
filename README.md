@@ -740,8 +740,9 @@ git diff --check
 | 重规划嵌套 tuple 的直接类型检查（对照基线 `2f327a1`） | 85/85 passed；24类边界输入与原检查一致，完整复制/custom key/hook及20步IRL margin回归保持；16项嵌套 tuple 的 cProfile genexpr调用96→0 | [11.145](ltl_automaton_planner/docs/validation.md) |
 | Run 输出的 TS 邻接复用（对照基线 `3c278b1`） | 四模块119/119 passed；完整20步IRL与复制/hook回归保持；128步Run的TS `__getitem__`调用128→0，六组每50次构造中位数6.939/2.592 ms | [11.149](ltl_automaton_planner/docs/validation.md) |
 | suffix 单源 distance-only Dijkstra 内联（对照基线 `bcdd2b2`） | 120/120 passed；DP/testDP compile、flake8、pep257通过；ring64 callback 4096→0、bounded callback 65→0；N64 ring、N64 bounded、KTH 中位数门槛通过 | [11.150](ltl_automaton_planner/docs/validation.md) |
+| suffix 松弛复用弹出距离（基线 `e4156ca`，DP `56f8c6c4`） | 四模块120/120 passed，完整20步IRL保持；34组对照通过；N64 ring/bounded/KTH每20次中位数分别降低约7.1%/5.4%/2.3%，仅本轮局部结果 | [11.152](ltl_automaton_planner/docs/validation.md) |
 
-十八项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+十九项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -792,6 +793,14 @@ Run、source/action identity 和 gamma/IRL 范围保持。fix3 完成 66 semanti
 960 timed 和一次历史 snapshot 加载；ring64 callback 4096→0、bounded 65→0，但 suffix
 搜索节点数不变。N64 ring、N64 bounded、KTH 中位数均不慢，N1 仅作报告；这仍是局部
 探针结果，不作稳定或整体加速声明。详见 [validation.md 11.150](ltl_automaton_planner/docs/validation.md)。
+
+suffix 松弛现在复用刚弹出的 distance 对象，省去刚赋值的 distances[current] 查询；
+适用于搜索期间图与节点 hash/equality 稳定的场景，数值对象、事件、堆次序和目标函数保持。
+34组控制、4次profile和唯一960次完整kernel计时通过预设门槛；每20次搜索的六组中位数
+N64 ring为 **48.323/44.891 ms**、单接受目标为 **7.301/6.907 ms**、保存KTH图为
+**5.011/4.896 ms**，分别有0/1/3组候选更慢，N1略慢且只报告。应用后四模块一次
+**120 passed**，含完整20步IRL，改变的DP文件compile/flake8/pep257通过。没有补采样，
+结果只表示本轮局部对照；详见 [validation.md 11.152](ltl_automaton_planner/docs/validation.md)。
 
 ### 最近七包组合记录（源码 `803f28e`，2026-10-08）
 

@@ -221,7 +221,7 @@ def _component_distances(product, source, component):
             cost = data.get("weight", 1)
             if cost is None:
                 continue
-            candidate = distances[current] + cost
+            candidate = distance + cost
             if successor in distances:
                 if candidate < distances[successor]:
                     raise ValueError("Contradictory paths found:", "negative weights?")
