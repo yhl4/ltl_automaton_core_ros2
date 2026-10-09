@@ -737,8 +737,9 @@ git diff --check
 | 重规划邻接目标 tuple memo（对照基线 `f8d367c`） | 85/85 passed；0 skip/error/failure；完整复制、别名及hook顺序保持；KTH tuple复制286→74、294→88，dict/list次数保持 | [11.137](ltl_automaton_planner/docs/validation.md) |
 | IRL 路径软距离的边视图复用（对照基线 `84c159a`） | 85/85 passed；完整20步 margin 与 β 序列保持；128边路径的 EdgeView 访问128→1，空路径零访问；短路径存在额外开销 | [11.141](ltl_automaton_planner/docs/validation.md) |
 | 完整 Product 构图的 TS 来源邻接复用（对照基线 `7321c75`） | 62/62 passed；有序图、动作引用、重建刷新及异常状态保持；128分支往返图的 TS 邻接查询256→129 | [11.142](ltl_automaton_planner/docs/validation.md) |
+| 重规划嵌套 tuple 的直接类型检查（对照基线 `2f327a1`） | 85/85 passed；24类边界输入与原检查一致，完整复制/custom key/hook及20步IRL margin回归保持；16项嵌套 tuple 的 cProfile genexpr调用96→0 | [11.145](ltl_automaton_planner/docs/validation.md) |
 
-十五项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+十六项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -823,6 +824,12 @@ compile、flake8、pep257 通过。普通 DiGraph 的128边局部探针中，每
 一次复制，最后字节检查之前的别名与可变对象隔离断言通过，但严格 pickle 相等门槛
 因一个 set 的四项引用顺序旋转失败。候选、控制与计时调用均为0，生产和测试字节未改；
 本次完整失败副本及只读归因见 [validation.md 11.144](ltl_automaton_planner/docs/validation.md)。
+
+后续只将既有不可变节点检查中的内层 `all(generator)` 改为等价直接循环，精确类型、
+两级限制、短路顺序、memo 和完整 deepcopy 保持。每批16000次纯嵌套 tuple 检查的六组
+中位数旧/新为 **17.172/9.854 ms**，平坦 tuple 为 **3.657/3.697 ms**；这不是完整
+复制或端到端重规划耗时。既有三份核心测试85项通过，旧七包组合不包含本修改，
+此前节点 memo 候选的失败门槛和状态保持，详见 [validation.md 11.145](ltl_automaton_planner/docs/validation.md)。
 
 此前源码 `ce014f7` 的740项、`683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
 第11.131、11.128、11.125节，各版本计数不相加。

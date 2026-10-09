@@ -5826,3 +5826,46 @@ DDS、provider、完整benchmark、仿真、实机或Jazzy。70份原件副本�
 `2d04c88bf977a7d57f1afea05a1750ca19e8d67f5123ee113cc1f406f25c2a08`。
 本节之前405580 bytes原文保持，旧SHA256为
 `a50fc911cc530b4f702421be75a73c51fe6e933428c49c42655f7bcd0c5d2b18`。
+
+### 11.145 重规划嵌套 tuple 的直接类型检查（2026-10-09）
+
+基线为 `2f327a18d615b15f39e25d3cc7feda48c73b4734`。当前源码匹配的历史复制 profile
+用于定位内层生成器开销，没有重跑其 KTH 阶段。仅在 `_copy_for_replanning` 内部的
+`is_immutable_node` 将 `all(type(inner) in (str, int) for inner in item)` 换为直接 for
+短路循环；精确 tuple/str/int 类型、两级深度、空 tuple 与原检查顺序保持，bool和各
+子类仍走普通复制。imports、memo、节点/边遍历及最后完整 deepcopy 字节保持；完整
+`ltl_planner.py` SHA256 从 `83efed9c6bbd4117edf86be592b5db52e52c790a0a32e7075625afa86a67f6fd`
+变为 `a0ba43e4ff046bed8d9b969e7be858f837a24d1bebb6654c12ef956b88bddd2d`。
+
+原 helper 与 fix1 仅准备、未执行。原 run_probe.sh 误存为 Python writer，执行前修正
+为独立 Bash runner；补齐内层空tuple/整数及非法leaf控制并统一协议列表后，冻结fix2。
+24类手算输入各调用old/new一次，预期布尔结果、类型结构指纹均一致；含三层嵌套、
+bool/float/None、str/int/tuple子类、首尾非法leaf及禁止迭代的tuple子类。资源各profile
+16项嵌套tuple一次，实际predicate调用16/16，cProfile genexpr调用96/0；这是生成器
+恢复调用计数，不是完整复制次数。执行前门槛为控制/资源通过且嵌套输入候选中位数
+不更慢；平坦输入只报告，未据结果改变条件。
+
+纯计时每侧每批16项tuple×1000次遍历，flat/nested分别六组交替，共384000次predicate
+调用；计时只有循环和函数调用，profile、计数器、断言与IO在外。每组原始时间保留：
+
+| 输入 | 旧/新中位数（ms，每批16000次检查） | 候选更慢组数 |
+|---|---:|---:|
+| flat TS tuple | 3.65710 / 3.69655 | 3/6 |
+| nested Product tuple | 17.17190 / 9.85425 | 0/6 |
+
+fix2 helper/runner只执行一次、rc=0、stderr为空，gate=true；controls48次与profile32次
+另计。此探针没有调用planner或deepcopy，没有重新构建、规划或加载 KTH；继承HASHSEED
+为null。结果只说明该嵌套类型检查的局部耗时，不证明完整复制、重规划、内存或整套加速。
+
+应用精确候选后，Humble + 803 overlay、Python3.10.12、NetworkX2.4、4个Core模块实际
+source导入绑定通过。三份既有 discrete-plan/LTLPlanner/IRL 测试只运行一次，85 passed、
+0skip/error/failure，包含完整复制/别名隔离、custom key与hook顺序及完整20步margin/β
+序列回归。compile、flake8（99列）、pep257各一次rc=0；保留2个既有np.int警告。
+没有新增测试文件或新七包资格，未运行新KTH copy/profile、DDS、provider、完整benchmark、
+物理仿真、实机或Jazzy。旧七包仍绑定803f28e；各局部与组合计数独立。第11.140/11.144节
+节点memo候选及失败门槛保持，不把本次谓词优化视为那些候选已完成。
+
+66份实际文件冻结并逐一回读size/SHA256，位于 `/tmp/ltl_replan_tuple_check_publication_2f327a1`；
+manifest SHA256为 `2ed9208ab865bab28e5590305765b3baceaeefb386ed6f399572e1a58dc7dfd2`。
+本节之前409506 bytes原文保持，旧SHA256为
+`45c0cf640a5d887667306090e4aa08865cc40e75f54195407d0984c589943fdd`。

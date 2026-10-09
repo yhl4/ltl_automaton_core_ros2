@@ -72,10 +72,10 @@ class LTLPlanner:
             for item in node:
                 if type(item) in (str, int):
                     continue
-                if (
-                    type(item) is tuple
-                    and all(type(inner) in (str, int) for inner in item)
-                ):
+                if type(item) is tuple:
+                    for inner in item:
+                        if type(inner) not in (str, int):
+                            return False
                     continue
                 return False
             return True
