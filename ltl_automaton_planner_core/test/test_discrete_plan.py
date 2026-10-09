@@ -3,6 +3,7 @@
 from collections import Counter
 
 from networkx import DiGraph
+from networkx import MultiDiGraph
 from networkx import single_source_dijkstra_path_length
 import pytest
 
@@ -16,6 +17,10 @@ from ltl_automaton_planner_core.ltl_tools.discrete_plan import (
 )
 from ltl_automaton_planner_core.ltl_tools import discrete_plan
 from ltl_automaton_planner_core.ltl_tools.product import ProdAut
+
+
+class CustomDiGraph(DiGraph):
+    """Use the fallback route through an exact subclass."""
 
 
 def create_test_product() -> ProdAut:
@@ -306,14 +311,14 @@ def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
         ("i1", "q0"),
         ("i2", "q0"),
     }
-    multi_calls = []
+    prefix_calls = []
     suffix_sources = []
-    original_multi = discrete_plan.multi_source_dijkstra_path_length
+    original_prefix = discrete_plan._prefix_distances
     original_single = discrete_plan._component_distances
 
-    def record_multi(graph, sources, **kwargs):
-        multi_calls.append(set(sources))
-        return original_multi(graph, sources, **kwargs)
+    def record_prefix(graph, sources):
+        prefix_calls.append((graph, sources))
+        return original_prefix(graph, sources)
 
     def record_single(graph, source, component):
         suffix_sources.append(source)
@@ -321,8 +326,8 @@ def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
 
     monkeypatch.setattr(
         discrete_plan,
-        "multi_source_dijkstra_path_length",
-        record_multi,
+        "_prefix_distances",
+        record_prefix,
     )
     monkeypatch.setattr(
         discrete_plan,
@@ -335,7 +340,9 @@ def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
     assert run.prefix[0] == ("i2", "q0")
     assert run.precost == 1
     assert run.totalcost == 31
-    assert len(multi_calls) == 1
+    assert len(prefix_calls) == 1
+    assert prefix_calls[0][0] is product
+    assert prefix_calls[0][1] is product.graph["initial"]
     assert suffix_sources == [("goal", "q0")]
 
 
@@ -857,3 +864,43 @@ def test_component_distances_preserve_seen_equality_events():
     assert [type(value) for value in actual.values()] == [
         type(value) for value in expected.values()
     ]
+
+
+def test_prefix_helper_native_default_none_and_zero_tie():
+    """Preserve native tie order, default weights, and hidden None edges."""
+    graph = DiGraph()
+    graph.add_edge("s", "a", weight=0)
+    graph.add_edge("s", "b", weight=0)
+    graph.add_edge("a", "j")
+    graph.add_edge("b", "j", weight=1)
+    graph.add_edge("j", "s", weight=None)
+    actual = discrete_plan._prefix_distances(graph, {"s"})
+    assert list(actual.items()) == [("s", 0), ("a", 0), ("b", 0), ("j", 1)]
+
+
+@pytest.mark.parametrize("graph_type", [CustomDiGraph, MultiDiGraph])
+def test_prefix_helper_falls_back_for_non_native_graphs(monkeypatch, graph_type):
+    """Use NetworkX's wrapper for custom and multigraph inputs."""
+    graph = graph_type()
+    graph.add_edge("s", "a", weight=3)
+    graph.add_edge("s", "a", weight=1)
+    graph.add_edge("a", "goal", weight=2)
+    starts = {"s"}
+    calls = []
+    original = discrete_plan.multi_source_dijkstra_path_length
+
+    def record(graph_arg, sources, **kwargs):
+        calls.append((graph_arg, sources, kwargs))
+        return original(graph_arg, sources, **kwargs)
+
+    monkeypatch.setattr(
+        discrete_plan,
+        "multi_source_dijkstra_path_length",
+        record,
+    )
+    actual = discrete_plan._prefix_distances(graph, starts)
+    assert actual == {"s": 0, "a": 1, "goal": 3}
+    assert len(calls) == 1
+    assert calls[0][0] is graph
+    assert calls[0][1] is starts
+    assert calls[0][2] == {"weight": "weight"}

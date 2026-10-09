@@ -741,8 +741,9 @@ git diff --check
 | Run 输出的 TS 邻接复用（对照基线 `3c278b1`） | 四模块119/119 passed；完整20步IRL与复制/hook回归保持；128步Run的TS `__getitem__`调用128→0，六组每50次构造中位数6.939/2.592 ms | [11.149](ltl_automaton_planner/docs/validation.md) |
 | suffix 单源 distance-only Dijkstra 内联（对照基线 `bcdd2b2`） | 120/120 passed；DP/testDP compile、flake8、pep257通过；ring64 callback 4096→0、bounded callback 65→0；N64 ring、N64 bounded、KTH 中位数门槛通过 | [11.150](ltl_automaton_planner/docs/validation.md) |
 | suffix 松弛复用弹出距离（基线 `e4156ca`，DP `56f8c6c4`） | 四模块120/120 passed，完整20步IRL保持；34组对照通过；N64 ring/bounded/KTH每20次中位数分别降低约7.1%/5.4%/2.3%，仅本轮局部结果 | [11.152](ltl_automaton_planner/docs/validation.md) |
+| prefix 原生权重查询内联（基线 `635e9fd`，DP `f1403027`） | 四模块123/123 passed，完整20步IRL保持；13项额外资格与37组控制通过；每200次完整搜索的dense/bounded/KTH中位数本轮约降4.3%/2.6%/0.8% | [11.156](ltl_automaton_planner/docs/validation.md) |
 
-十九项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+二十项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -966,3 +967,15 @@ ring64 的 heap push/pop 各4160→64，bounded64 各128保持。固定六组每
 中位数旧/候选为 ring46.788/19.131 ms、bounded6.811/6.724 ms、KTH6.161/6.650 ms。
 KTH 门槛未通过，候选未采用，未补采样；生产、十九项优化及既有120项资格保持。
 详见 [validation.md 11.155](ltl_automaton_planner/docs/validation.md)。
+
+
+prefix 搜索在 exact DiGraph/ProdAut 上内联原生权重查询，自定义图与实例覆写仍走原
+NetworkX 接口；source 顺序、tie、默认/None 权重、代价类型和动作引用保持。
+固定六组每200次完整 kernel 的中位数旧/新为：N64 ring **466.175/465.913 ms**，
+bounded **69.374/67.540 ms**，dense **1047.820/1003.129 ms**，保存 KTH 图
+**51.963/51.524 ms**；四项既定门槛通过，ring 差异很小，不作稳定或整套加速声明。
+权重回调减少，逻辑搜索/返回节点数保持；唯一12084次混合调用及额外26次 prefix
+资格检查完整保留。应用后一次四模块 **123 passed**，完整20步IRL与复制/hook回归通过；
+两文件相同字节的 compile/flake8/pep257在应用前通过。首测试runner因环境变量转义
+未启动pytest，修正后只运行一次；失败记录保留。累计采用二十项，七包资格仍为旧版本。
+详见 [validation.md 11.156](ltl_automaton_planner/docs/validation.md)。

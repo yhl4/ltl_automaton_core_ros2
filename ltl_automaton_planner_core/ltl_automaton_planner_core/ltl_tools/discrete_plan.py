@@ -14,7 +14,7 @@ from networkx import NodeNotFound
 from networkx import multi_source_dijkstra_path_length
 from networkx import strongly_connected_components
 
-from .product import ProdAut_Run
+from .product import ProdAut, ProdAut_Run
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,11 +38,7 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         _LOGGER.error("No accepting run found in NetworkX Dijkstra planning.")
         return None, None
 
-    prefix_dist = multi_source_dijkstra_path_length(
-        product,
-        sources=init_set,
-        weight="weight",
-    )
+    prefix_dist = _prefix_distances(product, init_set)
     reachable_accepting = {
         target
         for target in accepting_cycles
@@ -160,10 +156,10 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
     return run, elapsed
 
 
-# The _component_distances helper is adapted from NetworkX 2.4.
+# The _prefix_distances and _component_distances helpers are adapted from NetworkX 2.4.
 # Copyright (c) 2004-2019, NetworkX Developers.
 # Copyright (c) Aric Hagberg, Dan Schult, and Pieter Swart.
-# The following BSD-3-Clause notice applies to that helper:
+# The following BSD-3-Clause notice applies to these helpers:
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -189,6 +185,64 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+def _prefix_distances(product, sources):
+    """Find prefix distances with native weight lookup when supported."""
+    if type(product) is not DiGraph and type(product) is not ProdAut:
+        return multi_source_dijkstra_path_length(
+            product,
+            sources=sources,
+            weight="weight",
+        )
+    if "is_multigraph" in product.__dict__:
+        return multi_source_dijkstra_path_length(
+            product,
+            sources=sources,
+            weight="weight",
+        )
+    if not sources:
+        raise ValueError("sources must not be empty")
+    if product.is_multigraph():
+        return multi_source_dijkstra_path_length(
+            product,
+            sources=sources,
+            weight="weight",
+        )
+    successors = product._succ if product.is_directed() else product._adj
+    push = heappush
+    pop = heappop
+    distances = {}
+    seen = {}
+    sequence = count()
+    fringe = []
+    target = None
+    for source in sources:
+        if source not in product:
+            raise NodeNotFound("Source {} not in G".format(source))
+        seen[source] = 0
+        push(fringe, (0, next(sequence), source))
+    while fringe:
+        distance, _, current = pop(fringe)
+        if current in distances:
+            continue
+        distances[current] = distance
+        if current == target:
+            break
+        for successor, data in successors[current].items():
+            cost = data.get("weight", 1)
+            if cost is None:
+                continue
+            candidate = distances[current] + cost
+            if successor in distances:
+                if candidate < distances[successor]:
+                    raise ValueError("Contradictory paths found:", "negative weights?")
+            elif successor not in seen or candidate < seen[successor]:
+                seen[successor] = candidate
+                push(fringe, (candidate, next(sequence), successor))
+            elif candidate == seen[successor]:
+                pass
+    return distances
+
 
 def _component_distances(product, source, component):
     """Find suffix distances with NetworkX's ordering and component filter."""

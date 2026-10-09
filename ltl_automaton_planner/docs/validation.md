@@ -6502,3 +6502,80 @@ result SHA b853059723b47d6ed76947d0a29beb56a8405069948422d6ff99d6f1284234d0。�
 
 fix0、fix1 和 prebind 仅为静态稿；唯一执行的是 final fix2。生产与测试字节未改，未新增
 本轮 pytest 或测试资格。
+
+
+### 11.156 prefix 原生权重查询内联（2026-10-09）
+
+基线 commit 为 635e9fda393e207c05c677d3727a8a7bd7248cf8。DP 原 SHA 为
+56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7；采用候选为
+24518 bytes，SHA f140302778648b08bfed00d1af2d016f024f37eb2e87af9fdd7de5e456326dff。
+testDP SHA 为 d228719c5cc848781914a6ea8a0fb173e3b7eaffada8da054ca0d2383f941736。
+
+完整搜索仍只做一次多源 prefix 搜索。exact DiGraph/ProdAut 的 distance-only loop 将
+固定的 weight="weight" 回调改为 data.get("weight", 1)，保留原始 source 对象/迭代、
+membership、heap/counter/tie、target=None 等值判断、默认/None 权重及异常参数。
+松弛仍使用 distances[current] + cost，保持 prefix HashNode 与 numeric 事件。
+custom graph/subclass、MultiDiGraph 和原生实例覆写 is_multigraph 的输入沿用 NetworkX；
+实例覆写检查先于 source truthiness，避免增加 bool/callback。不跨调用缓存；适用于完整
+搜索期间图及节点 hash/equality 稳定的场景。component/restore 两函数 AST 与基线一致，
+SCC、accept 次序、Run、动作引用和 prefix_cost + gamma * suffix_cost 保持；两距离 helper
+共用完整 NetworkX BSD-3-Clause notice。
+
+执行前冻结 54 项 size/SHA manifest。13 个 prefix 资格案例、26 次直接调用独立计数，
+含重复 source、多源零权重 tie、default/None、空/缺失源、None target、numeric/edge
+事件、稳定 HashNode、Graph/Multi/custom fallback、generator、float contradictory
+异常及原生实例覆写/source bool 顺序。37 个公共控制为 76 次 semantic（其中 component/
+restore direct 18 次），另有 8 次 profile、12000 次 timed，共 12084 次混合调用。
+历史 warmed snapshot 只在 probe 加载1次，无额外 inventory load。
+
+profile 中各 fixture 的旧/新 prefix native lambda 为 ring64 64/0、bounded64 65/0、
+dense64 4096/0、KTH 31/0；逻辑 prefix 搜索均1次。heap push/pop 各自的旧/新计数
+均保持：4160、128、128、48；suffix 搜索64、1、1、2次，返回节点4096、64、64、32。
+restore 边视图/节点查询各63、0、0、24；restore helper 每侧2次，拓扑 add_edges_from
+每侧1次。减少的是权重回调，未减少搜索次数或返回节点。
+
+pending protocol_fix2 的 batch20 稿未执行且保留。任何 runtime 结果出现前，将唯一
+正式 protocol_fix3 的 batch 固定为200，六组交替 pair 和四项中位数门槛保持；这是
+执行前减少短批次噪声的调整。每侧每批200次完整 kernel，全部原始 ns 与每批最后
+Run/source/alias 保留，未补采样或改执行后门槛。批次中位数（旧/新，ms）如下：
+
+| fixture | old | candidate | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1（仅报告） | 5.000099 | 4.9075995 | 1/6 |
+| N64 ring | 466.1751435 | 465.9131875 | 3/6 |
+| N64 bounded | 69.373548 | 67.540448 | 1/6 |
+| N64 dense | 1047.8200015 | 1003.1286055 | 0/6 |
+| KTH | 51.9628965 | 51.523848 | 1/6 |
+
+ring、bounded、dense、KTH 四项预设门槛通过，bounded/dense/KTH 本轮约降低
+2.642%/4.265%/0.845%；ring 约0.056%的差异很小，不作稳定加速声明。
+独立 reader 重算中位数并验证 126 组普通 raw、26组 prefix raw、18组 direct 图、
+6组 direct 输入及 KTH raw；各图内容/身份、动作原引用、距离有序值/类型保持。
+唯一次 helper_fix3 执行使用 candidate_fix2，runner/outer rc 均0。早期候选/helper
+草稿与静态修订均保留；
+没有因 runtime 失败重跑探针。
+
+helper SHA 42aeb5b4734190f622b9d9f2e43ed85c52f514878959016eee01df4ae0edbb7c；
+preflight manifest SHA 252ccd9dc7c9e57840fe57d5254dc796fd59562f81fadb070524d6bd3936e9a8；
+result SHA 2a4a34d4f8083e6af486c8939fc35cd089e3fb73f1a937cd40f8df31ff401375。
+归档 /tmp/ltl_dp_prefix_inline_publication_635e9fd 的 manifest SHA 为
+3336e48efb3842063d0967177acdea0f17d48f30ec8a015b157a6eb12d7e1e97，617条目含
+604 file、12 git、1 generated；独立原件/副本及 generated 单次回读共1233项检查，
+0 mismatch，采用前保持 clean 基线。
+
+采用后仅运行 Product/discrete-plan/LTLPlanner/IRL 的相关回归：123 passed，
+0 skip/error/failure（34/32/29/28），2个既有 np.int 警告，1.43s；含完整20步 margin/β
+及复制、hook、跨调用刷新。首 runner 的 PATH/PYTHONPATH 错误转义导致 python3
+command not found，runner rc127、outer rc1，pytest实际0次，首日志/脚本/receipt保留。
+修正版 fix1 唯一运行 pytest，runner/outer rc均0，不重复已通过阶段。两份采用文件的
+相同字节 compile/flake8/pep257 在应用前通过，未在应用后重复；其他五核心/三测试字节
+及 component/restore AST保持。运行环境实际import六核心并核对四测试，绑定当前源码。
+回归归档 /tmp/ltl_dp_prefix_inline_regression_publication_635e9fd，24条目含23 file及
+1 generated；manifest SHA 3e80e95b2af90f7f8b5a8e76242f44af494c5b1f329ae4aa42eb16354da43bd5。
+独立回读原件/副本与generated单次共47项size/SHA检查，0 mismatch，JUnit与import资格
+一致。生产资格仍为 Python3.10.12/NetworkX2.4 的局部对照。
+
+采用数更新为二十项；此次局部资格不替代803f28e的旧七包组合，未新增七包、DDS、
+provider、benchmark、仿真、实机或Jazzy资格，也不证明整体速度、内存收益或IRL科学效果。
+本节之前460448 bytes验证记录完整保持，旧SHA为
+8664efe4b26a94fa9eae24f1bf563e4584d1783f8a526338339ebb50611cb4ee。
