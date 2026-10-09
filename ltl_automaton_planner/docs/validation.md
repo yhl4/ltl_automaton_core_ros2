@@ -7506,3 +7506,59 @@ Native回归reader初次将/mnt/d经WSL UNC读取时遇PermissionError，改为N
 仍绑定bd75495历史源码，未与本轮136相加。没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/
 实机验证或IRL科学效果声明。本轮类型检查探针为0 planner/whole-copy/snapshot调用，回归测试
 中的真实复制与完整20次IRL检查按原测试执行；不能将探针零调用口径用于回归。
+
+
+### 11.170 SCC builtin min 的双参数候选（2026-10-10，未采用）
+
+从干净HEAD `d5ca7d90d6718f888ade2e7a530fdc2e104dddff` 继续。生产DP为27763 bytes，SHA256
+`556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`；LTL为14916 bytes，SHA256
+`3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943`。
+只读11.168的四份old profile，并与该轮不可变归档读回一致；它们的DP与当前相同，历史profile
+用于定位，不是当前HEAD的新实测。历史SCC min调用ring/bounded/dense/KTH为64/65/4096/31。
+
+新候选仅在 `_reachable_components` 两处把 `min([lowlink[v], lowlink[w]])` 与
+`min([lowlink[v], preorder[w]])` 改为对应双参数builtin min；27759 bytes，SHA256
+`5970ee990d000d8b7ea5b6413b78e930a52a5df7766d30e38d6f72002c89c7e8`。
+保留builtin min调用、参数求值/字典访问顺序、遍历、SCC输出与完整搜索；与11.167的去掉builtin
+min并使用条件表达式候选不同。静态完整模块/AST检查确认仅上述两行不同，其他函数保持。
+两处BUILD_LIST arg2静态站点2→0，min AST参数数目[1,1]→[2,2]；不是实测动态列表分配计数。
+适用范围为固定普通builtins；未新增运行中重绑定builtin min的兼容性结论。
+
+复用11.168 qualified helper的完整函数、夹具、资源与规模/门槛；root逐字检查，最终helper只改
+OUT、当前HEAD与LTL源码SHA。fix1继承了旧LTL SHA，root在执行前发现；独立fix2更正并保留
+未执行fix1。准备/静态阶段均为0 planner/profile/snapshot调用。
+测量前后核对45个冻结输入，含当前12份Git源/测试/文档、NetworkX6、历史暖快照与qualified
+helper原件；Humble + combo_bd75495、Python3.10.12、NetworkX2.4，6个实际core import绑定源码。
+唯一fix2完成8 SCC、66 semantic、8 profile、12000 timed、18 restore、14 pred、12 topology
+calls，合计12126；暖planner快照加载1次，initial_failed_calls=0。全部32语义、4 SCC、9恢复、
+7 pred、6 topology控制通过；完整Run、代价类型、hash轨迹、回调顺序、动作/source identity、
+custom graph/factory fallback保持。Native reader另核对146对原始capture、直接控制raw bytes与
+KTH前后字节，未运行planner或反序列化原始pickle。
+
+两侧profile的SCC min仍为64/65/4096/31；next总数4160/128/128/48、suffix搜索64/1/1/2、
+返回节点4096/64/64/32保持，其他heap、prefix、拓扑、恢复和pred资源门槛通过。
+每fixture固定6对交替、每侧每批200次完整kernel，包含搜索、SCC、路径恢复和完整Run；
+断言、序列化与profile在计时外。ring/bounded/dense/KTH四项mandatory均要求candidate median
+不高于old，N1只报告；未补采样、未放宽门槛。
+
+| fixture | old median ms / candidate median ms（200次） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| N1 | 4.6130000 / 5.9415505 | +28.800141% | 4/6 |
+| N64ring | 497.5308040 / 492.4647040 | -1.018249% | 3/6 |
+| N64bounded | 38.7006965 / 38.2018970 | -1.288864% | 2/6 |
+| N64dense | 712.5483115 / 680.4306630 | -4.507435% | 0/6 |
+| KTH | 38.5790370 / 38.6197980 | +0.105656% | 4/6 |
+
+KTH未通过四项联合门槛，gate=false，因此候选未采用。N1的报告值亦更慢，不将微小KTH差异
+解释为稳定回退或稳定加速。result 5204908 bytes，SHA256
+`0a6567a3ea36dfd22b7f244141a1cfaa123e0993ba1bb09bdf7863efdf8a8e67`；Linux runner、实际PowerShell LASTEXITCODE及工具终端均4。
+结果与全部固定计时已完成落盘，无failure_fix2.json；stderr六条为既有负向控制日志。
+完整探针归档 `/tmp/ltl_dp_scc_variadic_min_publication_d5ca7d9`，597 entries、1194次size/SHA
+读回，0 mismatch/0 missing originals；manifest SHA256 `694febd23de09fe6a7a39abae9a1a1c27931e17e51d8de6e9af8c9fd2a254b1d`。
+归档保留候选、准备原稿、原始profile/timing/capture、冻结原件与12份不可变Git输入；
+没有追加planner/profile/snapshot调用。
+
+本輪仅追加README和本节，生产与四份测试字节保持。累计已采用仍为二十五项；当前源码与
+11.169四模块136项JUnit及十份source/test绑定一致，未重跑pytest、compile或lint。
+七包754项仍绑定bd75495历史源码，不相加或宣称重跑；V0.2接口与默认关闭的示范轨迹软任务
+权重β学习范围保持。没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/实机或IRL科学效果资格。

@@ -1084,3 +1084,9 @@ SCC lowlink 的局部 min/list 消除候选未采用：语义、完整 Run、代
 完整20次可选IRL更新、自定义key、hook顺序和可变对象隔离回归通过，修改文件compile/lint通过。
 ROS2 V0.2接口与默认关闭的示范轨迹软任务权重β学习范围保持；七包754项仍为bd75495历史资格。
 详见 [validation.md 11.169](ltl_automaton_planner/docs/validation.md)。
+
+
+SCC 的 `min([a, b])` 改为 `min(a, b)` 候选未采用：完整搜索的语义、Run、hash/回调和源图检查通过，
+但固定采样中 KTH 批次中位耗时约升0.106%，未通过四项预设门槛；未补采样。
+当前仍为二十五项已采用优化，源码与四模块136项资格保持d5ca7d9版本；本轮没有重跑pytest或lint。
+详见 [validation.md 11.170](ltl_automaton_planner/docs/validation.md)。
