@@ -6869,3 +6869,67 @@ d6f136e550407e9ad4c97caa12d42e5481f2707b3cf2f742161c81e5c815821d；
 ROS2 V0.2接口和可选IRL的示范轨迹学习软任务权重β范围保持。
 本节之前481358 bytes验证正文保持，旧SHA
 c100b58c594148310167f6a62db3f36d20529e68378defae3e51c4061c91e2c9。
+
+
+### 11.161 SCC lowlink 的 min 两参数候选未采用（2026-10-10）
+
+基线4c5ab125267c0b02ebed0a8790832d51da6e9f89，生产DP仍为26588 bytes、SHA
+da118889531ed9a65695423e982f5b398fe35da392308f277e7f507e27914d26。
+候选仅把_reachable_components内两处min([a,b])改为min(a,b)，移除逐边两元素
+临时列表；lowlink/preorder值为算法自身生成的int，两个字典读取、比较与赋值顺序
+保持。候选26584 bytes、SHA
+6aeafc92daecbb3bbdddfc127678b73964540f7f081e9f4e7f29a4a191f27922；
+其余函数AST与BSD声明保持，未修改生产文件。
+
+目录/tmp/ltl_dp_scc_min_args_probe_4c5ab12。helper.py和helper_fix1.py均未执行：
+静态审阅先纠正来自上一候选的SCC计数条件与builtin min pstats名称，
+再将manifest记录由dict统一为runtime_check读取的list；此前准备记录均保留。
+候选字节和四项性能门槛始终未改。唯一实际执行为helper_fix2.py，完成全部阶段，
+没有运行异常或阶段重跑；runner/outer rc4表示性能门槛未全通过。
+
+本轮4组独立SCC资格8次调用（空图、手算多分量、dense、自定义节点hash），
+32组规划语义66次调用、8次profile、12000次完整kernel计时，聚合12082次混合调用。
+snapshot只在资格、语义及合成资源门槛后加载一次。独立reader核对29项manifest
+size/SHA、268个capture的134对原始pickle与KTH前后字节；六source实际import、
+四测试、六NX文件与snapshot均按固定runtime检查，前后相同。
+完整Run字段、代价类型、action/source别名、outer/inner/getter/hash回调、
+有序拓扑、分量yield、prefix/suffix距离和跨调用权重更新均保持。
+
+本轮profile独立提取各DP文件_reachable_components caller的builtin min调用：
+ring/bounded/dense/KTH两侧均为64/65/4096/31。按代码，旧版每次调用前构造
+两元素列表，候选改传两个参数；此项是调用计数及源码证据，不是总内存测量。
+双方SCC Graph.__getitem__均0、单分量generator恢复数均2；
+prefix一次、restore两次、suffix搜索64/1/1/2、返回节点4096/64/64/32与
+heap push/pop 4160/128/128/48保持。历史profile定位reader与本轮实际profile
+分开记录，未把上轮计数作为本轮执行结果。
+
+固定六组交替，每侧每组200次完整kernel；profile、计数、序列化、断言和IO
+在计时边界外。整批中位数单位ms：
+
+| fixture | old | candidate | 更慢配对 |
+| --- | ---: | ---: | ---: |
+| KTH | 45.0435 | 43.7661495 | 3/6 |
+| N1 | 4.93365 | 4.8858995 | 3/6 |
+| N64bounded | 44.18395 | 44.68125 | 2/6 |
+| N64dense | 1052.4307965 | 1026.0908485 | 1/6 |
+| N64ring | 491.7786995 | 488.8721995 | 1/6 |
+
+N1仅报告；执行前要求其余四项候选中位数均不高于旧版。bounded约慢1.1255%，
+故gate=false，候选不采用；ring/dense/KTH约降0.5910%/2.5028%/2.8358%，
+不以这些子项覆盖失败门槛或扩展稳定速度声明，未补采样。
+result_fix2 SHA
+1c7a0b3c50b81e08d2295654d92af70fb0bc6c76f740bb7a486b5c72937e8843。
+
+归档/tmp/ltl_dp_scc_min_args_publication_4c5ab12，共479项
+（466 file、12 Git、1 generated），manifest SHA
+2c7e518e3e540edf178d54d6857082bcdceb38fa8224af80f2e473f504d2c0c5。
+主代理独立原件/副本及generated自身一次共957项size/SHA核对，
+0 mismatch、0 missing original；producer /tmp/archive_scc_min_args_4c5ab12.py
+原件与未执行准备版本保留，包含完整原始计时/语义/profile证据及HEAD的12个Git blobs。
+
+本轮只修改README/本记录，六core与四测试字节保持，未新增pytest或lint执行。
+二十二项已采用优化与4c5ab12既有126 passed、完整20步IRL margin/β资格保持，
+七包组合资格仍为803f28e；未新增七包、DDS、provider、benchmark、仿真/实机/Jazzy。
+ROS2 V0.2接口与可选IRL原范围保持。
+本节之前485938 bytes验证正文保持，旧SHA
+78edc2736a298e8df2fc4285dc388f899ad56e07f64303f2031a9233f7848f09。

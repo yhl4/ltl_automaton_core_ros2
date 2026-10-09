@@ -1012,3 +1012,9 @@ SCC 拓扑扫描现在对标准 DiGraph/ProdAut 直接迭代来源邻接，省�
 应用后一次四模块 **126 passed**，新增分量顺序/回退定向测试，含完整20步可选IRL；
 compile/flake8/ament_pep257通过。累计采用二十二项，
 详见 [validation.md 11.160](ltl_automaton_planner/docs/validation.md)。
+
+
+SCC lowlink 的 min 两参数候选本轮未采用：完整Run与回调检查通过，但受限图固定批次
+中位耗时约增1.13%，未通过四项预设门槛，未补采样。现有二十二项优化与4c5ab12的
+126项回归资格保持，生产源码和测试未改。本轮证据见
+[validation.md 11.161](ltl_automaton_planner/docs/validation.md)。
