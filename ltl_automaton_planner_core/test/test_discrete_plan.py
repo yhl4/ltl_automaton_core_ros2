@@ -1121,3 +1121,236 @@ def test_restore_tight_path_reloads_rebound_successors():
     assert sources == before_sources
     assert ("rebound", "a-j", 9, 1) in events
     assert ("edge_get", ("a", "j"), "weight", 1) in events
+
+
+def _topology_input(graph_type):
+    """Build the hand-ordered source graph used by all six controls."""
+    graph = DiGraph() if graph_type == "digraph" else ProdAut(None, None)
+    nodes = ["s", "b", "a", "tail"]
+    graph.add_nodes_from(nodes)
+    edges = [
+        ("s", "b"), ("s", "a"), ("b", "s"), ("a", "s"),
+        ("a", "tail"),
+    ]
+    for source, target in edges:
+        data = {"sentinel": (source, target)}
+        graph._succ[source][target] = data
+        graph._pred[target][source] = data
+    reachable = {"s": 0, "b": 0, "a": 0}
+    expected_nodes = ["s", "b", "a"]
+    expected_adj = [
+        ["s", ["b", "a"]],
+        ["b", ["s"]],
+        ["a", ["s"]],
+    ]
+    expected_pred = [
+        ["s", ["b", "a"]],
+        ["b", ["s"]],
+        ["a", ["s"]],
+    ]
+    expected_edges = [
+        ["s", "b", True],
+        ["s", "a", True],
+        ["b", "s", True],
+        ["a", "s", True],
+    ]
+    return graph, reachable, expected_nodes, expected_adj, expected_pred, expected_edges
+
+
+def _assert_topology(result, expected_nodes, expected_adj, expected_pred,
+                     expected_edges):
+    """Check hand-computed order, empty attributes, and edge aliases."""
+    assert list(result.nodes()) == expected_nodes
+    assert [[source, list(result._succ[source])] for source in expected_nodes] == expected_adj
+    assert [[target, list(result._pred[target])] for target in expected_nodes] == expected_pred
+    actual_edges = []
+    data_ids = []
+    for source in expected_nodes:
+        for target, data in result._succ[source].items():
+            assert data == {}
+            assert data is result._pred[target][source]
+            actual_edges.append([source, target, data is result._pred[target][source]])
+            data_ids.append(id(data))
+    assert actual_edges == expected_edges
+    assert len(data_ids) == len(set(data_ids))
+
+
+def _source_snapshot(graph):
+    """Capture source values, mapping identities, and edge-data identities."""
+    nodes = [(node, dict(data), id(data)) for node, data in graph.nodes(data=True)]
+    edges = [
+        (source, target, dict(data), id(data))
+        for source, target, data in graph.edges(data=True)
+    ]
+    inner_ids = {node: id(graph._succ[node]) for node in graph._succ}
+    pred_inner_ids = {node: id(graph._pred[node]) for node in graph._pred}
+    return nodes, edges, id(graph._succ), id(graph._pred), inner_ids, pred_inner_ids
+
+
+def _assert_source_unchanged(graph, snapshot):
+    """Require source values and all adjacency/data identities to persist."""
+    nodes, edges, succ_id, pred_id, inner_ids, pred_inner_ids = snapshot
+    assert [(node, dict(data), id(data))
+            for node, data in graph.nodes(data=True)] == nodes
+    assert [(source, target, dict(data), id(data))
+            for source, target, data in graph.edges(data=True)] == edges
+    assert id(graph._succ) == succ_id
+    assert id(graph._pred) == pred_id
+    assert {node: id(graph._succ[node]) for node in graph._succ} == inner_ids
+    assert {node: id(graph._pred[node]) for node in graph._pred} == pred_inner_ids
+
+
+@pytest.mark.parametrize("graph_type", ["digraph", "prodaut"])
+def test_reachable_topology_native_order_alias_and_input(graph_type):
+    """Use the native private source mapping for exact graph types only."""
+    graph, reachable, expected_nodes, expected_adj, expected_pred, expected_edges = (
+        _topology_input(graph_type)
+    )
+    source_before = _source_snapshot(graph)
+    topology = discrete_plan._reachable_topology(graph, reachable)
+    _assert_topology(
+        topology, expected_nodes, expected_adj, expected_pred, expected_edges
+    )
+    _assert_source_unchanged(graph, source_before)
+    assert topology._succ["s"]["b"] is topology._pred["b"]["s"]
+    assert topology._succ["s"]["b"] is not topology._succ["s"]["a"]
+
+
+class _AdjGetterGraph(DiGraph):
+    """Record one public adjacency access for each reachable source."""
+
+    def __init__(self):
+        """Initialize the graph and its external event log."""
+        super().__init__()
+        self.adj_events = []
+
+    @property
+    def adj(self):
+        """Record fallback property access and return the public view."""
+        self.adj_events.append("adj")
+        return DiGraph.adj.fget(self)
+
+
+def test_reachable_topology_custom_adj_fallback_reads_each_source_once():
+    """Subclass fallback preserves public adjacency access and source order."""
+    graph = _AdjGetterGraph()
+    graph.add_nodes_from(["s", "b", "a"])
+    for source, target in [("s", "b"), ("s", "a"), ("b", "s"), ("a", "s")]:
+        graph.add_edge(source, target)
+    reachable = {"s": 0, "b": 0, "a": 0}
+    source_before = _source_snapshot(graph)
+    topology = discrete_plan._reachable_topology(graph, reachable)
+    assert graph.adj_events == ["adj", "adj", "adj"]
+    assert list(topology.nodes()) == ["s", "b", "a"]
+    assert list(topology.edges()) == [
+        ("s", "b"), ("s", "a"), ("b", "s"), ("a", "s")
+    ]
+    assert all(
+        topology._succ[source][target] is topology._pred[target][source]
+        for source, target in topology.edges()
+    )
+    _assert_source_unchanged(graph, source_before)
+
+
+class _FactoryDict(dict):
+    """Record topology factory construction and mutation externally."""
+
+    events = []
+
+    def __init__(self, *args, **kwargs):
+        """Record construction without storing events in the graph."""
+        type(self).events.append(("init", type(self).__name__))
+        super().__init__(*args, **kwargs)
+
+    def __setitem__(self, key, value):
+        """Record direct dictionary assignment."""
+        type(self).events.append(("set", type(self).__name__, key))
+        return super().__setitem__(key, value)
+
+    def update(self, *args, **kwargs):
+        """Record add_edges_from dictionary updates."""
+        type(self).events.append(("update", type(self).__name__))
+        return super().update(*args, **kwargs)
+
+
+class _EdgeFactoryDict(_FactoryDict):
+    """Use the custom edge-data factory."""
+
+
+class _InnerFactoryDict(_FactoryDict):
+    """Use the custom inner adjacency factory."""
+
+
+class _OuterFactoryDict(_FactoryDict):
+    """Use the custom outer adjacency factory."""
+
+
+@pytest.mark.parametrize(
+    "factory_name,factory",
+    [
+        ("edge", _EdgeFactoryDict),
+        ("inner", _InnerFactoryDict),
+        ("outer", _OuterFactoryDict),
+    ],
+)
+def test_reachable_topology_custom_factory_fallback(factory_name, factory):
+    """Custom factories force the public add_edges_from fallback."""
+    graph = DiGraph()
+    graph.add_nodes_from(["s", "b", "a"])
+    for source, target in [("s", "b"), ("s", "a"), ("b", "s"), ("a", "s")]:
+        graph.add_edge(source, target)
+    reachable = {"s": 0, "b": 0, "a": 0}
+    source_before = _source_snapshot(graph)
+    old_factories = (
+        DiGraph.adjlist_inner_dict_factory,
+        DiGraph.adjlist_outer_dict_factory,
+        DiGraph.edge_attr_dict_factory,
+    )
+    _FactoryDict.events = []
+    add_edges_calls = []
+    old_add_edges_from = DiGraph.add_edges_from
+
+    def observe_add_edges(graph_arg, *args, **kwargs):
+        """Record the one fallback construction call."""
+        add_edges_calls.append(graph_arg)
+        return old_add_edges_from(graph_arg, *args, **kwargs)
+
+    try:
+        if factory_name == "edge":
+            DiGraph.edge_attr_dict_factory = factory
+        elif factory_name == "inner":
+            DiGraph.adjlist_inner_dict_factory = factory
+        else:
+            DiGraph.adjlist_outer_dict_factory = factory
+        DiGraph.add_edges_from = observe_add_edges
+        topology = discrete_plan._reachable_topology(graph, reachable)
+    finally:
+        DiGraph.add_edges_from = old_add_edges_from
+        (
+            DiGraph.adjlist_inner_dict_factory,
+            DiGraph.adjlist_outer_dict_factory,
+            DiGraph.edge_attr_dict_factory,
+        ) = old_factories
+    _assert_topology(
+        topology,
+        ["s", "b", "a"],
+        [["s", ["b", "a"]], ["b", ["s"]], ["a", ["s"]]],
+        [["s", ["b", "a"]], ["b", ["s"]], ["a", ["s"]]],
+        [["s", "b", True], ["s", "a", True],
+         ["b", "s", True], ["a", "s", True]],
+    )
+    assert len(add_edges_calls) == 1
+    counts = Counter(event[0] for event in _FactoryDict.events)
+    expected_counts = {
+        "edge": {"init": 4, "update": 8, "set": 0},
+        "inner": {"init": 6, "update": 0, "set": 8},
+        "outer": {"init": 2, "update": 0, "set": 6},
+    }[factory_name]
+    assert set(counts) <= set(expected_counts)
+    assert {event: counts[event] for event in expected_counts} == expected_counts
+    _assert_source_unchanged(graph, source_before)
+    assert (
+        DiGraph.adjlist_inner_dict_factory,
+        DiGraph.adjlist_outer_dict_factory,
+        DiGraph.edge_attr_dict_factory,
+    ) == old_factories

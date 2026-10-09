@@ -52,23 +52,7 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
 
     target_components = {}
     # Any accepting cycle used by a valid run must be prefix reachable.
-    reachable_product = DiGraph()
-    reachable_product.add_nodes_from(prefix_dist)
-    if type(product) is DiGraph or type(product) is ProdAut:
-        source_adjacency = product._succ
-        reachable_product.add_edges_from(
-            (source, target)
-            for source in prefix_dist
-            for target in source_adjacency[source]
-            if target in prefix_dist
-        )
-    else:
-        reachable_product.add_edges_from(
-            (source, target)
-            for source in prefix_dist
-            for target in product.adj[source]
-            if target in prefix_dist
-        )
+    reachable_product = _reachable_topology(product, prefix_dist)
     for component in _reachable_components(reachable_product):
         reachable_targets = component & reachable_accepting
         for target in reachable_targets:
@@ -195,6 +179,53 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+def _reachable_topology(product, reachable):
+    """Build the reachable topology while preserving public fallback access."""
+    topology = DiGraph()
+    topology.add_nodes_from(reachable)
+    if type(product) is DiGraph or type(product) is ProdAut:
+        source_adjacency = product._succ
+    else:
+        source_adjacency = None
+    successors = topology._succ
+    predecessors = topology._pred
+    native = (
+        type(successors) is dict
+        and type(predecessors) is dict
+        and topology.adjlist_inner_dict_factory is dict
+        and topology.edge_attr_dict_factory is dict
+    )
+    if native:
+        for source in reachable:
+            topology_successors = successors[source]
+            neighbors = (
+                source_adjacency[source]
+                if source_adjacency is not None
+                else product.adj[source]
+            )
+            for target in neighbors:
+                if target in reachable:
+                    attributes = {}
+                    topology_successors[target] = attributes
+                    predecessors[target][source] = attributes
+        return topology
+    if source_adjacency is not None:
+        topology.add_edges_from(
+            (source, target)
+            for source in reachable
+            for target in source_adjacency[source]
+            if target in reachable
+        )
+    else:
+        topology.add_edges_from(
+            (source, target)
+            for source in reachable
+            for target in product.adj[source]
+            if target in reachable
+        )
+    return topology
+
 
 def _reachable_components(graph):
     """Keep NetworkX 2.4 SCC order on the private reachable DiGraph."""

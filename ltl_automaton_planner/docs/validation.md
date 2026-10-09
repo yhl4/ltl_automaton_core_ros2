@@ -7304,3 +7304,82 @@ ROS2 V0.2接口及默认关闭、从示范轨迹学习软任务权重β的IRL原
 本节之前510499 bytes验证正文及52703 bytes README前缀保持，旧SHA分别
 `f42fbb74247ec778c2e5053b83f67d4d57ebdb6a7324b0511f0df3287b150194`与
 `7e93de16b65b74d2d0d4dca979394a38b7da8367e6c56a917e6e510e4c59b4de`。
+
+
+### 11.166 可达拓扑原生字典构建（2026-10-10，已采用）
+
+本轮从独立ROS2 checkout的干净HEAD
+`54bc23ae3ec847753b5551bc52c19b96e1cb6efe`开始。只读热点盘点沿用上轮四份baseline
+pstats，未产生新的性能样本；其文件为`/tmp/ltl_dp_hotspot_inventory_54bc23a/inventory.json`，
+SHA `78057da2a7a3a2d79aba3025d13c1339c1dde24b3b642c8ce445efaa3dd95138`。
+
+候选`_reachable_topology`保持原节点与边插入顺序，在私有DiGraph的outer/inner/edge
+工厂为原生dict时绑定succ/pred及每个source的inner，直接写入独立空edge data，
+同一边的succ/pred共享该data。精确DiGraph/ProdAut沿用原source mapping访问；
+自定义source图仍每个source访问一次公开adj，自定义拓扑工厂仍调用add_edges_from。
+没有改变前缀/后缀搜索、接受性、目标函数、初始状态、代价类型、动作引用或IRL范围。
+此实现相对第11.151节旧候选增加了当前原生source访问与每source inner绑定，
+本轮固定采样独立执行，没有重复使用旧候选失败后的计时数据。
+
+baseline DP26719 bytes，SHA
+`d740e5e7c610b4c9d320016972415a61187d26c0c7d00df66f103821640a5b5c`；
+最终candidate/采用DP27763 bytes，SHA
+`556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`。
+其余五个core文件及三个原测试文件保持；test_discrete_plan.py保留40727-byte原前缀并
+追加六项手算检查：精确DiGraph/ProdAut、custom adj getter及edge/inner/outer factory回退。
+
+准备阶段有明确证据缺口：未执行的27709-byte候选原稿被最终fix1覆盖，
+原稿SHA为`d468ef28bd3adaeb94c06dceee471ea7eeee5820b012690613fe104f86d366c7`，
+覆盖前字节副本缺失；原准备记录因而指向已覆盖路径。保留原producer、diff和说明，
+没有把重建文件当作原件。首次静态producer发生run_probe.sh尚不存在的FileNotFoundError，
+原producer保留，没有补造单独工具stdout/stderr或outer receipt。未执行的重复函数草稿也保留。
+
+fix2首次真实执行在hash_node手算检查失败：SCC8、restore18及pred12共38 calls，
+semantic/profile/timing/topology/snapshot均0。集合推导对两个接受节点分别发生membership与
+set insertion，原oracle漏算后者。主代理独立读取完整轨迹，确认私有建图外所有hash轨迹
+相同，建图内预设减少8次、每个label减少4次，才修正oracle的前4次hash；候选和门槛不改。
+要求hash/equality稳定，不承诺图内部所有hash回调次数相同。fix2 tool/Linux rc独立为1；
+outer rc原文件只有LF，不能作为数值rc，原样保留。fix3用PowerShell直接读取LASTEXITCODE，
+tool/Linux/outer rc均0。独立读取脚本一次沿用旧candidate文件名导致caller匹配失败；
+只修正读取路径，未重新执行planner、profile、计时或snapshot。
+
+fix3单次完整运行绑定141份冻结输入size/SHA，Humble+combo_bd75495/install、
+Python3.10.12/NetworkX2.4、六个实际core import来自当前仓库，未手工设置repo PYTHONPATH。
+四组SCC8 calls、九组restore18、七组完整kernel pred14、六组topology12、
+32组semantic66、四fixture双侧profile8、五fixture固定6对×200/side共12000 timed calls：
+新增12126混合调用，连同首次失败38为12164；暖KTH快照只加载1次。
+146对源图原始pickle、18对restore原始pickle、14对pred原始pickle及KTH源快照逐字节核对；
+Run字段/成本类型/动作引用、factory/getter/weight事件、顺序、源图内容与identity均通过。
+独立reader只读JSON、pstats及原始bytes，不反序列化源快照，不新增运行调用。
+
+profile中add_edges_from调用由每fixture 1→0，其dict.update caller次数
+ring/bounded/dense/KTH为128/130/8192/62→0；add_nodes_from update仍64/64/64/16。
+搜索次数、heap、返回节点、pred getter及路径恢复getter保持预设计数。
+以下是每批200次完整kernel的耗时，不能当作单次调用时延。
+
+| fixture | baseline中位ms | candidate中位ms | 变化 | candidate较慢pair | 门槛 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| N1 | 4.654250 | 4.581500 | -1.563% | 3/6 | 仅报告 |
+| N64ring | 490.468961 | 477.558110 | -2.632% | 1/6 | 通过 |
+| N64bounded | 43.951752 | 39.314852 | -10.550% | 0/6 | 通过 |
+| N64dense | 1114.797221 | 772.020514 | -30.748% | 0/6 | 通过 |
+| KTH | 43.411099 | 39.475850 | -9.065% | 0/6 | 通过 |
+
+四项mandatory门槛全部通过；N1仅报告。未缩短调用、停止于成功前缀、重采样或放宽门槛。
+完整结果`/tmp/ltl_dp_topology_native_probe_54bc23a/result_fix3.json`5193900 bytes，SHA
+`a92b388dd1f53fb339c8205a478b09d3597cc02a96de566534a5edd1abdeb7c0`。
+采用前归档`/tmp/ltl_dp_topology_native_publication_54bc23a`含694条记录
+（681 file、12不可变Git blob、1生成metadata），独立1387次size/SHA读取均通过；manifest SHA
+`23c3b0104e8f838a07417bd0baed167f1287984861500f48c34a065286433aeb`。
+该核对针对留存原件，不能补足前述已丢失草稿字节。
+
+采用后首次四模块pytest为133 passed/3 failed：三项新增factory检查将Counter直接与含零项的
+plain dict比较，实际事件数符合手算值。原失败JUnit、logs、runner及当时test源码字节保留。
+仅修正显式零计数比较并禁止未知事件名，手算数量、候选及性能数据保持；独立新目录执行后
+四模块pytest 136 passed（原130名称全保留、新增6），
+`test_learning_keeps_all_twenty_margin_updates_on_one_private_product`通过，
+确认完整20次IRL更新回归仍执行。六个core实际import与十份source/test输入size/SHA核对通过；
+修改的DP/test通过py_compile、ament_flake8 --linelength 99和ament_pep257。
+JUnit与新source/test SHA由独立regression readback绑定，后续发布追加归档保存。
+累计采用二十四项优化。本轮为定向回归与固定夹具/暖快照测量，未运行正式benchmark、provider、
+Gazebo、Jazzy或机器人端到端；七包754项历史资格仍绑定bd75495，没有与136合并。
