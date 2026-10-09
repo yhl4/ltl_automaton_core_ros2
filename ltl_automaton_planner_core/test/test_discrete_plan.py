@@ -904,3 +904,39 @@ def test_prefix_helper_falls_back_for_non_native_graphs(monkeypatch, graph_type)
     assert calls[0][0] is graph
     assert calls[0][1] is starts
     assert calls[0][2] == {"weight": "weight"}
+
+
+def test_reachable_components_keep_partition_order_and_input():
+    """Keep the hand-computed SCC order, including exits and isolated nodes."""
+    graph = DiGraph()
+    graph.add_nodes_from(list("abcdefgh") + ["isolated"])
+    graph.add_edges_from([
+        ("a", "b"), ("b", "a"), ("b", "c"), ("c", "d"),
+        ("d", "c"), ("d", "e"), ("e", "f"), ("f", "f"),
+        ("g", "h"), ("h", "g"),
+    ])
+    before_nodes = list(graph.nodes(data=True))
+    before_edges = list(graph.edges(data=True))
+    assert list(discrete_plan._reachable_components(graph)) == [
+        {"f"}, {"e"}, {"c", "d"}, {"a", "b"}, {"g", "h"}, {"isolated"},
+    ]
+    assert list(discrete_plan._reachable_components(DiGraph())) == []
+    assert list(graph.nodes(data=True)) == before_nodes
+    assert list(graph.edges(data=True)) == before_edges
+
+
+@pytest.mark.parametrize("graph_type", [CustomDiGraph, MultiDiGraph])
+def test_reachable_components_fall_back_for_non_native_graphs(monkeypatch, graph_type):
+    """Retain NetworkX traversal for graph subclasses and multigraphs."""
+    graph = graph_type()
+    graph.add_edges_from([("a", "b"), ("b", "a"), ("b", "tail")])
+    calls = []
+    original = discrete_plan.strongly_connected_components
+
+    def record(graph_arg):
+        calls.append(graph_arg)
+        return original(graph_arg)
+
+    monkeypatch.setattr(discrete_plan, "strongly_connected_components", record)
+    assert list(discrete_plan._reachable_components(graph)) == [{"tail"}, {"a", "b"}]
+    assert calls == [graph]

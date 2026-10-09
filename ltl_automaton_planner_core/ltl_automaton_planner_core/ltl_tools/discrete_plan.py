@@ -69,7 +69,7 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
             for target in product.adj[source]
             if target in prefix_dist
         )
-    for component in strongly_connected_components(reachable_product):
+    for component in _reachable_components(reachable_product):
         reachable_targets = component & reachable_accepting
         for target in reachable_targets:
             target_components[target] = component
@@ -165,9 +165,10 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
     return run, elapsed
 
 
-# The _prefix_distances and _component_distances helpers are adapted from NetworkX 2.4.
+# The prefix, component-distance, and reachable-component helpers adapt NetworkX 2.4.
 # Copyright (c) 2004-2019, NetworkX Developers.
 # Copyright (c) Aric Hagberg, Dan Schult, and Pieter Swart.
+# SCC authors: Eben Kenah, Aric Hagberg, Christopher Ellison, and Ben Edwards.
 # The following BSD-3-Clause notice applies to these helpers:
 #
 # Redistribution and use in source and binary forms, with or without
@@ -194,6 +195,51 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+def _reachable_components(graph):
+    """Keep NetworkX 2.4 SCC order on the private reachable DiGraph."""
+    if type(graph) is not DiGraph:
+        yield from strongly_connected_components(graph)
+        return
+    successors = graph._succ
+    preorder = {}
+    lowlink = {}
+    scc_found = set()
+    scc_queue = []
+    i = 0     # Preorder counter
+    for source in graph:
+        if source not in scc_found:
+            queue = [source]
+            while queue:
+                v = queue[-1]
+                if v not in preorder:
+                    i = i + 1
+                    preorder[v] = i
+                done = True
+                for w in successors[v]:
+                    if w not in preorder:
+                        queue.append(w)
+                        done = False
+                        break
+                if done:
+                    lowlink[v] = preorder[v]
+                    for w in successors[v]:
+                        if w not in scc_found:
+                            if preorder[w] > preorder[v]:
+                                lowlink[v] = min([lowlink[v], lowlink[w]])
+                            else:
+                                lowlink[v] = min([lowlink[v], preorder[w]])
+                    queue.pop()
+                    if lowlink[v] == preorder[v]:
+                        scc = {v}
+                        while scc_queue and preorder[scc_queue[-1]] > preorder[v]:
+                            k = scc_queue.pop()
+                            scc.add(k)
+                        scc_found.update(scc)
+                        yield scc
+                    else:
+                        scc_queue.append(v)
+
 
 def _prefix_distances(product, sources):
     """Find prefix distances with native weight lookup when supported."""

@@ -1004,3 +1004,11 @@ SCC 拓扑扫描现在对标准 DiGraph/ProdAut 直接迭代来源邻接，省�
 完整 Run、拓扑次序、代价类型、动作引用及 outer/inner/getter 回调保持。
 应用后一次四模块 **123 passed**，含完整20步IRL；compile/flake8/ament_pep257通过。
 累计采用二十一项，详见 [validation.md 11.159](ltl_automaton_planner/docs/validation.md)。
+
+
+可达临时图的 SCC 遍历现在直接读取邻接字典，保留 NetworkX 2.4 的分量与节点顺序。
+本轮固定批次中位数在 ring/bounded/dense/KTH 上分别下降约9.6%/32.0%/3.8%/11.2%，
+四项预设门槛通过；这是局部测量结果。完整 Run、代价类型、回调和输入图保持。
+应用后一次四模块 **126 passed**，新增分量顺序/回退定向测试，含完整20步可选IRL；
+compile/flake8/ament_pep257通过。累计采用二十二项，
+详见 [validation.md 11.160](ltl_automaton_planner/docs/validation.md)。

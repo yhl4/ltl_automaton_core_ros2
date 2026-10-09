@@ -6797,3 +6797,75 @@ pytest将两个来源合并为一个Warning段；修正版只读取既有stdout/
 provider、benchmark、仿真、实机或Jazzy。ROS2 V0.2接口与可选IRL原范围保持。
 本节之前475525 bytes验证正文保持，旧SHA
 a8476286321d9992a834f16f7245ca43877b36cc27fd4e849cad2c27be3f8525。
+
+
+### 11.160 可达临时图的 SCC 原生邻接遍历（2026-10-10）
+
+基线 c4e51082a49dcf858c842aae5467ad8d54f29ee5，旧DP SHA
+06c485fd0afff5b4c084a073a03c2835763c4844d72d2aae753df3b969a61f03。
+新增私有_reachable_components：内部plain DiGraph沿用运行环境NX2.4的
+Tarjan/Nuutila非递归算法，仅将两处G[v]邻接视图读取改为绑定的_succ[v]；
+preorder、lowlink、min列表、stack/set构造、节点与分量yield顺序保持。
+其他图类型调用原NX函数。只替换主规划函数的SCC入口，其余原函数AST保持，
+五个其他core源码保持；BSD声明与SCC作者说明保留。新DP 26588 bytes、SHA
+da118889531ed9a65695423e982f5b398fe35da392308f277e7f507e27914d26。
+
+probe位于/tmp/ltl_dp_scc_native_walk_probe_c4e5108。执行前固定4组独立SCC资格
+8次调用，覆盖空图、手算多分量/出口/孤立点、dense及自定义节点hash回调；
+32组规划控制66次调用、8次profile、12000次完整kernel计时，聚合12082次混合调用。
+snapshot只在资格/语义/合成资源门槛后加载一次。第一次helper在6次合成profile后
+rc3：误把cProfile的generator恢复次数当成单次入口，未加载snapshot、未计时。
+保留helper_fix1/failure/runner/outer及结果；helper_fix2仅读取此前成功结果，
+修正为NX原函数匹配数=分量数+2（含decorator），候选=分量数+1，
+只新增KTH的2次profile及12000次固定计时，未重跑已成功阶段或补采样。
+候选字节与四项性能门槛始终不变。
+
+独立reader在应用前核对226项冻结size/SHA、268个capture的134对原始pickle
+及KTH前后原始字节；完整Run字段、代价类型、动作引用、source content/identity、
+有序prefix/suffix距离、拓扑和实际yield分量次序均保持。
+SCC Graph.__getitem__ profile调用在ring/bounded/dense为191→0，KTH为47→0；
+prefix一次、restore两次，suffix搜索64/1/1/2，返回节点4096/64/64/32，
+heap push/pop 4160/128/128/48保持。自定义来源图getter与outer/inner映射回调保持。
+
+固定六组交替顺序，每侧每组200次完整kernel；profile、序列化、断言、
+文件IO和计数均在计时边界外。单位ms为整批中位数：
+
+| fixture | old | candidate | 更慢配对 |
+| --- | ---: | ---: | ---: |
+| KTH | 54.33415 | 48.23785 | 0/6 |
+| N1 | 5.1228505 | 4.57895 | 0/6 |
+| N64bounded | 74.572952 | 50.7156515 | 0/6 |
+| N64dense | 1129.169406 | 1086.360178 | 1/6 |
+| N64ring | 543.038163 | 491.1619635 | 1/6 |
+
+N1仅报告，其他四项候选中位数不高于旧版为执行前门槛，本轮gate=true，
+续跑runner/outer均rc0。ring/dense各1组更慢，保留所有配对；上述降幅不扩展成
+稳定或端到端速度声明。result_fix2 SHA
+e935d5cda8e68cbf815729be479cacc79971a6801c221fca3111ae5c3d51c16e。
+
+probe归档/tmp/ltl_dp_scc_native_walk_publication_c4e5108，474项
+（461 file、12 Git、1 generated），manifest SHA
+22bc80fae590f1297029bf400faf32e4700ea2675b5cdb0ace3d122b2aa3706e。
+主代理独立原件/副本及generated自身一次共947项size/SHA检查，
+0 mismatch、0 missing original。producer /tmp/archive_scc_native_walk_c4e5108.py
+原件保留，首轮失败与续跑证据均在归档中。
+
+精确应用候选后只运行一次四模块pytest：126 passed、0 skip/error/failure，
+Product/DP/LTLPlanner/IRL为34/35/29/28，1.15s；新增3项分量手算/空图与非原生图
+回退检查，原完整20步margin/β、复制与跨调用刷新测试保持。2个既有np.int警告保留。
+实际source/test的py_compile、flake8(99列)、ament_pep257均rc0；
+六source import与十个source/test前后size/SHA相同。新DP测试34265 bytes、SHA
+d6f136e550407e9ad4c97caa12d42e5481f2707b3cf2f742161c81e5c815821d；
+原32751 bytes测试前缀保持。JUnit SHA
+36bc03464720a971125022ce7ea0c8a5b21272097384fecbc2e8340db55e4fdb。
+
+回归补充归档/tmp/ltl_dp_scc_native_walk_regression_publication_c4e5108，
+47项，manifest SHA de855821d81a48ac4c82401b1706b33e8bbe0a25b258bbd1a765352120efb5c9；
+独立原件/副本及generated自身一次共93项size/SHA检查，
+0 mismatch、0 missing original；producer原件保留，旧primary归档未修改。
+
+累计采用二十二项；本轮为局部源码资格，七包组合资格仍为803f28e，
+未新增七包组合、DDS、provider、benchmark、仿真/实机/Jazzy执行。
+ROS2 V0.2接口和可选IRL的示范轨迹学习软任务权重β范围保持。
+本节之前481358 bytes验证正文保持，旧SHA
+c100b58c594148310167f6a62db3f36d20529e68378defae3e51c4061c91e2c9。
