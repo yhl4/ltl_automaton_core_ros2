@@ -1072,3 +1072,6 @@ ring/bounded/dense/KTH批次中位耗时分别下降约2.63%/10.55%/30.75%/9.07%
 
 
 SCC lowlink 的局部 min/list 消除候选未采用：语义、完整 Run、代价类型、动作引用、hash 顺序、原始输入和自定义回退检查均通过，但固定批次的 ring 与 KTH 中位耗时分别上升约4.742%和0.953%，未达到预设门槛；未补采样。累计采用仍为二十四项，四模块136项资格与 2bfbd81 当前源码绑定，详见 [validation.md 11.167](ltl_automaton_planner/docs/validation.md)。
+
+
+搜索循环的 `next` 局部绑定候选未采用：完整路径、代价类型、hash/回调、原始输入和资源检查保持，但固定批次的带分支图与 KTH 中位耗时分别上升约0.495%和3.761%，未通过四项门槛；未补采样。累计采用仍为二十四项，源码与四模块136项资格保持，详见 [validation.md 11.168](ltl_automaton_planner/docs/validation.md)。

@@ -7424,3 +7424,30 @@ PowerShell runner 均为 rc4。原始 stdout/stderr、profile、timing、pickle�
 
 本轮不改变二十四项已采用优化、不改变四模块136项资格；七包754项历史资格仍绑定
 `bd75495`，不与当前资格合并。IRL/V0.2 接口与默认关闭的示范轨迹软权重 β 范围保持。
+
+
+### 11.168 搜索循环 builtin next 的局部绑定候选（2026-10-10，未采用）
+
+本轮从干净 HEAD `c8a42cbb04cd28d3a7b61a603e1ed1e17b6d8a77` 继续。生产 DP 为27763 bytes，SHA256 `556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`，与已通过四模块136项资格的2bfbd81源码一致。只读最近四份 `_old.pstats`，它们绑定同一 DP；历史 ring64 的 suffix helper 调用64次、返回4096个距离节点，next 调用4096次，prefix next 64次。历史 profile 用于定位，未重复执行探索 profile。
+
+候选仅在 `_prefix_distances` 与 `_component_distances` 的 `sequence = count()` 后各加 `advance = next`，并把四个 `next(sequence)` 改为 `advance(sequence)`。候选27813 bytes，SHA256 `ecc41bc4aa0a97a73f53401e5cbf43346f66cef7c38ed739a8060e57a91cd684`。count、heap/counter/tie、source 校验、numeric 运算、SCC、路径恢复与完整Run保持；不使用 `sequence.__next__`，不增加按图/fixture分流。适用边界为冻结的普通 builtins/count；未建立运行中模块全局重绑定的兼容性结论。Native 静态 AST/字节码检查确认仅上述六行差异，其他函数 AST 保持。
+
+fix1 保留了上一轮“SCC builtin min 候选为零”的资源 oracle，root在执行前静态发现。独立fix2要求两侧 min 计数均为64/65/4096/31，并额外冻结复用 helper 原件；候选与规模/门槛保持。准备阶段曾创建两个空结果目录，root静态checker在最后目录不存在断言处停止；独立目录清单确认无文件后，仅非递归移除这两个空目录，同一checker随即通过。全部原稿文件保留；上述过程为0 planner/profile/timing/snapshot调用。未重构或补造原始工具 transcript。
+
+执行前后核对41个冻结输入，含当前12份Git源/测试/文档、6份NetworkX、历史暖快照、原helper及准备产物。运行 source Humble + combo_bd75495 install，Python3.10.12、NetworkX2.4，6个实际核心import与4份测试字节绑定当前源码。唯一fix2完成8 SCC、66 semantic、8 profile、12000 timed，以及18 direct restore、14 pred、12 topology调用，合计12126；snapshot仅加载1次，initial_failed_calls=0。独立reader以原始文件与pstats核对4 SCC、32 semantic、9 restore、7 pred、6 topology控制，146对原始capture及KTH前后字节，完整hash顺序、距离/代价类型、异常参数、动作/source identity和custom/factory回调保持。reader没有planner、profile、snapshot或原始pickle反序列化调用。
+
+旧/候选的 builtin next total 4160/128/128/48、prefix 64/64/64/16、suffix 4096/64/64/32保持；heap push/pop、SCC min、搜索和返回节点、拓扑/恢复/pred调用保持。计时仍为每fixture固定6对交替、每侧每批200次完整kernel，包含搜索、SCC、路径恢复与Run；断言/序列化/profile在计时外，各侧保存最后完整Run与source/alias检查。四项mandatory要求candidate median不高于baseline，N1只报告，未补采样或修改门槛。
+
+| fixture | old median / candidate median（200次，ms） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| N1，仅报告 | 5.051400 / 4.975750 | -1.497605% | 3/6 |
+| N64ring | 525.6734025 / 507.547848 | -3.448064% | 3/6 |
+| N64bounded | 39.4342505 / 39.629301 | +0.494622% | 3/6 |
+| N64dense | 698.002800 / 692.571355 | -0.778141% | 2/6 |
+| KTH | 53.393550 / 55.401650 | +3.760941% | 4/6 |
+
+bounded与KTH未通过，gate=false，候选未采用。Linux runner为rc4，工具终端回执为1；保存的outer文件记录工具终端值1，并非原始PowerShell LASTEXITCODE transcript，内外退出差异原因尚未证实。完整result、progress与全部30对计时已落盘，stderr六条为既有负向控制日志，没有failure结果或运行中止记录。后续PowerShell读取把 `/tmp/...` 解析到 `D:/tmp/...` 的错误也保留为包装边界说明，未重跑探针。result 5204504 bytes，SHA256 `cb93f4f28becc835ec698d1ddd7c8dab55c4f9fc7d040d8cfa907025b53526d6`；独立readback明确记录Linux4/tool1，未改写为相同或宣称全层rc0。
+
+完整证据归档 `/tmp/ltl_dp_next_binding_publication_c8a42cb` 为 599 条目，独立核对 1197 次size/SHA，0 mismatch、0 missing originals；manifest SHA256 `d3022330a540a504d29809ca862d8f7bd547780aa10bacbd49209efa2df1fd30`。归档保留fix1/fix2原稿、全部原始测量、41个冻结输入、Native静态/独立reader与12个不可变Git输入；归档不追加任何planner/profile/snapshot调用。
+
+本轮仅追加README和本节，生产与测试字节保持。累计已采用仍为二十四项；当前四模块136项资格继续绑定2bfbd81源码，七包754个JUnit用例继续绑定bd75495历史源码，不相加或声称重跑。未新增pytest/compile/lint，没有provider、正式benchmark、DDS、仿真或实机验证，Jazzy仍未验证；不作稳定整体加速或IRL科学效果声明。
