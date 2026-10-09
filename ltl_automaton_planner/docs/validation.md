@@ -7627,3 +7627,64 @@ Native审查补充归档 `root_review` 为15 entries、30 checks，manifest SHA2
 累计采用仍为二十五项，四模块136项资格继续适用，未重跑pytest、compile或lint；七包754项
 继续绑定bd75495历史源码，两组计数不相加。ROS2 V0.2接口和默认关闭的示范轨迹软任务权重β
 学习范围保持。没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/实机或IRL科学效果资格。
+
+
+### 11.172 重规划复制的节点 id 局部复用候选（2026-10-10，未采用）
+
+从干净HEAD `f4cb951a215006c8e28c945d65461dcebc7ae12c` 继续。当前LTLPlanner为14916 bytes、SHA256
+`3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943`；候选为14945 bytes、SHA256
+`0b07f71dfb20b1a7c21aa05ea19005d62c59740867e101cedb862971f07b2158`。
+仅将 `_copy_for_replanning` 的 `remember_node` 首次 `id(node)` 保存到局部变量，随后memo查询与写入复用；
+完整deepcopy、memo值、精确类型和两级tuple规则保持，其他10个class method及module AST保持。
+限定普通built-in id绑定，不新增任意global id重绑兼容声明。
+
+定位只读11.171的四份历史old profile，原件与归档绑定且DP与当前相同；这些记录没有deepcopy，
+不把dense的topology_snapshot观察器耗时当作生产热点。复制范围沿用已保存的KTH暖planner快照：
+10636 bytes、SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`。
+使用Humble + combo_bd75495，Python3.10.12、NetworkX2.4，六个实际core import路径/hash绑定当前源码；
+stdlib `/usr/lib/python3.10/copy.py` 为8681 bytes、SHA256
+`27dcfc53a4b9d4fbc3d90c74e549eb6eca9301524d6d2fbff9a6589cf51b6fd5`。
+没有构造planner、执行新规划或调用provider。
+
+fix1/fix2仅静态准备，保留错误helper import、错误环境入口、id profile名称/范围、clone/source字节
+误约束及计时内计数问题；主代理在执行前以fix3移除clone必须等于source的约束并将计数移到计时外。
+fix3首次实际启动在copy.py哈希guard停止：常量遗漏最后一个hex位，rc3；原始failure确认快照加载0、
+wholecopy尝试0。只读环境诊断发现实际文件与此前冻结manifest一致，未更换依赖；另建fix4补全常量，
+保留fix3失败与原件。fix4静态核对35个冻结输入；前后guard一致，manifest12641 bytes、SHA256
+`cb553b868135f1e6d332469a043906428175ad05c343e6657723adb67f0e268f`。
+
+准备描述存在缺口：fix4 protocol继承 `prepared_unexecuted`、`execution_authorized=false` 和fix2 runner
+路径字段，并同时含 `clone_pickle_equal_source=true` / `clone_pickle_equals_source=false`。这些冻结字节
+原样保留，没有事后修正成一致协议；本节按已核对的runner/helper、实际rc、raw文件与result报告。
+实际执行没有clone必须等于source的断言。该描述缺口不能据此宣称协议metadata完全一致。
+
+fix4仅一次完整探针：快照加载1；语义wholecopy4（两侧各2）、profile2（各1）、固定timed2400，
+合计2406。每侧source before/after字节不变，两次clone输出与类型一致，old/candidate输出一致；
+TS/Product graph/node/adj容器隔离、product.graph['ts']内部别名、succ/pred边属性别名，以及peer clone
+可变trace隔离与恢复通过。Native reader只读核对28份raw、两份pstats、12份timing及35份冻结原件，
+没有pickle load、wholecopy或planner调用；本轮没有新增自定义key/hook对照或pytest资格。
+
+profile按built-in id的精确 `remember_node` caller统计，old/candidate调用416→308。
+两侧copy.py handler计数均为deepcopy2649、atomic638、list43、tuple74、dict352。
+该资源下降没有减少完整复制工作或改变递归handler次数。
+
+固定6对交替，每侧每批200次完整复制；断言、序列化、profile、ledger和I/O均在计时外。
+唯一性能门槛为candidate批次中位数不高于old；不补采样、不改门槛。
+
+| fixture | old median ms / candidate median ms（200次完整复制） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| KTH warm snapshot | 270.8921010 / 273.1457005 | +0.831918% | 5/6 |
+
+资源/语义检查通过但时间门槛未通过，gate=false，候选未采用；该样本差异不作稳定性能结论。
+result 19527 bytes、SHA256 `87e22ea739f08efa2b59b682b25e94bb5faff262af1ac999ca149dc2049c8c49`；
+Linux rc、实际PowerShell LASTEXITCODE及工具终端均4，固定计时完成，无fix4 failure文件。
+归档 `/tmp/ltl_replan_node_id_publication_f4cb951` 为127 entries、254次size/SHA读回，
+0 mismatch/0 missing originals；manifest SHA256 `b1d6069784e4ec6711b82fc5e7458fbb37822a3a77df29dc9f77cc0865e527b5`。
+四个准备版本、fix3失败、fix4原始结果/profile/raw/timing、冻结输入、Native凭据及12份Git基线均保留。
+主代理发现主归档未复制两份冻结历史方法/source参考，另建 `frozen_supplement`：2 entries、4 checks，
+manifest SHA256 `9c3439c6a604f9557ffb318057f95cc360d97e2d7025c204a3616cd63fbb5d8a`；主归档原字节保持，补充后35份冻结输入均有副本。
+
+本轮仅追加README及本节，十份生产/测试与11.169资格字节和JUnit匹配。
+累计采用仍为二十五项，现有四模块136项资格继续适用，未重跑pytest、compile或lint；七包754项
+仍绑定bd75495历史源码，计数不合并。ROS2 V0.2接口、默认关闭的示范轨迹软任务权重β学习范围保持。
+没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/实机或IRL科学效果资格。
