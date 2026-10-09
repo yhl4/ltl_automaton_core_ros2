@@ -1090,3 +1090,9 @@ SCC 的 `min([a, b])` 改为 `min(a, b)` 候选未采用：完整搜索的语义
 但固定采样中 KTH 批次中位耗时约升0.106%，未通过四项预设门槛；未补采样。
 当前仍为二十五项已采用优化，源码与四模块136项资格保持d5ca7d9版本；本轮没有重跑pytest或lint。
 详见 [validation.md 11.170](ltl_automaton_planner/docs/validation.md)。
+
+
+后缀 Dijkstra 的单元素 pending 队列候选未采用：路径、代价类型、源图和 Python heap hook 顺序检查通过，
+但固定采样中 KTH/稠密图批次中位耗时约增6.35%/4.20%，未达到四项预设门槛；未补采样。
+当前源码与四模块136项资格保持，累计采用仍为二十五项；本轮未新增pytest或IRL效果结论。
+详见 [validation.md 11.171](ltl_automaton_planner/docs/validation.md)。

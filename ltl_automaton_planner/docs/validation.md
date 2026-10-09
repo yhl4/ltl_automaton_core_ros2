@@ -7562,3 +7562,68 @@ KTH未通过四项联合门槛，gate=false，因此候选未采用。N1的报�
 11.169四模块136项JUnit及十份source/test绑定一致，未重跑pytest、compile或lint。
 七包754项仍绑定bd75495历史源码，不相加或宣称重跑；V0.2接口与默认关闭的示范轨迹软任务
 权重β学习范围保持。没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/实机或IRL科学效果资格。
+
+
+### 11.171 后缀 Dijkstra 单元素 pending 队列候选（2026-10-10，未采用）
+
+从干净HEAD `e4c43906fe7ae1df0d23100f2cc15045ea2070f4` 继续，DP为27763 bytes、SHA256
+`556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`。
+Native inventory只读11.170的四份old profile，原件与不可变归档一致，且绑定的DP与当前相同；
+历史profile用于定位，不计作本轮实测。LTL、IRL、Product等生产字节及四份测试保持。
+
+候选仅修改 `_component_distances`：原生 `_heapq` push/pop 绑定下，将单元素tuple暂存为pending；
+遇第二个待处理元素，先把pending压入空堆，再压入新元素，随后保留普通堆排序。sequence计数仍
+在原tuple建立位置执行；hash、目标None比较、代价类型、tie、seen/equality与负权异常分支保持。
+任一heap别名为Python wrapper时，两侧保留全部原heap调用。候选28649 bytes，SHA256
+`aa537983bcb9d8ba49d766353a5abc2e1261fcc87b829d244efd33dddf24db4c`；其他16个函数AST保持。
+[CPython 3.10.12源码](https://raw.githubusercontent.com/python/cpython/v3.10.12/Modules/_heapqmodule.c)
+中的空堆push不进入元素比较、单元素pop直接返回末元素，支持该限定范围的队列替换。
+本机 `_heapq` 为built-in，没有 `__file__` 可散列；记录实际绑定metadata及
+`/usr/lib/python3.10/heapq.py`的22877 bytes、SHA256
+`0351667ed3afd3310ebd353526824d6f6f34d641ef0a785552c6893b7f95fdf3`，不伪造extension文件hash。
+
+复用11.170 qualified helper的夹具与固定门槛，仅增加4个直接heap hook控制和候选资源oracle。
+fix1的pop wrapper参数错误在执行前发现，fix2修正；fix3进一步修正历史profile来源及
+suffix_search/returned_nodes字段名称。三个候选DP字节一致，fix2/fix3测试字节一致；fix1/fix2
+没有results目录或候选执行。独立Native AST/hash审核通过；准备阶段工具引号错误亦为0运行调用。
+唯一fix3前后绑定41个冻结输入，Humble + combo_bd75495、Python3.10.12、NetworkX2.4，
+六个实际core import绑定当前源码。完成8 SCC、66 semantic、8 profile、12000 timed、18 restore、
+14 pred、12 topology、4 heap direct calls，合计12130；暖planner快照加载1次，initial_failed_calls=0。
+全部32语义、4 SCC、9恢复、7 pred、6 topology控制和4个heap hook侧通过；后者分别只替换push
+或pop，核对手算距离及每个tuple的调用顺序。Native reader核对146对原始capture、直接恢复/
+前驱控制raw字节及KTH前后字节；hook控制的输入不变由helper断言记录，没有新增raw文件。
+两份新增参数化测试仅为未执行候选草稿，不将direct控制记为pytest通过。
+
+四份old/candidate profile的push与pop总数分别为ring64 4160→64、bounded64 128→64、
+dense64 128→127、KTH 48→42；Native另从原始pstats核对prefix与suffix caller计数。
+prefix仍为64/64/64/16；suffix两侧分别4096→0、64→0、64→63、32→26。
+next总数4160/128/128/48及prefix/suffix拆分不变；suffix搜索64/1/1/2、返回节点4096/64/64/32、
+SCC min 64/65/4096/31和其他prefix、pred、拓扑、恢复、完整Run及source identity门槛保持。
+
+每fixture固定6对交替，每侧每批200次完整kernel，包含搜索、SCC、路径恢复和完整Run；
+断言、序列化和profile在计时外。四项mandatory均要求candidate median不高于old，N1只报告。
+没有补采样或放宽门槛。
+
+| fixture | old median ms / candidate median ms（200次） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| N1 | 5.5636500 / 6.7942500 | +22.118573% | 6/6 |
+| N64ring | 499.1334000 / 498.2907500 | -0.168823% | 2/6 |
+| N64bounded | 43.0562000 / 43.0263500 | -0.069328% | 3/6 |
+| N64dense | 783.5194000 / 816.3901005 | +4.195263% | 3/6 |
+| KTH | 40.1942500 / 42.7485000 | +6.354765% | 5/6 |
+
+KTH及dense未通过联合性能门槛，gate=false，候选未采用。堆调用减少在本组固定采样中没有
+带来四场景共同收益；上述样本变化不作稳定加速/回退结论。result 5208589 bytes，SHA256
+`8fbbe289f4b8264b6f6f0cca2eeb9cbffda86f7a8ccbe484b59e8f53b9e64021`；Linux runner、实际PowerShell LASTEXITCODE及工具终端均4。
+全部固定计时完成，无failure_fix3.json；stderr六条为既有负向控制日志。
+完整探针归档 `/tmp/ltl_dp_suffix_pending_publication_e4c4390`，609 entries、1218次size/SHA
+读回，0 mismatch/0 missing originals；manifest SHA256 `18801ff8e2ad8a29acb6707a755c72ad6a56b7aa04ab8c90dcab973f8f07570f`。
+原始profile/timing/capture、候选与未执行准备稿、冻结原件、Native凭据和12份Git输入均保留。
+Native审查补充归档 `root_review` 为15 entries、30 checks，manifest SHA256
+`352f714da1b6dee3c1a225a7132e5c0cfbd53f162bbd4f2c4ed05fd673dfb640`。首个文档准备脚本在补充归档复制后新增静态字节检查；
+保留其两个版本，并从已验证归档恢复原稿的原路径字节。该修正没有候选或测试运行。
+
+本轮仅追加README及本节，生产/四份测试与11.169合格source/test字节及JUnit匹配。
+累计采用仍为二十五项，四模块136项资格继续适用，未重跑pytest、compile或lint；七包754项
+继续绑定bd75495历史源码，两组计数不相加。ROS2 V0.2接口和默认关闭的示范轨迹软任务权重β
+学习范围保持。没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/实机或IRL科学效果资格。
