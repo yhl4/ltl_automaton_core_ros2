@@ -739,8 +739,9 @@ git diff --check
 | 完整 Product 构图的 TS 来源邻接复用（对照基线 `7321c75`） | 62/62 passed；有序图、动作引用、重建刷新及异常状态保持；128分支往返图的 TS 邻接查询256→129 | [11.142](ltl_automaton_planner/docs/validation.md) |
 | 重规划嵌套 tuple 的直接类型检查（对照基线 `2f327a1`） | 85/85 passed；24类边界输入与原检查一致，完整复制/custom key/hook及20步IRL margin回归保持；16项嵌套 tuple 的 cProfile genexpr调用96→0 | [11.145](ltl_automaton_planner/docs/validation.md) |
 | Run 输出的 TS 邻接复用（对照基线 `3c278b1`） | 四模块119/119 passed；完整20步IRL与复制/hook回归保持；128步Run的TS `__getitem__`调用128→0，六组每50次构造中位数6.939/2.592 ms | [11.149](ltl_automaton_planner/docs/validation.md) |
+| suffix 单源 distance-only Dijkstra 内联（对照基线 `bcdd2b2`） | 120/120 passed；DP/testDP compile、flake8、pep257通过；ring64 callback 4096→0、bounded callback 65→0；N64 ring、N64 bounded、KTH 中位数门槛通过 | [11.150](ltl_automaton_planner/docs/validation.md) |
 
-十七项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+十八项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -783,6 +784,14 @@ Run 输出现在在单次调用内惰性复用标准 TSModel/DiGraph 的邻接�
 四个相关模块119项、两文件 compile/flake8/pep257通过，保留完整20步 IRL margin。
 该修改尚无新七包组合资格，不作稳定或整体加速声明。详见
 [validation.md 11.149](ltl_automaton_planner/docs/validation.md)。
+
+suffix 单源 distance-only Dijkstra 本轮按真实 NetworkX 2.4 的堆、counter、默认/None
+权重、seen 等值比较和异常顺序内联 component 过滤，省去固定为 None 的分支判断与
+仅用于 distance-only 路径的 wrapper；prefix、SCC、accept 目标次序、tight restore、
+Run、source/action identity 和 gamma/IRL 范围保持。fix3 完成 66 semantic、4 profile、
+960 timed 和一次历史 snapshot 加载；ring64 callback 4096→0、bounded 65→0，但 suffix
+搜索节点数不变。N64 ring、N64 bounded、KTH 中位数均不慢，N1 仅作报告；这仍是局部
+探针结果，不作稳定或整体加速声明。详见 [validation.md 11.150](ltl_automaton_planner/docs/validation.md)。
 
 ### 最近七包组合记录（源码 `803f28e`，2026-10-08）
 

@@ -6112,3 +6112,66 @@ ament_flake8（linelength99）、ament_pep257，六个实际阶段均 rc0。
 应用后资格源码另存。首次回读器把 Git/归档标识当文件路径而停止，随后仅修正读取分类，
 没有改归档或运行结果。本节之前425420 bytes原文保持，旧 SHA256 为
 `71545917e0d68835d58d5778c1e763a96eff83648669904e224307f1ae65d5ec`。
+
+
+### 11.150 suffix 单源 distance-only Dijkstra 内联（2026-10-09）
+
+本轮基线 HEAD 为 `bcdd2b22a20ec5afdba588c428c0eb52c6a8a260`；当前生产
+原始 `discrete_plan.py` SHA256 为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`；当前生产
+`discrete_plan.py` SHA256 为
+`81d4551190cfeebbe7d030f27b97d2205e1f0296ac67ae8426e0b637c842fdcc`，testDP
+最终 SHA256 为
+`2f11033c21d3049d22640d47563d46f600da59ebafaa9a152e28cbb1e3fead6e`。
+候选将 NetworkX 2.4 distance-only suffix Dijkstra 按原 heap counter、默认/None
+权重、精确 numeric 运算、seen 等值比较和错误顺序内联到 `_component_distances`，
+省去固定为 None 的 cutoff/pred/paths 分支判断与 component-weight closure/single-source
+wrapper。prefix、SCC 扫描、接受目标次序、tight restore、Run、source/action identity、
+NodeNotFound/负权错误 args、source=None 早停及 gamma/IRL 范围保持；候选文件含完整
+NetworkX BSD-3-Clause notice。
+
+首轮应用后检查先执行四模块 pytest 与 DP/testDP compile/flake8；pytest 为120 passed、
+2条既有 `np.int` warning，DP compile/flake8 通过，testDP flake8 因 E303/E501 停止，
+因此未执行当轮 pep257。root 仅修复 testDP 格式且保留原测试 AST 与首轮字节，fix1 重新执行
+四模块 pytest（Product34、DP29、LTLPlanner29、IRL28，共120 passed）、testDP compile/
+flake8，以及 DP/testDP 各一次 pep257，全部 rc=0；两轮均0 skip/error/failure，完整20步 margin/β
+与复制/hook 回归保持，DP compile/flake8 已通过且未重复。两轮 runner 的失败与成功边界、
+stdout/stderr、JUnit 和外层工具回执均独立保存；不能把首轮 runner 描述成全绿。
+
+独立探针 fix2 实际执行62 semantic 后在 DirectNumeric 编码比较处停止，profile/timing/
+snapshot 均为0；fix3 只修正该数值编码，未改变候选、输入、规模或门槛。fix3 一次完成
+66 semantic（54 regular、4 mutation、8 direct distance）、4 profile、960 timed，合计
+1030 次，历史 warmed snapshot 加载1次。32个控制记录全部通过，包含 missing-source 精确
+异常、undirected zero tie/component exit、source=None 早停、自定义 edge.get 与 add/lt/eq
+事件、跨调用修改成本 `31→22`；有序 distance/value type、source 顺序、完整 Run、动作引用
+及输入图 source content/identity/raw 检查均通过。
+
+Profile 中 ring64 的 `component_weight` callback 为 `4096→0`，bounded64 为 `65→0`；
+ring64 suffix 搜索仍处理64个源、返回节点4096项，bounded suffix仍处理1个源、返回节点64项。
+NetworkX multi-source wrapper 调用分别为 `65→1` 和 `2→1`，这是 wrapper 路由变化，不是
+搜索节点或搜索次数下降。四个 fixture 固定6组交替、每侧每组20次完整 kernel，计时含 SCC、搜索、恢复与 Run；每侧
+每批保存并检查最后一次完整 Run/source/alias，未逐次序列化全部计时调用；profile、counter、
+断言、序列化和 IO 在计时外。所有原始 ns/失败保留，无补采样或门槛修改：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N=1（仅报告） | 0.719900 / 0.676850 ms | 1/6 |
+| N=64 ring | 71.158452 / 63.304952 ms | 0/6 |
+| N=64 bounded | 8.846200 / 8.747200 ms | 1/6 |
+| KTH 保存图 | 6.4851005 / 6.321400 ms | 2/6 |
+
+预设 N64 ring、N64 bounded、KTH 中位数均不得更慢，三项通过，N1 只报告；候选已采用。
+KTH 旧 `warmed_planner.pkl` 仅加载一次，10636 bytes，SHA256 为
+`32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`；运行使用 Humble+
+803 overlay、Python3.10.12、NetworkX2.4，HASHSEED 未设置。没有新 KTH 图构建、任务翻译或新三阶段；没有 provider、DDS、benchmark、仿真或实机验证；
+Jazzy 未验证，当前七包仍为 `803f28e` 的独立旧资格；这项局部结果不代表稳定整体加速、
+内存收益或 IRL 科学效果。
+
+证据已冻结于 `/tmp/ltl_dp_suffix_inline_publication_bcdd2b2`，612 entries 包含606个物理原件
+与6个 Git 基线，分别与副本核对，共1224次 size/SHA256 检查、0 mismatch；manifest SHA256 为
+`205c028fc66bf0e433230983b9ca482a8fc8564a00e8e827abb894a919e74fe3`；archive receipt SHA256
+为 `83151f118a8357babbd61fab0bdec45f600d54d453df53cbf4f80c569b6bb5ca`。其中2项
+`manifest_bound_git-show-baseline` 按 bcdd Git 对象解析；首轮 reader 停止后只修分类，archive/results
+不变。首轮失败 checks 与 fix1 成功 checks 分开保存，旧 DP/testDP 由 HEAD 的 Git 对象独立取回。
+本节之前430953 bytes原文保持，旧SHA256为
+`72abae9a9abf45910f9c227c897e9e0af78843be68587151c168542925089452`。

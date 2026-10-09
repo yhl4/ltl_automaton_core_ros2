@@ -4,11 +4,14 @@ import logging
 import time
 from collections import defaultdict
 from collections import deque
+from heapq import heappop
+from heapq import heappush
+from itertools import count
 from itertools import islice
 
 from networkx import DiGraph
+from networkx import NodeNotFound
 from networkx import multi_source_dijkstra_path_length
-from networkx import single_source_dijkstra_path_length
 from networkx import strongly_connected_components
 
 from .product import ProdAut_Run
@@ -74,17 +77,7 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
 
         component = target_components[prod_target]
 
-        def component_weight(source, successor, data):
-            """Hide exits because a valid accepting cycle cannot leave."""
-            if successor not in component:
-                return None
-            return data.get("weight", 1)
-
-        loop_dist = single_source_dijkstra_path_length(
-            product,
-            prod_target,
-            weight=component_weight,
-        )
+        loop_dist = _component_distances(product, prod_target, component)
 
         optimal_predecessor = None
         suffix_cost = None
@@ -165,6 +158,80 @@ def dijkstra_plan_networkX(product, gamma=10, start_set=None):
         suffix_cost,
     )
     return run, elapsed
+
+
+# The _component_distances helper is adapted from NetworkX 2.4.
+# Copyright (c) 2004-2019, NetworkX Developers.
+# Copyright (c) Aric Hagberg, Dan Schult, and Pieter Swart.
+# The following BSD-3-Clause notice applies to that helper:
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+#  * Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+#  * Neither the name of the NetworkX Developers nor the names of its
+#    contributors may be used to endorse or promote products derived from this
+#    software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+def _component_distances(product, source, component):
+    """Find suffix distances with NetworkX's ordering and component filter."""
+    # Adapted from NetworkX 2.4's distance-only Dijkstra loop; license below.
+    # Keep source-set hashing and the target=None comparison observable.
+    sources = {source}
+    successors = product._succ if product.is_directed() else product._adj
+    push = heappush
+    pop = heappop
+    distances = {}
+    seen = {}
+    sequence = count()
+    fringe = []
+    target = None
+    for start in sources:
+        if start not in product:
+            raise NodeNotFound("Source {} not in G".format(start))
+        seen[start] = 0
+        push(fringe, (0, next(sequence), start))
+    while fringe:
+        distance, _, current = pop(fringe)
+        if current in distances:
+            continue
+        distances[current] = distance
+        if current == target:
+            break
+        for successor, data in successors[current].items():
+            if successor not in component:
+                continue
+            cost = data.get("weight", 1)
+            if cost is None:
+                continue
+            candidate = distances[current] + cost
+            if successor in distances:
+                if candidate < distances[successor]:
+                    raise ValueError("Contradictory paths found:", "negative weights?")
+            elif successor not in seen or candidate < seen[successor]:
+                seen[successor] = candidate
+                push(fringe, (candidate, next(sequence), successor))
+            elif candidate == seen[successor]:
+                # NetworkX evaluates equality even when pred=None.
+                pass
+    return distances
 
 
 def _restore_tight_path(product, distances, sources, target):

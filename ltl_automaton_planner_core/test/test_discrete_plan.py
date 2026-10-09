@@ -241,15 +241,15 @@ def test_accepting_dead_end_is_excluded_from_cycle_search(monkeypatch):
     product.graph["accept"].add(("dead", "q0"))
     product.build_accept_with_cycle()
     searched_sources = []
-    original_search = discrete_plan.single_source_dijkstra_path_length
+    original_search = discrete_plan._component_distances
 
-    def record_search(graph, source, **kwargs):
+    def record_search(graph, source, component):
         searched_sources.append(source)
-        return original_search(graph, source, **kwargs)
+        return original_search(graph, source, component)
 
     monkeypatch.setattr(
         discrete_plan,
-        "single_source_dijkstra_path_length",
+        "_component_distances",
         record_search,
     )
     run, _ = dijkstra_plan_networkX(product, gamma=10)
@@ -268,7 +268,7 @@ def test_no_accepting_cycle_returns_without_shortest_path_search(monkeypatch):
 
     monkeypatch.setattr(
         discrete_plan,
-        "single_source_dijkstra_path_length",
+        "_component_distances",
         unexpected_search,
     )
     monkeypatch.setattr(
@@ -309,15 +309,15 @@ def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
     multi_calls = []
     suffix_sources = []
     original_multi = discrete_plan.multi_source_dijkstra_path_length
-    original_single = discrete_plan.single_source_dijkstra_path_length
+    original_single = discrete_plan._component_distances
 
     def record_multi(graph, sources, **kwargs):
         multi_calls.append(set(sources))
         return original_multi(graph, sources, **kwargs)
 
-    def record_single(graph, source, **kwargs):
+    def record_single(graph, source, component):
         suffix_sources.append(source)
-        return original_single(graph, source, **kwargs)
+        return original_single(graph, source, component)
 
     monkeypatch.setattr(
         discrete_plan,
@@ -326,7 +326,7 @@ def test_networkx_dijkstra_uses_one_multi_source_prefix(monkeypatch):
     )
     monkeypatch.setattr(
         discrete_plan,
-        "single_source_dijkstra_path_length",
+        "_component_distances",
         record_single,
     )
     run, _ = dijkstra_plan_networkX(product, gamma=10)
@@ -351,17 +351,17 @@ def test_networkx_dijkstra_skips_unreachable_suffix(monkeypatch):
     product.build_accept_with_cycle()
     suffix_sources = []
     suffix_distances = {}
-    original_single = discrete_plan.single_source_dijkstra_path_length
+    original_single = discrete_plan._component_distances
 
-    def record_single(graph, source, **kwargs):
+    def record_single(graph, source, component):
         suffix_sources.append(source)
-        distances = original_single(graph, source, **kwargs)
+        distances = original_single(graph, source, component)
         suffix_distances[source] = distances
         return distances
 
     monkeypatch.setattr(
         discrete_plan,
-        "single_source_dijkstra_path_length",
+        "_component_distances",
         record_single,
     )
     run, _ = dijkstra_plan_networkX(product)
@@ -742,16 +742,16 @@ def test_scc_topology_keeps_none_edges_without_copying_product_state(monkeypatch
     before_ts = product.graph["ts"]
     before_buchi = product.graph["buchi"]
     suffix_distances = {}
-    original_search = discrete_plan.single_source_dijkstra_path_length
+    original_search = discrete_plan._component_distances
 
-    def record_search(graph, source, **kwargs):
-        distances = original_search(graph, source, **kwargs)
+    def record_search(graph, source, component):
+        distances = original_search(graph, source, component)
         suffix_distances[source] = distances
         return distances
 
     monkeypatch.setattr(
         discrete_plan,
-        "single_source_dijkstra_path_length",
+        "_component_distances",
         record_search,
     )
 
@@ -814,3 +814,46 @@ def test_dijkstra_closing_edges_keep_default_hidden_and_input_semantics():
     assert run.suffix == [goal, tail]
     assert run.suf_plan_cost == [0, 1, 3]
     assert (run.precost, run.sufcost, run.totalcost) == (2, 4, 42)
+
+
+def test_component_distances_preserve_seen_equality_events():
+    """Keep numeric equality hooks when another path reaches a seen node."""
+    events = []
+
+    class LoggedCost(float):
+        """Keep arithmetic results observable without changing their values."""
+
+        def __add__(self, other):
+            """Return another logged arithmetic result."""
+            return LoggedCost(float(self) + float(other))
+
+        def __radd__(self, other):
+            """Preserve the type when adding the initial integer distance."""
+            return LoggedCost(float(other) + float(self))
+
+        def __eq__(self, other):
+            """Record both heap and already-seen distance equality."""
+            events.append((float(self), float(other)))
+            return float(self) == float(other)
+
+    graph = DiGraph()
+    graph.add_weighted_edges_from([
+        ("s", "a", LoggedCost(0)), ("s", "b", LoggedCost(0)),
+        ("a", "j", LoggedCost(1)), ("b", "j", LoggedCost(1)),
+        ("j", "s", LoggedCost(0)),
+    ])
+    component = {"s", "a", "b", "j"}
+
+    def original_weight(source, target, data):
+        return data.get("weight", 1) if target in component else None
+
+    expected = single_source_dijkstra_path_length(graph, "s", weight=original_weight)
+    original_events = list(events)
+    events.clear()
+    actual = discrete_plan._component_distances(graph, "s", component)
+    assert events == original_events and original_events
+    assert list(actual) == list(expected) == ["s", "a", "b", "j"]
+    assert [float(value) for value in actual.values()] == [0, 0, 0, 1]
+    assert [type(value) for value in actual.values()] == [
+        type(value) for value in expected.values()
+    ]
