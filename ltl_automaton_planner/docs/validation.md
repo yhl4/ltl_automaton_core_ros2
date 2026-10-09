@@ -5981,3 +5981,66 @@ lint或七包组合；未运行 provider、DDS、benchmark、仿真、实机或J
 `e18ca9afc4c2af5e1c72d2769b524b72530995ddb216a15232f2ddb292da86d1`。
 本节之前416280 bytes原文保持，旧SHA256为
 `3553205de47c8390f80a5a75b950fd04c9e3b7069369d9cf6f0f302b0af33982`。
+
+### 11.148 闭环代价界裁剪 suffix 搜索候选未采用（2026-10-09）
+
+本轮基线 HEAD 为 `534e3630d1eb3232c5c184ce96f2aae245843597`；原始
+`discrete_plan.py` SHA256 为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`，
+独立候选 SHA256 为
+`7ace47a41fd90b6d2ff6cdea929a12323733fdf8fb8c3677e65d09f375fa4c99`。
+先只读取此前 N64 pstats 和结构 inventory；未新增搜索或构图。保存 KTH 图没有
+self-loop，两个接受目标也没有可用的直接二边闭环界，故没有执行这些专用候选。
+
+本候选在原有可达拓扑扫描中检查标准 DiGraph/ProdAut、dict factories、exact dict 边
+属性及非负 native int/float/bool 权重。权重须不超过 `(1<<53)//(2*Vr)`，None 隐藏边
+保持。符合条件时，suffix Dijkstra 用已找到的真实闭环代价作为搜索界；仅跳过严格大于
+该界的节点或松弛，保留整个同成本层及原 incoming predecessor 顺序。前缀、目标顺序、
+目标函数及紧路径恢复保持；单次查询期间图与权重须稳定。Fraction、自定义图/边/数值、
+MultiDiGraph、负权重和过大数值沿用原 callback 搜索，不转为浮点。
+原始 arithmetic draft 只准备未执行：mixed int/float 可能把 `2**53+1` 向下舍入，
+因此在执行前改用上述精确整数界，保留未执行原稿。
+
+helper/fix1 只静态准备，执行前修正同图输入、异常路由记录、计数与 runner 展开；
+fix2 首次实际执行到 Fraction 后停止：14 semantic、0 profile、0 timed、0 snapshot。
+旧/候选均返回精确 `Fraction(40,1)`，完整 Run、source 与 route 已通过；辅助手算预期
+仍写为整数40，导致编码后的类型比较失败。fix3 只把该预期改为 `Fraction(40,1)`，
+使用独立输出目录；候选、输入、样本、严格原始字节检查和时间门槛保持。失败原件保留。
+
+fix3 只执行一次：27 regular 场景及跨调用修改共58 semantic、4 profile、960 timed，
+合计1022次，snapshot 加载1次。默认/None 权重、零成本同层、较便宜二元环、浮点、bool、
+Fraction/custom 容器、显式/不连通起点、无接受目标、大整数混算异常及 γ=0/Fraction
+全部通过。两类混算保留原 OverflowError/ValueError 类型与 args；跨调用成本仍为31→22。
+58次语义及4次 profile 的完整 Run/代价类型/动作引用与源图内容、身份、raw 检查通过；
+960次计时按每侧每批记录最后一次完整 Run，所有批次 Run/source 检查通过。
+实际导入绑定当前源码；Humble + 803 overlay、Python3.10.12、NetworkX2.4，HASHSEED 未设置。
+
+ring64 profile：component_weight `4096→0`、native lambda `64→64`；原 legacy suffix64
+改为 bounded helper64，返回节点总数仍4096。bounded64：component_weight `65→0`、
+native lambda `65→65`，suffix 搜索仍1次，返回节点数 `64→1`。
+NetworkX multi_source 函数调用分别 `65→1`、`2→1`，是路由改变，不能当作实际搜索次数下降。
+
+每种输入固定6组交替，每侧每组20次完整 kernel，包含安全扫描、SCC、搜索、恢复及
+Run 构造；profile、断言、计数、序列化和IO在计时外。唯一960次计时及全部原始 ns 保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1 | 0.7538505 / 0.8198500 ms | 6/6 |
+| N64ring | 78.5874725 / 101.1298285 ms | 6/6 |
+| N64bounded | 8.6744520 / 8.8159530 ms | 5/6 |
+| KTH | 6.7552520 / 7.3104020 ms | 5/6 |
+
+最终 KTH raw/内容/身份检查通过；预设 N64ring、N64bounded、KTH 中位数均不得更慢，
+三项均未通过，故 `gate=false`、`not_adopted`。N1只报告。没有补采样、改门槛或应用候选。
+fix2 的14次与 fix3 的1022次分别计数，外层 WSL 工具 exit 均为1，runner rc 分别2、4。
+fix3 stderr 六条无接受运行消息对应预定负例，原文保留。
+
+本轮只发布 README/验证记录，没有生产或测试修改；未重跑85项核心测试、compile、
+lint或七包组合，未运行 provider、DDS、benchmark、新KTH三阶段、仿真、实机或Jazzy。
+此前局部与803f28e七包资格保持，采用优化数量仍为16项。
+初次归档漏收结构 inventory，原归档保留；最终 fix1 补齐，不改变实际执行记录。
+443份证据副本独立回读原件与副本，共886次size/SHA256检查一致；冻结目录为
+`/tmp/ltl_dp_closing_frontier_publication_534e363_fix1`，manifest SHA256 为
+`98e6ae5eae9560641c420ce6484f116df8c1d42b03e8104485b0353599f836a7`。
+本节之前420704 bytes原文保持，旧SHA256为
+`c1815845efcc8c87c06f4b53c383392199700683a9f98fe24f3ffebd63460de3`。
