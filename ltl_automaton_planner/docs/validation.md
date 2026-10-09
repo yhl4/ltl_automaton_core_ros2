@@ -7383,3 +7383,44 @@ plain dict比较，实际事件数符合手算值。原失败JUnit、logs、runn
 JUnit与新source/test SHA由独立regression readback绑定，后续发布追加归档保存。
 累计采用二十四项优化。本轮为定向回归与固定夹具/暖快照测量，未运行正式benchmark、provider、
 Gazebo、Jazzy或机器人端到端；七包754项历史资格仍绑定bd75495，没有与136合并。
+
+
+### 11.167 SCC lowlink 的局部 min/list 消除候选（2026-10-10，未采用）
+
+本轮基线为 HEAD `2bfbd8127b8c28b225b7a48851ba6a954c47a4fb`，生产 DP 字节 SHA 为
+`556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`。候选只在
+`_reachable_components` 的两个 lowlink 更新处去掉临时两元素列表和 builtin `min`，改为
+两个私有整数的条件表达式；preorder 条件、键访问顺序、比较顺序、最终写回顺序、SCC
+分区与遍历顺序保持。候选字节 SHA 为
+`cafaffd627557488eb82d3665fb43c17fcb230feba0a77c338717f81075f14b2`。
+
+32 个语义组共 66 calls、SCC 8、restore 18、pred 14、topology 12、profile 8，固定
+五个 fixture 六组交替 pair、每侧每批 200 次完整 kernel，共 12000 timed calls；暖 KTH
+快照只加载一次，总 mixed calls 为 12126，初始失败计数为0。完整 Run、代价类型、动作
+引用、现有夹具的完整 hash 轨迹与代价回调顺序、源图 content/identity/raw bytes、
+自定义图与 factory fallback 均通过。生产源码/测试字节未改，本轮未重跑pytest、compile或lint。
+
+profile 的 topology add_edges、helper、dict.update 分别在 old/candidate 为 0/0、1/1、
+0/0；reachable min calls 为 ring64 64/0、bounded64 65/0、dense64 4096/0、KTH 31/0，
+其余 heap、prefix、suffix、恢复、节点和 source checks 保持。
+
+| fixture | baseline median ms | candidate median ms | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1（仅报告） | 4.584950 | 4.495150 | 2/6 |
+| N64ring | 484.197477 | 507.159174 | 5/6 |
+| N64bounded | 38.033098 | 36.675498 | 0/6 |
+| N64dense | 689.666255 | 596.194328 | 0/6 |
+| KTH | 36.914099 | 37.265850 | 3/6 |
+
+四项 mandatory gate 中 ring 与 KTH 的 candidate median 高于 baseline，故候选未采用，未
+重采样且未改变门槛。结果 `result_fix1.json` SHA 为
+`fbd1a24f797c24b1c6d8fce0c1fe62ff5e36c38d69f4254ac97ead8d2bca775a`；Linux runner、外层
+PowerShell runner 均为 rc4。原始 stdout/stderr、profile、timing、pickle、已保存准备原稿与静态失败说明均保留。
+
+早期未执行草稿中的分支重复赋值和继承 hash-delta 检查已在静态阶段修正；root checker 的
+等价 old topology builder 文字匹配问题另存更正凭据。盘点历史 source 路径标签的说明保留，
+没有把静态稿或历史 profile 当作本轮额外实验。归档 `/tmp/ltl_dp_scc_inline_min_publication_2bfbd81` 已独立读回，记录：`600` entries、
+`1199` size/SHA checks、manifest SHA `73008685576f70dc1f82fe23ea83dc6449a69155ccd08f09847c506cfd1b2fab`。
+
+本轮不改变二十四项已采用优化、不改变四模块136项资格；七包754项历史资格仍绑定
+`bd75495`，不与当前资格合并。IRL/V0.2 接口与默认关闭的示范轨迹软权重 β 范围保持。

@@ -1069,3 +1069,6 @@ ring/bounded/dense/KTH批次中位耗时分别下降约2.63%/10.55%/30.75%/9.07%
 默认关闭的示范轨迹软任务权重β学习范围保持。七包754项历史资格仍绑定bd75495，
 没有重跑或与本轮计数合并。测量范围与准备阶段证据缺口详见
 [validation.md 11.166](ltl_automaton_planner/docs/validation.md)。
+
+
+SCC lowlink 的局部 min/list 消除候选未采用：语义、完整 Run、代价类型、动作引用、hash 顺序、原始输入和自定义回退检查均通过，但固定批次的 ring 与 KTH 中位耗时分别上升约4.742%和0.953%，未达到预设门槛；未补采样。累计采用仍为二十四项，四模块136项资格与 2bfbd81 当前源码绑定，详见 [validation.md 11.167](ltl_automaton_planner/docs/validation.md)。
