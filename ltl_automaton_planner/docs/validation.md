@@ -6579,3 +6579,64 @@ command not found，runner rc127、outer rc1，pytest实际0次，首日志/脚�
 provider、benchmark、仿真、实机或Jazzy资格，也不证明整体速度、内存收益或IRL科学效果。
 本节之前460448 bytes验证记录完整保持，旧SHA为
 8664efe4b26a94fa9eae24f1bf563e4584d1783f8a526338339ebb50611cb4ee。
+
+
+### 11.157 prefix 松弛复用弹出距离候选（未采用，2026-10-09）
+
+基线 commit 84a0cd1707ed38978fea0b465ffa6d6b9eb84827，DP SHA
+f140302778648b08bfed00d1af2d016f024f37eb2e87af9fdd7de5e456326dff；候选仅将
+_prefix_distances 中 candidate = distances[current] + cost 改为 candidate = distance + cost。
+候选24508 bytes，SHA b70c6982aa1ac13b0e79296963c2a2b0ec4fd15eecc535682df28d49e5d967e6。
+距离字典刚写入同一弹出对象，适用于完整搜索期间图与节点hash/equality稳定的场景；
+减少内部hash调用有意，numeric操作、source/heap/tie/default/None/error保持。
+suffix/restore及其他函数AST不变，没有应用到生产文件。
+
+正式执行前冻结41项size/SHA manifest，SHA
+7187bafb4fc27ac9abdc4fe297bbf2bd4a4ea20711784b7efb4add317876b002。
+helper SHA 4fa525b78daec1012b9250d13255be12a5ba71a4b19285e9bd9b18256d251957；
+protocol SHA 7c917df6874872f25126cbf6d302c83876ee6f79154468eac1b817a25ef8969e。
+早期准备manifest17项保留。其 qualification_fragment_reference 是未执行的原始草稿；
+正式执行采用从此前已资格化的 eaf71059 fragment 派生的 prefix_qualification.py，SHA
+629f491931304b932d70c2a93d56b25ea50c360eac21cf843105c5d8d69604ef。
+
+13项prefix资格控制、26次direct调用独立计数；stable HashNode 路径n0→n1→n2→n3
+原调用计数6/7/7/6，候选5/6/6/6，共26→23，与执行前逐边推算一致。38组公共控制
+共78次semantic，含18次既有component/restore direct及2次新增prefix operand identity
+控制；新增控制验证add/radd收到的对象就是刚弹出对象，完整numeric事件顺序保持。
+8次profile和唯一12000次timed，总混合调用12086。probe snapshot加载1次，无额外
+inventory加载；各阶段没有失败或continuation，仅最终性能gate未通过。
+
+逻辑prefix搜索每侧1次，native weight lambda每侧0次；ring/bounded/dense/KTH的
+heap push/pop各4160/128/128/48、suffix搜索64/1/1/2、返回节点4096/64/64/32保持。
+完整Run、代价类型/距离次序、动作原引用、输入图内容/身份/raw保持。
+独立reader核对126组普通raw、26组prefix raw、20组direct图、6组direct输入及KTH raw，
+并从原始ns重算全部中位数。四项门槛沿用执行前固定规则，每fixture六组交替pair，
+每侧每批200次完整kernel，无补采样或执行后改门槛：
+
+| fixture | old ms | candidate ms | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1（仅报告） | 5.198851 | 5.0062005 | 2/6 |
+| N64 ring | 459.442831 | 467.647636 | 4/6 |
+| N64 bounded | 66.517906 | 65.8648055 | 1/6 |
+| N64 dense | 992.9731075 | 988.6685975 | 2/6 |
+| KTH | 49.791151 | 48.266851 | 1/6 |
+
+ring候选约增加1.785816%，未通过四项中位数门槛，因此gate=false、not_adopted。
+其他三个fixture的本轮改善不替代ring门槛；runner/outer均rc4，实际工具receipt保留。
+result SHA a20b0c947754102269ea7182bf3a617fe51beafcbc72fe38f676aa372e146575。
+
+归档 /tmp/ltl_dp_prefix_distance_publication_84a0cd1，596项含583 file、12 git、
+1 generated；manifest SHA 2345c953a0b3d43282c28cb25ced200570f604f74c9bfd1be86461eb9c2218cf。
+独立原件/副本与generated自身一次回读共1191项size/SHA检查，0 mismatch。
+原归档receipt计1192次，包含generated自身配对两读；原件保持，独立reader明确按
+generated一次检查计算1191，没有将生成记录当作独立原件/副本。
+
+首次文档追加用Windows默认GBK解码UTF-8草稿，在写入前停止；后续校验因工作树尚无
+文档变化而停止。原脚本保持，fix1显式UTF-8后仅重做文档追加和核对，未重复probe。
+
+本轮仅追加README/验证记录。生产六核心和四测试字节、二十项已采用优化保持，
+84a0cd1的既有四模块123项及完整20步IRL margin/β资格保持；未重新运行pytest、
+生产lint、七包、DDS、provider、benchmark、仿真、实机或Jazzy。候选只做静态
+compile/bash-n与上述局部probe，不作稳定或整套速度/内存/IRL科学效果声明。
+本节之前465998 bytes验证正文保持，旧SHA
+3eb6294feef3f9b544a6dace6293051eb2972066a225bd8c6cb38dc75f871ceb。

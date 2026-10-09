@@ -979,3 +979,12 @@ bounded **69.374/67.540 ms**，dense **1047.820/1003.129 ms**，保存 KTH 图
 两文件相同字节的 compile/flake8/pep257在应用前通过。首测试runner因环境变量转义
 未启动pytest，修正后只运行一次；失败记录保留。累计采用二十项，七包资格仍为旧版本。
 详见 [validation.md 11.156](ltl_automaton_planner/docs/validation.md)。
+
+
+prefix 松弛复用弹出距离的候选（84a0cd1基线）未采用：一行字典查询改为同一弹出对象，
+13项额外资格与38组公共控制通过，四节点路径hash调用26→23，完整Run与源图保持。
+固定六组每200次完整搜索中位数旧/候选为ring **459.443/467.648 ms**，bounded
+**66.518/65.865 ms**，dense **992.973/988.669 ms**，KTH **49.791/48.267 ms**。
+ring约慢1.79%，未通过既定门槛，未补采样或修改生产代码；唯一12086次混合调用和
+独立26次资格控制完整保留。二十项已采用优化及既有123项回归资格保持，本轮只更新文档。
+详见 [validation.md 11.157](ltl_automaton_planner/docs/validation.md)。
