@@ -6933,3 +6933,74 @@ result_fix2 SHA
 ROS2 V0.2接口与可选IRL原范围保持。
 本节之前485938 bytes验证正文保持，旧SHA
 78edc2736a298e8df2fc4285dc388f899ad56e07f64303f2031a9233f7848f09。
+
+
+### 11.162 当前二十二项优化的七包组合验证刷新（2026-10-10）
+
+本次资格绑定源码提交 `bd75495f7a539d80be1ca0eea0c593a1c25b8c06`，不是把此前局部回归计数相加。
+该提交生产字节与4c5ab12一致，包含二十二项已采用优化；此前完整七包资格为
+`803f28e58307268b4dc328154d195536225867f1`（第11.138节）。
+
+构建/测试目录为 `/tmp/ltl_ros2_combo_bd75495`。冻结七包全部169项受版本控制输入，
+其中原源码闭包138项（Python、IDL、package.xml、CMakeLists.txt），额外31项为
+9份YAML、5份setup.cfg、5个resource marker、6份已安装Markdown和6份LICENSE。
+prepare、build、runtime、test、audit均核对当前字节/哈希与上述Git提交；
+本文发布后仅README和本validation追加记录，因此169项资格绑定执行时的bd75495快照，
+不把追加后的validation字节称作执行过的安装输入。
+
+prepare仅执行一次DP/Product的collect-only，实际收集69项；对旧六份XML的746项
+完整身份/跳过清单，只加入精确8项新增定向用例，执行前固定754项及4项copyright跳过。
+原准备helper及fix1均未执行：静态审阅纠正旧实现重定义、测试名过滤、导入/输入检查
+顺序以及未闭合audit输出的归档。prepare/build实际执行helper为combo_bd75495_fix2.py，SHA
+`d392dcb4565ccbbcaff6ca3f1247a3bdf5fc3678ef77c45e51780f649d09838d`；
+其首次runtime前置检查误将本轮symlink-install生成的WORK/build PYTHONPATH条目
+判作旧combo，rc1，23模块导入和test均未开始；stderr与wrapper聚合test.rc1保留。
+只修正检查器为允许当前WORK/install或WORK/build中的路径，继续拒绝任何旧combo
+及手工repo PYTHONPATH，源码、环境和754项标准均未改。fix3仅续跑runtime/test/audit，
+helper SHA `14921a98c33fde2e924a80db153635bd5a3465f179ca6a4eb0394f9900bf2e22`。
+所有原未执行准备、protocol、manifest与修正producer保留。没有构建或测试阶段重跑。
+
+构建仅source `/opt/ros/humble/setup.bash`，使用sequential executor、symlink-install、
+`--packages-up-to ltl_automaton_core`及BUILD_TESTING=ON。七包均成功，退出码0，
+实际耗时46.233070s。runtime/test仅source Humble和本轮新install，
+未手工prepend repo/core PYTHONPATH；七包ament prefix均来自该install。
+23个实际导入模块路径/size/SHA与169输入一致；生成消息来自本轮build下
+`ltl_automaton_msgs/rosidl_generator_py`。Python3.10.12、NetworkX2.4、原生ltl2ba，
+translator SHA `d4785c387b67be41052800f6913b8476dbaff56730ef962553fd3d339c378ed3`。
+
+七包colcon test保持默认并行executor及完整原用例，退出码0，实际耗时
+36.072696s。六份JUnit结果如下；aggregate包无独立JUnit用例。
+
+| package | tests | passed | skipped |
+| --- | ---: | ---: | ---: |
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 230 | 229 | 1 |
+| ltl_automaton_planner | 188 | 187 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 131 | 130 | 1 |
+| ltl_automaton_std_transition_systems | 51 | 50 | 1 |
+
+合计**754 tests =750 passed /4 skipped，0 errors/failures**。六份XML的全部
+classname/name/skip标志与prepare冻结清单相等，旧用例无删除、改名或新增跳过；
+新增8项均通过（DP equality、prefix默认/None/zero-tie、两种非原生图回退、
+SCC顺序/输入及两种回退、Product自定义TS getter/action）。
+26类规定用例全部未跳过，包括四个真实DDS闭环、Studio consumer、历史重规划、
+完整20轮IRL margin学习、β事务提交及HIL教学提交、初始/候选失败恢复、
+deepcopy/custom-key/edge-hook、隐藏/缺省权重和SCC拓扑检查。
+CTest包装用例1项passed；colcon test-result汇总755 tests、0 errors、0 failures、4 skipped。
+这些是不同计数层级，不把CTest包装或此前局部126项再次计入754个JUnit用例。
+
+所有32份本轮完整test日志已保存并扫描，未出现
+`Future exception was never retrieved`。已有NetworkX np.int及SelectableGroups弃用警告
+原样保留，不隐去stderr。归档 `/tmp/ltl_ros2_combo_bd75495/verified_evidence`，
+共92份文件，manifest SHA `5f5c5b257343a061509081ade32a505baad34d5db9bd1fec15da3727128e74d9`；主代理独立对原件/副本
+完成184项size/SHA核对，0 mismatch、0 missing original，
+并独立核对169项Git/当前字节、23项导入、六份全量XML、skip、26类要求、CTest和查询结果。
+原803f28e的53份证据及三份历史归档46/61/44项哈希保持，后者仅为历史证据完整性，
+不作为当前源码运行资格。
+
+本轮刷新组合验证，不新增优化或性能采样，累计采用数量仍为二十二项；
+ROS2 V0.2接口和可选IRL原范围保持。验证包含ROS2 DDS与符号执行，
+未执行provider、完整benchmark、物理仿真、实机或Jazzy。
+本节之前489926 bytes验证正文保持，旧SHA
+`d15eab07d639a580ae32e92115960a9e79b0ce32863eba813e99a38a6c71c4e9`。

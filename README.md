@@ -1018,3 +1018,18 @@ SCC lowlink 的 min 两参数候选本轮未采用：完整Run与回调检查通
 中位耗时约增1.13%，未通过四项预设门槛，未补采样。现有二十二项优化与4c5ab12的
 126项回归资格保持，生产源码和测试未改。本轮证据见
 [validation.md 11.161](ltl_automaton_planner/docs/validation.md)。
+
+
+### 最新七包组合验证（源码 bd75495，2026-10-10）
+
+包含目前二十二项已采用优化的源码，在全新构建/安装目录完成 ROS 2 Humble 七包
+构建和默认并行测试：**754 个 JUnit 用例，750 passed / 4 skipped，0 errors/failures**。
+四项跳过均为既有 copyright；另有一个通过的 CTest 包装用例，colcon 汇总为755项。
+全部旧用例身份与跳过状态保持，新增8项规划定向检查；23个模块从新安装环境导入，
+实际路径及哈希与当前源码一致。四个真实DDS场景、Studio consumer、历史重规划、
+完整20轮可选IRL学习与提交、规划失败后的恢复均通过。
+
+本次刷新第11.138节之后的七包组合验证记录；前文各局部/历史记录仍绑定各自提交。
+ROS2 V0.2接口及默认关闭、从示范轨迹学习软任务权重β的IRL范围保持。
+本轮验证结果不构成新的性能测量或实机资格。详见
+[validation.md 11.162](ltl_automaton_planner/docs/validation.md)。
