@@ -5695,3 +5695,60 @@ size/SHA256通过，manifest SHA256为
 完整env dump不在冻结范围，保留命令和实际模块身份。前140节393247字节保持，旧SHA256为
 `4486e071d816a1c6b91577a67f51e3d676e78496b717fae07fe536593d39e450`。
 本轮未重跑七包、DDS、provider、完整benchmark、物理仿真、实机或Jazzy。
+
+### 11.142 完整 Product 构图的 TS 来源邻接复用（2026-10-09）
+
+基线为 `7321c75945d4f46e18c21cd3c8648018754fc11d`。只读旧 KTH pstats 时，
+discrete-plan、Product、LTLPlanner 三份源码与当时当前字节匹配；这是历史profile检查，
+没有重跑其阶段或将旧耗时当作本轮实测。legacy build_full_margin 未在当前规划/IRL
+链路调用，本轮没有优化该方法。默认 build_full 为每个 TS successor 重取来源邻接；
+现在通过一个局部 generator 惰性取得一次，仍用 tuple 保存同序 successor/原edge dict。
+空邻接零读取，下次重建重新读取；构图时 TS 邻接保持稳定，不保证自定义带副作用
+__getitem__ 的调用次数不变。guard 次序、source-label、节点/边插入顺序、β成本和 SCC
+保持，只有 build_full 的 AST 改变。完整 product.py SHA256 从
+`6e99f3f906f0402ddf355208420aa5005aa69aee2ed097bebde02164625c53d5` 变为
+`78cb32ba52e4b52fca5fa0679b273e0ea7fef7c781da4946ae18f6fcf5641060`。
+
+N分支往返 TS 含N+1节点和2N边，单节点初始/接受 Büchi 使用 allow guard。带计数
+控制的N=0/1/2/128旧/新 TS.__getitem__ 次数为0/0、2/2、4/3、256/129。
+有序节点/边、成本、接受集合、successor次序、删除/新增/更新后的重建及精确
+KeyError('weight')对照通过。原快照未覆盖 Product.possible_states 属性和深层输入值；
+独立补充检查确认该属性值等于initial且为独立set，mutable action内容/id及原TS action
+在Product内的引用保持，label的frozenset、TS edge dict id、guard primitive字段/id均
+不变。缺weight后两侧均只有source/q0节点、无边、同等接受集合且无possible_states属性。
+
+普通精确 DiGraph 纯批次仅执行一次：N=1/2/128各六组交替，每批20次完整build_full
+（含SCC），合计720 timed builds。计时内不含计数器、profiler、断言、快照或IO；
+每批之后检查完整有序结果与输入。执行前冻结条件为语义/资源通过且N=128候选中位数
+不更慢；短案例只报告，没有据结果修改门槛。
+
+| 分支N | 旧/新中位数（ms，每20次完整构图） | 候选更慢组数 |
+|---:|---:|---:|
+| 1 | 0.72975 / 0.72155 | 2/6 |
+| 2 | 0.99990 / 1.00470 | 3/6 |
+| 128 | 38.4715005 / 37.45740 | 1/6 |
+
+gate=true，采用局部候选；收益幅度小且有波动，不证明稳定或端到端加速、内存或科学效果。
+前置SHA常量缺一位在构图前拒绝；第一轮语义控制因独立guard身份比较及空alias误判失败，
+修正后通过。两轮语义控制共28次build；第一轮同名semantic/result JSON被后续覆盖，
+未保存原JSON，只保留原helper及stdout/stderr，不能宣称失败原JSON闭包完整。
+首版补充执行4次build后因set不能JSON序列化退出，结果未保存。追加冻结amendment只改
+set/frozenset记录器和输出名，checks/gate/fixture保持，再执行4次，补充共8次build；
+没有重跑720次计时。补充gate=true；外层退出传播转义错误返回1，Python独立OS退出码
+未捕获，0只能从源代码/结果推断，不将其记作独立实测成功退出。原回执未另存原始日志。
+
+同Humble/Python3.10、803 overlay与当前源Core优先路径，Product/Planner两份既有测试
+只执行一次：**62 passed，0 skip/error/failure**，2项既有np.int警告；JUnit62个testcase
+及重建刷新/分支成本用例逐项回读通过。实际四个Core模块路径/哈希匹配，compileall、
+ament_flake8 --linelength 99与ament_pep257均rc0。首版runner因已冻结目录存在而前置
+拒绝，未启动测试，其源保留但原stdout/stderr未另存；修正版完成唯一实际验证。
+未修改tests或其他生产方法；62项不与第11.141节85项或旧七包746项相加，旧组合资格
+仍绑定803f28e，未覆盖新的Product/IRL字节。本轮未重跑七包、DDS、KTH阶段/profile、
+复制、provider、完整benchmark、物理仿真、实机或Jazzy。
+
+现存probe、补充、源、命令、日志/XML及只读profile检查冻结于
+`/tmp/ltl_product_source_edges_publication_7321c75`。按实际相对路径的manifest绑定74文件，
+回读size/SHA256通过，manifest SHA256为
+`337eb3d135611c9aba7aec11103e103afe2134fcf336c17ab009e98dccae60a9`。
+缺失的首轮JSON及工具日志明确排除，不重建冒充原件。前141节398156字节保持，旧SHA256为
+`9b2c91e90bdbf23615689ede631505324af8cd4cbde8dd3af2f4cb385ef4b7e8`。

@@ -736,8 +736,9 @@ git diff --check
 | 可达 SCC 拓扑物化（对照基线 `3df6e23`） | 85/85 passed；0 skip/error/failure；96节点/96边 probe 的过滤 view 调用 2111→0；完整 Run、None 隐藏边与输入图保持 | [11.136](ltl_automaton_planner/docs/validation.md) |
 | 重规划邻接目标 tuple memo（对照基线 `f8d367c`） | 85/85 passed；0 skip/error/failure；完整复制、别名及hook顺序保持；KTH tuple复制286→74、294→88，dict/list次数保持 | [11.137](ltl_automaton_planner/docs/validation.md) |
 | IRL 路径软距离的边视图复用（对照基线 `84c159a`） | 85/85 passed；完整20步 margin 与 β 序列保持；128边路径的 EdgeView 访问128→1，空路径零访问；短路径存在额外开销 | [11.141](ltl_automaton_planner/docs/validation.md) |
+| 完整 Product 构图的 TS 来源邻接复用（对照基线 `7321c75`） | 62/62 passed；有序图、动作引用、重建刷新及异常状态保持；128分支往返图的 TS 邻接查询256→129 | [11.142](ltl_automaton_planner/docs/validation.md) |
 
-十四项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
+十五项均为局部验证；局部结果与整包组合分别计数，不相加，也不作整体速度、内存、IRL 科学效果或实机声明。
 
 同级 AND/OR 现在构造平衡语法树，保留叶顺序、优先级和原输入 formula 文本；
 Promela 同目标分支一次性按原顺序 OR 合并。单分支和 `skip` 文本保持，三条及以上
@@ -803,6 +804,14 @@ compile、flake8、pep257 通过。普通 DiGraph 的128边局部探针中，每
 这是局部合成路径结果，新 IRL 字节尚未进行新的七包组合验证，不代表端到端加速。
 全部计时、首次探针失败与复制失败的独立续查见
 [validation.md 11.141](ltl_automaton_planner/docs/validation.md)。
+
+完整 Product 构图现在为每个 TS 来源惰性读取一次邻接，保留有序 tuple 边快照与原
+边属性引用；空邻接仍不读取，下次重建重新取值。Product 与 Planner 定向测试一次
+**62 passed**，compile、flake8、pep257 通过。128分支往返图的20次完整构图批次
+中位数旧/新为 **38.472/37.457 ms**，六组中仍有一组候选更慢，双分支中位数略慢。
+适用于构图期间邻接稳定的标准 TSModel/DiGraph；该局部结果不证明稳定或整套加速。
+旧七包组合未包含本修改及后续 IRL 修改，辅助失败、缺失和最终证据见
+[validation.md 11.142](ltl_automaton_planner/docs/validation.md)。
 
 此前源码 `ce014f7` 的740项、`683c333` 的737项与 `62b94b3` 的724项组合记录分别保留在
 第11.131、11.128、11.125节，各版本计数不相加。

@@ -41,13 +41,17 @@ class ProdAut(DiGraph):
             for source, target, data in buchi.edges(data=True)
         }
 
+        def successor_edges(source):
+            source_edges = None
+            for target in ts.successors(source):
+                if source_edges is None:
+                    source_edges = ts[source]
+                yield target, source_edges[target]
+
         for f_ts_node in ts:
             label = ts.nodes[f_ts_node]['label']
             label_checks = {}
-            ts_successors = tuple(
-                (t_ts_node, ts[f_ts_node][t_ts_node])
-                for t_ts_node in ts.successors(f_ts_node)
-            )
+            ts_successors = tuple(successor_edges(f_ts_node))
             for f_buchi_node in buchi:
                 f_prod_node = self.composition(f_ts_node, f_buchi_node)
                 # A Büchi guard depends on the source label, not the TS successor.
