@@ -940,3 +940,184 @@ def test_reachable_components_fall_back_for_non_native_graphs(monkeypatch, graph
     monkeypatch.setattr(discrete_plan, "strongly_connected_components", record)
     assert list(discrete_plan._reachable_components(graph)) == [{"tail"}, {"a", "b"}]
     assert calls == [graph]
+
+
+@pytest.mark.parametrize("graph_factory", ["digraph", "prodaut", "custom_adj"])
+def test_restore_tight_path_native_views_preserve_order_and_alias(graph_factory):
+    """Read fresh native successor views while preserving edge hooks."""
+    events = []
+
+    class EdgeData(dict):
+        """Record weight lookups outside the graph object."""
+
+        def __init__(self, owner, weight):
+            """Store an external owner label and edge weight."""
+            super().__init__(weight=weight)
+            self.owner = owner
+
+        def get(self, key, default=1):
+            """Record each edge data lookup and its default."""
+            events.append(("edge_get", self.owner, key, default))
+            return super().get(key, default)
+
+    class InnerDict(dict):
+        """Record inner neighbor iteration and item access."""
+
+        def __iter__(self):
+            """Record one neighbor iteration."""
+            events.append(("inner_iter",))
+            return super().__iter__()
+
+        def __getitem__(self, key):
+            """Record one neighbor data lookup."""
+            events.append(("inner_get", key))
+            return super().__getitem__(key)
+
+    class OuterDict(dict):
+        """Record outer successor lookups."""
+
+        def __getitem__(self, key):
+            """Record one source successor lookup."""
+            events.append(("outer_get", key))
+            return super().__getitem__(key)
+
+    class AdjacencyGraph(DiGraph):
+        """Record fallback adjacency property access."""
+
+        @property
+        def adj(self):
+            """Return the standard adjacency view."""
+            events.append(("adj_get",))
+            return DiGraph.adj.fget(self)
+
+    if graph_factory == "digraph":
+        graph = DiGraph()
+    elif graph_factory == "prodaut":
+        graph = ProdAut(None, None)
+    else:
+        graph = AdjacencyGraph()
+    nodes = ["s", "a", "b", "j"]
+    graph.add_nodes_from(nodes)
+    outer = OuterDict()
+    graph._succ = outer
+    graph._adj = outer
+    for node in ["s", "a", "b", "j"]:
+        outer[node] = InnerDict()
+        if hasattr(graph, "_pred"):
+            graph._pred[node] = {}
+    for source, target, weight in [
+        ("s", "s", 0), ("s", "a", 1), ("s", "b", 1),
+        ("a", "s", 0), ("a", "j", 1), ("b", "j", 1),
+    ]:
+        data = EdgeData((source, target), weight)
+        outer[source][target] = data
+        graph._pred[target][source] = data
+    distances = {"s": 0, "a": 1, "b": 1, "j": 2}
+    sources = {"s"}
+    before_distances = dict(distances)
+    before_sources = set(sources)
+    events.clear()
+
+    actual = discrete_plan._restore_tight_path(graph, distances, sources, "j")
+
+    assert actual[0] is nodes[0]
+    assert actual[1] is nodes[1]
+    assert actual[2] is nodes[3]
+    assert distances == before_distances
+    assert sources == before_sources
+    edge_events = [event for event in events if event[0] == "edge_get"]
+    assert edge_events == [
+        ("edge_get", ("s", "a"), "weight", 1),
+        ("edge_get", ("s", "b"), "weight", 1),
+        ("edge_get", ("a", "j"), "weight", 1),
+    ]
+    assert [event for event in events if event[0] == "outer_get"] == [
+        ("outer_get", "s"), ("outer_get", "a"),
+    ]
+    assert [event for event in events if event[0] == "inner_iter"] == [
+        ("inner_iter",), ("inner_iter",),
+    ]
+    assert [event for event in events if event[0] == "inner_get"] == [
+        ("inner_get", "a"), ("inner_get", "b"), ("inner_get", "j"),
+    ]
+    if graph_factory == "custom_adj":
+        assert [event for event in events if event[0] == "adj_get"] == [
+            ("adj_get",), ("adj_get",),
+        ]
+    else:
+        assert not [event for event in events if event[0] == "adj_get"]
+
+
+def test_restore_tight_path_reloads_rebound_successors():
+    """Reload successors after an outer mapping changes during edge access."""
+    events = []
+
+    class EdgeData(dict):
+        """Record edge reads for the rebound mapping."""
+
+        def __init__(self, owner, weight):
+            """Store the external edge owner and weight."""
+            super().__init__(weight=weight)
+            self.owner = owner
+
+        def get(self, key, default=1):
+            """Record one rebound edge lookup."""
+            events.append(("edge_get", self.owner, key, default))
+            return super().get(key, default)
+
+    def edge(owner, weight):
+        """Create edge data without storing logs in the graph."""
+        return EdgeData(owner, weight)
+
+    class ReboundOuter(dict):
+        """Replace the outer map after the source adjacency is returned."""
+
+        def __init__(self, owner, initial):
+            """Bind the graph owner and initial successor map."""
+            self.owner = owner
+            self.rebound = False
+            super().__init__(initial)
+
+        def __getitem__(self, key):
+            """Return a source view and perform the one replacement."""
+            value = super().__getitem__(key)
+            if key == "s" and not self.rebound:
+                replacement = dict(self)
+                replacement["a"] = dict(replacement["a"])
+                replacement["a"]["j"] = edge(("a", "j"), 1)
+                self.owner._succ = replacement
+                self.owner._adj = replacement
+                self.owner._pred["j"]["a"] = replacement["a"]["j"]
+                self.rebound = True
+                events.append(("rebound", "a-j", 9, 1))
+            return value
+
+    graph = DiGraph()
+    nodes = ["s", "a", "b", "j"]
+    graph.add_nodes_from(nodes)
+    outer = {}
+    for node in ["s", "a", "b", "j"]:
+        outer[node] = {}
+    for source, target, weight in [
+        ("s", "s", 0), ("s", "a", 1), ("s", "b", 1),
+        ("a", "s", 0), ("a", "j", 9), ("b", "j", 1),
+    ]:
+        data = edge((source, target), weight)
+        outer[source][target] = data
+        graph._pred[target][source] = data
+    graph._succ = ReboundOuter(graph, outer)
+    graph._adj = graph._succ
+    distances = {"s": 0, "a": 1, "b": 1, "j": 2}
+    sources = {"s"}
+    before_distances = dict(distances)
+    before_sources = set(sources)
+
+    actual = discrete_plan._restore_tight_path(graph, distances, sources, "j")
+
+    assert actual[0] is nodes[0]
+    assert actual[1] is nodes[1]
+    assert actual[2] is nodes[3]
+    assert distances == before_distances
+    assert sources == before_sources
+    assert ("rebound", "a-j", 9, 1) in events
+    assert ("edge_get", ("a", "j"), "weight", 1) in events

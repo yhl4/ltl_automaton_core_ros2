@@ -363,7 +363,10 @@ def _restore_tight_path(product, distances, sources, target):
         if current == target:
             break
         current_distance = distances[current]
-        successors = product.adj[current]
+        if type(product) is DiGraph or type(product) is ProdAut:
+            successors = product._succ[current]
+        else:
+            successors = product.adj[current]
         for successor in successors:
             if successor in parent:
                 continue

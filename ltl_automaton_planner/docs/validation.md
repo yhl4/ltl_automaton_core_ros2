@@ -7090,3 +7090,118 @@ ROS2 V0.2接口、默认关闭的示范轨迹软权重β学习与完整20轮IRL�
 未执行provider、完整benchmark、物理仿真、实机或Jazzy。
 本节之前494956 bytes验证正文保持，旧SHA
 `7be65e3e599a699509d1fe0bfc4e844d788145d6591518617b2f8ae3394626d0`。
+
+
+### 11.164 tight 路径恢复逐节点读取原生后继映射（2026-10-10，采用）
+
+本轮基线 `9cc1ef99d2a233eff5e8953ceedb625c9c6d8207`。先只读四份历史pstats定位恢复过程的视图包装，
+未把历史profile当作新测量。候选只改`_restore_tight_path`：在target提前退出之后，
+exact DiGraph/ProdAut每个展开节点重新读取`product._succ[current]`；
+自定义图仍读取`product.adj[current]`。没有整图缓存或把guard移到target退出之前。
+NetworkX2.4的标准adj属性和coreviews两层getitem均只是转发映射/包装视图；
+原有neighbor顺序、parent/tie选择、默认权重、cost运算和返回节点引用保持。
+逐节点读取使本次恢复中被替换的后继映射可见。接受性、SCC、heap和IRL算法未改。
+
+基线26588 bytes，SHA `da118889531ed9a65695423e982f5b398fe35da392308f277e7f507e27914d26`；
+采用26719 bytes，SHA `d740e5e7c610b4c9d320016972415a61187d26c0c7d00df66f103821640a5b5c`。
+主代理核对完整替换字节、该函数以外的模块AST、guard位置及每次展开的fresh读取。
+原提交helper（SHA `1a0736233ebda8a8a90ccbaf53e2c2ef304ed8fde6ff764862ff078a00d622ca`）
+未执行且保留；静态审阅修正getter计数、外置event日志、原始9→1重绑定和HashNode控制。
+首实际helper_fix1（SHA `33913d1ca2c4885501f6cba59dc4be98f7d7c274ccc188f6205ea127607378cc`）
+完成SCC8次和第一组恢复2次后停止，rc1，没有执行原语义/profile/计时或加载KTH。
+原因是observer先捕获raw再读graph.nodes，旧图的lazy NodeView缓存随后改变了pickle字节，
+而候选图已暖；失败原字节、输出和诊断保留。只把content/identity观察置于raw捕获之前，
+未删除cache、规范化pickle、改算法或门槛。
+
+实际续跑helper_fix2 79017 bytes，SHA
+`d47e2e4ae720156a403fca4c7a0206d9d44155c4e360357b163b72f4045a255b`；
+protocol SHA `290efd854cb577f0e5e184d4a0eaab00302864863891ac4c6db82fb7abf4ac88`，
+manifest56项，SHA `d03685c7bc65b9a0fcf4f8212e020128e364806d530b7ce2f839290a33ad50fb`。
+环境为Ubuntu-22.04-D、ROS2 Humble、Python3.10.12、NetworkX2.4，
+source Humble及第11.162节combo_bd75495的install；六源码import与四测试字节绑定基线。
+只在synthetic语义/资源检查后载入原warm KTH图一次；未重建图或重跑三阶段演示。
+
+续跑直接继承已完成的SCC8次，不再次执行；九组恢复控制新执行18次，
+包括重检最初失败的native pair2次。原32组语义66次、8次profile、12000次完整计时
+仅执行一次，原阶段新调用12074，加入直接恢复18次为12092；
+再计首失败阶段实际10次，累计实际12102次。继承SCC8次不能重复相加。
+九组控制覆盖native DiGraph/ProdAut、自定义adj getter、exact outer/inner映射、
+HashNode、9→1重绑定、缺失distance及无法恢复的完整RuntimeError args。
+外置回调、邻接读取次序、边默认值、路径节点引用、sources/distances保持；
+重绑定前后图故意改变，但旧/新实现的变化后原字节相等。
+32组完整Run、代价及其类型、动作/来源引用、异常和回调通过。
+
+四图profile保留prefix1、restore2，suffix搜索64/1/1/2、
+返回suffix节点4096/64/64/32、heap push/pop各4160/128/128/48、
+prefix距离节点64/64/64/16和SCC min64/65/4096/31；Graph getitem仍为0。
+恢复函数中coreviews.py两类getitem（line53与80）分别由ring63→0、KTH24→0，
+bounded/dense均0→0。主代理独立读取全部8份pstats并核对这两个精确caller；
+拓扑/距离次序、原始输入保持。独立核对134对raw捕获、18对直接控制捕获及KTH前后
+原字节，未在reader中反序列化快照。
+
+唯一固定五图各六对、交替顺序、每侧200次完整planner调用；四项强制门槛为
+candidate批次中位数<=baseline，N1预设仅报告。没有补采样或放宽门槛。
+以下单位均为200次调用的批次ms，变化为candidate/old−1。
+
+| fixture | old median ms | candidate median ms | 变化 | candidate较慢对数 | 门槛 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| N1 | 4.4740000 | 4.5660010 | +2.0563% | 5/6 | 仅报告 |
+| N64ring | 486.6050810 | 470.7205515 | -3.2644% | 1/6 | 通过 |
+| N64bounded | 43.8264500 | 43.5889000 | -0.5420% | 3/6 | 通过 |
+| N64dense | 1033.4107120 | 1030.9547125 | -0.2377% | 2/6 | 通过 |
+| KTH | 45.8062910 | 41.8776420 | -8.5767% | 0/6 | 通过 |
+
+全部六对原始批次ms（每格old/candidate）：
+
+| fixture | pair0 | pair1 | pair2 | pair3 | pair4 | pair5 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| N1 | 4.4871010/4.6108010 | 4.4712000/4.6749000 | 4.4768000/4.5212010 | 4.8234010/4.7374010 | 4.1158010/4.2606010 | 4.0394000/4.2643010 |
+| N64ring | 474.1423450/461.8597470 | 473.4100530/469.6151510 | 504.1817700/510.7033730 | 497.5584660/495.4534650 | 489.0222620/471.8259520 | 484.1879000/469.5712470 |
+| N64bounded | 42.3368000/43.5310000 | 45.5531000/42.9143000 | 42.5061000/43.6468000 | 44.0563000/41.9746000 | 43.5966000/43.6783000 | 47.7536000/43.6933000 |
+| N64dense | 1028.0831020/1020.7352070 | 1050.8863200/1045.0639200 | 1032.5574200/1017.3589190 | 1026.2977200/1034.2384200 | 1034.2640040/1037.9506020 | 1035.8796030/1027.6710050 |
+| KTH | 47.0278910/40.2348920 | 44.6439920/41.9192920 | 43.6132920/43.3901920 | 46.0194910/41.8487920 | 46.5910910/41.9064920 | 45.5930910/40.8412920 |
+
+四项强制门槛通过，gate=true，续跑Linux runner与PowerShell/tool外层rc均0；
+初次rc1失败保留。bounded/dense差异很小，且分别3/6和2/6对变慢；N1较慢5/6。
+这是本轮固定样例的局部测量，不声称所有图、整套规划或稳定性能改善。
+result_fix2.json 5062379 bytes，SHA
+`c09d6decd2255bb763b9f2adbcc69024ba208acd2b3bdb1842c027bf7e774dbf`。
+应用源码之前，主代理独立核对56项冻结记录、全部语义/原始捕获、计时中位数/attempts、
+来源图和资源计数。主归档`/tmp/ltl_dp_restore_native_publication_9cc1ef9`，
+539项=526份原文件+12份基线Git blob+1份生成metadata，manifest SHA
+`264c25927f48dadcd11771c5b21bb626c82f1f1bea919740a92aa876131b178b`；
+独立1077项原件/副本size及SHA核对，0 mismatch、0 missing original。
+未执行提交草稿、首次失败、修正producer及全部完整计时/profile/capture均保留。
+
+应用后回归目录`/tmp/ltl_dp_restore_native_regression_9cc1ef9`。
+执行共四次runner调用，均无live session：
+原runner因PATH被错误转义，在runtime检查前mkdir失败，tool/外层rc127；
+fix1首次调用同样PATH失败、tool rc127，此后该runner被原地修正且同名outer rc被覆盖，
+因此这次失败只有执行者从工具输出报告的127，没有单独持久化rc或修正前fix1原字节。
+明确保留此缺口，不重建或声称有该原件。以上两次均未执行pytest、compile或lint。
+fix1修正PATH后六import、pytest/JUnit成功，但compile仍用了少一层目录的DP路径，
+compile rc1、tool/outer rc1；stderr和当前runner保留。
+最后fix2仅执行未通过的compile及尚未运行的flake8/pep257，tool/outer rc0，
+未重跑pytest。原runner、当前fix1、fix2及三份实际持久化outer rc均保留，
+四次attempt来源/缺口另存authored metadata，不冒充原始工具stdout/stderr。
+
+回归没有手工repo PYTHONPATH或旧combo overlay。加载Humble及combo_bd75495/install后，
+六个实际core import路径/字节与当前qualification一致，四测试输入执行前绑定。
+四模块仅一次完整pytest：**130 passed、0 skipped/errors/failures**
+（DP39、Product34、LTL29、IRL28）；两条既有NetworkX np.int警告保留。
+旧126项完整classname/name身份及既有测试34265 bytes前缀保持，新增4项为
+native DiGraph/ProdAut/custom-adj三分支和rebound映射；
+检查outer/inner/getter/edge回调、默认值、返回节点引用和sources/distances。
+完整20轮margin/β学习用例通过，IRL源码及测试没有改动。
+新增测试文件40727 bytes，SHA `18fe11b944286a19dff210574c4ef3f0995653f93100c76027f7c851de7fc21e`；
+两份改动Python文件最终py_compile、99列ament_flake8、ament_pep257均rc0，
+资格字节与pytest时一致。主代理独立核对JUnit全量身份、十份源码/测试绑定、
+六import及各实际阶段/outer记录。首次独立reader误用未生成的flake8.rc文件名而停止；
+保留reader，修正为实际fix2文件名及分别记录失败attempt后只读回读通过，未重跑测试。
+
+累计采用二十三项。本轮新源码资格为上述四模块130项；
+第11.162节七包754个JUnit用例仍绑定源码bd75495，不将两者相加或声称重跑七包。
+ROS2 V0.2接口及默认关闭、从示范轨迹学习软任务权重β的IRL原范围保持。
+未新增provider、完整benchmark、DDS、物理仿真、实机或Jazzy执行。
+本节之前501500 bytes验证正文保持，旧SHA
+`d8949f3e04027f33b50cb692dd916a4ce88bae08eee1b01313cc919cb49249a6`。
