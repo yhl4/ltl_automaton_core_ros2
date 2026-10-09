@@ -66,15 +66,17 @@ class LTLPlanner:
 
     def _copy_for_replanning(self):
         """Deep-copy while reusing immutable keys and scalar objects."""
+        node_scalar_types = (str, int)
+
         def is_immutable_node(node):
             if type(node) is not tuple:
                 return False
             for item in node:
-                if type(item) in (str, int):
+                if type(item) in node_scalar_types:
                     continue
                 if type(item) is tuple:
                     for inner in item:
-                        if type(inner) not in (str, int):
+                        if type(inner) not in node_scalar_types:
                             return False
                     continue
                 return False

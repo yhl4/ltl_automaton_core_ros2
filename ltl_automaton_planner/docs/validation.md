@@ -7451,3 +7451,58 @@ bounded与KTH未通过，gate=false，候选未采用。Linux runner为rc4，工
 完整证据归档 `/tmp/ltl_dp_next_binding_publication_c8a42cb` 为 599 条目，独立核对 1197 次size/SHA，0 mismatch、0 missing originals；manifest SHA256 `d3022330a540a504d29809ca862d8f7bd547780aa10bacbd49209efa2df1fd30`。归档保留fix1/fix2原稿、全部原始测量、41个冻结输入、Native静态/独立reader与12个不可变Git输入；归档不追加任何planner/profile/snapshot调用。
 
 本轮仅追加README和本节，生产与测试字节保持。累计已采用仍为二十四项；当前四模块136项资格继续绑定2bfbd81源码，七包754个JUnit用例继续绑定bd75495历史源码，不相加或声称重跑。未新增pytest/compile/lint，没有provider、正式benchmark、DDS、仿真或实机验证，Jazzy仍未验证；不作稳定整体加速或IRL科学效果声明。
+
+
+### 11.169 重规划节点类型元组复用（2026-10-10，已采用）
+
+基线为干净 HEAD `fa9c990c5ab325133c402b4d2a77ad65f35ae9be`。原LTL为14862 bytes，SHA256
+`a0ba43e4ff046bed8d9b969e7be858f837a24d1bebb6654c12ef956b88bddd2d`；候选14916 bytes，SHA256
+`3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943`。
+仅在 `_copy_for_replanning` 中一次构造 `node_scalar_types = (str, int)`，用于原来的两处
+精确类型成员检查。节点遍历、memo、边属性、hook及最终完整deepcopy保持。适用边界为普通且
+稳定的builtins；未建立运行中重绑定类型名的兼容性结论。
+
+先只读历史profile定位。11.145采用后的候选字节与本轮基线一致；更早完整复制profile绑定
+11.145之前源码，因此只作历史定位。本轮没有重复完整复制profile、加载暖KTH快照或运行规划。
+从两份完整源码AST提取实际嵌套函数及候选闭包赋值，未把闭包改成模块全局查询。
+Native完整方法静态编译与Python3.10工厂检查确认：predicate中的BUILD_TUPLE arg2静态站点
+2→0，外层方法增加1个站点；这是静态字节码站点，不能当作实测动态分配次数。
+
+fix1/fix2未进入测量：补全了原24用例所需类定义、实际Native路径、runtime绑定、失败计数、
+profile门槛和计时外指纹检查。曾观察到fix2 runner在准备期间改写；冻结清单盘点的是最终保存
+字节，未重构未保存的早期runner字节或原始工具transcript。root以独立fix3 helper/protocol/
+manifest执行一次。root静态checker先误把外层全部tuple站点要求为1，忽略已有graph pair，
+更正为相对旧方法增加1后通过；这些准备/静态修正均为0 predicate/profile/planner调用。
+
+执行前后核对60个冻结输入，含6个core、4份测试、README/validation、历史原件及准备脚本；
+source Humble + combo_bd75495 install，Python3.10.12，6个实际核心import绑定当前源码。
+原24个hand cases两侧48 calls；嵌套16输入各侧cProfile16 calls，共32；两侧genexpr均0。
+固定平坦/嵌套各6对交替，每侧1000循环×16输入，共384000 timed calls，总384080。
+计数、断言、指纹及序列化在计时外；每侧结果与整个输入指纹保持，失败侧可独立落盘。
+两项mandatory均要求candidate median不高于old，未补采样、未放宽门槛。
+
+| 输入 | old median ms / candidate median ms（每侧16000次） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| flat tuple | 3.718400 / 2.988800 | -19.621343% | 0/6 |
+| nested tuple | 8.447800 / 6.5589995 | -22.358490% | 0/6 |
+
+两项门槛通过，精确应用候选。上述只测节点类型检查，不包含工厂/复制调用的建立成本，不能
+外推为完整deepcopy、IRL或端到端重规划加速。result为675281 bytes，SHA256
+`3acf31bb1a95701b5b18c5835ad6bf91a8e5b3c3969b8ce4e1ba608fc61f4852`；Linux runner与实际PowerShell外层退出均0，stderr为空。
+独立Native reader核对24控制、两份pstats、24计时侧、12pair、前后runtime与固定规模，未新增调用。
+完整探针归档 `/tmp/ltl_replan_type_tuple_publication_fa9c990`，150 entries、300次size/SHA
+读回，0 mismatch/0 missing originals，manifest SHA256 `e2defda11bb13e4ddb6db4024b981c6f7c7f2090c17205135d4a3504b920b240`。
+
+应用后一次四模块pytest **136 passed**，0 skip/error/failure，原136名称与四份测试字节全保留，
+含标准完整复制、custom key、scalar memo/hook顺序、可变隔离及
+`test_learning_keeps_all_twenty_margin_updates_on_one_private_product`。
+六个实际core import与十份source/test字节检查通过；只对修改的LTL运行py_compile、
+ament_flake8 --linelength99和ament_pep257，均rc0，实际PowerShell外层亦rc0。
+JUnit 17519 bytes，SHA256 `35fde24da29815d32ee164be33873e1cc558bd566ba3dbd4c0b3c5e0d992780d`。
+Native回归reader初次将/mnt/d经WSL UNC读取时遇PermissionError，改为Native盘符映射后读回通过，
+没有重跑pytest。新源码资格与该JUnit绑定；发布附加归档保存回归及最终文档/PR凭据。
+
+累计采用二十五项。V0.2接口与默认关闭的示范轨迹软任务权重β学习范围保持；七包754项JUnit
+仍绑定bd75495历史源码，未与本轮136相加。没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/
+实机验证或IRL科学效果声明。本轮类型检查探针为0 planner/whole-copy/snapshot调用，回归测试
+中的真实复制与完整20次IRL检查按原测试执行；不能将探针零调用口径用于回归。
