@@ -5752,3 +5752,30 @@ ament_flake8 --linelength 99与ament_pep257均rc0。首版runner因已冻结目�
 `337eb3d135611c9aba7aec11103e103afe2134fcf336c17ab009e98dccae60a9`。
 缺失的首轮JSON及工具日志明确排除，不重建冒充原件。前141节398156字节保持，旧SHA256为
 `9b2c91e90bdbf23615689ede631505324af8cd4cbde8dd3af2f4cb385ef4b7e8`。
+
+### 11.143 可达 SCC 邻接视图绑定候选未纳入（2026-10-09）
+
+本轮只记录一个离散规划局部候选，基线为 HEAD `d49fedd0b01897f71a4a91eb78fafe6cc459a0ce`。
+当前生产 `discrete_plan.py` SHA256 为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`；
+冻结候选完整文件 SHA256 为
+`834b922b3c0080a61cc8c8b7afe7fad23e23f3fdcfc20fcbacf5cd283f7e513a`。
+候选仅在 `dijkstra_plan_networkX` 的 SCC 拓扑生成前绑定一次 `product.adj`，其余生产字节未改。
+
+语义/资源阶段共 9 个案例、20 次搜索调用，全部通过。标准 N=0/1/2/128 的 old/candidate adjacency getter 读取分别为 `1/1`、`2/1`、`3/1`、`129/1`；3 个 early-return 案例均为 `0/0`。完整 Run、TS/Büchi/Product 深层 primitive 内容与顶层属性 value 身份、`possible_states`、输入不变性、可达结构中的 `None` 边、缺省 weight、zero-cost tie，以及跨调用删改后的新输出均对照通过。
+
+纯 timing 只使用精确普通 `networkx.DiGraph`，每个 N 做 6 组交替、每组每侧 20 次完整搜索，共 720 次 timed calls；计时内没有 counter、profile、断言或 IO，每组只比较最后一次 timed Run，无额外搜索。
+
+| 分支 N | 原/候选中位数（ms，每组20次） | 候选更慢组数 |
+|---:|---:|---:|
+| 1 | 1.05060 / 1.00015 | 0/6 |
+| 2 | 1.19140 / 1.19070 | 3/6 |
+| 128 | 37.769801 / 39.987201 | 4/6 |
+
+`semantic_gate=true`、`timing_gate=true`，但 N=128 候选中位数更慢，原预先门槛未通过，最终 `gate=false`。总调用数为 semantic 20 + timed 720 = 740；helper 状态为 `completed`，traceback 为 null，实际 helper rc 为 3。资源减少不作为加速结论，未修改 gate，也未补采样。
+
+运行绑定为 Humble + 803 overlay、source Core 优先路径和 NetworkX 2.4；4 个 Core 模块实际导入路径均为当前 source Core，冻结清单中的 4 个源码与 3 个测试输入哈希匹配。原 `helper.py` 与 `helper_fix1.py` 仅冻结审查、未执行；本轮只执行 `helper_fix2.py` 一次。未测 malformed adjacency 的精确异常，也不保证 custom 动态 getter 的副作用次数语义；结论限于稳定标准 DiGraph。
+
+未修改生产或测试，用于三份既有核心测试的单个 runner 未执行；没有新增 pytest、compile、lint 或七包组合资格，也未重跑 DDS、KTH 阶段/profile、复制、provider、完整 benchmark、仿真、实机或 Jazzy。旧七包资格仍绑定 803f28e，不包含后续 IRL/Product 字节，各局部与组合计数不相加。
+manifest 绑定 26 份实际文件，逐一回读 size/SHA256 通过，位于 `/tmp/ltl_dp_scc_adj_publication_d49fedd`；manifest SHA256 为 `dffb013e2696b92b74f413f6c72f5adcdf703d0fae0a33266adb9c7436d7cb86`。
+原 validation 前 402656 bytes 保持不变，旧 SHA256 为 `9ce3a73f77b2976c9fe20bb4ad366c10d42d720b33458655f74672e2b8933209`。
