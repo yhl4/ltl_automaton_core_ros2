@@ -3,101 +3,129 @@
 import logging
 import time
 from collections import defaultdict
+from collections import deque
+from heapq import heappop
+from heapq import heappush
+from itertools import count
+from itertools import islice
 
-from networkx import dijkstra_predecessor_and_distance
+from networkx import DiGraph
+from networkx import NodeNotFound
+from networkx import multi_source_dijkstra_path_length
+from networkx import strongly_connected_components
 
-from .product import ProdAut_Run
+from .product import ProdAut, ProdAut_Run
 
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def dijkstra_plan_networkX(product, gamma=10):
-    """Find an accepting run with NetworkX Dijkstra search."""
-    start = time.time()
-    runs = {}
-    loops = {}
+def dijkstra_plan_networkX(product, gamma=10, start_set=None):
+    """Search a full Product from explicit or unchanged initial starts."""
+    start = time.perf_counter()
+    init_set = (
+        product.graph["initial"]
+        if start_set is None
+        else start_set
+    )
+    if not init_set:
+        _LOGGER.error("No accepting run found from the requested start set.")
+        return None, None
+    accepting_cycles = (
+        product.graph["accept"] & product.graph["accept_with_cycle"]
+    )
+    if not accepting_cycles:
+        _LOGGER.error("No accepting run found in NetworkX Dijkstra planning.")
+        return None, None
 
-    for prod_target in product.graph["accept"]:
-        if product.has_edge(prod_target, prod_target):
-            loops[prod_target] = (
-                product.edges[prod_target, prod_target]["weight"],
-                [prod_target],
-            )
-            continue
-
-        cycle_costs: dict[object, float] = {}
-        loop_pre, loop_dist = dijkstra_predecessor_and_distance(
-            product,
-            prod_target,
-            weight="weight",
-        )
-
-        for target_pred in product.predecessors(prod_target):
-            if target_pred in loop_dist:
-                cycle_costs[target_pred] = (
-                    loop_dist[target_pred]
-                    + product.edges[target_pred, prod_target]["weight"]
-                )
-
-        if cycle_costs:
-            optimal_predecessor = min(
-                cycle_costs,
-                key=lambda node: cycle_costs[node],
-            )
-            suffix = compute_path_from_pre(
-                loop_pre,
-                optimal_predecessor,
-            )
-            loops[prod_target] = (
-                cycle_costs[optimal_predecessor],
-                suffix,
-            )
-
-    for prod_init in product.graph["initial"]:
-        line_costs: dict[object, float] = {}
-        line_pre, line_dist = dijkstra_predecessor_and_distance(
-            product,
-            prod_init,
-            weight="weight",
-        )
-
-        for target, (suffix_cost, _) in loops.items():
-            if target in line_dist:
-                line_costs[target] = (
-                    line_dist[target] + gamma * suffix_cost
-                )
-
-        if not line_costs:
-            continue
-
-        optimal_target = min(
-            line_costs,
-            key=lambda node: line_costs[node],
-        )
-        prefix = compute_path_from_pre(
-            line_pre,
-            optimal_target,
-        )
-        prefix_cost = line_dist[optimal_target]
-        suffix_cost, suffix = loops[optimal_target]
-
-        runs[(prod_init, optimal_target)] = (
-            prefix,
-            prefix_cost,
-            suffix,
-            suffix_cost,
-        )
-
-    if not runs:
+    prefix_dist = _prefix_distances(product, init_set)
+    reachable_accepting = {
+        target
+        for target in accepting_cycles
+        if target in prefix_dist
+    }
+    if not reachable_accepting:
         _LOGGER.error(
             "No accepting run found in NetworkX Dijkstra planning."
         )
         return None, None
 
-    prefix, prefix_cost, suffix, suffix_cost = min(
-        runs.values(),
-        key=lambda plan: plan[1] + gamma * plan[3],
+    target_components = {}
+    # Any accepting cycle used by a valid run must be prefix reachable.
+    reachable_product = _reachable_topology(product, prefix_dist)
+    for component in _reachable_components(reachable_product):
+        reachable_targets = component & reachable_accepting
+        for target in reachable_targets:
+            target_components[target] = component
+
+    best_plan = None
+
+    for prod_target in accepting_cycles:
+        if prod_target not in prefix_dist:
+            continue
+
+        component = target_components[prod_target]
+
+        loop_dist = _component_distances(product, prod_target, component)
+
+        optimal_predecessor = None
+        suffix_cost = None
+        found_cycle = False
+        for target_pred, edge_data in product.pred[prod_target].items():
+            edge_weight = edge_data.get("weight", 1)
+            if target_pred in loop_dist and edge_weight is not None:
+                candidate_cost = (
+                    loop_dist[target_pred]
+                    + edge_weight
+                )
+                if not found_cycle or candidate_cost < suffix_cost:
+                    optimal_predecessor = target_pred
+                    suffix_cost = candidate_cost
+                    found_cycle = True
+
+        if not found_cycle:
+            continue
+
+        prefix_cost = prefix_dist[prod_target]
+        candidate = (
+            prod_target,
+            optimal_predecessor,
+            prefix_cost,
+            suffix_cost,
+            loop_dist,
+        )
+        if (
+            best_plan is None
+            or prefix_cost + gamma * suffix_cost < (
+                best_plan[2] + gamma * best_plan[3]
+            )
+        ):
+            best_plan = candidate
+
+    if best_plan is None:
+        _LOGGER.error(
+            "No accepting run found in NetworkX Dijkstra planning."
+        )
+        return None, None
+
+    (
+        prod_target,
+        optimal_predecessor,
+        prefix_cost,
+        suffix_cost,
+        loop_dist,
+    ) = best_plan
+    prefix = _restore_tight_path(
+        product,
+        prefix_dist,
+        init_set,
+        prod_target,
+    )
+    suffix = _restore_tight_path(
+        product,
+        loop_dist,
+        {prod_target},
+        optimal_predecessor,
     )
     total_cost = prefix_cost + gamma * suffix_cost
 
@@ -109,7 +137,7 @@ def dijkstra_plan_networkX(product, gamma=10):
         suffix_cost,
         total_cost,
     )
-    elapsed = time.time() - start
+    elapsed = time.perf_counter() - start
 
     _LOGGER.debug(
         "NetworkX Dijkstra planning completed in %.2fs: "
@@ -119,6 +147,287 @@ def dijkstra_plan_networkX(product, gamma=10):
         suffix_cost,
     )
     return run, elapsed
+
+
+# The prefix, component-distance, and reachable-component helpers adapt NetworkX 2.4.
+# Copyright (c) 2004-2019, NetworkX Developers.
+# Copyright (c) Aric Hagberg, Dan Schult, and Pieter Swart.
+# SCC authors: Eben Kenah, Aric Hagberg, Christopher Ellison, and Ben Edwards.
+# The following BSD-3-Clause notice applies to these helpers:
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+#  * Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+#  * Neither the name of the NetworkX Developers nor the names of its
+#    contributors may be used to endorse or promote products derived from this
+#    software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+def _reachable_topology(product, reachable):
+    """Build the reachable topology while preserving public fallback access."""
+    topology = DiGraph()
+    topology.add_nodes_from(reachable)
+    if type(product) is DiGraph or type(product) is ProdAut:
+        source_adjacency = product._succ
+    else:
+        source_adjacency = None
+    successors = topology._succ
+    predecessors = topology._pred
+    native = (
+        type(successors) is dict
+        and type(predecessors) is dict
+        and topology.adjlist_inner_dict_factory is dict
+        and topology.edge_attr_dict_factory is dict
+    )
+    if native:
+        for source in reachable:
+            topology_successors = successors[source]
+            neighbors = (
+                source_adjacency[source]
+                if source_adjacency is not None
+                else product.adj[source]
+            )
+            for target in neighbors:
+                if target in reachable:
+                    attributes = {}
+                    topology_successors[target] = attributes
+                    predecessors[target][source] = attributes
+        return topology
+    if source_adjacency is not None:
+        topology.add_edges_from(
+            (source, target)
+            for source in reachable
+            for target in source_adjacency[source]
+            if target in reachable
+        )
+    else:
+        topology.add_edges_from(
+            (source, target)
+            for source in reachable
+            for target in product.adj[source]
+            if target in reachable
+        )
+    return topology
+
+
+def _reachable_components(graph):
+    """Keep NetworkX 2.4 SCC order on the private reachable DiGraph."""
+    if type(graph) is not DiGraph:
+        yield from strongly_connected_components(graph)
+        return
+    successors = graph._succ
+    preorder = {}
+    lowlink = {}
+    scc_found = set()
+    scc_queue = []
+    i = 0     # Preorder counter
+    for source in graph:
+        if source not in scc_found:
+            queue = [source]
+            while queue:
+                v = queue[-1]
+                if v not in preorder:
+                    i = i + 1
+                    preorder[v] = i
+                done = True
+                for w in successors[v]:
+                    if w not in preorder:
+                        queue.append(w)
+                        done = False
+                        break
+                if done:
+                    lowlink[v] = preorder[v]
+                    for w in successors[v]:
+                        if w not in scc_found:
+                            if preorder[w] > preorder[v]:
+                                lowlink[v] = min([lowlink[v], lowlink[w]])
+                            else:
+                                lowlink[v] = min([lowlink[v], preorder[w]])
+                    queue.pop()
+                    if lowlink[v] == preorder[v]:
+                        scc = {v}
+                        while scc_queue and preorder[scc_queue[-1]] > preorder[v]:
+                            k = scc_queue.pop()
+                            scc.add(k)
+                        scc_found.update(scc)
+                        yield scc
+                    else:
+                        scc_queue.append(v)
+
+
+def _prefix_distances(product, sources):
+    """Find prefix distances with native weight lookup when supported."""
+    if type(product) is not DiGraph and type(product) is not ProdAut:
+        return multi_source_dijkstra_path_length(
+            product,
+            sources=sources,
+            weight="weight",
+        )
+    if "is_multigraph" in product.__dict__:
+        return multi_source_dijkstra_path_length(
+            product,
+            sources=sources,
+            weight="weight",
+        )
+    if not sources:
+        raise ValueError("sources must not be empty")
+    if product.is_multigraph():
+        return multi_source_dijkstra_path_length(
+            product,
+            sources=sources,
+            weight="weight",
+        )
+    successors = product._succ if product.is_directed() else product._adj
+    push = heappush
+    pop = heappop
+    distances = {}
+    seen = {}
+    sequence = count()
+    fringe = []
+    target = None
+    for source in sources:
+        if source not in product:
+            raise NodeNotFound("Source {} not in G".format(source))
+        seen[source] = 0
+        push(fringe, (0, next(sequence), source))
+    while fringe:
+        distance, _, current = pop(fringe)
+        if current in distances:
+            continue
+        distances[current] = distance
+        if current == target:
+            break
+        for successor, data in successors[current].items():
+            cost = data.get("weight", 1)
+            if cost is None:
+                continue
+            candidate = distances[current] + cost
+            if successor in distances:
+                if candidate < distances[successor]:
+                    raise ValueError("Contradictory paths found:", "negative weights?")
+            elif successor not in seen or candidate < seen[successor]:
+                seen[successor] = candidate
+                push(fringe, (candidate, next(sequence), successor))
+            elif candidate == seen[successor]:
+                pass
+    return distances
+
+
+def _component_distances(product, source, component):
+    """Find suffix distances with NetworkX's ordering and component filter."""
+    # Adapted from NetworkX 2.4's distance-only Dijkstra loop; license below.
+    # Keep source-set hashing and the target=None comparison observable.
+    sources = {source}
+    successors = product._succ if product.is_directed() else product._adj
+    push = heappush
+    pop = heappop
+    distances = {}
+    seen = {}
+    sequence = count()
+    fringe = []
+    target = None
+    for start in sources:
+        if start not in product:
+            raise NodeNotFound("Source {} not in G".format(start))
+        seen[start] = 0
+        push(fringe, (0, next(sequence), start))
+    while fringe:
+        distance, _, current = pop(fringe)
+        if current in distances:
+            continue
+        distances[current] = distance
+        if current == target:
+            break
+        for successor, data in successors[current].items():
+            if successor not in component:
+                continue
+            cost = data.get("weight", 1)
+            if cost is None:
+                continue
+            candidate = distance + cost
+            if successor in distances:
+                if candidate < distances[successor]:
+                    raise ValueError("Contradictory paths found:", "negative weights?")
+            elif successor not in seen or candidate < seen[successor]:
+                seen[successor] = candidate
+                push(fringe, (candidate, next(sequence), successor))
+            elif candidate == seen[successor]:
+                # NetworkX evaluates equality even when pred=None.
+                pass
+    return distances
+
+
+def _restore_tight_path(product, distances, sources, target):
+    """Recover one finite shortest path from a distance-only result."""
+    if target not in distances:
+        raise RuntimeError(
+            "Cannot recover a shortest path to a finite-distance target."
+        )
+
+    source_set = set(sources)
+    parent = {
+        source: None
+        for source in source_set
+        if source in distances
+    }
+    queue = deque(parent)
+
+    while queue:
+        current = queue.popleft()
+        if current == target:
+            break
+        current_distance = distances[current]
+        if type(product) is DiGraph or type(product) is ProdAut:
+            successors = product._succ[current]
+        else:
+            successors = product.adj[current]
+        for successor in successors:
+            if successor in parent:
+                continue
+            edge_weight = successors[successor].get("weight", 1)
+            if edge_weight is None:
+                continue
+            if (
+                current_distance + edge_weight
+                != distances.get(successor)
+            ):
+                continue
+            parent[successor] = current
+            if successor == target:
+                # The BFS parent chain is fixed when the target is found.
+                queue.clear()
+                break
+            queue.append(successor)
+
+    if target not in parent:
+        raise RuntimeError(
+            "Cannot recover a tight shortest path to the selected target."
+        )
+
+    path = []
+    node = target
+    while node is not None:
+        path.append(node)
+        node = parent[node]
+    path.reverse()
+    return path
 
 
 def dijkstra_plan_optimal(product, gamma=10, start_set=None):
@@ -423,20 +732,26 @@ def compute_path_from_pre(predecessor, target):
 
 
 def prod_states_given_history(product, trace):
-    """Compute possible product states from a TS execution trace."""
+    """Trace observed TS states through the already built Product edges."""
     if not trace:
         return set()
 
     possible_states = {
         (trace[0], buchi_state)
         for buchi_state in product.graph["buchi"].graph["initial"]
+        if (trace[0], buchi_state) in product
     }
+    successor_tables = {}
 
-    for ts_state in trace[1:]:
+    for ts_state in islice(trace, 1, None):
         next_states = set()
 
         for product_node in possible_states:
-            for successor, _ in product.fly_successors(product_node):
+            successors = successor_tables.get(product_node)
+            if successors is None:
+                successors = tuple(product.successors(product_node))
+                successor_tables[product_node] = successors
+            for successor in successors:
                 if successor[0] == ts_state:
                     next_states.add(successor)
 
@@ -445,8 +760,8 @@ def prod_states_given_history(product, trace):
     return possible_states
 
 
-def improve_plan_given_history(product, trace):
-    """Replan from product states consistent with execution history."""
+def improve_plan_given_history(product, trace, gamma=10):
+    """Replan a full Product from history with the configured suffix weight."""
     new_initial_set = prod_states_given_history(
         product,
         trace,
@@ -455,9 +770,9 @@ def improve_plan_given_history(product, trace):
     if not new_initial_set:
         return None
 
-    new_run, _ = dijkstra_plan_optimal(
+    new_run, _ = dijkstra_plan_networkX(
         product,
-        gamma=10,
+        gamma=gamma,
         start_set=new_initial_set,
     )
     return new_run

@@ -1,0 +1,7746 @@
+# 历史验证记录
+
+本文件保留根 README 第 11 节的逐轮验证正文，作为历史记录。aggregate 结果可能包含未修改包沿用的既有验证结果；每一轮的范围、数值、fixture 与限制按原记录保留。
+
+返回根 README 测试章节：[README.md 第 11 节](../../README.md#11-测试)。
+
+### 11.1 本次重构补全验证（2026-10-06）
+
+在 Ubuntu 22.04 / ROS 2 Humble / Python 3.10 下，七个包完成
+`colcon build --symlink-install` 与 `colcon test`。`colcon test-result`
+汇总为 **227 tests, 0 errors, 0 failures, 4 skipped**；四项跳过均为仓库
+原有的版权头检查标记，功能与通信测试没有跳过。
+
+本轮恢复统一包入口并补齐依赖；修正接受环识别、自环与其他循环的代价比较、
+零代价路径、单维动作 guard 和非法输入处理。优化包含 guard 复用、Product
+guard 检查复用、一次 SCC 遍历、已构建 TS 复用、反馈状态直接对已加载图校验，
+以及仅缓存当前执行 generation。目标函数与 source-label 约定保持不变；
+受上述缺陷影响的旧计划可能被拒绝或得到更低代价的正确计划。
+这些是定向正确性与通信验证结果，未开展性能 benchmark 或物理仿真实验。
+
+### 11.2 后续优化验证（2026-10-06）
+
+组合 TS 与 hard/soft Büchi 的构造改为直接枚举实际后继，减少无效节点扫描。
+以修改前实现为参考，对 KTH、Demo-D1 和自环/guard 小图比较全部节点、边、
+属性与初始集合；另对三组真实 `ltl2ba` 公式比较 Büchi 图及 guard 判定，均一致。
+这些检查证明本轮图构造等价，未测量端到端加速比。
+
+陷阱检测改为读取宿主当前提交的 planner，避免 `PlanLTL` 替换任务后继续使用旧图。
+相关三个包（planner core、planner、HIL）的 `colcon test` 通过，包括真实 Action
+重新规划后陷阱判定改变的 Launch 回归；未扩大到仿真或 benchmark。
+
+### 11.3 执行观测与解析优化（2026-10-06）
+
+修复快照请求期间收到新观测后仍派发旧动作的问题：响应返回时读取最新观测，
+再次检查 identity；新观测无下一动作时抑制旧派发。只保留最新一条观测。
+动作解析为当前不可变快照建立一次节点与接受路径索引，后续命令复用；
+缺失接受路径目标节点时返回解析错误，避免未处理的 `KeyError`。
+
+本轮重跑 execution 包 `colcon test`，包括三个可控延迟响应节点回归、
+解析与 generation 切换、已有真实 DDS/FakeBackend 场景和 lint，全部通过。
+该轮 V0.1 验证时，接受环的重复状态/动作仍会抑制派发；这一限制由
+第 11.5 节的接口升级解决。
+
+### 11.4 重规划隔离与搜索优化（2026-10-06）
+
+重规划改为在候选 planner 副本中计算，成功才提交；未知状态在复制前拒绝。
+回归覆盖不可行任务、Büchi 构造异常和隔离状态重规划失败，检查原 TS、Product、
+run 引用以及初始集、possible states、游标均保持不变。
+
+完整 Product 的 Dijkstra 搜索复用已计算的 SCC 接受环集合，跳过不在环上的接受
+节点；没有接受环时直接返回无解。小图中总代价仍为手算的 13，且不再对只能
+到达非接受环的接受节点启动搜索。该结果不代表端到端加速比。
+本轮重跑 Core 与 ROS planner 两包的 `colcon test`，包括重规划、Action、
+快照 generation 和 lint 回归，全部通过。
+
+### 11.5 执行步骤接口升级（2026-10-06）
+
+Planning Contract 升级为 V0.2，新增 `uint64 execution_step_seq`。
+规划成功提交时序号归零，预期 TS 反馈推进游标后递增；失败的规划请求保留原序号。
+执行器按 instance、generation 和步骤序号去重，使接受环与同状态自环可持续派发。
+后端忙碌时保留最新命令，空闲后复用已有快照；快照服务离线不影响已缓存图的派发。
+默认 `check_timestamp=true` 时拒绝重复或倒序 TS 时间戳。
+
+七个包重新完成 `colcon build --symlink-install`，并运行七包 `colcon test`；
+更新旧接口字段断言后重跑消息包，最终汇总为
+**246 tests, 0 errors, 0 failures, 4 skipped**，跳过项仍为原有版权头检查。
+真实 DDS/FakeBackend 四项闭环回归覆盖 Demo-D1 导航与任务替换、取放动作、
+两状态接受环至少推进 10 步，以及同状态自环至少推进 8 步。
+另检查重复/倒序命令、忙碌期间最新命令保留、重复后端回调、失败规划保留序号、
+新 generation 归零及 `uint64` 消息序列化。验证范围为符号执行与 ROS 通信；
+未运行性能 benchmark 或物理仿真实验。
+
+V0.1 消费者需重新生成并构建 `ltl_automaton_msgs` 及其依赖包；
+当前不提供旧消息兼容层。
+
+### 11.6 历史重规划补全（2026-10-06）
+
+Core 的 `LTLPlanner.replan()` 改为复用已构建的完整 Product 和当前 Dijkstra 搜索，
+不再调用依赖旧 `region/fly_predecessors` 接口的动态搜索。
+搜索历史包含已完成动作的源状态与游标当前到达状态，使用配置的 `gamma`；
+候选起点不改写图的 initial 集。计划比较使用 Product 路径，避免同名动作掩盖
+不同目标状态。成功规划新任务时清空旧任务历史，同任务历史重规划保留原执行记录。
+该路径以已接受反馈、已推进游标的当前执行状态为起点；异常偏离后的恢复仍使用
+`replan_from_ts_state()`。
+
+原问题在小图中复现为缺失动态 TS 接口异常、重规划起点落后以及旧任务历史残留。
+修复后的手算代价检查、未知/非法历史、任务替换和八次连续执行/重规划均通过。
+本轮重跑 Core、ROS planner 与 execution 三包 `colcon test`（含 Action、真实 DDS
+闭环与 lint），全部通过；与其他包保留结果合计为
+**253 tests, 0 errors, 0 failures, 4 skipped**。Product source-label 与代价公式保持不变，
+未运行性能 benchmark。
+
+### 11.7 多源 prefix 搜索优化（2026-10-06）
+
+Dijkstra 将多个 Product 起点的 prefix 搜索合并为一次多源搜索，
+只对可达且属于接受环的节点计算 suffix，并只保留最佳候选。
+对固定接受节点，suffix 代价与初始点无关，因此先取最小 prefix 代价再计算
+`prefix_cost + gamma * suffix_cost`，保持原目标函数；并列最优时可能返回另一条合法路径。
+
+以提交 `fbce25d` 的搜索实现为对照，KTH、Demo-D1 导航与取放 Product 分别验证
+默认起点和三起点查询、`gamma=0/1/10`，共 18 组；总代价差均为 0，
+路径边与接受环有效，initial 与 possible states 均未改写。
+定向检查确认一次多源 prefix 搜索、不可达接受环不触发 suffix 搜索、
+零代价多源路径有限。Core、ROS planner 与 execution 三包 `colcon test` 通过，
+与其他包保留结果合计为 **256 tests, 0 errors, 0 failures, 4 skipped**。
+本轮验证搜索等价性与调用次数，未测量端到端加速比。
+
+### 11.8 搜索路径缓存内存优化（2026-10-06）
+
+prefix 与 suffix 搜索只计算最短距离，选出最佳接受环后再恢复两条路径，
+避免为每个可达节点缓存完整路径。路径恢复严格使用 Dijkstra 距离等式，
+以已访问节点阻止零代价环重复进入；浮点代价不使用容差放宽最短路条件。
+
+以提交 `e00cacc` 的搜索实现为对照，重复上述三个 Product、两种起点设置与
+`gamma=0/1/10` 的 18 组检查，总代价差均为 0，路径合法且图状态不变。
+在预先构建的 1,000 状态链式 TS、2,000 节点 Product 定向用例中，
+仅搜索阶段的 Python 分配峰值由 **4,283,854 bytes** 降至 **179,656 bytes**，
+两者总代价均为 1,010、prefix 均含 1,001 个节点。该测量使用 `tracemalloc`，
+不包含图构造，也不表示进程总内存或端到端加速比。
+
+浮点最短路、零代价环与多源搜索定向检查通过。Core、ROS planner 与 execution
+三包 `colcon test` 通过，与其他包保留结果合计为
+**257 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.9 执行快照请求失败恢复（2026-10-06）
+
+修复快照请求失败后动作命令被丢弃、执行停住的问题。客户端同步异常、
+Future 异常、空响应与 `success=False` 均通过现有 0.1 秒 timer 重试，
+只保留同一当前 instance/generation 下最新且有下一动作的观测。
+旧 generation/instance 的失败不会覆盖新命令，新的无动作观测会抑制重试。
+节点销毁时清空等待并取消 timer，晚到的快照完成回调直接返回。
+成功响应仍需通过图身份与 schema 校验；执行后端拒绝或失败不自动重派同一步。
+
+旧实现已复现为请求失败后 pending 命令为空。修复后的节点定向检查为
+**16 passed**，覆盖失败类型、最新序号、无动作、过期身份及销毁边界。
+真实 DDS 定向检查仅发布一次命令，让服务先失败再成功；后端接受和拒绝两种
+情况均为两次快照请求、一次动作派发，未生成 TS 状态反馈。
+本轮 `ltl_automaton_execution` 包 `colcon test` 通过（含原有四项执行闭环与 lint），
+与其他包保留结果合计为 **267 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.10 可选 IRL 恢复（2026-10-06）
+
+恢复原项目从示范轨迹学习 β 的范围，保持原 margin 启发式、步长与停止条件。
+默认关闭；示范记录、隔离学习与接受计划提交由 ROS 2 插件和宿主分别承担。
+增加反馈版本校验，学习期间离开再返回同一状态也会拒绝过期结果。
+关闭非计划状态自动重规划后，Product belief 按实际后继更新，避免旧计划的接受
+边界误删合法替代路线；默认计划反馈的接受边界检查保持原行为。
+
+Core 的 11 项学习检查与两项替代路线检查通过；宿主六项 IRL 事务检查覆盖提交、
+失败隔离、过期执行序号、旧 generation、离开再返回、销毁后晚到结果。
+真实 ROS 2 Action、Bool trigger 与 DDS 状态反馈验证了 β 从 1 增大、新 generation
+序号归零、旧 planner 未被学习改写及快照边权恢复为规范代价；不将该小图结果作为
+收敛或机器人示范效果证明。另验证 buffer 超限仅学习一次及任务替换后的插件身份。
+本轮构建 core、planner 与 HIL 三包，重跑 core、planner、HIL 与 execution 四包测试；
+与其他包保留结果合计为 **288 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.11 接受环搜索范围优化（2026-10-06）
+
+prefix 仍在完整 Product 上搜索；suffix 只搜索接受点所属的强连通分量。
+离开该分量的路径无法返回接受点，因此不可能参与接受循环。分量在本次搜索内
+计算，不写入 Product 缓存；目标函数、闭环边计费、严格浮点路径恢复与零代价环
+处理保持不变。所有接受点均不可达时不执行额外 SCC 遍历。
+
+以 `b1b97ce` 为旧实现，KTH、Demo-D1 导航及取放三个真实 Product，默认与三起点、
+γ=0/1/10 共 18 组总代价差均为 0，路径合法且 initial/possible states 未变。
+固定 1,003 节点 Product 包含两节点接受环与 1,000 节点单向尾，suffix 搜索得到有限
+距离的节点从 **1,002 个降至 2 个**；前后总代价均为 51，输入边权和状态集合不变。
+这是定向搜索范围检查，不表示端到端加速比。
+
+本轮重跑 core、planner、HIL 与 execution 四包，覆盖可选 IRL 示范学习及真实执行
+闭环回归；与其他包保留结果合计为 **288 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.12 Product guard 求值复用（2026-10-06）
+
+组合 Büchi 的不同层可能共享同一组 hard/soft guard 对象。构造 Product 时，
+对同一个 TS 源标签复用这些 guard 的 truth/distance 结果，避免重复求值。
+缓存只在当前源节点的构造中使用，切换源节点或重建 Product 都会重新计算，
+不保存到 Product、TS 或 Büchi 图中；source-label 语义、动作与加权代价保持不变。
+
+以 `906388b` 为旧实现，对照三个真实 Product 的完整节点、边属性、initial、accept、
+accept-with-cycle 与 possible states，结果一致，原 TS/Büchi 未变：
+
+| Product | 节点 / 边 | 旧 guard 求值次数 | 新 guard 求值次数 |
+|---|---:|---:|---:|
+| KTH | 36 / 72 | 96 | 48 |
+| Demo-D1 导航 | 120 / 388 | 180 | 90 |
+| Demo-D1 取放 | 180 / 736 | 360 | 180 |
+
+上述三个 Product 的默认与三起点、γ=0/1/10 共 18 组计划总代价差均为 0，
+prefix 与闭合 suffix 合法，初始与 possible states 保持不变。这里测量的是 guard
+求值次数，不表示端到端加速比。定向检查另验证共享 hard guard、不同 soft guard
+不会错误合并，以及修改源标签或 guard 后重建会重新求值。
+
+本轮重跑 core、planner、HIL 与 execution 四包，含 IRL 示范学习与真实执行闭环；
+与其他包保留结果合计为 **289 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.13 完整命题名与不可满足任务解析（2026-10-06）
+
+修复 `cargo_ready1`、`danger_zone2` 等命题被符号提取正则拆分的问题，
+hard/soft 原始 Büchi 与组合图现在记录完整名称；`true`、`false` 作为原生 LTL
+常量，不列入原子命题清单，`true_value0`、`false_alarm1` 等普通名称仍保留。
+
+原生 ltl2ba 对不可满足任务生成带 `false;` 的无出边初始状态。解析器现在接受
+该输出并保留声明节点，Büchi 工厂使用这些节点构图，不添加虚构转移。
+`parse_ltl` 仍返回 transition dictionary；缺失 never header 会明确报解析错误。
+真实 `false` hard-task Action 在 READY 与 ACTIVE 下均返回
+`ERROR_NO_ACCEPTING_PLAN`，ACTIVE 的 planner/run、快照及执行序号保持不变。
+命题 guard、source-label 与代价语义保持不变。
+
+定向检查覆盖完整名称、常量清单、死端状态与缺失 header，并使用原生 ltl2ba
+验证原始/组合 Büchi 图与 `parse_ltl` 返回接口。本轮重跑 core、planner、HIL 与
+execution 四包；与其他包保留结果合计为 **297 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.14 不完整 Promela 输出校验（2026-10-06）
+
+修复解析器静默接受不完整输出的问题。缺少 `fi;` 或 claim 闭合 `}`、未声明的
+目标状态、重复状态声明、空 if 块与未声明状态的空 claim 均明确报 `ParseException`。
+合法前向引用保持支持，原生 `false;` 的无边初始状态仍可正常解析。
+
+六类错误 fixture 在修复前均被接受，修复后均被拒绝；12 项解析检查与七项原生
+ltl2ba/Büchi 集成检查通过。受控故障测试将截断的工具输出注入真实 ROS 2 Action，
+返回 `ERROR_INTERNAL` 并保留 ACTIVE planner/run、快照与执行序号；该故障输入是
+测试 fixture，不表示观察到了原生 ltl2ba 的输出损坏。
+
+本轮重跑 core 与 planner 两包；与其他包保留结果合计为
+**304 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.15 同目标 Promela 分支保留（2026-10-06）
+
+同一源/目标的多个 `:: guard -> goto target` 现在将条件合并为带括号的逻辑或，
+避免被最后一条分支覆盖。[Promela 的 if 语义](https://spinroot.com/spin/Man/if.html)
+允许选择任意可执行分支，因此合并保留同一转移的可执行条件。唯一分支文本、
+transition-dictionary 与 DiGraph 接口不变；soft distance 仍沿用现有 OR 的最小值规则。
+
+受控双分支 fixture 的单状态 TS 仅含 `cargo` 标签，边代价为 2、β=5、γ=10。
+修复前 hard Product 丢失接受路径，soft 计划总代价为 27；修复后两者均得到
+手算总代价 **2 + 10 × 2 = 22**。另用三分支的六种标签核对真值与软距离，
+并反转分支顺序，确保较早分支和嵌套条件都保留。
+
+独立原生 ltl2ba 探测的 20 个固定公式均翻译成功，未观察到重复源/目标分支。
+以上复现采用受控 fixture，不据此声称当前原生输出发生了该缺陷。
+
+本轮重跑 core 与 planner 两包；与其他包保留结果合计为
+**313 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.16 组合 TS 节点逐项构造（2026-10-06）
+
+组合 TS 节点与初始状态现在用 `itertools.product` 逐项枚举，避免先物化完整组合
+列表；初始状态直接加入已有集合，避免额外的临时集合。公共 `node_product()`
+仍返回原顺序的扁平 tuple 列表，零维输入为 `[()]`，空因子返回 `[]`。
+节点 label/marker、guard、边覆盖规则与单维分支保持不变。
+
+以 `9b4466a` 为旧实现对照，KTH、Demo-D1 导航与取放的 TS 节点/边顺序及属性、
+初始集合和对应 Product 完整值一致，输入因子未被修改。默认及三起点、γ=0/1/10
+共 18 组规划总代价差均为 0，prefix 与闭合 suffix 合法，initial/possible states 不变。
+
+固定 64×64×4 无边因子、各因子所有状态均为初始的 fixture 共生成 16,384 个
+TS 节点与初始状态。构造期间的 tracemalloc Python 分配峰值为
+**11,590,949 → 10,294,820 bytes**，图值与顺序一致；该结果不代表进程总内存
+或端到端规划加速。七项 TS 检查覆盖原有 guard 行为、三因子顺序、多个初始状态
+及公共列表接口。
+
+本轮重跑 core 与 planner 两包；与其他包保留结果合计为
+**316 tests, 0 errors, 0 failures, 4 skipped**。
+
+### 11.17 HIL 异步安全查询（2026-10-06）
+
+受控回调复现了两个控制器的过期结果问题：状态从 A 离开后回到 A，旧 trap
+响应仍可能放行人工命令；Velocity 的响应使用查询开始时捕获的输入，可能覆盖
+最新导航或人工输入。请求同步抛错会留下 busy 标记，服务不返回也没有查询截止时间。
+
+现在按有效符号 TS 内容变化递增版本，重复相同状态消息不使当前查询失效。
+查询保存独立上下文与 Future 身份；异常、缺失响应和超时均释放查询，先脱离上下文
+再取消 Future，晚到响应不能影响新查询。新增 `safety_check_timeout`（默认 1 秒，
+有限正值），Velocity 的 closest/trap 两阶段共享截止时间。0.1 秒 steady-clock
+timer 在下一次回调清理过期请求，响应回调也检查截止时间；不作为严格实时调度保证。
+Bool 丢弃过期人工命令，Velocity 回退到最新导航；正常响应也重新检查人工输入
+时效并读取最新输入。仲裁公式与速度边界保持不变，销毁节点后抑制晚到服务回调。
+
+新增 22 项检查通过：20 项使用真实 Node 与受控 Future 检查 A→B→A、重复状态、
+请求/响应失败、晚到回调、新查询身份、销毁边界、最新输入、人工输入过期和共享
+截止时间；另两项通过真实 `monotonic`、steady timer 与 `rclpy.spin_once` 验证未返回
+请求的取消和重试。故障用例采用受控服务替身，不声称其为真实 DDS 故障测量。
+两个已安装 launch 入口的 `--show-args` 均暴露新参数及默认值。
+
+本轮仅重跑 HIL 包 `colcon test`，含原有 controller、TrapDetection 和 IRL Launch
+通信回归及 lint，pytest 为 **45 tests, 0 errors, 0 failures, 1 skipped**；
+与其他包保留结果合计为
+**338 tests, 0 errors, 0 failures, 4 skipped**。
+这些检查不构成硬件安全、机器人示范效果或多线程执行器的验证。
+
+### 11.18 标准 TS 几何与反馈输入（2026-10-06）
+
+以 `3377669` 为基线，零边长的 2×1 网格会生成中心均为 `[0, 0]` 的两个区域，
+planner 仍能加载；NaN station 坐标会直接写入节点和动作位姿。生成器现在检查
+正边长、有限的输入几何与派生中心，拒绝这些定义，正常 grid/station 输出结构不变。
+
+2D 基线把零四元数当作 yaw=0，在 station 请求下可错误进入该区域；NaN 位姿
+会替换 `closest_region` 使用的缓存。现在 `update`/`closest_region` 在计算前
+验证 x/y 与四个 quaternion 分量有限，拒绝零四元数。Node 记录并丢弃无效反馈，
+保留最后有效 pose 和符号状态，不发布新区域。单位四元数仍是输入假设；本轮没有
+归一化或新增 norm 容差。服务使用最后有效 pose，不据此保证观测新鲜度。
+
+6D 验证至少六个位置及前六个分量有限，后续关节仍忽略；无效反馈保留最后有效
+区域并记录错误。基线的六个 `1e200` 位置触发 `OverflowError`，距离计算改为
+`math.hypot` 后，可按同一欧氏范数正确判定。手算 fixture 中
+`sqrt(6) * 1e200 < 1e201`，新实现位于半径 `1e201` 的区域内；另验证严格
+`distance < radius` 边界及额外 NaN 关节的原有忽略规则。区域切换、连通性和
+hysteresis 规则保持不变，浮点范数的末位舍入可能不同。
+
+模型与真实 Node 回调定向检查为 **30 passed**，包含 18 项新增生成/模型检查和
+四项新增回调检查；回调用记录型 publisher，未将其称为 DDS 故障测试。
+本轮仅重跑标准 TS 包 `colcon test`，含原有 2D/6D monitor Launch 通信及 lint，
+pytest 为 **34 tests, 0 errors, 0 failures, 1 skipped**；
+与其他包保留结果合计为 **360 tests, 0 errors, 0 failures, 4 skipped**。
+未进行硬件、仿真或机器人示范验证。
+
+### 11.19 HIL 速度数值边界（2026-10-06）
+
+以 `970df4c` 为基线，NaN 人工速度被限幅成默认正向最大速度 `0.5`，Inf 输入
+也被直接饱和；NaN 导航分量会污染混合输出，单轴 `1e200` 人工速度的平方触发
+`OverflowError`。正值小 `epsilon` 的两个指数均下溢为零，使增益计算除零；
+NaN/Inf 参数、负限幅和不足三轴的限幅配置也没有被拒绝。
+
+现在策略入口验证六个速度分量、距离和参数的有限性，三轴限幅必须恰好三个
+非负值，零限幅保留为禁用该人工轴。Node 丢弃并记录非有限速度，保留最后有效
+导航缓存；无有效缓存时发布零 `Twist`。无效人工输入同时清除人工输入时效。
+无效速度或服务距离取消并释放当前查询，旧回调不能影响新查询；有效输入可重试。
+混合结果先成功计算才结束查询，节点销毁后不再处理输入回调。
+
+幅值使用 `math.hypot` 保留原欧氏范数定义。单轴 `1e200` 不再平方溢出；三个
+`1.5e308` 分量各自有限，但 `sqrt(3) * 1.5e308` 超出浮点范围，内部幅值可为
+Inf，之后仍按人工限幅输出三个有限的 `0.5`，不把这个内部标量当作无效命令。
+平滑增益仍为 `rho(a)/(rho(a)+rho(b))`，其中 `a=d-ds`、`b=epsilon-a`；
+改用等价的稳定指数比值，避免两个指数同时下溢。精确二进制对称中点的 gain
+为 `0.5`，非对称小安全区仍按原曲线趋向 `0`/`1`，没有用常数代替平滑区。
+五个普通区间点与 60 位 Decimal 原式对照通过；浮点末位舍入可能不同。
+导航不额外限幅，deadband、安全区和混合的数学定义保持不变。
+
+新增 36 项检查；策略与真实 Node/受控 Future 两文件合计 **66 passed**，覆盖
+参数、命令、服务距离、限幅、指数下溢、缓存、取消与重试，以及销毁边界。
+本轮仅重跑 HIL 包 `colcon test`，含原有 controller、TrapDetection、IRL Launch
+通信及 lint，pytest 为 **81 tests, 0 errors, 0 failures, 1 skipped**；
+与其他包保留结果合计为 **396 tests, 0 errors, 0 failures, 4 skipped**。
+故障用例使用受控客户端与记录型 publisher，不声称真实 DDS 故障或硬件安全验证。
+
+### 11.20 执行端快照请求截止时间（2026-10-06）
+
+以 `fe9dd86` 为基线，真实 ExecutionManagerNode 配合永不完成的 Future 复现了
+执行停滞：首次快照请求保留 identity；收到同代际的新 step 后仍只有一次请求，
+没有 pending observation，retry timer 无法恢复命令。原有异常、空响应和失败
+响应回归不覆盖这个未返回请求场景。
+
+新增 `snapshot_request_timeout`（默认 5 秒，有限正值），并在 fake launch 中
+暴露为 float 参数。每个请求保存独立上下文、Future 和 monotonic 截止时间；
+现有 0.1 秒 retry timer 改用 steady clock。timer、观测和响应回调均检查截止时间，
+重复观测不延长请求或不断重置 timer。超时先脱离上下文再取消 Future，保留同一
+当前 graph authority 的最新可执行观测以重试。旧响应不能清除新请求或派发命令；
+新 instance/generation、no-action 和销毁取消不再需要的请求。
+
+正常响应仍要求 identity、schema 和 retained run 有效，再解析最新 step。
+新参数仅限制快照读取，不给已派发 backend 设置超时，也不重试已经尝试的 step；
+backend completion 与真实符号状态的独立观测边界保持不变。检查发生在回调调度时，
+不声称严格实时截止保证。
+
+新增 **17 项检查**；新旧 Node 两文件合计 **33 passed**，覆盖永不返回请求、
+最新 step、达到截止时间但 timer 尚未调度的成功响应、同步 cancel 回调与晚到
+成功/异常、重复观测、新 authority/no-action、缺失 Future/回调注册异常及参数。
+其中两项运行真实 steady timer 和 SingleThreadedExecutor，在 `use_sim_time=True`
+且 ROS 时钟保持零的情况下，分别验证没有新观测和持续重复观测时的取消及重试。
+另验证新 instance 的 no-action 观测仍清除旧维度 schema，不阻断独立状态反馈。
+故障由受控客户端注入，不声称真实 DDS 丢包测量。
+
+已安装 fake launch 的 `--show-args` 显示新参数和默认值，安装入口解析到当前源码。
+首次包级命令遗漏 `--install-base`，误选仓库内旧安装目录，在接口导入阶段失败；
+显式选择当前隔离 build/install 后重跑执行包，含原有四项真实 DDS 符号执行闭环
+及 lint，结果为 **71 tests, 0 errors, 0 failures, 0 skipped**。
+与其他包保留结果合计 **413 tests, 0 errors, 0 failures, 4 skipped**。
+未进行仿真物理、实机、机器人示范或多线程执行器验证。
+
+### 11.21 启动参数与运行对象一致性（2026-10-06）
+
+以 `adcb955` 为基线，真实 Node 参数写入复现了配置显示与实际对象不一致：
+HIL `max_linear_x_vel` 设置为 `1.2` 返回成功，查询显示 `1.2`，实际限幅仍为
+`0.5`；执行节点参数显示 timeout `7.0` / delay `2.0`，缓存仍为 `5.0` / `0.5`。
+2D/6D monitor 的模型路径及 2D 消息类型同样可成功写入，却没有重载模型或订阅。
+
+五个节点中这些初始化后缓存的参数现在以 `ParameterDescriptor(read_only=True)`
+声明：HIL 两个 controller 的全部配置、执行节点的 delay/快照 timeout、标准
+monitor 的路径及 2D 消息类型。运行时写入明确拒绝，参数显示与缓存保持一致；
+启动 CLI/parameter overrides 仍先应用再构造对象，`use_sim_time` 保持动态。
+三个包补齐直接 `rcl_interfaces` 依赖声明，无新增配置框架或运行时重载逻辑。
+区域、仲裁公式、任务、执行身份和既有计时语义保持不变。
+
+新增 **5 passed**：HIL 两个 Node 验证配置只读、启动覆盖、动态 ROS 时钟参数
+及混合原子写入的全体拒绝；两个 monitor 验证路径/类型写入拒绝、原模型反馈
+继续工作及动态时钟参数；执行 Node 通过真实 DescribeParameters、SetParameters
+和 SetParametersAtomically 服务检查公开 descriptor、拒绝结果、启动 timeout/delay
+缓存以及原子失败不修改 `use_sim_time`。修复后的同一 HIL probe 返回失败，
+查询值、策略限幅和输出均保留 `0.5`。
+
+仅重新构建并串行重跑三个受影响包：执行 **72 tests / 0 skipped**、HIL
+**83 tests / 1 skipped**、标准 TS **36 tests / 1 skipped**，合计
+**191 tests, 0 errors, 0 failures, 2 skipped**；包含原有 controller、IRL、
+TrapDetection、monitor Launch、真实 DDS 符号执行闭环及 lint。
+与其他包保留结果合计 **418 tests, 0 errors, 0 failures, 4 skipped**。
+这些检查不构成实机、物理仿真或机器人示范验证。
+
+### 11.22 fake 执行延迟与 timer 生命周期（2026-10-06）
+
+以 `bd13d7f` 为基线，默认执行 Node 启动时接受 NaN、Inf 和 `1e10` 秒延迟，
+却在首次调度时分别触发浮点转换或原生 timer 范围异常。真实 ROS probe 同时
+复现三个 one-shot 完成后 `Node.timers` 仍为 4（初始为 1），节点销毁后
+`_execution_timers` 仍保留一个已销毁的 timer 引用。
+
+`FakeBackend` 现在构造时拒绝非数值、非有限和负延迟；默认 ROS Node 额外
+使用 `Duration` 检查与原生 timer 相同的纳秒表示范围，错误提前发生在启动时。
+通用 scheduler 和自定义 backend 不额外受 ROS 范围约束。零延迟仍使用原有
+1 毫秒异步 timer，执行延迟仍使用 ROS clock；快照重试的 steady clock 不变。
+
+one-shot 回调结束后通过 `finally` 销毁 timer，保留回调异常的传播。销毁节点
+时先清空执行 timer 集合，再取消并释放资源；已排队回调与后续调度均受关闭
+状态保护，不能再修改 fake plant。修复后的真实 probe 显示三个步骤完成后
+timer 数量从 4 回到 1，销毁后 Node timer 与执行 timer 集合均为 0。
+
+两个定向测试文件共 **38 passed**，较基线新增 **19** 项检查，覆盖纯 backend
+延迟、默认 Node 启动拒绝、原生 timer 释放、回调异常后的释放与继续调度、
+销毁后已排队回调、零延迟及自定义 backend 的独立调度契约。
+仅重跑受影响的执行包，含原有四项真实 DDS 符号执行闭环、快照恢复与 lint：
+**91 tests, 0 errors, 0 failures, 0 skipped**。与其他包保留结果合计
+**437 tests, 0 errors, 0 failures, 4 skipped**。
+timer 数量检查不构成 RSS 或性能测量；未进行物理仿真、实机或多线程执行器验证。
+
+### 11.23 fake 异步反馈异常后的忙碌状态（2026-10-06）
+
+以 `1cf767c` 为基线，注入一个抛异常的 plant listener 后，异步步骤已经将
+plant 从 `r1` 改为 `r2`，但没有调用 completion，manager 一直保持
+`in_flight=True`，下一序号被判为 busy。通过真实 ROS timer 和受控 TS publisher
+复现相同故障：timer 已释放，执行器仍忙碌。新增三个回归均在基线上失败；
+原有两项选中的故障检查通过。
+
+`FakeBackend` 仅在异步 `plant.set_state` 抛普通 `Exception` 时先报告一次失败
+completion，再重新抛出原错误，manager 因而释放忙碌状态并记录失败原因。
+已发生的 plant 更新保留，未成功交付的 TS 反馈不补造；不修改 listener fanout、
+执行身份、去重或观察管线。相同序号不自动重派；调用方处理异常、恢复观察端并
+接收新的有效步骤后可以继续派发。异常仍从 executor 抛出，本轮不增加顶层自动恢复。
+
+两个定向测试文件共 **41 passed**，含新增三项：一次失败 completion 与原错误、
+实际 plant 状态保留、manager 释放、旧步骤去重和新步骤执行；真实 Node 检查还
+验证 timer 资源已释放。故障 publisher 和快照 Future 为受控 fixture，并非真实
+DDS 网络故障测量。
+仅重跑受影响的执行包，含原有四项真实 DDS 符号执行闭环、快照恢复与 lint：
+**94 tests, 0 errors, 0 failures, 0 skipped**。与其他包保留结果合计
+**440 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或多线程执行器验证。
+
+### 11.24 观测管线销毁后的晚到回调（2026-10-06）
+
+以 `cf0cb71` 为基线，保存 observer 回调模拟已排队观测后销毁真实 ROS Node：
+`stop()` 虽然已清空 observer 当前回调，保存的旧回调仍进入 abstraction 和
+TS publisher，触发 `InvalidHandle: cannot use Destroyable because destruction
+was requested`。同一新增回归在基线上失败。
+
+观测回调入口现在检查已有的 `_shutting_down` 状态；关闭后直接丢弃晚到观测，
+在 abstraction、日志与发布之前返回。活动节点的观察、schema 校验和 TS 状态
+权威保持不变，不新增 observer 框架或更改原有 `start/stop` 生命周期。
+
+新增 **1 passed**：活动时有效观测正常进入 abstraction；销毁后 observer 已
+停止，保存的回调对有效及不支持的输入均不再调用 abstraction，也不访问已
+销毁 publisher。该检查直接交付保存的 callback，不作为多线程竞争测量。
+仅重跑受影响的执行包，含原有四项真实 DDS 符号执行闭环、快照恢复与 lint：
+**95 tests, 0 errors, 0 failures, 0 skipped**。与其他包保留结果合计
+**441 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或多线程执行器验证。
+
+### 11.25 快照构造内的重复转换（2026-10-06）
+
+以 `b1aa31e` 为基线，快照服务已经保留提交时的完整消息并返回防御性副本；
+重复开销位于一次构造内部。Büchi 排序及消息填充重复计算 identity，Product
+排序和消息填充重复转换 TS 值，并在多个 Product 节点中重复计算同一 Büchi
+对象的 identity。本轮保留服务防御性复制，只在一次转换中复用不可变 tuple。
+Product 属性持有 TS/Büchi 对象，局部缓存以对象身份为键，结束构造后释放；
+每个 Product 消息的 `states` 仍创建新 list，不跨图或 generation 保留缓存。
+结构化排序、公开 ID、边/接受运行验证及 flatten 规则保持不变。
+
+同一批三个既有小图上加载旧版 serializer，与新版完整消息、Product ID 映射
+以及实际 `serialize_message` / `deserialize_message` 结果对照，均相同。
+下表计数每次构造的 helper 调用，采用相同 planner 对象和 active TS hash：
+
+| fixture | B/P 节点数 | Büchi identity 旧→新 | TS 值转换旧→新 | 新旧 CDR 长度 |
+|---|---:|---:|---:|---:|
+| MINIMAL，hard `<> r2`，soft 空 | 2/4 | 8→5 | 8→2 | 836/836 |
+| MINIMAL，soft `(r2 || ! r2)` | 4/8 | 16→11 | 16→3 | 1588/1588 |
+| KTH，hard `<> r3`，同一 soft | 4/24 | 32→11 | 48→10 | 4868/4868 |
+
+本机对相等旧版消息的重复序列化曾出现原始 CDR 字节差异；本轮报告完整字段、
+ID 映射和实际编解码结果相等，不宣称原始字节逐一相同。helper 调用数不作为
+整体规划耗时、吞吐或 RSS 测量。
+
+两个定向文件共 **12 passed**，新增三项检查覆盖 single/safe Büchi 的状态值
+列表独立性、重新构造不受先前消息修改影响，以及 Büchi 属性改变后新构造
+读取新 identity、ID 映射正确且旧消息保持不变。既有 shape mismatch 仍拒绝。
+仅重跑受影响的 planner 包：**102 tests, 0 errors, 0 failures, 1 skipped**，
+含 Action、Launch、事务与 lint；另重跑执行包原有四项真实 DDS 闭环，**4 passed**。
+与其他包保留的 colcon 结果合计 **444 tests, 0 errors, 0 failures, 4 skipped**；
+额外直接运行的 DDS 检查不再次累计到这一总数。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.26 服务快照副本与状态锁（2026-10-06）
+
+以 `6c17694` 为基线，服务在 `_state_lock` 内 deepcopy 整个保留快照。
+受控 Event 暂停复制时，另一线程无法获得此锁；释放复制后才可以获得锁。
+ROS 默认 callback group 仍互斥，实际共享此锁的并发参与者包括 PlanLTL 和
+IRL 的独立 worker。本轮仅减少服务复制的锁占用，不改变 callback group。
+
+所有权检查确认保留消息只在初始化/TS 替换时清空，或在提交时被新的独立副本
+替换；metadata 在安装为 active 之前赋值，随后不原地修改。服务仍返回防御性
+副本。现在仅在锁内捕获 snapshot 引用与 active TS hash，再在锁外复制。
+局部引用保留捕获对象；复制期间新代际提交不会混合旧响应的身份、图或运行。
+API 文档明确一次响应对应捕获时的完整代际，复制期间可能已有更新提交。
+
+新增 **3 passed**，三项均在基线上因复制持锁而失败。使用真实 ROS 消息、
+实际服务/commit helper 与 RLock/Event/Thread 受控 fixture，覆盖可用快照、
+转换不可用及尚无快照：复制被暂停时另一线程获得锁并提交 generation 8；
+响应仍为捕获的 generation 7 或旧的无快照/hash 结果，旧消息保持不变，
+修改响应也不影响当前保留副本；候选输入不被 commit 原地修改，执行序号归零。
+这些 helper 检查不调用 planner，不作为 ROS 多线程 executor 压力或实时性验证。
+
+重跑受影响的 planner 包：**105 tests, 0 errors, 0 failures, 1 skipped**，
+含既有只读服务、候选可见性、事务、Action、Launch 与 lint；另重跑原有四项
+真实 DDS 符号执行闭环，**4 passed**。与其他包保留的 colcon 结果合计
+**447 tests, 0 errors, 0 failures, 4 skipped**，额外 DDS 检查不重复累计。
+未测量整体耗时、吞吐或 RSS；未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.27 接受运行索引的单次边扫描（2026-10-06）
+
+以 `c0b6bd8` 为基线，执行器首次索引快照时，先构造全部 Product 边的
+端点集合检查接受运行，再扫描全部边构造动作查询。现在仅完整扫描一次，
+记录命中的运行端点与边引用；先按原有运行顺序报告缺边，再检查缺节点，
+最后只对命中的边构造动作查询。运行结构校验、错误优先级、执行身份、
+符号状态/动作歧义规则与缓存原子替换保持不变。
+
+新旧 resolver 外部对照共 **11 个 case**：prefix、suffix、closing、自环的
+完整 `ExecutionStep`，以及缺边、缺节点、两者同时缺失、重复节点 ID、
+边界不匹配、目标歧义和缺边与不可哈希动作并存时的异常类型/精确消息，
+全部相同。仓库 resolver 定向检查 **15 passed**；新增两项缺 closing edge
+检查，并加强缺节点时保留原缓存的检查。这些检查在基线上也通过，用于
+确认优化保持原有拒绝规则，不作为修复原有错误的 RED 证据。
+
+另以预先构造的固定 **128 nodes / 16,384 edges / 4 retained pairs** 图对照：
+首次索引的完整边遍历从 **2 次 / 32,768 项** 降为 **1 次 / 16,384 项**；
+完整执行步骤相同。同一快照第二次解析时，新旧版本的边、节点及运行序列
+遍历增量均为零。在同一次新旧 probe 中，首次解析的 `tracemalloc` 峰值为
+**1,446,060 → 15,204 bytes**。此数值仅为该预构造 fixture 下首次解析的
+Python 分配峰值，未包括图构造，不代表 RSS、一般规划规模或端到端性能。
+
+仅重跑受影响的 execution 包，包含原有四项真实 DDS 符号执行闭环及 lint：
+**97 tests, 0 errors, 0 failures, 0 skipped**。结合其他包保留结果，合计
+**449 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.28 HIL 人工输入的 ROS 时间年龄（2026-10-06）
+
+以 `65792ae` 为基线，Velocity 控制器只检查 `age < timeout`。人工输入于
+ROS 时间 10 接收、时间回退到 5 后，负年龄仍被判为新鲜；closest 与 trap
+两阶段的晚到响应均输出旧人工速度 0.3，而非最新导航速度 0.8。另一个问题
+是已观察到过期的样本仍留在缓存，时间返回原窗口后可以重新成为人工输入。
+
+现在 freshness 仅接受 `0 <= age < timeout`；检测到负年龄或过期时清空人工
+命令与接收时间，之后必须接收新输入。保持 ROS 时间口径、严格上界、ROS
+零时刻的有效接收、零 timeout 禁用人工输入，以及独立 steady 查询截止时间。
+混合曲线、限幅、TS 状态版本与异步请求身份规则不变。
+
+新增六项定向检查，在旧源码上为 **4 failed / 2 passed**，修复后均通过：
+两阶段异步回复在负年龄时回退导航并释放查询；负年龄与 timeout 边界失效后
+不能随时间返回而复活，新人工输入可恢复正常查询；零时刻接收在正 timeout
+下有效，零 timeout 下只通过导航。受控 fixture 使用真实 Node 与消息、记录型
+publisher 和 Future，ROS 时间与 steady 请求时间分开控制；不作为真实 DDS
+`/clock` 分发、机器人安全或实机测量。
+
+重跑受影响的 HIL 包，含既有控制器、TrapDetection/IRL 通信与 lint：
+**89 tests, 0 errors, 0 failures, 1 skipped**，其中 async 文件 **43 passed**。
+结合其他包保留结果，合计 **455 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.29 显式执行组件的选择（2026-10-06）
+
+以 `90c4e57` 为基线，执行节点用 `or` 选择默认 backend、observer、abstraction
+及 fake plant，并以 `if not backend` 决定 fake 延迟校验。符合既有接口、但
+布尔值为 False 的显式组件被默认对象替换：后端收不到正式步骤，观测器没有
+注册回调，合法独立状态被默认 abstraction 丢弃，所提供的 plant 未被更新。
+
+现在仅对 `None` 参数创建默认组件；默认 backend 与 observer 共享所提供的
+plant，自定义 backend 保留其既有调度契约。默认 fake 延迟的有限性、非负性
+与 ROS timer 范围检查保持不变。执行身份、步序去重、completion 与 TS 状态
+权威、快照请求及 timer 逻辑不变。
+
+新增五项在旧源码上均失败，修复后通过：显式后端收到正式 `move` 步骤且
+不创建 fake timer；自定义后端未使用的 fake 延迟构造覆盖不再被错误校验；
+observer 注册/停止与 abstraction 的独立观测转换正常；默认 fake 执行确实
+更新所提供的 plant 并通过其 observer 报告状态。检查使用真实 Node、受控
+快照 Future、调度回调与发布记录，不作为新增真实 DDS 故障或实机测量。
+
+重跑受影响的 execution 包，包含原有四项真实 DDS 符号执行闭环及 lint：
+**102 tests, 0 errors, 0 failures, 0 skipped**，node 文件 **23 passed**。
+结合其他包保留结果，合计 **460 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.30 TrapDetection 单次反向可达搜索（2026-10-06）
+
+以 `84b1399` 为基线，TrapDetection 对每个候选 Product 状态和接受环节点逐对
+调用 `has_path`，只要任一候选能到达 `accept_with_cycle` 中的任一节点便为
+非 trap。现在对端点完整的正常 directed Product/set 输入，从接受节点进行
+一次反向多源 BFS，遇到候选便短路；仅使用本次查询的 visited/deque。
+其它输入保留原始逐对查询，以保持列表/迭代器顺序、缺失节点的异常及成功
+短路行为。连通性判定、接受环集合定义、边权与只读服务权威不变。
+
+新增十四项语义保持检查，含搜索方向、多候选/多接受节点、混合 safe/trap、
+自身可达、空集合、缺失端点的精确诊断、较早成功路径避开后续缺失节点，
+以及同一 Product 对象的边/接受集合变化。旧实现与新实现的 trap 文件均为
+**20 passed**，不作为原有算法出错的 RED 证据。
+
+外部新旧对照使用固定 **5 nodes / 5 self-loop edges / 3 candidates /
+2 accepting nodes** 图：判定均为 trap；旧实现调用 `has_path` **6 次**，
+新实现一次反向遍历，仅两个接受节点各展开 **1 次**，其余三个节点未展开。
+添加可达边后两版均为非 trap，移除该边并清空接受集合后均为 trap；空集合、
+缺失端点及有序短路的返回值或异常类型/精确消息相同。此计数不是整体耗时、
+吞吐或 RSS 测量；不进行跨请求图缓存，也不增加服务的并发锁保证。
+
+重跑受影响的 HIL 包，含既有控制器、TrapDetection 任务替换/只读身份检查、
+IRL 通信及 lint：**103 tests, 0 errors, 0 failures, 1 skipped**。
+结合其他包保留结果，合计 **474 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.31 IRL 每轮权重的单次边扫描（2026-10-06）
+
+以 `5f47362` 为基线，IRL 每轮先通过 `update_beta` 重算全部 Product 边权，
+再完整扫描边添加非示范 margin。现在在私有学习 Product 的一次边遍历内
+设置 β、重置 `transition_cost + beta * soft_task_dist` 并按原顺序加 `1.0`。
+仅合并两次扫描；示范选择、梯度、步长、20 次上限、0.3 停止条件、接受性
+与隔离副本不变，公开的 `ProdAut.update_beta` 也未修改。
+
+新增四项权重保持检查，覆盖零/正 β、普通小数、`1e16` 运算顺序、连续修改 β
+及同一 β 重复迭代。每轮重新计算基础权重，margin 不累加；示范边无 margin，
+其它边属性不变。旧 helper 运行 **4 passed**，新 core 学习文件 **15 passed**，
+用于保持既有行为，不作为旧算法错误的 RED 证据。
+
+外部计数型 Product double 的四条边，在 β=0 与 β=2.5 时旧/新精确权重一致。
+旧 helper 调用实际仓库 `ProdAut.update_beta` 后再加 margin，共 **2 次遍历 /
+8 个 edge items**；新 helper 为 **1 次 / 4 项**。另在既有真实 `ProdAut`
+小图上，新旧完整 `IRLLearningResult` 字段相同，β 序列为 `(1, 2, 3, 3)`；
+两份源图的 β、initial、possible states 与边属性不变。计数 double 与完整
+学习对照分别验证，不作为整体耗时、吞吐、RSS 或学习效果测量。
+
+重跑受影响的 core 与 HIL 包：分别为 **120 tests / 1 skipped** 与
+**103 tests / 1 skipped**，均为 **0 errors / 0 failures**；包含真实 ROS 2
+IRL 通信、规划核心与 lint。结合其它未改包保留结果，合计
+**478 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机示范或 Jazzy 独立验证。
+
+### 11.32 执行快照 suffix 结构检查（2026-10-06）
+
+以 `660e2c7` 为基线，执行 resolver 会接受末尾重复起点的 suffix；若起点
+还有自环，该自环会被额外计为闭合边。既有 `AcceptedRunSnapshot.msg` 规定
+首节点不在末尾重复，planner serializer 也已拒绝此形态。现在 resolver 在
+边界校验后拒绝长度大于 1 且首末相同的 suffix，使用明确 `ResolutionError`。
+合法单节点 suffix 仍通过 Product 自环闭合，无接口消息或规划语义变更。
+
+新增四项定向检查：两项纯 resolver 坏 suffix `(3, 3)` 与 `(3, 4, 5, 3)`
+在旧实现均因未抛错失败；额外 `3 -> 3` 边存在，排除原缺边校验导致的拒绝。
+合法 `(3,)` suffix 检查在旧实现即通过。另用真实 ROS Node/消息与受控
+snapshot Future，旧代码收到 `[2, 2]` suffix 后确实派发一次 `move`，因此
+不分派断言失败。修复后坏快照拒绝、manager 不忙碌，并接受后续有效代际。
+两项纯 resolver 检查还验证拒绝不替换原有效索引，原快照仍可正常解析。
+
+重跑 execution 包：**106 tests, 0 errors, 0 failures, 0 skipped**，
+resolver 文件 **18 passed**，node 文件 **24 passed**；含原有四项真实 DDS
+符号执行闭环与 lint。新增坏快照场景不作为真实 DDS 网络故障或机器人测量。
+结合其它未改包保留结果，合计 **482 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.33 ltl2ba 进程失败诊断（2026-10-06）
+
+以 `26af9a9` 为基线，translator 被找到但无法执行时会泄漏原始 `OSError`；
+信号终止的负退出码被 Planner 当作 `ERROR_INVALID_GOAL`，空诊断还显示
+`Unknown ltl2ba error`。现在启动异常统一为保留原 cause 的 `LTL2BAError`，
+负退出码明确报告信号号并保留可用 stderr/stdout。Planner 仅把正退出码
+映射为既有 `ERROR_INVALID_GOAL`，信号终止返回 `ERROR_INTERNAL`。
+参数列表、默认 translator 超时、公式解析与事务式计划替换规则不变。
+
+新增三项检查在旧实现为 **2 failed / 1 passed**：受控启动 `OSError`
+没有包装，真实 ROS 2 Action 调用临时 POSIX 脚本自发 signal 9 后返回错误
+输入分类。正退出码 1 的诊断/分类检查原本通过。修复后，启动异常 cause、
+完整 subprocess 参数/调用者 timeout 均保留；两项 Action 检查确认 ABORTED
+以及活动 planner/run、执行序号与完整快照不变。临时脚本由本次 fixture
+创建并运行，不代表真实 translator 自身发生了崩溃。
+
+外部临时可执行文件/脚本对照验证非零退出、空 stdout、超时、Exec format
+error 和 signal 9 五条路径均为 `LTL2BAError`。Exec format 的 cause 为
+`OSError`，signal cause 为 `CalledProcessError(returncode=-9)`；正退出码
+保留 stderr 优先的原诊断。未测量崩溃率、进程树清理或总规划截止时间。
+
+重跑受影响 core 与 planner：分别为 **121 tests / 1 skipped** 与
+**107 tests / 1 skipped**，均为 **0 errors / 0 failures**；Action 文件
+**32 passed**，含既有真实 translator、ROS 2 通信与 lint。结合其它未改包
+保留结果，合计 **485 tests, 0 errors, 0 failures, 4 skipped**。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.34 hard/soft Büchi 后继复用（2026-10-06）
+
+以 `7e9cdb4` 为基线，hard/soft Büchi 组合原先为每个组合状态和两个 level
+重复枚举组件后继并读取 guard。现在仅在本次构建内，为每个组件节点保存
+有序的 `(target, guard)` 元组；下一次构建重新读取组件。节点/边插入顺序、
+全部节点属性、initial/accept/symbols/type、source 接受性驱动的 level 切换、
+组件图引用和原 guard 对象引用均保持不变。公式翻译、软任务距离与代价不变。
+
+新增四项检查在旧实现与新实现均通过，用于语义保持，不作为 RED 错误证据。
+手工指定的 2 个 hard / 3 个 soft 状态覆盖全部 level 切换、12 个节点与
+24 条边的顺序、属性及解析 guard 的引用身份；两个参数化场景分别覆盖无边
+hard/soft 组件；更新同一组件 guard 后重新构建验证本次复用不跨调用保留。
+
+外部临时 probe 分别加载旧提交与新源码，并使用计数型 DiGraph 执行实际
+构建函数。固定 12 nodes / 24 edges 图的节点、边、属性及顺序一致，每版
+均引用自己的输入组件 guard。后继枚举调用 hard 12→2、soft 12→3，合计
+24→5；枚举项 hard 24→4、soft 12→3，合计 36→7。该计数使用受控组件，
+不作为原生 translator 新旧对照、端到端耗时、吞吐或 RSS 测量。
+
+重跑受影响 core 与 planner：分别为 **125 tests / 1 skipped** 与
+**107 tests / 1 skipped**，均为 **0 errors / 0 failures**，合计
+**230 passed / 2 skipped**。含新增四项、既有真实 translator、ROS 2 Action
+通信与 lint；跳过项为原有版权头检查。结合其它未改包保留结果，合计
+**489 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.35 Product 的 TS 后继复用（2026-10-06）
+
+以 `7e1bc97` 为基线，`ProdAut.build_full` 原先随每个 Büchi 源状态重复
+枚举同一 TS 源状态的后继和边属性。现在只在每个 TS 源状态的局部范围内，
+按原顺序保存 `(target, 原 edge dict)` 元组。Büchi 外层循环、composition
+调用顺序、原位置的 weight/action 读取及 `cost + beta * dist` 运算不变。
+保留 source-label、guard 求值复用、节点/边顺序与属性、initial/accept/
+accept_with_cycle、possible_states 和 TS/Büchi 引用。每次重建重新读取输入；
+局部表额外占用与当前 TS 源状态出度成比例的空间，无跨调用缓存。
+
+新增四项检查在旧实现与新实现均通过，不作为 RED 错误证据。三个参数化
+场景使用解析 guard，分别检查 hard/soft/safe Büchi 下分支、孤立状态与无边
+Büchi 状态的手工指定节点/边顺序、属性、接受集合和源标签软任务代价；另
+一项更新 TS 的后继、weight/action 和 initial 后重建，验证新值与旧边清除。
+
+外部临时 probe 加载实际旧提交和新源码，以计数型 DiGraph 构建相同三个
+9 nodes Product，边数分别为 4 / 6 / 4。新旧有序图属性与完整接受运行字段
+一致（已消费的 zip 迭代器按其剩余元素序列比较），输入 TS 节点/边属性
+保持不变；修改输入后的重建结果也一致。每图 TS 后继枚举调用及枚举项
+均从 9 降到 3。该 probe 使用受控 TS/Büchi，不作为原生 translator 新旧
+对照、端到端耗时、吞吐、RSS 或大图峰值内存测量。
+
+重跑受影响 core 与 planner：分别为 **129 tests / 1 skipped** 与
+**107 tests / 1 skipped**，均为 **0 errors / 0 failures**，合计
+**234 passed / 2 skipped**；Product 文件 **13 passed**。含既有真实
+translator、ROS 2 Action 通信与 lint；跳过项为原有版权头检查。结合其它
+未改包保留结果，合计 **493 tests, 0 errors, 0 failures, 4 skipped**，
+并非本轮重跑全部包。未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.36 TS 代价转换溢出诊断（2026-10-06）
+
+以 `b01d08f` 为基线，动作代价 `±10**400` 在 `math.isfinite` 中触发
+`OverflowError`，核心 helper 泄漏原异常，真实加载服务将其报告为
+`Unexpected transition-system loading failure`。现在只在既有权重验证内
+将该溢出视为无效，返回同一条 `ValueError` 权重诊断。bool/Real、有限性和
+非负性规则、有效代价的原类型和值、guard 与图构造不变；服务的其它异常
+分类及允许加载的生命周期状态不变。API 文档同步说明该无效权重诊断。
+
+三项新增检查在旧实现均失败：两个核心参数分别覆盖正/负超大整数，另一项
+通过真实 ROS 2 LoadTransitionSystem 服务加载含正超大整数代价的 YAML。
+修复后，核心两项均为 `ValueError`；服务明确返回
+`Action 'goto_r2' weight must be finite and nonnegative.`，保留已验证 TS
+对象、active hash 和 READY 状态，随后加载有效 TS B 成功并更新 hash。
+该场景在 READY 下没有活动计划，不作为 ACTIVE 计划替换、网络故障或
+机器人安全测量；没有扩大已接受数值范围或钳制权重。
+
+重跑受影响 core 与 planner：分别为 **131 tests / 1 skipped** 与
+**108 tests / 1 skipped**，均为 **0 errors / 0 failures**，合计
+**237 passed / 2 skipped**；TS 配置文件 **18 passed**，planner node 文件
+**27 passed**。含既有真实 translator、ROS 2 Action/服务通信与 lint；
+跳过项为原有版权头检查。结合其它未改包保留结果，合计
+**496 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.37 多维 TS 因子后继复用（2026-10-06）
+
+以 `03c8cda` 为基线，`TSModel.compose_edges` 原先随其它维度的组合状态
+重复枚举同一因子状态后继。现在在本次调用内，按维度维护局部表，只在首次
+遇到因子状态时保存有序 `(successor, 原 edge dict)` 元组。guard 仍逐项对
+完整源标签求值；维度/节点/边顺序、后维度覆盖相同端点的规则、全部属性、
+初始集合、单维分支与 guard cache 保持不变。局部表不跨调用，额外空间随
+实际遇到的因子状态及其出边增长；空组合不枚举，缺失状态保留 NetworkXError。
+
+四项新增检查在旧实现与新实现均通过，不作为 RED 错误证据。手工指定的
+4 nodes / 7 edges 小图检查跨维 guard、自环覆盖、顺序与完整属性；另三项
+分别覆盖因子 guard/边/动作/代价/初始状态更新后的重建、空因子和缺失状态。
+
+外部临时 probe 加载实际旧提交与新源码，以计数型 DiGraph 及原 guard 检查
+构建固定小图和仓库 YAML。新旧完整有序 TS/图元数据一致，输入因子属性
+不变，guard 调用的条件与源标签序列一致；修改固定小图后的重建结果也一致。
+
+| TS | 节点 / 边 | 后继枚举调用（旧→新） | 枚举项（旧→新） | guard 检查调用（两版相同） |
+|---|---:|---:|---:|---:|
+| 固定小图 | 4 / 7 | 8→4 | 12→6 | 12 |
+| KTH YAML | 6 / 10 | 12→5 | 14→6 | 14 |
+| Demo-D1 YAML | 30 / 92 | 60→17 | 120→47 | 120 |
+| minimal 单维 YAML | 3 / 3 | 0→0 | 0→0 | 3 |
+
+单维构建直接复制因子邻接关系，本次未修改该分支。以上仅为实际构造函数的
+操作计数，不作为端到端耗时、吞吐、RSS 或大图峰值内存测量。
+
+重跑受影响 core 与 planner：分别为 **135 tests / 1 skipped** 与
+**108 tests / 1 skipped**，均为 **0 errors / 0 failures**，合计
+**241 passed / 2 skipped**；TS 文件 **11 passed**。含既有真实 translator、
+ROS 2 Action/服务通信与 lint；跳过项为原有版权头检查。结合其它未改包
+保留结果，合计 **500 tests, 0 errors, 0 failures, 4 skipped**，
+并非本轮重跑全部包。未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.38 混合大小写命题名解析（2026-10-06）
+
+以 `0135a03` 为基线，原生 `ltl2ba` 成功翻译 `cargoReady1` 和
+`dangerZone2`，但 Boolean guard lexer 在 R/Z 抛出 ValueError，Promela
+命题元数据也会拆分名称。两处正则现在统一为 `[a-z][a-zA-Z0-9_]*`，完整
+保留小写起首的混合大小写名称；不 lower，不修改 guard truth/distance、
+source-label、接受性或代价。true/false 过滤、排序去重与非法字符处理保持
+不变。原生工具对首字母大写 `Cargo1` 和首字符下划线 `_cargo` 的拒绝已由
+外部小 probe 确认，本次没有扩展这些范围；README/API 同步说明名称约束。
+
+四项新增检查在实际旧 lexer/元数据源码上均失败：纯 guard 检查、命题元
+数据、真实 translator 的 hard/soft/组合 Büchi 检查，以及真实 ROS Action。
+修复后保留 `cargoReady1` / `dangerZone2` 完整名称，且与全小写变体区分；
+解析 guard 的手算 truth/distance 和原生 Büchi guard symbol 均符合预期。
+
+Action 经真实加载服务使用 r1→cargoReady1 与后者自环的 TS，硬任务
+`<> cargoReady1`、软任务 `[] !dangerZone2`、beta=1000、gamma=10。
+prefix 动作代价 2+1=3，组合 Büchi 接受 suffix 的两次自环代价为 2，
+总代价 `3 + 10 * 2 = 23`。相同任务改为 `<> cargoready1` 后 ABORTED /
+ERROR_NO_ACCEPTING_PLAN，原 planner 对象、generation、ACTIVE 状态和完整
+快照保持不变。该符号小图不作为物理机器人或示范学习效果测量。
+
+重跑受影响 core 与 planner：分别为 **138 tests / 1 skipped** 与
+**109 tests / 1 skipped**，均为 **0 errors / 0 failures**，合计
+**245 passed / 2 skipped**。Boolean 文件 **10 passed**，Promela 文件
+**20 passed**，原生 Büchi 文件 **5 passed**，Action 文件 **33 passed**；
+含既有真实 translator、ROS 2 通信与 lint，跳过项为原有版权头检查。
+结合其它未改包保留结果，合计 **504 tests, 0 errors, 0 failures, 4 skipped**，
+并非本轮重跑全部包。未进行物理仿真、实机或 Jazzy 独立验证。
+
+### 11.39 守卫 token 队列消费（2026-10-06）
+
+以 `b845369` 为基线，Boolean Parser 原先通过 `list.pop(0)` 消费 token，
+每次搬移剩余元素。现在内部 token 集合使用 `collections.deque`，全部
+消费位置改用 `popleft()`。首项查看与剩余符号查询仍保持原顺序，语法、
+左结合构树、NNF、formula、truth/distance 及诊断不变。仓内没有调用方
+依赖内部 tokens 的 list 专有操作；本次不修改递归算法或其深度限制。
+
+三项新增检查在实际旧提交与新实现均通过，不作为 RED 错误证据。一项用
+手算 NNF 检查四个命题的全部 16 个标签组合、优先级及解析前后 symbols；
+另外两项检查 256 命题 AND/OR 的有序 AST、真值、距离与完整消费。
+
+外部临时 probe 加载实际旧源码与当前源码，以计数型 list/deque 记录真实
+解析方法的消费。10 个有效和 10 个错误守卫的新旧 AST/NNF、formula、
+truth/distance、精确错误信息、token 类型/值/行号/位置消费序列、剩余
+token 和 symbols 一致。256 命题 AND 与 OR 各消费 511 个 token，剩余
+元素搬移数各由 130,305 降为 0；未测端到端耗时、吞吐、RSS 或深层守卫容量。
+
+仅重跑受影响 core：**141 tests / 1 skipped**，**140 passed**，
+**0 errors / 0 failures**，含真实 translator、图构造、代价/接受性、IRL
+与 lint；Boolean 文件 **13 passed**，跳过项为原有版权头检查。结合
+planner 等其它未改包保留结果，合计
+**507 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+未进行本轮 ROS 通信重跑、物理仿真、实机或 Jazzy 独立验证。
+
+### 11.40 可达 Product 的 SCC 搜索（2026-10-06）
+
+以 `b7c400b` 为基线，prefix Dijkstra 已算出可达节点，搜索阶段的额外 SCC
+遍历却仍处理完整 Product。现在只对 prefix 可达节点诱导的只读 DiGraph
+view 遍历 SCC；合法接受环的每个节点必定从起点可达，因此不排除有效环。
+显式选择 DiGraph view 避免调用需要 ts/buchi 参数的 ProdAut 构造器，
+view 共享原属性而不复制完整 Product。prefix/suffix Dijkstra 仍使用原图，
+候选顺序、目标函数、闭合边计费、tight 恢复、零代价、None 隐藏边及输入
+状态不变。无跨调用缓存；Product 构建时的接受环预计算未改。
+
+三项新增检查在实际旧提交与新实现均通过，不作为 RED 错误证据。覆盖
+不可达接受环和添加/移除连接后的重新搜索、显式断开起点、None 隐藏边；
+手算代价分别为 5→0→5、0，以及默认/隐藏起点下的 32/30。输入 TS 边、
+Product 边、initial/accept/accept_with_cycle/possible_states 保持不变。
+
+外部临时 probe 加载实际旧/新搜索源码，计数型只读 DiGraph view 在真正的
+NetworkX SCC 算法入口记录邻接读取。九组查询的完整接受运行字段（已消费
+zip 按剩余序列比较）和输入 TS/Product 一致，覆盖固定断开密图、切换
+起点、连接再断开、隐藏边、空起点及真实 translator 的 KTH Product。
+
+| 查询 | SCC 处理节点（旧→新） | 邻接读取调用（旧→新） | 邻接项扫描（旧→新） | 两版总代价 |
+|---|---:|---:|---:|---:|
+| 固定图：3 可达节点 + 32 节点断开完全有向图 | 35→3 | 103→8 | 2,586→11 | 32 |
+| 固定图：显式断开起点 | 35→32 | 103→95 | 2,586→2,575 | 0 |
+| 固定图：新增连接 | 35→35 | 104→104 | 2,590→2,590 | 0 |
+| 原生 KTH，gamma=0 / 10 | 24→14 | 67→41 | 155→91 | 10 / 210 |
+
+移除连接后恢复第一行计数；空起点两版均不调用 SCC。以上仅涵盖搜索阶段
+SCC 的处理节点和邻接操作，view 过滤仍有成本；不作为端到端耗时、吞吐、
+RSS 或整个 Product 构建加速测量。
+
+仅重跑受影响 core：**144 tests / 1 skipped**，**143 passed**，
+**0 errors / 0 failures**；离散规划文件 **16 passed**，含真实 translator、
+图构造、代价/接受性、IRL 与 lint，跳过项为原有版权头检查。结合 planner
+等其它未改包保留结果，合计
+**510 tests, 0 errors, 0 failures, 4 skipped**，并非本轮重跑全部包。
+未进行本轮 ROS 通信重跑、物理仿真、实机或 Jazzy 独立验证。
+
+### 11.41 核心 β/γ 转换溢出诊断（2026-10-06）
+
+以 `24d95ea` 为基线，直接调用 Python 核心接口并传入 β/γ=`±10**400`
+时，`LTLPlanner.__init__` 的 isfinite 与 IRL 的 float 转换均泄漏
+`OverflowError`。现在 Planner 只捕获原验证表达式的 OverflowError，
+IRL 将该类型加入原 float 转换的捕获范围；各自返回既有精确 ValueError
+诊断，并以 cause 保留原溢出。bool/有限性/非负规则不变，Planner 保留
+有效输入的原对象，IRL 保留 float 归一化及数值字符串接受行为。
+目标函数、示范选择、margin、梯度、步长、20 次上限和停止条件未改。
+
+八项新增检查在实际旧提交源码上全部失败，修复后全部通过：两个入口各
+覆盖 β/γ 与正/负超大整数。Planner 诊断为
+`{name} must be finite and nonnegative.`，IRL 为
+`{name} must be finite and non-negative.`。IRL 在 deepcopy 和 margin
+规划前拒绝无效输入，源边属性、β、initial 与 possible_states 保持不变。
+外部小对照确认 int 0/1000、float 2.5、Fraction 1/3 和 Decimal 2.5 五类
+有效输入的 Planner 对象与 IRL float 结果保持一致；IRL 的字符串 2.5
+接受行为与 Planner 对字符串权重的 TypeError 保持原状，未扩大输入范围。
+
+仅重跑相关 `test_ltl_planner.py` 与 `test_irl.py`：分别 **26 passed** 和
+**19 passed**，合计 **45 passed**，含既有真实 translator 规划检查。
+两个源码 py_compile/ament_flake8 与两个测试文件 ament_flake8/pep257 均
+通过；文档链接、40 节历史验证记录保留及 diff 检查通过。本轮没有重跑整包、
+ROS 通信、物理仿真、实机或 Jazzy，也不作为学习收敛/效果测量；超大整数
+是 Python 接口的触发输入，没有通过 ROS double 字段传输该数值。
+
+### 11.42 IRL 合流示范后继复用（2026-10-06）
+
+以 `224120b` 为基线，可选 IRL 记录器原先对每条历史分别枚举 Product
+末尾状态的相同后继。现在在单次 `update_possible_runs` 内按末尾状态
+保存匹配本次 TS 反馈的有序后继元组，仍对每条历史分别追加并返回完整
+路径集合。实际已构建 Product 边保持权威；不从 TS/Büchi 推测，不剪枝
+或合并不同历史，不改 buffer 阈值、发布、触发、宿主身份或学习规则。
+局部表不跨调用，额外空间随本次不同合法末尾状态及其匹配后继增长。
+
+两项新增 fake-host 检查在实际旧提交与新实现均通过，不作为 RED 错误
+证据。覆盖不同长度历史合流到同一状态、全部匹配后继、无匹配反馈、
+后继删除/恢复后重新更新，以及空/缺失/不可哈希末尾、重复历史、迭代器
+和同状态自环；输入历史、Product 边和 possible_states 保持不变。
+
+外部临时 probe 加载实际旧/新源码并运行四项 fake-host 检查，两版各
+**4 passed**。计数型 DiGraph 上 6 条有效合流历史、6 个后继（4 个匹配）
+均输出同一完整 24 条路径：后继枚举调用 **6→1**，枚举项 **36→6**，
+受控观测对象记录的状态比较 **36→6**。无匹配、删/恢复后继、无效及
+重复历史的完整路径集也一致，源图不变，下一调用读取修改后的边。
+计数不作为端到端耗时、吞吐、RSS 或示范学习效果测量。
+
+只重跑相关 `test_irl_plugin.py` launch 文件：pytest **1 passed**，包含
+真实 ROS 2 Action/Bool/DDS 示范记录与学习提交检查；保留 generation
+更新、step 归零和启动 β/γ 参数不回写。源码 py_compile/ament_flake8、
+测试文件 ament_flake8/pep257、文档链接/41 节历史正文保留及 diff 检查
+通过。本轮未重跑整包、物理仿真、实机或 Jazzy，不作为 IRL 收敛证明。
+
+### 11.43 IRL 诊断消息 TS 转换复用（2026-10-06）
+
+以 `592c561` 为基线，`publish_possible_runs` 原先随每个 Product 状态
+重复展开相同 TS 值。现在只在本次发布内按 TS 状态保存不可变值元组，
+每条 ROS `states` 字段仍创建新列表。repr 排序、完整 run/state 数量、
+维度名称、Büchi 字符串、发布及示范/学习规则不变。局部表不跨调用，
+额外空间随本次不同 TS 状态及其展开值增长，不复用 ROS 消息对象。
+
+一项新增 fake-host 检查在实际旧提交与新实现均通过，不作为 RED 错误
+证据；覆盖组合两维 TS、有序 Büchi 字段、列表独立性及调用方修改后
+重新发布。外部临时 probe 加载实际旧/新源码，两版各 **5 passed**，并
+对照单维共享、组合两维共享、24 条合流路径和空消息四个小 fixture。
+全部有序 ROS 字段、真实编解码结果和所有非填充序列化字节相同，输入
+图与 run 集合不变；每个 states 列表独立，第二次发布重新执行转换。
+
+单维 3 条路径 / 6 状态记录的顶层展开调用为 **6→1**；组合两维相同
+记录也为 **6→1**。24 条两维路径 / 72 状态记录共 8 个不同 TS 状态，
+顶层调用 **72→8**，包括递归在内调用 **360→40**。空消息两版均为 0。
+这是函数操作计数，不作为端到端耗时、吞吐、RSS 或消息压缩测量。
+
+初始原始字节全等检查在旧版同一消息重复序列化时也失败；根据当前
+string-only 消息定义逐字段检查，差异仅位于 CDR 对齐填充位，有效负载
+字节及真实 deserialize 结果一致。因此不声称原始字节串完全相同，也
+没有修改 ROS 序列化器或通过删除消息字段解决该差异。
+
+相关 `test_irl_plugin.py` launch 文件 pytest **1 passed**，含既有真实
+Action/Bool/DDS 示范记录与提交检查。源码 py_compile/ament_flake8、
+测试文件 ament_flake8/pep257、文档链接/42 节历史正文保留及 diff 检查
+通过。本轮未重跑整包、物理仿真、实机或 Jazzy，不作为 IRL 收敛证明。
+
+### 11.44 tight 路径恢复在目标发现时停止（2026-10-06）
+
+以 `da1e449` 为基线，距离搜索后的 `_restore_tight_path` 原先在发现
+目标后仍扫描当前节点其余后继及此前排队的兄弟节点，直到弹出目标。
+现在在首次设置目标的 parent 后结束 BFS；首次发现已经确定完整父节点
+链，后续访问不会覆盖它。保留起点顺序、邻接顺序、严格浮点 tight-edge
+判断、None 隐藏边、零代价环处理、缺失目标诊断和原始路径重建。
+距离搜索、接受性、目标函数及 IRL 学习规则不变；不改并列路径选择。
+
+三项新增检查在实际旧提交和新实现均通过，不作为 RED 错误证据。
+覆盖目标位于邻接首位/末位、零代价并列父节点与环、目标本身作为显式
+起点；手算路径分别为 source→target、source→a→target 和单节点 target。
+图边属性及距离表不变。外部临时 probe 加载实际旧/新源码，七组 helper
+调用的完整路径或精确 RuntimeError 诊断一致；含缺失/不一致距离和
+严格浮点距离及 None 隐藏边。两个真实 translator KTH Product 查询
+（gamma=0/10）的全部接受运行字段与输入图一致，总代价仍为 10/210。
+
+计数型 DiGraph 使用 32 个兄弟分支及各自尾节点。目标在 source 邻接
+首位时，恢复后继枚举调用 **1→1**、枚举项 **33→1**；目标在末位时，
+调用 **33→1**、枚举项 **65→33**。零代价并列图为调用 **3→2**、项
+**6→4**。显式目标起点、缺失目标和不可恢复距离的计数保持原样。
+计数仅覆盖路径恢复 helper，不包括 Dijkstra、SCC 或 Product 构建，
+不作为端到端耗时、吞吐、RSS、规划或学习效果测量。
+
+仅重跑相关 `test_discrete_plan.py`、`test_ltl_planner.py` 和 `test_irl.py`，
+分别 **19 passed**、**26 passed**、**19 passed**，合计 **64 passed**，
+含既有真实 translator 与 IRL 检查。源码 py_compile/ament_flake8、
+测试文件 ament_flake8/pep257、文档链接/43 节历史正文保留及 diff 检查
+通过。本轮未重跑整包、ROS 通信、物理仿真、实机或 Jazzy。
+
+### 11.45 IRL 学习内 margin 边表复用（2026-10-06）
+
+以 `5a28cba` 为基线，`learn_beta` 原先在每轮 margin 更新时重新枚举
+Product 边，并判断各边是否属于选定示范。一次学习的私有 Product 拓扑
+和示范边集合固定；现在在 deepcopy 后按原边顺序构造本次调用内的
+`(edge 属性引用, 非示范标志)` 元组表。每轮仍按原顺序更新全部边，
+从引用属性读取 transition_cost/soft_task_dist，先重置 canonical weight
+再按需加 1.0 margin；不复制属性字典或跨调用缓存。额外空间随边数增长，
+单轮学习未减少边枚举数量，并增加该临时表的构造成本。
+
+示范选择与并列时的首个选择、只读源图和私有 deepcopy 边界、距离搜索、
+浮点运算顺序、gradient、step、20 次上限及 0.3 停止阈值保持原样。
+公开 ProdAut.update_beta 和 learn_beta 接口未改变；仅内部 margin helper
+接收边表。原四项 margin 检查改用该内部签名，保留独立计算的期望权重。
+
+两项新增检查在实际旧提交和新实现均通过，不作为 RED 错误证据：
+固定大梯度/受控 suffix 运行完整 20 轮，核对前十次 +10、其后逐次
++10/(iteration+1)、全部 match scores 和每轮四条边的重置权重；同一
+私有 Product 被复用，源图不变。另一项在真实 margin 搜索后修改源边
+属性，再次学习得到 beta=0 的单轮结果，确认下一调用重新读取输入。
+
+外部临时 probe 加载实际旧/新源码，十组学习调用的完整结果、全部 β
+序列、逐轮边权重、完整规划运行字段或精确异常诊断一致；输入 Product、
+TS/Büchi 属性、initial/accept 集合和 possible_states 保持不变。覆盖
+beta=0/2.5、gamma=0、并列示范的两种顺序、源边修改后再调用、受控
+20 轮、反向梯度非负投影、无接受运行和未知示范节点。
+
+计数型边 view 与示范集合执行实际 margin 代码。固定四边图的四轮真实
+搜索，边枚举调用 **4→1**、枚举项 **16→4**、示范成员判断 **16→4**，
+两版 β 序列均为 (1, 2, 3, 3)。受控 20 轮为调用 **20→1**、项与成员
+判断各 **80→4**，两版最终 β=106.68771403175428；该场景的 planner
+返回固定 suffix，用于检验迭代规则，不作为真实 planner 的 20 轮测量。
+单轮场景两版调用 1、项和判断各 4；无效示范两版均为 0。每轮权重
+赋值没有减少。计数仅涵盖 margin 边枚举与成员判断，不作为端到端耗时、
+吞吐、RSS、学习收敛或机器人示范效果测量。
+
+相关 `test_discrete_plan.py`、`test_ltl_planner.py` 和 `test_irl.py` 分别
+**19 passed**、**26 passed**、**21 passed**，合计 **66 passed**；含
+既有真实 translator 检查。IRL `test_irl_plugin.py` launch 文件另为
+pytest **1 passed**，含真实 Action/Bool/DDS 示范记录和学习提交检查。
+源码 py_compile/ament_flake8、测试文件 ament_flake8/pep257、README/HIL
+说明/文档链接、44 节历史正文保留及 diff 检查通过。本轮没有重跑整包、
+物理仿真、实机或 Jazzy。
+
+### 11.46 执行 resolver 流式汇总候选 ID（2026-10-06）
+
+以 `31246f9` 为基线，`AcceptedRunResolver.resolve` 原先先保存所有
+匹配的 `(source_id, target_id)` 候选，再分别提取目标 TS 状态与源/目标
+ID。现在遍历相同有序 current_ids 和 retained target set，直接汇总这
+三个集合，省去候选边对列表；没有跳过匹配或提前结束。返回的源/目标
+ID 仍分别去重排序，只包含确有匹配边的节点；目标仍须对应唯一 TS 状态。
+动作身份、instance/generation/step、结构及源 TS 校验、完整返回字段、
+精确失败诊断、快照索引和提交边界不变，未改变 ROS 消息或规划规则。
+
+两项新增检查在实际旧提交和新实现均通过，不作为 RED 错误证据：
+两种含重复/重排/无匹配当前节点的输入，对照完整 ExecutionStep；三个
+匹配边对汇总为源 IDs (1, 2)、目标 IDs (3, 4)，无匹配的当前节点 5
+未进入返回源集合，两个目标共享同一 TS 状态。重复解析同一快照仍使用
+原索引，输入顺序变化不影响结果。
+
+外部临时 probe 加载实际旧/新源码，十三组调用的全部步骤字段或精确
+ResolutionError 诊断及缓存状态一致。覆盖 prefix、closing suffix、
+单节点自环、多 ID 完整汇总、目标歧义、源 TS 歧义、缺失观测节点、
+无匹配动作、空当前集合、无 action、身份不一致、缺边优先于缺节点和
+显式重复首节点 suffix。另验证失败索引保留先前快照，下一有效 generation
+可正常替换并解析新目标状态。
+
+在预构造并已索引的有向二分匹配 fixture 上，仅测量后续单次 resolve
+的 tracemalloc Python 分配峰值。128 nodes / 8,256 edges / 4,096
+匹配边对：旧版三次均 **267,320 bytes**，新版三次均 **7,728 bytes**；
+256 nodes / 32,896 edges / 16,384 匹配边对：旧版三次均
+**1,067,736 bytes**，新版三次均 **21,776 bytes**。完整 ExecutionStep
+相同，返回全部 64/128 个源与 64/128 个目标 ID，nodes/edges/接受运行
+完整序列的重复遍历增量均为零。fixture 的保留 prefix 遍历全部匹配边，
+不是 planner 生成的最优路径样本；未包含构图或首次索引，不作为 RSS、
+端到端耗时、吞吐或机器人效果测量。
+
+仅重跑相关 `test_accepted_run_resolver.py`、`test_execution_node.py` 和
+`test_snapshot_timeout.py`，合计 **61 passed**；`test_real_dds_execution.py`
+另为 **4 passed**，包含真实 ROS 2 Action/服务/观察消息与符号 FakeBackend
+执行闭环。源码 py_compile/ament_flake8、测试文件 ament_flake8/pep257、
+README/执行说明/文档链接、45 节历史正文保留及 diff 检查通过。本轮
+未重跑整包、物理仿真、实机或 Jazzy。
+
+### 11.47 ROS 事务候选代价溢出拒绝（2026-10-06）
+
+以 `3476a0a` 为基线，有限输入的数学代价可能在浮点乘法或路径累加中
+溢出。真实 translator 的只读 probe 复现原 worker 返回 ERROR_NONE，
+且可用快照含 (prefix=3, suffix=2, total=inf)；循环 TS 每条边 1e308、
+gamma=0 时得到 (inf, inf, nan)。现在 PlanLTL 和 IRL worker 在确认
+可执行接受运行之后、设置当前状态或序列化成功候选之前，按 prefix、
+suffix、total 顺序检查 float 转换与有限性。非有限值或转换错误返回
+ERROR_INTERNAL，精确说明首个无效字段；转换异常保留原 cause。
+
+检查只作用于 ROS 事务候选，未修改 Core Dijkstra、source-label、数学
+代价、示范选择、IRL 更新/步长/停止规则或普通快照转换失败的 fallback。
+不钳制计算结果或权重，不设置 β/γ 的额外有限上限；直接 Core/legacy
+路径和所有 Product 边的序列化数值检查没有在本轮扩展。
+
+三个新增真实 ROS Action/反馈/快照检查在实际旧提交均失败：γ=1e308
+导致 total=inf 的 PlanLTL 仍 SUCCEEDED；β=1e308、soft=(missing1 &&
+missing2)、gamma=0 导致 prefix=inf 的 PlanLTL 仍 SUCCEEDED；受控
+学习返回 beta=1e308 后的真实 IRL 重规划替换了活动 planner。修复后
+两个 Action 为 ABORTED/ERROR_INTERNAL，精确报告 total_cost 或
+prefix_cost；IRL 失败保留活动 planner、β 和源边权重。三个场景都保留
+generation、execution_step_seq、ACTIVE 状态与完整服务快照。PlanLTL
+随后将对应参数降为 1e307，有限结果正常提交并只增加一个 generation。
+IRL 场景注入 learned beta 来验证候选边界，不作为原算法的实测学习结果。
+
+外部临时 probe 加载实际旧/新 worker 源码，六组有限候选的完整 ROS
+快照和 Product ID 映射相同：gamma=0、普通参数、beta=2.5/gamma=3、
+gamma=1e307、beta=1e307/gamma=0、beta=1e308 且软距离为零。
+对应 (prefix,suffix,total) 为 (3,2,3)、(3,2,23)、(8,2,14)、
+(3,2,2e307)、(2e307,2,2e307)、(3,2,3)。三个原有非有限结果
+(3,2,inf)、(inf,2,inf)、(inf,inf,nan) 现在都返回内部失败，outcome
+不携带 planner、TS 或快照，未替换为其它路径或放宽接受条件。
+
+另有十八项 helper 检查覆盖三个成本字段的 ±inf、nan、10**400、None
+和非法字符串，精确诊断/转换 cause 及源属性保持通过。五组有限值
+（int、float、Fraction、Decimal、数值字符串）保持原对象，不原地转换。
+超大整数是 Python 内部字段检查，不声称通过 ROS float64 传输该整数。
+
+仅重跑 `test_plan_ltl_action.py` 和 `test_planner_node.py`，合计
+**63 passed**，其中 Action 文件含三个新增检查和既有真实 translator /
+ROS 2 事务、IRL 提交、快照及转换失败 fallback 检查。源码 py_compile /
+ament_flake8、测试文件 ament_flake8/pep257、README/API/HIL 说明、
+文档链接/46 节历史正文保留及 diff 检查通过。本轮没有重跑整包、物理
+仿真、实机或 Jazzy，不作为性能、收敛或机器人示范效果测量。
+
+### 11.48 PlanLTL worker 意外异常完成 Future（2026-10-06）
+
+以 `61e88c4` 为基线，PlanLTL worker 直接将计算返回值写入 Future；
+计算若在内部已分类异常之外失败，worker 线程退出而 Future 保持未完成，
+Action 和规划事务无法结束。现在只在 worker 的候选计算调用周围捕获
+普通 Exception，转换为带原异常文字的 ERROR_INTERNAL outcome，并通过
+原有单次 set_result 交回 executor。已有输入/translator 错误分类、
+候选成本检查、提交身份/状态检查、IRL worker 与快照 fallback 保持不变。
+
+四个新增检查在实际旧提交均失败。两个直接使用真实 rclpy Future，分别
+注入 RuntimeError 和 ValueError；旧版异常逃出，修复后 Future 完成、
+错误码/文字精确且 outcome 不携带可提交的 planner、TS 或快照。另两个
+从 READY 和 ACTIVE 发起真实 ROS 2 Action，在真实 translator 和搜索
+完成后向候选序列化注入 RuntimeError；旧版两个 Action 在测试观察窗口
+内均未完成，并出现 worker 线程异常。失败断言之后仅为旧基线 teardown
+完成悬置 Future，不将该清理算作通过，也不在生产代码增加超时或重试。
+
+修复后两个 Action 为 ABORTED/ERROR_INTERNAL，保留精确异常文字，
+释放规划 token，保持原 planner、generation、execution_step_seq、
+READY/ACTIVE 状态和完整服务快照。恢复序列化后下一有效请求均正常
+SUCCEEDED，开始一个新 generation。故障为受控注入，不声称真实 DDS
+故障、线程终止、BaseException 或通用进程崩溃恢复。
+
+仅重跑 `test_plan_ltl_action.py` 和 `test_planner_node.py`，合计
+**67 passed**，包含四个新增检查，以及既有事务、IRL、候选代价检查和
+普通快照转换失败不阻断规划的检查。源码 py_compile/ament_flake8、
+测试文件 ament_flake8/pep257、README/API、文档链接/47 节历史正文
+保留及 diff 检查通过。本轮未重跑整包、物理仿真、实机或 Jazzy，
+未修改目标、规划时限、接受性、IRL 更新/步长/停止规则。
+
+### 11.49 事务提交前准备保留快照和 ID 映射（2026-10-06）
+
+以 `931fbcf` 为基线，候选提交先替换活动 TS/planner/canonical state，
+然后才 deepcopy 保留快照；快照 helper 又在构造不可变 ID 映射之前
+更新 generation、step 和保留消息。准备若抛出异常，就可能保留混合
+代际且未释放规划事务。现在 helper 先在局部完成复制、新元数据和
+ID 映射构造，成功后才赋值保留字段；事务候选先调用该 helper，成功
+后才替换 planner/TS 和其余执行权威。普通准备异常在锁外转为带原文字
+的 ERROR_INTERNAL，经既有失败出口释放事务，不发布候选计划。
+
+六个新增检查在实际旧提交均失败：READY/ACTIVE 下各发起两个真实
+ROS 2 Action，分别受控注入保留快照复制和 MappingProxyType 构造
+异常；另两个在真实 IRL 候选重规划之后注入同样异常。旧 Action 场景
+明确观察到原 planner 已被候选替换；IRL 检查也未能完成既有失败出口。
+故障是普通 RuntimeError 的受控注入，不是实测内存耗尽或 DDS 故障。
+IRL 学习返回 beta+7 为受控 fixture，用于检查提交隔离，不作为学习效果。
+
+修复后四个 Action 均 ABORTED/ERROR_INTERNAL，错误文字精确，保持
+原 planner、TS、快照、IDs 对象以及 canonical/waiting 状态，generation
+和 execution_step_seq 不变，token/worker 被清除，状态恢复 READY 或
+ACTIVE；完整服务快照一致。两个 IRL 场景保留原 β、Product 权重、
+TS/快照/IDs、generation 和 step。移除故障后，PlanLTL 和 IRL 的下一
+有效请求均正常提交一个新 generation；IRL 新 β 为注入值且 step 归零。
+
+仅重跑 `test_plan_ltl_action.py` 和 `test_planner_node.py`，合计
+**73 passed**；源码 py_compile/ament_flake8、测试文件 ament_flake8 /
+pep257、README/API、文档链接/48 节历史正文保留和 diff 检查通过。
+helper 的其它调用也采用准备后赋值的次序，但本轮仅给事务候选补充
+结构化准备失败出口，不扩展 legacy 重规划或初始规划的恢复范围。
+已提交后的 publisher 失败和进程崩溃不在回滚范围；普通快照转换失败
+fallback、freshness/锁边界、目标/接受性及 IRL 算法保持不变。本轮未
+重跑整包、物理仿真、实机或 Jazzy，不作为性能或收敛测量。
+
+### 11.50 当前七包构建与整包组合验证（2026-10-06）
+
+在实际代码提交 `58481a2b93876a5b4b34eb3a45bc5c799ce181ed` 上重新
+构建并测试 aggregate 及六个功能包，补充多轮定向修改之后的组合证据。
+`colcon list` 和 aggregate 的六个 exec_depend 确认入口覆盖全部功能包；
+aggregate 自身仅提供 ament 入口，没有独立测试。环境为 WSL
+Ubuntu-22.04-D、ROS 2 Humble、Python 3.10；保留真实 ltl2ba，未调用
+LLM、硬件、物理仿真或 benchmark，未修改代码、测试及判断条件。
+
+使用现有隔离目录 `/tmp/ltl_ros2_completion_20261006`，build/install/log
+均显式绑定该目录，build 启用 symlink-install 和 BUILD_TESTING=ON，
+选择 `--packages-up-to ltl_automaton_core`。七包全部构建成功。source
+隔离 install 后确认 planner 与 core 实际导入解析到本 checkout，msgs
+解析到隔离 build 的 rosidl_generator_py。测试同样显式指定 build/install，
+选择 aggregate、`--executor sequential --return-code-on-test-failure`，
+ROS_DOMAIN_ID=230；七包测试命令正常结束。
+
+按本轮开始时间核对六份独立 JUnit 文件，全部为新结果，不沿用先前
+未修改包的结果。每份 XML 的 testcase 数与 tests 属性一致，errors 和
+failures 均为零。当前统计如下；“收集”包含 skipped。
+
+| 功能包 | 收集 | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 157 | 156 | 1 |
+| ltl_automaton_planner | 122 | 121 | 1 |
+| ltl_automaton_execution | 108 | 108 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 36 | 35 | 1 |
+| 合计 | 537 | 533 | 4 |
+
+四个 skipped 均为既有 copyright 检查，原生 translator 集成及 POSIX
+故障检查未跳过。msgs 的本轮 CTest wrapper 也为 passed；标准
+`colcon test-result --test-result-base .../build --verbose` 返回
+**538 tests, 0 errors, 0 failures, 4 skipped**，其中多一项是该接口
+wrapper，不作为额外独立 pytest 检查。临时副本仅保留本轮六份 JUnit
+及当前 CTest XML，四份历史 CTest XML 未用于本轮统计；没有删除或
+改写历史结果。源码树保持干净。既有 NumPy/NetworkX 与 lint 插件的
+弃用警告仍存在，未作为失败，也未为本轮更换依赖。
+
+检查范围包含当前核心单元/原生 translator、ROS Action/服务/快照/DDS、
+符号 FakeBackend 执行、IRL、HIL、标准 2D/6D monitor、已有 lint 与
+launch 通信及退出检查。IRL plugin 的 pytest launch wrapper 内包含
+其受控 helper/真实通信检查，不将内部 unittest 数另加到上述统计。
+本轮为当前版本组合验证，不推出 IRL 收敛、整体加速、真实网络故障、
+物理仿真、硬件/机器人示范效果或 Jazzy 兼容性。
+
+### 11.51 多维 TS 每源状态复用 guard 求值（2026-10-06）
+
+以 `8eeeb5e` 为基线，多维 compose_edges 对每条因子后继边调用
+is_action_allowed；同一完整源标签的相同 guard 会重复求值。现在
+每个组合源节点使用局部 guard_checks 表，只求值第一次遇到的 guard，
+包括 False 结果。原因子后继表、全部后继枚举、source-label、维度/
+节点/边顺序、action/guard/weight 读取及后维度属性覆盖规则保持不变。
+表不跨源节点、compose 调用或 build_full；一维分支、AST parse cache
+和公开 is_action_allowed 保持不变。临时表大小随本源不同 guard 数增长，
+没有常驻图级缓存；不改变搜索、接受性、目标或 IRL 规则。
+
+两个新增检查在旧提交的求值次数条件均失败：四状态共享跨维度 guard
+原调用 16 次，而局部复用后为 4 次。新检查包含 source-dependent 的
+True/False、手工九条边/属性/插入次序与自环后维度覆盖，以及重复构图、
+修改 guard 后重建和公开 checker 的独立调用。首次新版本相关回归为
+91 passed / 2 failed，因为新 fixture 的预期边序忽略了输入图已有边；
+按旧输入实际插入次序修正期望，未改构图行为以适配测试，最终通过。
+
+外部临时 probe 加载实际旧/新 ts.py，八个小图/故障案例的完整节点、
+边顺序/属性和图元数据相同，原因子图不被修改。共享真假 guard 的
+四节点九边图求值 16→4；不同 guard/覆盖 fixture 为 12→9；一维
+分支为 4→4，空因子为 0→0；非法 guard 的异常类型及精确文字相同。
+guard 修改后的第二次构图也保持完整图一致。
+
+合成全连接因子图的计数：8×8 tautology TS 有 64 节点/960 边，
+求值 1024→64；8×8 混合真/假 guard 有 64 节点/496 边，求值
+1024→128；4×4×4 tautology TS 有 64 节点/640 边，求值 768→64。
+这些是确定性构图操作计数，不包含耗时、RSS 或端到端加速测量。
+
+真实 translator 的 KTH γ=0/10 和 Demo-D1 的 <> kc0 查询，完整 TS、
+Product 节点/边及 Run 字段/路径/动作一致，总代价分别为 10、210、6.6。
+KTH 构图 guard 求值 14→12；Demo-D1 为 120→60。该查询是规划对照，
+不是完整 Demo-D1 机器人示范或物理执行实验。
+
+仅重跑 test_ts.py、test_transition_system.py、test_ltl_planner.py、
+test_irl.py 和 test_temporal_capability_regressions.py，合计
+**93 passed**。源码 py_compile/ament_flake8、测试文件 ament_flake8 /
+pep257、README/文档链接、50 节历史正文保留及 diff 检查通过。
+本轮未重跑整包、物理仿真、实机或 Jazzy；11.50 的整包结果仍属于
+其原代码基线，不作为本轮整包证据。
+
+### 11.52 6D Python 输入坐标溢出诊断（2026-10-06）
+
+以 `d081611` 为基线，Region6DJointspaceModel 的前六坐标有限性检查
+对 ±10**400 的 Python 整数抛出 OverflowError，未转为已约定的
+ValueError；Node 的现有失败出口只捕获 ValueError。现在仅给
+math.isfinite 的既有捕获增加 OverflowError，保留原精确诊断
+`JointState positions must be finite numbers.` 和 raise-from cause。
+不转换或钳制输入，不扩展配置 center/radius 校验，不修改区域顺序、
+六维截取、严格半径、math.hypot、ROS 参数或规划/IRL 规则。
+
+四个新增检查在实际旧提交均失败，均由 OverflowError 逃出。
+两个 model 检查分别使用正/负超大整数，覆盖第一个和第六个坐标，
+update 与 is_in_region 均精确返回 ValueError，并保留 OverflowError
+cause、输入列表及最后有效区域。第七个同类整数继续被忽略，后续有效
+位置正常处理。另两个使用真实 ROS Node 和记录型 publisher，向回调
+注入受控 SimpleNamespace Python 消息；无效输入不发布或改变 q1，
+随后有效生成 JointState 反馈继续发布 q2。
+
+超大整数不能作为正常的 ROS float64 坐标传输；本轮是 Python 接口
+边界检查，不声称真实 DDS 传输此整数，也不是配置几何或物理反馈测试。
+现有 nan/±inf、缺少关节、额外关节忽略、严格半径和 1e200 级别有限
+坐标的距离检查仍通过。
+
+仅重跑标准 TS 包的 colcon test，明确指定既有隔离 build/install、
+ROS_DOMAIN_ID=230 及 --return-code-on-test-failure。结果为
+**40 tests, 0 errors, 0 failures, 1 skipped**，即 **39 passed**；
+单一 skipped 为既有 copyright 检查。JUnit 确认四个新增 case 均通过。
+包含原有 2D/6D monitor launch 通信/干净退出及 package lint。
+源码 py_compile/ament_flake8、根与包 README、文档链接/51 节历史正文
+保留及 diff 检查通过。本轮没有重跑其它包、物理仿真、实机或 Jazzy，
+既有 NumPy/NetworkX 和 lint 插件弃用警告保留。
+
+### 11.53 Planner 批次内复用状态维度名（2026-10-06）
+
+以 `c2cdc7a` 为基线，prefix/suffix 和 possible-state 消息对每个
+TS 状态重复展开相同维度名。现在本次构造的第一个状态先按既有顺序
+序列化 states、读取维度名，成功后保留不可变 tuple；后续消息仍各自
+用新列表写入维度字段。prefix 与 suffix 共用本次局部值，possible-state
+捕获本次 planner。无跨调用缓存，不复用可变 states，不新增锁或改变
+QoS、公开接口、执行身份、快照、规划目标、接受性或 IRL 规则。
+
+原 prefix 构造与迭代仍先于 suffix；possible-state 仍按 str 排序，
+状态、动作、stamp、Büchi 字符串及日志/发布顺序保持不变。空计划或
+空候选集合不访问 TS graph；首个状态转换失败仍先于维度元数据访问。
+ROS 生成 setter 直接保留传入列表，因此缓存 tuple 后每个消息创建
+独立列表，修改一个消息不能影响其它消息；后续调用读取更新后的维度。
+
+十个新增参数化检查覆盖 compound/空维度、prefix+suffix/suffix-only、
+相同 TS 状态的多个 Büchi 状态、完整消息字段/顺序与日志、列表独立性、
+跨调用刷新、输入保持、空批次缺少 graph/非法 metadata 和错误优先级。
+在独立进程执行实际旧提交完整 planner_node.py 后，该文件为
+**9 passed / 5 failed**，五个失败均仅为维度复用计数条件：plan 为
+5→1 或 3→1，possible-state 为 3→1；旧字段行为没有被判为功能故障。
+
+外部临时 probe 分别加载实际旧完整模块与当前 checkout 模块，使用
+真实生成 ROS 消息直接比较完整 LTLPlan、LTLStateArray 和日志。
+五个批次对照均相同：compound prefix+suffix 调用 5→1，suffix-only
+2→1，三个 Product 候选为 3→1；空计划和不可访问 graph 的空候选
+均为 0→0。输入、列表独立性、跨调用刷新与首个转换错误顺序通过。
+这是确定性操作计数，未测量耗时、RSS、DDS 传输或端到端加速。
+
+仅运行 test_transition_state_serialization.py、test_plan_ltl_action.py
+及 test_planner_node.py，合计 **87 passed**；包含真实 ROS Action
+交互与事务回归。加强输入快照断言后，序列化文件的 **14 passed**
+再次通过。源码 py_compile/ament_flake8、测试 ament_flake8/pep257、
+README/文档链接、52 节历史正文保留及 diff 检查通过。使用既有
+Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 隔离 overlay；本轮
+未重跑整包、物理仿真、实机或 Jazzy。11.50 整包证据仍属于原代码
+基线，NumPy/NetworkX 的既有弃用警告保留。
+
+### 11.54 遗留 margin 构图示范边成员查询（2026-10-06）
+
+以 `211dca9` 为基线，ProdAut.build_full_margin 将 opt_path 的交替
+source/target 配对保存为一次性 zip，随后对每条 Product 候选执行
+成员查询。前面的未命中会消耗所有后续项，导致实际示范边未减去 1，
+错误保留 margin；即使第一个示范命中，后续未命中也会耗尽余下示范。
+现在只将该 zip 固化为 tuple，并补充输入格式 docstring。可重复查询
+不新增 hashability 要求，保留原 [0::2]/[1::2] 配对、重复项与奇数
+尾项忽略，不改为相邻轨迹边。len<2 的 None 路径、guard/source-label、
+cost + beta*dist + 1 - k 运算顺序、节点/边属性与接受循环构造不变。
+tuple 仅存在于本次调用；没有跨调用缓存或新增输入校验。
+
+仓内 rg 确认该 helper 只有定义和本次直接测试，没有运行调用点。
+当前可选 IRL 的 learn_beta 使用独立 _apply_margin；活跃 build_full、
+搜索、β 更新、IRL 学习与 ROS 接口不变。本轮修复遗留公开 helper，
+不把该缺陷描述为当前 IRL 的学习故障，也不声称学习效果或加速。
+
+八个新增参数化检查：六项组合 hard/soft/safe Büchi 和示范分支前/后
+两种插入顺序，以手算八条边检查两个示范、非示范和跨两个 flat pair
+的桥接边；重复示范仅减一次，奇数尾项不参与。验证 transition_cost、
+soft_task_dist、initial/accept/accept_with_cycle、输入对象/守卫属性保持，
+并以新示范再次调用，确认旧优惠恢复、margin 不累积、节点/边顺序不变。
+另两项空/单节点输入保持所有边的 margin。
+
+实际旧提交完整 product.py 在独立进程的八项新检查为
+**6 failed / 2 passed**，六项均只因示范边额外加 1 的权重不符失败，
+分别为 3 vs 2、7 vs 6、4 vs 3、8 vs 7；没有使用 mocked margin。
+初次新版本相关回归为 **62 passed / 6 failed**：边权均正确，但新
+输入保留断言直接比较深拷贝后的守卫对象，而它们没有值相等实现。
+改为原对象身份与独立属性快照比较，未改生产代码适配测试，随后通过。
+
+仅重跑 test_product.py、test_irl.py 与 test_ltl_planner.py，结果
+**68 passed**。源码 py_compile/ament_flake8、测试 ament_flake8/pep257、
+README/文档链接、53 节历史正文保留与 diff 检查通过。环境仍为既有
+Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 隔离 overlay；本轮未
+重跑整包、物理仿真、实机、Jazzy 或真实示范学习实验。11.50 的整包
+证据属于原基线，既有 NumPy/NetworkX 弃用警告保留。
+
+### 11.55 执行 SymbolicState 字符串类型边界（2026-10-07）
+
+以 `7366267` 为基线，SymbolicState 构造只检查空值和 .strip()。
+整数/list 会逃出 AttributeError；非空 bytes 有 .strip()，会被误接收，
+随后进入生成 ROS 消息 setter 触发断言。现在在维度名和值的既有
+短路条件最先检查 isinstance(..., str)，继续返回各自原精确 ValueError。
+alignment、维度非空、唯一性、值非空的校验次序保持；合法字符串子类
+与含首尾空格的原值及 tuple 身份不变，不转换/裁剪/解码输入。
+不扩展 container、其它模型字段或身份校验，不改变 resolver、执行调度、
+backend、observer、规划或 IRL。包 README 补充构造要求，并将 fake
+abstraction 的说明改为接受已构造 SymbolicState，与实际代码一致。
+
+六个新增 model 参数化检查将非空 int/bytes/list 放在第二个维度或值，
+验证每个元素均检查、精确 ValueError 文案及 list 输入保持。一个合法
+字符串子类/空格检查确认 tuple 对象和原字符串保持，无额外归一化。
+另两个使用真实 ExecutionManagerNode、受控 ConstructingAbstraction 与
+记录型 publisher：先记录一条有效生成消息，再输入维度/值 bytes，
+拒绝时消息数不变、无 backend 调用，随后有效观察继续记录第二条消息，
+第一条的值不变。此处没有发送非法 bytes ROS 消息，不作为 DDS 或
+硬件反馈边界验证；生成类型的标准字符串字段未修改。
+
+在独立进程执行实际旧提交完整 models.py 后，九项新增检查为
+**8 failed / 1 passed**：四次 int/list 的 AttributeError 逃出、两次
+bytes 未抛 ValueError、两个 Node 案例在 state_dimension_names/states
+setter 抛 AssertionError；合法子类/原值检查通过。基线不是对模型
+行为的 mock；Node 案例的 abstraction 和 publisher 为受控测试组件。
+
+仅重跑 test_backend.py、test_accepted_run_resolver.py 与
+test_execution_node.py，合计 **83 passed**。包含已有身份/重复步骤、
+resolver、backend 失败恢复、Node 快照重试与观测管线回归。源码
+py_compile/ament_flake8、两个测试文件 ament_flake8/pep257、根/包 README、
+文档链接、54 节历史正文保留与 diff 检查通过。实际模型 import 的
+resolve 路径绑定当前 checkout，使用既有 Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10.12 隔离 overlay。本轮未重跑整包、物理仿真、实机、Jazzy
+或示范学习实验；11.50 整包证据仍属于其原基线。
+
+### 11.56 2D Python pose 有限性溢出诊断（2026-10-07）
+
+以 `46169bb` 为基线，Region2DPoseModel._validate_pose 在 x/y 与
+四个 quaternion 分量的 math.isfinite 检查中只捕获 TypeError。
+±10**400 的 Python 整数会逃出 OverflowError。现在仅给既有捕获
+增加 OverflowError，保留原 ValueError 精确文字
+`Pose position and orientation must be finite numbers.` 和 raise-from cause。
+不转换/钳制输入，不增加 z 校验，不改变零 quaternion 拒绝、yaw 公式、
+station request、区域次序/严格边界/hysteresis、closest 查询、配置几何、
+ROS 字段、消息提取、Node callback、规划或 IRL 规则。
+
+两个新增参数化 model 检查使用正/负超大整数，分别放入第一个受检查
+分量 position.x 和最后一个 orientation.w；update 与 closest_region
+均返回原 ValueError 并保留 OverflowError cause。输入字段、r1 区域与
+s0 station request 不变；随后有效 x/y/quaternion 输入正常进入 r2，
+同一输入的超大 position.z 仍被忽略。已有 nan/inf、零 quaternion、
+支持的四种消息提取、station/closest 与 6D 边界检查仍执行。
+
+独立进程执行实际旧提交完整 region_2d_pose_monitor.py 后，两个新
+检查均因 math.isfinite 的 OverflowError 逃出失败。另一次旧源码
+直接 probe 也复现 position.x 正整数、position.y 负整数和 orientation.w
+的相同错误。超大整数不能通过正常 ROS float64 pose 字段传输；新
+fixture 是受控 SimpleNamespace Python model 输入，没有以 Node 注入、
+非法 DDS 传输或物理反馈作为验证。未新增 quaternion 归一化或几何校验。
+
+仅重跑标准 TS 包 colcon test，指定既有隔离 build/install、
+ROS_DOMAIN_ID=230 与 --return-code-on-test-failure。标准结果为
+**42 tests, 0 errors, 0 failures, 1 skipped**，即 **41 passed**；
+JUnit 确认唯一 skipped 是既有 copyright，两个新增 case 均通过。
+包含原有 monitor launch 通信/干净退出与包 lint。实际模型 import
+resolve 到当前 checkout。源码 py_compile/ament_flake8、测试
+ament_flake8/pep257、根/包 README、链接/55 节历史正文保留及 diff
+检查通过。环境为既有 Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12；
+本轮未重跑其它包、物理仿真、实机、Jazzy 或示范学习，11.50 整包
+证据仍属原基线。NumPy/NetworkX 与 lint 插件的既有弃用警告保留。
+
+### 11.57 当前代码七包组合验证刷新（2026-10-07）
+
+在实际代码提交 `c70d38deee51319f109d3f3b5018af1f861be31e` 上构建
+并测试 aggregate 与其六个功能包，补充 11.51–11.56 修改后的组合证据。
+原 11.50 结果继续保留为其原代码基线的历史记录。本轮不修改源码、
+测试、目标函数、学习规则或验收条件，只更新 README 和本记录。
+`colcon list` 与 aggregate 的六个 exec_depend 覆盖当前全部包；
+aggregate 本身仅提供 ament 入口，没有独立测试。
+
+环境仍为 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、
+NetworkX 2.4，使用 `/home/yuhling/.local/bin/ltl2ba`。构建前与测试前
+均核对 exact HEAD 和干净源码树；source 隔离 install 后确认 TS/core
+planner、ROS planner、execution models 和 2D model 实际导入 resolve
+到本 checkout，msgs resolve 到隔离 build 的 rosidl_generator_py。
+没有更换依赖、调用 LLM、运行 benchmark、硬件或物理仿真。
+
+使用既有隔离目录 `/tmp/ltl_ros2_completion_20261006`，build/install/log
+均显式绑定该目录。构建使用 symlink-install、BUILD_TESTING=ON、
+`--packages-up-to ltl_automaton_core` 和 sequential executor，七包
+全部成功。测试同样选择 aggregate 并指定隔离 build/install，使用
+ROS_DOMAIN_ID=230、`--executor sequential --return-code-on-test-failure`
+和 pytest -q，七包命令正常结束，退出码为 0。
+
+按本轮测试开始时间核对六份独立 JUnit，全部为新结果，各 XML 的
+testcase 数与 tests 属性一致，errors/failures 均为零。“收集”含 skipped。
+
+| 功能包 | 收集 | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 167 | 166 | 1 |
+| ltl_automaton_planner | 132 | 131 | 1 |
+| ltl_automaton_execution | 117 | 117 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 42 | 41 | 1 |
+| 合计 | 572 | 568 | 4 |
+
+四个 skipped 均为已有 copyright 检查。逐项确认近期 guard 求值复用、
+legacy margin、批量维度序列化、SymbolicState 字符串边界及 2D/6D
+溢出回归都在新 JUnit 中通过；真实 translator/Büchi 集成与两个 POSIX
+故障 case 也通过，未因 PATH 或平台条件跳过。范围还包含既有 ROS
+Action/服务/快照/DDS、符号 FakeBackend、可选 IRL、HIL、monitor、
+launch 通信/干净退出与 lint。IRL launch wrapper 的内部 unittest 数
+不另外加到独立 JUnit 统计，受控学习检查不作为机器人示范实验。
+
+msgs 的本轮 CTest wrapper 为 passed；标准
+`colcon test-result --test-result-base .../build --verbose` 返回
+**573 tests, 0 errors, 0 failures, 4 skipped**，比独立 JUnit 多一项
+接口 wrapper。五份历史 CTest XML 按时间排除，未删除或改写；本轮
+六份 JUnit 与当前 CTest XML 另复制到 `verified_results_c70d38d`，
+原 `verified_results_58481a2` 保留。`verification_c70d38d.json` 与
+`verified_summary_c70d38d.json` 在上述隔离目录记录 HEAD、环境、
+导入路径、开始时间、结果数量、必需回归及排除的历史路径。
+
+本轮保留 NumPy/NetworkX 和 lint 插件的既有弃用警告，不改变依赖
+绕过它们。结果只证明当前基线的组合检查通过；不推出整体加速、IRL
+收敛/逆最优性、真实网络故障、物理仿真、实机/机器人示范效果或
+Jazzy 兼容性。全部 56 节历史正文保持，文档链接和 diff 检查通过。
+
+### 11.58 接受环闭合边流式选择（2026-10-07）
+
+以 `d804f78` 为基线，dijkstra_plan_networkX 在每个接受目标的 suffix
+距离计算后，将全部可用 predecessor 的闭合环成本保存在 cycle_costs
+字典，再用 min 选一个。现在按原 predecessor 次序只保存当前最佳
+节点与成本，首个可行候选直接保留，后续仅 candidate_cost < suffix_cost
+时替换。省去每个目标随可用入边数增长的临时成本表；prefix/loop
+距离表、SCC 与其它搜索空间不变，不宣称整体加速或总内存下降。
+
+仍先读取边的 weight（缺失时为 1），再检查 predecessor 在 loop_dist
+且 weight 不是 None，按原 loop_dist[pred] + edge_weight 顺序计算。
+并列成本保持首候选，无可行闭合边时继续跳过目标；接受目标的最终
+比较、prefix_cost + gamma * suffix_cost、tight 路径恢复、闭合边输出、
+显式起点、Product/TS 图与执行身份、ROS 字段及 IRL 学习规则均未改。
+
+五个新增手算 case 包含两种 predecessor 次序的并列成本 5，确认
+prefix 成本 2、suffix 成本 5、总成本 52 与首候选动作/闭合边；修改
+另一条闭合边后下一次读取新值，suffix 成本 1、总成本 12。记录图边、
+initial/accept/accept_with_cycle/possible_states 保持。另两个 gamma=0/10
+case 确认缺失 weight 使用 1、None 隐藏闭合边与 SCC 外入边被排除，
+suffix 成本 2、总成本为 2/22。最后一个只有隐藏自环，结构上接受但
+没有可用闭合候选，正确返回 (None, None)。
+
+独立进程用 git show 导出的完整旧 discrete_plan.py 替换测试进程中的
+模块，逐字核对导出内容；上述五个新增 case 在旧模块上也是
+**5 passed**，旧/新均符合相同手算结果。另一个普通非负 finite
+Product 星形样例有 256 个可用闭合 predecessor：旧函数的局部
+cycle_costs 最大为 **256 项**，新函数没有创建该表；两版全部 Run
+字段一致（已消费的 zip 字段转为 tuple 比较）。该计数只证明此临时
+表被省去，不是计时 benchmark，也不作为整体内存测量。
+
+初次外部对照探针有部分场景名与输入配置不一致，补充脚本尾部还
+包含对无计划结果属性的访问；这些部分不作为缺失/隐藏权重、无解或
+图属性保留的证据。采用上述精确旧模块的五个仓内 case 补齐这些
+边界验证，保留初始临时脚本，没有用场景命名代替实际输入检查。
+
+discrete-plan、ltl-planner、IRL 三个相关测试文件合计 **70 passed**；
+随后补充的无可用闭合边 case 单独 **1 passed**，未重复跑三文件。
+源码 py_compile/ament_flake8 与测试 py_compile/ament_flake8/pep257
+通过。新测试初次 lint 有一行超过已有 99 字符限制，换行后通过，
+未改变断言或生产逻辑。使用既有 WSL Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10.12 隔离 overlay，NumPy/NetworkX 弃用警告保留。
+
+本轮没有重跑整包、ROS 通信、物理仿真、实机、Jazzy、benchmark
+或机器人示范学习；11.57 整包证据仍属于原代码基线。README、
+57 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.59 运行结果转换复用单条 TS 边属性（2026-10-07）
+
+以 `e2234e1` 为基线，ProdAut_Run.plan_output 的 prefix/suffix 循环
+每条 TS 边分别为 action 和 weight 定位同一边属性。现在每次边处理
+先读取一次原 edge dict，再先 append action、后 append weight。
+引用只用于当前这次边处理，不提前读取 TS、不跨边/调用保存，没有
+建立缓存表。prefix/suffix/TS 投影、重复与闭合边次序、zip 类型及
+耗尽行为、日志与错误次序、原始数值类型、成本列表起始 0 均保持。
+不修改 Dijkstra/SCC、代价公式、接受性、执行身份、ROS 字段或 IRL。
+
+五个新增 case 使用真实 ProdAut 和 TS。一个重复 prefix/self-loop
+case 的 prefix 成本 4、suffix 成本 1、总成本 14，确认动作、投影、
+重复/闭合边和成本列表完整；四条输出边的真实 DiGraph.__getitem__
+访问从旧版 8 次变为新版 4 次。更改 self-loop action/weight 后再次
+转换会读取新值，输出列表重新创建，原列表与输入路径保持。原记录的
+precost/sufcost/totalcost 按旧行为不在 plan_output 中自动重算，不能
+把重新转换旧运行当作修改 TS 后的重新规划证据。
+
+另两个空/单节点 prefix case 均没有 prefix 动作，单节点 suffix
+输出一条自环，访问从 2 次变为 1 次；空 prefix 只属于 helper 允许的
+输入，不声称 solver 会产生该运行。两个缺 action/weight case 保留
+精确 KeyError，缺 action 不添加动作，缺 weight 时已添加该动作而
+成本列表仍为 [0]；suffix 的既有输出在 prefix 失败后保持。
+
+独立进程加载 git show 导出的完整旧 product.py 后，五个新增检查
+为 **3 failed / 2 passed**，三项只在重复访问计数断言失败，分别是
+8 vs 4、2 vs 1、2 vs 1；字段/成本断言在计数前通过，两项错误次序
+检查通过。JUnit 原始结果保留在既有隔离目录的
+`run_output_baseline_e2234e1.xml`，没有把旧版重复访问作为语义错误。
+
+另用实际旧/当前完整模块对照一条连续四边 prefix 及其终点自环
+suffix，手算 prefix 成本 10、suffix 成本 5、总成本 60；全部 Run
+字段一致（已耗尽 zip 转 tuple），prefix 访问 8→4、suffix 访问 2→1。
+单节点/空 prefix、TS 属性更新后的再转换、缺 action/weight 的异常
+和部分输出也一致；各版本调用前后对 Product/TS 节点/边 dict-copy
+及接受/初始集合 set-copy 的快照核对保持。旧文件逐字节匹配 git
+导出，当前模块导入绑定本 checkout。首次外部探针将线性 prefix
+误标为重复路径且与 suffix 不相连，审阅后在同一临时脚本修正为
+上述连续路径再运行；原配置不作为可行接受运行的证据。
+
+仅重跑 test_product.py、test_discrete_plan.py、test_irl.py 与
+test_ltl_planner.py，合计 **97 passed**。源码 py_compile/ament_flake8、
+测试 py_compile/ament_flake8/pep257 通过；环境仍为 WSL Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12 隔离 overlay，保留 NumPy/NetworkX
+弃用警告。没有重跑整包、ROS 通信、物理仿真、实机、Jazzy、benchmark
+或机器人示范学习；11.57 整包证据仍属于其原代码基线。README、
+58 节历史正文保留、本地链接/锚点与 diff 检查通过。图访问计数只
+证明这些边处理的重复定位被省去，不作为整体加速或总内存测量。
+
+### 11.60 空接受集合跳过 SCC 遍历（2026-10-07）
+
+以 `c749780` 为基线，ProdAut.build_accept_with_cycle 对空接受集合
+仍遍历全部 Product SCC。现在与本次已创建的空 accepting_cycles
+集合比较，确认空 set/frozenset 时将该新集合写入 accept_with_cycle
+并返回。没有将任意 falsey 值或缺失键视为空接受集合；用 graph.get
+保留原 missing-key 路径。非空分支的 SCC、结构环、自环与交集规则
+逐字未变，没有跨调用缓存，不改变权重、Dijkstra、接受运行、执行
+身份、ROS 字段或 IRL 规则。
+
+四个新增 case：空图/空 set 与已构图/空 frozenset 均清除 stale
+环标记，保留旧标记对象、原接受集合身份、节点/边、initial 与已有
+possible_states；空集合时 SCC 调用为 0。已构图案例恢复非空接受
+集合后调用 SCC 并标记自环，移除自环后再次调用并清除标记。另两个
+受控 missing-accept 案例仍调用 SCC：无环时输出新空标记，有自环
+时抛原精确 KeyError('accept') 并保持旧标记，不补造 accept 字段。
+
+独立进程加载 git show 导出的完整旧 product.py 后，四个新增检查
+为 **2 failed / 2 passed**，两项仅在 SCC 调用次数 1 vs 0 失败，
+两项 missing-key 诊断通过。原始 JUnit 保留在既有隔离目录的
+`empty_acceptance_baseline_c749780.xml`。旧行为的结果正确，只存在
+这次省去的无用遍历，不将旧版计数失败作为接受性错误。
+
+另用原生 `/home/yuhling/.local/bin/ltl2ba` 做旧/当前完整模块对照。
+初始数字 `0` 被工具拒绝，诊断为 `expected predicate, saw '0'`，
+没有计为通过，也未修改库代码使其自动替换公式。一个额外矛盾公式
+`p && !p` 产生空接受集合；最终按主代理确认采用仓内已有的
+`<> (false)` 常量 false fixture：Büchi 仅孤立 T0_init、0 边、空
+accept/symbols；两状态循环 TS 生成 Product 2 节点/0 边，initial 与
+possible_states 均为 {('s0', 'T0_init')}。两版节点/边/属性及集合快照
+一致，TS/Büchi 输入快照保持，SCC 调用旧版 1 次、新版 0 次。
+旧源逐字节匹配 git 导出，当前导入与 translator 路径核对。此样例
+只有 2 个 Product 节点，不外推大图收益、整体加速或总内存变化。
+
+仅重跑 test_product.py、test_discrete_plan.py、test_irl.py 与
+test_ltl_planner.py，合计 **101 passed**。源码 py_compile/ament_flake8、
+测试 py_compile/ament_flake8/pep257 通过。使用既有 WSL Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12 隔离 overlay，保留 NumPy/NetworkX
+弃用警告。未重跑整包/ROS 通信、LLM、benchmark、物理仿真、实机、
+Jazzy 或机器人示范；11.57 整包证据仍属于原代码基线。README、
+59 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.61 接受运行边对直接构造 tuple（2026-10-07）
+
+以 `92a46bf` 为基线，AcceptedRunResolver._retained_pairs 原先先建立
+prefix 边对列表，再 extend suffix 边对、append 隐式闭合边，最后
+复制为 tuple。现在用 itertools.chain 直接构造同一 tuple，省去
+中间列表。保留原 prefix/suffix 切片、边对次序与重复项、单节点
+suffix 自环及唯一隐式闭合边；此前的结构校验和精确诊断逐字保持。
+快照索引、动作解析、缓存提交与失败出口没有改动，不改变模型、
+ROS 接口、执行身份、接受性、规划代价或可选 IRL 的 β 学习规则。
+
+七个新增 case 覆盖三个合法路径的 tuple 类型/全部边对、三个结构
+错误的精确消息与有效索引保留/恢复，以及缺边优先于缺节点的重复
+缺边诊断次序。仅重跑 resolver、backend、execution-node 三个相关
+文件，合计 **90 passed**。随后为三个 formatter fixture 补齐实际
+Product 边并断言全部边对存在，这三个 case 再次通过；它们是前述
+90 项的子集，不另计独立通过项。源码 py_compile/ament_flake8 与
+测试 py_compile/ament_flake8/pep257 通过。
+
+独立进程加载 git show 导出的完整旧 resolver 后，七个新增检查
+**7 passed**，确认旧版原本具有相同语义。首次临时 harness 因包
+初始化会提前导入 resolver 而在模块加载处失败，未执行测试；先
+初始化包再加载旧模块后通过，旧源码字节校验保留，未修改生产代码。
+
+另用实际旧/当前完整模块构造边齐全的重复 prefix/multi-node suffix
+与 single-node suffix：全部边对 tuple、完整 ExecutionStep、缺闭合
+边/显式重复 suffix 的精确诊断、原有效缓存保持及后续恢复一致。
+两版调用前保存 deepcopy 并在调用后确认输入快照保持。1024 项
+重复 prefix（1、3 交替）与三节点 suffix（3、4、5）产生相同的
+1026 项边对，跟踪实际 helper 帧确认旧中间 pairs 列表最大 1026
+项，新版无该列表。首次临时大样例只有一个重复自环，single/large
+的 deepcopy 比较也未保存调用前状态；审阅后在同一脚本修正并重跑，
+上述重复路径与输入保持结论来自修正后的实际断言。仍保留输入切片
+和输出 tuple，未测时间、RSS 或总分配，不外推整体加速/总内存收益。
+
+环境仍为既有 WSL Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12
+隔离 overlay。未重跑整包/ROS 通信、LLM、benchmark、物理仿真、
+实机、Jazzy 或机器人示范；11.57 整包结果属于原代码基线。README、
+60 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.62 快照导出校验完整接受运行结构（2026-10-07）
+
+以 `5efdada` 为基线，_serialize_run 原先只校验运行节点是否属于
+Product、suffix 非空/末尾不重复起点及闭合边。空 prefix、边界不相接
+或内部缺边仍可能被导出为 metadata.available=true，执行 resolver
+随后拒绝。现在在原有校验之后补查 prefix 非空、prefix 最后节点与
+suffix 首节点一致，以及 prefix/suffix 各自全部相邻 Product 边。
+保持原有错误优先次序与消息；新的结构失败走既有转换 fallback，
+输出 unavailable 元数据、空全部图/运行载荷及空 ID 映射。规划成功
+语义、提交规则、ROS 字段、执行身份、搜索/接受性、代价与 IRL 不变。
+该检查只证明这些运行结构满足导出契约，不证明接受性或最优性。
+
+四个新增参数 case 分别损坏 prefix、边界、prefix 内部边和 suffix
+内部边，健康控制图有三状态 TS、单节点恒真 Büchi 及匹配 Product，
+边为 p0→p1→p2→p1。prefix 一边成本 1，suffix 两边各 1、成本 2，
+gamma=10 的记录总成本 21。损坏运行的精确 ValueError、unavailable
+原因和完整空载荷、Product/TS 与运行保持，以及修复后的完整快照
+恢复均核对。初始控制 fixture 将 suffix 两边各写 2 却记录成本 2，
+并使用不一致的接受标记；审阅后在同一 fixture 校正权重与恒真接受
+标记，补断言记录成本，再重跑四个定向 case，均通过。
+
+新增四个检查在旧源码均失败，因为导出没有抛出结构错误。fixture
+校正后，独立进程再次加载逐字匹配 git show 的完整旧模块，仍为
+**4 failed**；该失败不是规划无解或算法最优性结果。修复后仅重跑
+test_planning_graph_snapshot.py 与 test_snapshot_service_copy.py，合计
+**15 passed**；fixture 校正后的四个通过属于前述测试子集，不另计
+独立项。保留原 NumPy/NetworkX 弃用警告。源码/测试 py_compile、
+ament_flake8 与测试 pep257 通过。
+
+另用原生 ltl2ba 与真实 Core 规划 `<> r2`：source-label 消费规则下
+goto_r2 成本 2、再 stay_r2 成本 1 进入接受，prefix=3、suffix=1、
+gamma=10、total=13。实际旧/新完整 ROS 快照与公开 ID 映射相同，
+执行 consumer 解析 goto_r2 的完整源/目标符号状态为 r1→r2。仅将
+运行 prefix 改为空，旧导出仍 available=true 而 consumer 精确拒绝；
+新转换返回 unavailable 空载荷，保留运行字段，恢复原 prefix 后
+完整快照和 ID 映射再次相同。旧文件字节、当前模块导入与原生
+translator 路径核对。此探针不启动 ROS 节点或 DDS 通信。
+
+环境仍为 WSL Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 隔离
+overlay。未重跑整包、ROS 通信、LLM、benchmark、物理仿真、实机、
+Jazzy 或机器人示范；11.57 整包结果属于原代码基线。README/API、
+61 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.63 并行测试 DDS 隔离与最新七包组合验证（2026-10-07）
+
+最近几轮同时修改接受环搜索、运行结果转换、执行边对和快照导出，
+本轮重新验证 aggregate 七包组合。初始干净基线为
+`2c52c71385ba4c6c732eb199c4de6a60af53cd6b`，构建七包成功，实际
+耗时 19.547 秒、exit 0；默认并行整包测试耗时 44.405 秒、exit 1。
+六份新 JUnit 合计 **597 tests = 588 passed + 5 failed + 4 skipped**。
+execution 为 121 passed/3 failed；HIL 为 100 passed/2 failed/1 skipped。
+其它包未失败，四个 skipped 均为已有 copyright。
+
+execution 的观测管线收到其它 TS 的 load/2d_pose_region 消息，两个
+真实 DDS 加载请求被不同的 ACTIVE planner/hash 拒绝；HIL 两个 IRL
+Action 得到 ABORTED，日志警告可能存在多个 /plan_ltl action server。
+并行包的 Context 和 launch 节点此前均继承同一 ROS_DOMAIN_ID=229，
+使用同名根 topic/service/action，存在跨包串扰。日志未单独标识每个
+重复 server 的进程，不将其作为所有错误的唯一来源证明。未修改规划、
+学习或接受判断，也未通过串行、缩短运行或过滤失败用例取得通过。
+
+在 planner/execution/HIL/标准 TS 的 test/conftest.py 收集阶段分别
+设置测试 domain 215/216/217/218；各包 in-process Context 和 launch
+子进程继承同包设置。此约定适用于 colcon 每包独立 pytest 进程。
+四个文件 py_compile 与 diff 检查通过，提交为
+`6cbfd3940df2628a0c4ac8ff01c713cbed0a4648`。只有测试环境配置改变，
+正式运行节点、ROS 字段、搜索/代价、执行规则及 IRL 算法保持。
+
+修复后的干净基线重新执行相同七包构建与默认并行整包测试，均 exit 0，
+实际耗时分别 22.698 秒和 69.542 秒。构建仍使用 packages-up-to
+ltl_automaton_core、symlink-install、BUILD_TESTING=ON；测试明确选择
+全部七包并启用 return-code-on-test-failure，没有 pytest 用例过滤。
+build/install 仍是 `/tmp/ltl_ros2_completion_20261006` 下的隔离目录。
+运行环境为 WSL Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4，translator 为原 `/home/yuhling/.local/bin/ltl2ba`，
+未升级依赖。构建/测试前后核对 HEAD 和清洁树；Core TS/planner/
+Product/discrete-plan、ROS planner/snapshot、execution models/resolver
+及 2D monitor 的实际导入来自当前 checkout，生成接口来自隔离 build。
+
+独立核对测试开始时间之后的六份 JUnit，不计历史 XML 或 wrapper 重复项：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 181 | 180 | 1 |
+| ltl_automaton_planner | 136 | 135 | 1 |
+| ltl_automaton_execution | 124 | 124 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 42 | 41 | 1 |
+
+合计 **597 tests = 593 passed + 4 skipped，0 errors，0 failures**。
+四个 skipped 仍均为已有 copyright。当前接口 CTest wrapper 一项通过，
+标准 colcon 汇总为 598 tests；七份旧 CTest XML 按时间排除。近期
+25 个接受环/结果转换/边对/导出结构新增 case，四个真实 DDS 场景、
+Studio consumer、snapshot fallback、IRL commit/step reset，以及既有
+native translator/POSIX 和核心回归均核对确实执行、参数数量正确且
+没有跳过。其它完整包检查包括 HIL、2D/6D monitor、launch 与 lint。
+保留 NumPy/NetworkX 和 SelectableGroups 的既有弃用警告。
+
+首轮六份失败 JUnit/当前 CTest、完整 receipt 与 SHA256 manifest 保存于
+`failed_results_2c52c71_run1`，原 log_combo_2c52c71 与 receipt 保留；
+通过轮六份 JUnit/当前 CTest 保存于 `verified_results_6cbfd39`，并有
+`verification_6cbfd39.json`、`verified_summary_6cbfd39.json` 与完整
+log_combo_6cbfd39。均在上述隔离目录，未把首轮失败或历史通过混入
+本次统计，也未覆盖旧 verified_results_c70d38d 的证据。
+
+没有 LLM、benchmark、物理仿真、实机、机器人示范或 Jazzy 验证。
+通过支持该基线的组合运行，不证明 IRL 收敛/逆最优性、机器人示范
+效果或整体加速。README、62 节历史正文保留、本地链接与 diff 检查通过。
+
+### 11.64 快照私有 Product ID 表省去返回副本（2026-10-07）
+
+初始基线为 `c997347a81315170e9c62e903194d609139570de`。快照构造的
+Product ID 表由本次调用新建，后续运行序列化仅查询该表；planner、
+输入图及 ROS 消息没有保留该字典引用。返回处现在直接构造
+MappingProxyType(product_ids)，省去原 MappingProxyType(dict(product_ids))
+中的同大小副本。每次构造仍创建新表，公开映射保持只读。事务提交处
+_commit_planning_graph_snapshot 的独立 dict 复制和消息 deepcopy 均保留。
+排序、ID、全部消息字段、诊断/fallback、搜索/代价及 IRL 规则保持。
+
+新增定向用例先保留完整快照和 ID，再插入排序靠前的孤立 Product
+节点，检查新 ID 及 prefix/suffix 全部引用更新，原快照/映射不变，
+两张表都拒绝写入；移除新节点后恢复原完整消息/ID，并仍得到新映射。
+首次新用例直接比较 ROS array('I') 与 Python list 而失败，改为 list
+后，test_planning_graph_snapshot.py 与 test_snapshot_service_copy.py
+合计 **16 passed**，保留两项既有弃用警告。随后仅补齐 suffix ID
+断言并单独重跑该用例，**1 passed / 12 deselected**，属于前述测试
+子集，不另计独立项。源码/测试 py_compile、ament_flake8，以及测试
+pep257 通过；没有为测试比较问题修改生产代码或接受条件。
+
+另加载逐字匹配 git show c997347 的完整旧模块，与当前 checkout
+实际导入对照。原生 ltl2ba 规划 <> r2，source-label 消费规则下
+goto_r2 成本 2，再 stay_r2 成本 1 进入接受，prefix=3、suffix=1、
+gamma=10、total=13。旧/新完整生成 ROS 快照与公开 ID 映射相同。
+在两个模块内分别记录实际显式 dict 构造（代理仍调用 builtins.dict），
+4 节点 Product 的旧路径复制长度为 [4]，新路径为 []；dict comprehension
+未替换。旧/新公开映射均拒绝写入，后续新构造保持字段/值相同且
+映射对象独立。证据仅支持本次私有 ID 表减少一个 N 项副本，不作为
+总分配、峰值内存、RSS 或整体加速结果。
+
+探针保留于 Windows Temp/probe_snapshot_id_map_c997347.py，旧源码位于
+隔离目录 snapshot_baseline_c997347.py；实际当前模块路径与原
+/home/yuhling/.local/bin/ltl2ba 均核对。环境仍为 WSL Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12 / NetworkX 2.4 隔离 overlay，未更换依赖。
+本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
+机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
+README、63 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.65 IRL 相邻轨迹遍历省去尾部副本（2026-10-07）
+
+初始基线为 `ab75d0fc01fe7a9272f3fe2269ddc095dd51e493`。pure IRL
+在示范校验、软距离求和及示范边集合构造中使用 zip(path, path[1:])，
+会复制轨迹尾部；软距离在示范选择及每轮学习中重复调用。三处现在
+使用 itertools.islice 的流式相邻遍历，不增加 helper 或缓存。输入
+仍为校验后的 tuple 和原生 ProdAut_Run.suffix list，不扩大为单次
+generator path 接口。候选列表、validated tuple、min 示范选择及并列
+规则、原顺序 sum、margin、私有 Product deepcopy、梯度/步长、20 次
+上限和 0.3 停止条件保持；suffix 仍不额外计入隐式闭合边。
+
+新增两个 list/tuple 参数化测试，共四个 case：覆盖空/单节点距离零、
+重复边/自环逐项计数、不补闭合边、1e16+1+1 的原顺序求和及输入
+图/路径保持。示范保留重复节点/边并转换为 tuple；当较早的
+good→bad 边缺失而末尾节点 unknown 时，仍先报告 unknown node，
+保持全部节点校验先于边校验。test_irl.py 与 test_discrete_plan.py
+合计 **49 passed**。补强该错误优先级条件后，仅重跑对应 list/tuple
+两个 case，**2 passed / 23 deselected**，属于前述测试子集，不另计独立项。
+源码/测试 py_compile、ament_flake8、测试 pep257 与 diff 检查通过。
+
+独立进程加载逐字匹配 git show ab75d0f 的完整旧 IRL 模块，执行
+这四个新增语义 case，同为 **4 passed / 21 deselected**；这是行为
+保持检查，不作为旧算法错误的 RED 证据。完整旧/新 learn_beta 在
+真实 ProdAut 控制小图上返回相同 IRLLearningResult 字段，β 序列为
+(1, 2, 3, 3)。在两侧以保留 tuple/list 行为的子类记录实际尾切片，
+search 仍调用实际 NetworkX，并保留未计数调用的结果对照：旧版
+六个长度 2 的 tuple 尾副本及四个长度 1 的 suffix list 尾副本，新版
+均为零。该计数仅针对这些相邻遍历的轨迹副本，其它列表/tuple、
+Product deepcopy 和 margin 边表仍保留，不作为总分配/RSS/加速测量。
+
+另以原生 ltl2ba 构造 hard GF hub / soft GF good 的真实 Büchi/Product，
+在 hub/good 观测词下获得 64 条示范路径；旧/新完整学习结果相同，
+β=6。两组源 Product 的 metadata、节点、边、possible states 及所引用
+TS/Büchi 内容，在学习前后的完整 pickle 序列化一致。这是原算法
+保持检查，不证明收敛、逆最优性、示范效果或改进学习质量。
+
+完整探针为 Windows Temp/probe_irl_adjacency_ab75d0f.py，旧模块重放
+为 replay_irl_semantics_ab75d0f.py，旧源码保留在隔离目录
+irl_baseline_ab75d0f.py。旧源码字节、当前 IRL 模块路径与原
+/home/yuhling/.local/bin/ltl2ba 均核对。环境仍为 WSL Ubuntu 22.04 /
+ROS 2 Humble / Python 3.10.12 / NetworkX 2.4 隔离 overlay，未更换依赖。
+本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
+机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
+README、64 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.66 2D 生成器初始 cell 与严格区域规则一致（2026-10-07）
+
+初始基线为 `9cc30324e924532efc52516c10dad60d3fb80a1e`。2D 生成器
+用 <= half 选择初始 cell，Region2DPoseModel 初次观测则用 < half；
+model 初始 state=None，不能用已有区域的滞回规则补偿。2×1 网格、
+边长 1、无 station、初始位置 (1, 0.5) 会生成 initial=r1，但 fresh
+monitor 在同一位置无法识别任何区域。仅将生成器初始 x/y 比较改为
+严格内部规则，边界输入现在抛出既有精确 ValueError：
+Initial position is outside the generated grid. 运行时 square/station
+几何、正滞回、TS 边/动作/固定代价、搜索/接受性和 IRL 均未修改。
+
+新增四个边界回归，分别为共享边 (1, 0.5)、外边 (0, 0.5)、水平外边
+(0.5, 0)、角点 (0, 0)。旧源码在修复前实际 **4 failed / 33 deselected**，
+均未抛出预期 ValueError。另两项用 math.nextafter(1, 0) 与
+math.nextafter(1, 2) 检查边界两侧内点各自选择 r1/r2，并与 fresh
+monitor 一致；一项检查先进入 r1 后，正滞回仍保留共享边状态。
+修改后 test_region_models.py 与 test_monitor_inputs.py 合计
+**45 passed**，保留两项既有警告。源码/测试 py_compile、ament_flake8、
+测试 pep257 与 diff 检查通过，没有修改 monitor 或放宽边界验收。
+RED 使用 -k test_generator_rejects_exact_grid_boundaries，只选择四个
+新触发场景；PASS 未过滤这两个文件的既有用例。失败与通过输出
+保留在本轮工具 stdout，未生成额外 JUnit 或独立日志文件。
+
+独立探针加载逐字匹配 git show 9cc3032 的完整旧生成器，与当前实际
+导入对照。四个边界输入的旧输出均为 r1，fresh monitor 返回 None；
+新输出均为上述精确 ValueError。四个内点（两 cell 中心及 nextafter
+两侧）的完整旧/新 TS 字典相同、initial 与 fresh monitor 相同，输入
+定义前后 pickle 字节一致。以正滞回先进入 r1 后移动到共享边，仍
+返回 r1；同点的 fresh model 仍返回 None，保持运行时严格规则。
+
+普通内点生成的旧/新 TS 继续通过实际 Core YAML 入口、原生 ltl2ba
+规划 <> r2；完整运行字段、生成 ROS 快照及公开 Product ID 均相同。
+source-label 规则下 prefix=20、suffix=10、gamma=10、total=120，保留
+原固定动作代价 10。此检查不启动 ROS Node 或 DDS，不作为实机/物理
+观测证明。未更换边界为闭集，也未修改已有 YAML 或冻结实验数据。
+
+探针为 Windows Temp/probe_initial_cell_boundary_9cc3032.py，完整旧源码
+保留于隔离目录 generator_baseline_9cc3032.py。旧源码字节、当前生成器
+及 monitor 实际导入的 resolve 路径、原 /home/yuhling/.local/bin/ltl2ba
+均核对。环境仍为 WSL Ubuntu 22.04 / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4 隔离 overlay，build 路径经 symlink 绑定当前 checkout。
+本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
+机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
+两份 README、65 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.67 Product 边必需字段集合在单次快照内复用（2026-10-07）
+
+初始基线为 `9d4962df07f351026c740be9d2cc451e1f8c2197`。Product
+快照导出每处理一条边都会新建相同的 action/transition_cost/
+soft_task_dist/weight 四字段 set。现在将该局部 literal set 移到
+循环前，边内仍只调用 difference，不外泄、不跨调用缓存。保持
+set 类型、缺失字段按字母序诊断、字段读取/转换次序及边排序；
+节点/运行校验、全部消息、只读 ID 和事务复制、搜索/代价/IRL 保持。
+每条边的 missing 差集与消息仍单独构造。
+
+新增两个参数 case，分别仅缺 weight 和四字段全缺：直接 builder
+抛出原精确 ValueError，转换 fallback 保留原诊断并给出完全空载荷，
+损坏边属性不被校验改写；恢复字段后完整快照和公开 ID 同原健康
+结果。test_planning_graph_snapshot.py 与 test_snapshot_service_copy.py
+合计 **18 passed**。补充 ID 恢复断言后仅重跑这两个 case，
+**2 passed / 13 deselected**，属于前述测试子集，不另计独立项。
+源码/测试 py_compile、ament_flake8、测试 pep257 与 diff 检查通过。
+独立加载逐字匹配 git show 的完整旧模块，并核对旧 builder 确实被
+planner_node 的 fallback 使用；新增两项同为 **2 passed / 13 deselected**，
+用于保持既有行为，不作为算法 bug 的 RED 证据。
+
+完整旧/新 builder 在原生 ltl2ba 的 single/safe/KTH 三个图上比较，
+普通及 trace 调用的全部生成 ROS 快照与公开 ID 相同。在实际
+missing 差集语句执行处保留真实 required set 引用，避免释放后
+地址复用，所观察到的集合数量如下：
+
+| native graph | Product edges | old distinct sets | new distinct sets |
+|---|---:|---:|---:|
+| single | 5 | 5 | 1 |
+| safe | 10 | 10 | 1 |
+| KTH | 44 | 44 | 1 |
+
+后续新构造使用另一个新 set；两个缺字段场景的旧/新精确诊断相同，
+恢复后完整消息相同。single 的原成本保持 prefix=3、suffix=1、
+gamma=10、total=13。首次探针的整对象 pickle 比较失败，诊断再运行
+确认唯一新增对象属性是 NetworkX 的 Buchi.nodes 懒 view 缓存；
+比较前读取同一 view 后再运行通过，生产代码未因该探针问题改变。
+图/运行输入内容保持。初始失败和诊断输出保留在工具 stdout；
+此计数只证明这些有边图少了重复四字段集合，不作为总分配、RSS、
+整体耗时或加速比测量。
+
+完整探针为 Windows Temp/probe_product_required_fields_9d4962d.py，
+旧模块重放为 replay_snapshot_fields_9d4962d.py，完整旧源码保留于
+隔离目录 snapshot_baseline_9d4962d.py。旧字节、当前模块的 resolve
+导入与原 /home/yuhling/.local/bin/ltl2ba 均核对；build symlink 绑定
+当前 checkout。环境仍为 WSL Ubuntu 22.04 / ROS 2 Humble /
+Python 3.10.12 / NetworkX 2.4 隔离 overlay，未更换依赖。
+本轮没有整包、ROS 节点/DDS、LLM、benchmark、物理仿真、实机、
+机器人示范或 Jazzy 验证；11.63 七包结果属于原 6cbfd39 基线。
+README、66 节历史正文保留、本地链接/锚点与 diff 检查通过。
+
+### 11.68 KTH 演示驱动延迟参数的有限性与 timer 范围（2026-10-07）
+
+初始基线为 `ad0340847713acc82bd30529f5be545ce68242da`。KTH driver
+此前仅检查 step_delay <= 0，NaN/+inf 和有限的 1e10 均会进入
+ROS timer 创建。现在保留 scenario、非正延迟和 max_steps 的原
+检查/诊断顺序，之后验证延迟有限，并使用当前 Humble Duration
+检查纳秒表示范围；超范围统一返回 step_delay 的 ValueError，保留
+原 OverflowError cause。检查位于演示 pub/sub/client/timer 创建前。
+负值、零与 -inf 仍为原精确 Parameter 'step_delay' must be positive.
+诊断；NaN/+inf 为 step_delay must be finite.；超范围为
+step_delay is outside the ROS timer range.。没有新常量上限、最小
+延迟或构造签名改动，实际传给 timer 的原 delay 保持。
+
+test_kth_demo_driver.py 原有九项动作转换与新增九项参数 case 合计
+**18 passed**，无 pytest warnings。验收后补强参数 case，仅重跑
+该子集：**9 passed / 9 deselected**，不累计为 27。参数测试实际
+构造独立 rclpy Node/Context，演示 pub/sub/client 使用 spy，timer
+调用委托原生 Node.create_timer。无效值断言演示实体调用列表为空；
+1e10 还核对 ValueError 的 OverflowError cause。有效 0.25 秒的
+timer_period_ns 为 250000000，1e-12 秒保持原截断结果 0 ns。
+NaN 与 max_steps=0 同时给定时，保留 max_steps 的原诊断优先级。
+全部节点/Context 在正常及异常路径销毁/关闭，未做 DDS 通信集成。
+源码/测试 py_compile、ament_flake8 --linelength 99、测试 pep257 与
+diff 检查通过；补强后仅重新检查修改过的测试文件。
+
+最初新增参数测试在生产修复前为 **3 failed / 6 passed / 9 deselected**，
+当时 timer 使用 spy；输出保留在工具 stdout。补强后主代理另加载
+逐字匹配 git show 的完整旧模块，收集时断言所有 case 的
+KthDemoDriver 绑定该旧类；仍为 **3 failed / 6 passed / 9 deselected**，
+实际 pytest exit 1。NaN 在原生 timer 整数转换处泄漏普通 ValueError，
++inf 泄漏 OverflowError，1e10 在 C timer 构造处泄漏 TypeError。
+这三个失败均为参数拒绝 case；原非正值、max_steps 优先级及两个
+有效原生 timer case 在旧版也通过。失败没有过滤或混入 PASS。
+独立重放脚本为 Windows Temp/replay_kth_demo_delay_ad034084.py；
+完整旧源码保留于隔离目录 kth_demo_baseline_ad034084.py，重放的
+kth_delay_old_ad034084.xml 和 kth_delay_old_ad034084.log 也保留。
+当前源码 resolve 路径绑定本 checkout，旧源码字节与基线一致。
+
+使用既有 WSL Ubuntu-22.04-D、ROS 2 Humble 和隔离 overlay：
+source /opt/ros/humble/setup.bash 与
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash。
+测试命令为 python3 -m pytest -q ltl_automaton_planner/test/test_kth_demo_driver.py；
+补强子集使用 -k 'step_delay or max_steps_error'。以上两次 PASS 为
+工具 stdout，没有新增 PASS JUnit；旧模块重放有独立 JUnit/log。
+范围转换依据当前已安装代码及
+[rclpy Humble Duration](https://github.com/ros2/rclpy/blob/humble/rclpy/rclpy/duration.py)，
+未更换依赖。launch、反馈间隔的有效值、max_steps、场景/阶段、
+动作转换与规划/代价/IRL 代码保持。本轮没有整包、完整闭环场景、
+LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy 验证；七包
+组合结果仍属于 11.63 的 6cbfd39 基线。README 与 KTH 演示说明
+同步输入约束，前 67 节历史正文保持，本地链接/锚点与 diff 检查通过。
+
+### 11.69 近期改动后的当前七包组合验证（2026-10-07）
+
+资格基线为干净提交 `4817dd4939c04d14a479f3bb1ef1105eb5c478a1`。
+自 6cbfd39 上次整包结果以来，代码已修改快照、IRL 相邻遍历、
+2D 初始边界及 KTH driver 参数处理，因此本轮重新执行组合检查。
+colcon list 的全部七包与 aggregate 的六个 exec_depend 一致。
+使用既有 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4，build/install 仍为 /tmp/ltl_ros2_completion_20261006
+隔离路径，translator 为原 /home/yuhling/.local/bin/ltl2ba。
+构建显式使用 --executor sequential、--symlink-install、
+--packages-up-to ltl_automaton_core 与 -DBUILD_TESTING=ON；
+测试选择全部七包，默认并行并启用 --return-code-on-test-failure，
+没有 pytest 筛选或修改条件/时限。包级测试 domain 215/216/217/218
+保留，未更换依赖或修改运行代码。构建 exit 0、实际 35.729804081 秒；
+测试 exit 0、实际 61.438237663 秒，各只执行一次。
+
+独立核对测试开始时间之后的六份 JUnit 与当前接口 CTest wrapper：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 185 | 184 | 1 |
+| ltl_automaton_planner | 148 | 147 | 1 |
+| ltl_automaton_execution | 124 | 124 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **620 tests = 616 passed + 4 skipped，0 errors，0 failures**。
+四项跳过仍为已有 copyright。接口 CTest wrapper 一项通过，实际
+colcon test-result --verbose 返回 **621 tests，0 errors，0 failures，4 skipped**。
+八份历史 CTest XML 按时间排除，不与 JUnit 重复计数。aggregate
+本身没有独立 pytest case，其七包依赖覆盖已核对。
+自 6cbfd39 后新增 23 项逐包核对实际执行且未跳过：快照 3、IRL 4、
+2D 生成器边界 7、KTH 参数 9。四个真实 DDS 执行场景、Studio
+consumer、快照转换 fallback、IRL commit/step reset，以及既有
+接受环/结果转换、native translator/POSIX、HIL、monitor、launch
+与 lint 回归也核对。保留 NetworkX/NumPy np.int 及 SelectableGroups
+的既有弃用警告；测试日志有五包 stderr，不作为零警告结果。
+
+Core TS/planner/Product/discrete-plan、ROS planner/snapshot、execution
+models/resolver 及 2D monitor 的实际导入绑定 checkout，消息为隔离
+build 生成接口。主代理另以同一 overlay 核对 IRL、2D generator 与
+KTH driver 三个当前模块的 resolve 路径和完整源字节，均与资格
+提交相同。构建/测试前后的 HEAD 与清洁树核对，文档提交前源码/
+测试保持该基线；本次仓库只改 README 和此验证记录。
+
+本轮 verification_4817dd4.json、verified_summary_4817dd4.json、
+verified_results_4817dd4 与 log_combo_4817dd4 均在隔离路径下。
+collector 只执行一次，将六份新 JUnit/当前 CTest、receipt/summary、
+三模块导入记录、旧证据哈希清单与完整 colcon 实体日志冻结为
+83 个文件，sha256_manifest.json 清单逐项通过；日志便利 symlink
+不复制，不影响实体日志内容。冻结副本与当前六份 JUnit 字节一致。
+先前 verified_results_c70d38d、verified_results_6cbfd39 与
+failed_results_2c52c71_run1/原 receipt 共 26 份冻结文件，在本轮前后
+SHA256 保持；没有覆盖历史通过、最初五项失败或旧模块重放证据。
+新增辅助脚本均使用 4817dd4 独立名字，旧执行脚本没有重跑。
+
+本轮没有 LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy
+验证；该耗时是资格命令时间，不是规划性能/加速比，组合通过也不
+证明 IRL 收敛或逆最优性。README 刷新为当前资格结果，前 68 节
+正文完整保留，本地链接/锚点及 diff 检查通过。
+
+### 11.70 KTH driver 缓存启动配置的只读参数契约（2026-10-07）
+
+初始基线为干净 `a27c17de5ac20b95d232a33d62771a2857ff7a19`，
+其源码与 4817dd4 组合资格相同。driver 仅在启动时缓存 scenario、
+step_delay、max_steps、replanning_after_steps、replanning_hard_task、
+replanning_soft_task，原先却允许运行时成功写入这六项。真实节点
+复现六项 set_parameters 都返回 successful=True，但各缓存仍为原
+值；例如 step_delay 写入后 self.step_delay 仍为 1.0、timer 仍为
+1000000000 ns。该复现保留在工具 stdout，未生成额外 JUnit。
+
+现在分别声明六个独立的 ParameterDescriptor(read_only=True)，
+运行时写入拒绝，启动 override 仍应用于缓存和原生 timer。
+不共享可变 descriptor，不增加动态重配置或自定义 callback。
+继承的 use_sim_time 仍可动态写入；已有 rcl_interfaces 直接依赖
+保持，无 package/launch/构造签名、延迟校验/异常优先级、反馈
+阶段/步数或规划/代价/IRL 改动。ROS 参数服务的拒绝是本轮可见
+接口变化，KTH 文档明确启动设置并补齐两个任务参数。
+
+test_kth_demo_driver.py 初次完整运行 **20 passed**（原 18 项及
+两个启动/本地 API case）。随后加入原生公开 SetParametersAtomically
+服务 case，单独 **1 passed / 20 deselected**。验收补强两个原子场景，
+仅重跑 **2 passed / 19 deselected**；这些属于同一文件的重叠子集，
+未重跑最终 21 项整文件，不累计为 23。以上均无 pytest warnings。
+完整启动覆盖核对全部六个缓存/参数/descriptor，并确认 0.25 秒
+timer 保持 250000000 ns。本地 API 六项分别拒绝且参数/缓存/timer
+保持；原子请求先给可写的 use_sim_time、再给只读项，整批拒绝
+且 use_sim_time 保持 False，单独 use_sim_time 设置仍成功。
+
+公开 case 使用真实 native Node.create_client 与同 Context 的
+SingleThreadedExecutor，服务发现和 Future 等待各沿用 2 秒。
+use_sim_time 在前、step_delay 在后的请求被拒绝，无部分写入；
+随后独立 use_sim_time 请求成功。此 case 确实经过公开参数 RPC，
+driver 演示 pub/sub/client 仍为 spy，timer 和基础参数服务为原生；
+不作为完整演示、TS/规划执行闭环或 clock 反馈验证。正常及测试
+异常路径清理 client/executor/node/context。源码/测试 py_compile、
+ament_flake8 --linelength 99、测试 pep257 与 diff 检查通过，测试
+补强后只重新检查已修改的测试文件。
+
+生产修改前未执行两个新增测试，不补称前置 RED。主代理在最终
+测试补强后独立加载逐字匹配 git show 的完整旧 driver，收集时
+断言 KthDemoDriver 确实绑定旧类。三个新增 case 为
+**3 failed / 18 deselected**，实际 pytest exit 1：启动 case 的只读
+descriptor 缺失，本地 runtime 和公开 RPC 均实际返回错误的
+successful=True，后两项不是被提前 descriptor 断言阻断。
+失败 JUnit/log 单独保留，未混入 PASS。完整旧源码保留于隔离
+目录 kth_demo_baseline_a27c17d.py，重放脚本为 Windows Temp/
+replay_kth_params_a27c17d.py，产物为 kth_params_old_a27c17d.xml 与
+kth_params_old_a27c17d.log。当前源码 resolve 与旧字节已核对。
+
+环境仍为 WSL Ubuntu-22.04-D / ROS 2 Humble 及既有隔离 overlay，
+未更换依赖。本轮没有七包组合重跑、完整场景、LLM、benchmark、
+物理仿真、实机/机器人示范或 Jazzy 验证；11.69 的 620 项结果仍
+属于 4817dd4 原资格基线。README/KTH 演示说明同步，前 69 节
+历史正文完整保留，本地链接/锚点与 diff 检查通过。
+
+### 11.71 快照运行相邻校验省去尾部副本（2026-10-07）
+
+基线为干净 `86f915eae6dcbbc422b131f571466ec5a59ba89e`。
+`_serialize_run` 在 prefix/suffix 相邻 Product 边校验时，以
+`zip(nodes, islice(nodes, 1, None))` 替代 `zip(nodes, nodes[1:])`，
+省去两个序列尾部副本。仅增加标准库导入与该表达式；保留全部
+ID 转换、suffix 非空/重复起点/闭合边、prefix 非空/共享边界、
+prefix 先于 suffix 的内部边检查和 any 短路、消息成本转换的顺序。
+支持既有 list/tuple 运行，不扩展为单次 generator 输入契约，不改
+搜索、接受性、目标函数、IRL、事务、消息或快照服务防御性副本。
+
+复用控制 Product，新增 list/tuple 两种容器的重复访问与单节点
+自环四项：重复 prefix 为 p0,p1,p2,p1,p2,p1，suffix 为
+p1,p2,p1,p2，手算成本为 5/4/45；单节点 prefix/suffix 均为 p1，
+零代价 Product 自环成本 0/0/0。断言完整 ID 顺序、重复项、成本
+及输入图/run 未变。既有损坏参数化增加 prefix/suffix 同时缺边，
+仍先报告 prefix missing。两个快照相关文件一次运行 **23 passed**，
+保留两条既有 NetworkX/NumPy np.int 弃用警告；没有前置 RED，
+新用例为语义保留检查。源码/测试 py_compile、ament_flake8
+--linelength 99（两文件）、测试 pep257 与 diff 检查通过；实际
+source realpath 指向本 checkout 的隔离 symlink overlay。
+
+主代理独立加载逐字匹配 git show 的完整旧模块，对照三个原生
+single/safe/KTH 小规划，成本分别为 3/1/13、3/2/23、20/20/220。
+再对照上述四个 list/tuple 控制运行；完整 ROS 快照、Product ID
+映射、图/run 输入 pickle 字节均相同。对支持序列的真实切片和
+has_edge 调用做独立观察：每次尾部切片 2 -> 0，三个原生运行的
+被复制元素数分别 2/3/3 -> 0，重复控制运行 8 -> 0；单节点原
+尾部为空，也不再触发尾部切片。每个成功运行的 has_edge 次序
+完全相同。两个损坏运行的精确 ValueError、短路调用和 unavailable
+空载荷亦相同；同时缺边时仅检查闭合边 p2->p1 与缺边 p0->p2，
+没有继续检查 suffix。该观察不测时间，不作为整体性能/加速比。
+
+原生 translator 保持 /home/yuhling/.local/bin/ltl2ba，当前模块
+resolve 与完整旧字节已核对。旧源码位于隔离目录
+snapshot_baseline_86f915e.py；对照脚本为 Windows Temp/
+probe_snapshot_run_slices_86f915e.py，成功 stdout 保留在工具记录。
+环境仍为 WSL Ubuntu-22.04-D / ROS 2 Humble 及既有 overlay，
+不更换依赖。本轮没有七包、完整演示、LLM、benchmark、物理仿真、
+实机/机器人示范或 Jazzy 验证；11.69 的 620 项仍属于 4817dd4。
+README 同步本轮局部结果，前 70 节历史正文保持，本地链接/锚点
+及四文件范围/diff 检查通过。
+
+### 11.72 Core 运行转为 Product 边列表省去临时切片（2026-10-07）
+
+基线为干净 `f7795b33b9e057ff8237886da348dc7d9b5cddcf`。
+ProdAut_Run.prod_run_to_prod_edges 在 prefix 与 closed_suffix 的
+相邻 zip 中使用 islice，省去原四个切片。仍保留输出 list、空
+suffix 分支和原 `self.suffix + [self.suffix[0]]` 拼接：tuple
+suffix 继续在 prefix 输出更新后抛原 TypeError，不引入新兼容层。
+全部边顺序、重复项、自环和唯一按原规则拼接的闭合边保持；
+每次生成新边列表，读当前 prefix/suffix。plan_output、TS 投影/
+切片、动作与成本读取/日志/zip 消费未改，搜索、接受性、目标
+函数、IRL、ROS 消息/快照/事务和历史重规划调用点不变。
+
+测试复用现有 Product，新增 list/tuple 重复 prefix + 空 suffix
+两项和 tuple suffix 的 TypeError/部分更新一项。完整顺序与
+重复边、空输出、旧输出独立性、输入值和其它计划/成本字段均
+检查。Product 与 discrete-plan 两现有文件一次 **57 passed**。
+审阅补强新 prefix list 与旧输出的对象独立性，并 deepcopy 旧
+字段值以免活引用掩盖原地修改；仅三新增用例子集重跑
+**3 passed / 30 deselected**，未重跑最终整组，不累计为 60。
+两次均保留两条既有 NetworkX/NumPy np.int 弃用警告。源码/测试
+py_compile、ament_flake8 --linelength 99（初次两文件/补强后仅
+测试）、测试 pep257 与 diff 检查通过。新用例属于语义保持检查，
+没有前置 RED；没有更换依赖。
+
+主代理独立加载逐字匹配 git show 的完整旧 Product 模块，以
+三个原生 single/safe/KTH 小规划的同一 Product/输入运行重建
+旧/新 ProdAut_Run。全部 prefix/suffix、边列表、TS line/loop、
+动作序列与分项成本、总体成本、info 调用及已耗尽 TS zip 相同；
+完整 ROS 快照/ID 映射和图/run 输入 pickle 字节保持。原生成本
+分别为 3/1/13、3/2/23、20/20/220。支持序列上的实际切片观察
+仅针对 Product 边生成阶段，每次 4 -> 0，被复制元素分别
+6/8/8 -> 0；闭合 suffix 拼接仍各发生一次，TS 转换切片仍保留。
+这不是总分配或耗时/整体加速测量。旧/新直接 helper 对照亦
+保留 list/tuple prefix 与空 suffix 的新列表，以及 tuple suffix
+精确 TypeError args 和 prefix 先更新/suffix 原输出不变。
+
+旧源码保留于隔离目录 product_baseline_f7795b3.py；独立脚本为
+Windows Temp/probe_core_run_edges_f7795b3.py，成功 stdout 保留
+于工具记录。实际 Core source resolve 来自本 checkout；原生
+translator 仍为 /home/yuhling/.local/bin/ltl2ba。环境为既有 WSL
+Ubuntu-22.04-D / ROS 2 Humble 隔离 overlay。本轮没有七包、完整
+演示、LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy 验证；
+11.69 的 620 项仍为 4817dd4 原资格，不代表本轮整包通过。
+README 同步，前 71 节历史正文保持，13 个本地链接/锚点、四文件
+范围及 diff 检查通过。
+
+### 11.73 近期接口及运行转换改动后的七包组合资格（2026-10-07）
+
+资格基线为干净 `be23c757388568d6ffeeb890c37be2f4d6b27aec`。
+自 4817dd4 后又修改 KTH 只读启动参数、快照相邻校验和 Core
+运行转边列表，本轮重新执行完整组合。colcon 发现的七包与
+aggregate 的六个 exec_depend 一致。环境为既有 WSL Ubuntu-22.04-D /
+ROS 2 Humble / Python 3.10.12 / NetworkX 2.4，原生 translator
+仍为 /home/yuhling/.local/bin/ltl2ba，隔离 build/install 路径保持。
+一次 build 使用 --executor sequential、--symlink-install、
+--packages-up-to ltl_automaton_core 和 -DBUILD_TESTING=ON，实际
+exec session 81261 返回 exit 0，耗时 37.695947396 秒。一次 test
+选择全部七包、默认并行并启用 --return-code-on-test-failure，
+实际 exec session 89485 返回 exit 0，耗时 62.274619121 秒。
+主代理也实际观察到同一 test wrapper PID355 与 colcon PID376
+存活；工具 yield 时只等待原句柄，没有重启命令。包级 domain
+215/216/217/218 保持，没有 pytest 筛选、缩短条件或更换依赖。
+
+独立核对测试开始后的六份 JUnit：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 188 | 187 | 1 |
+| ltl_automaton_planner | 156 | 155 | 1 |
+| ltl_automaton_execution | 124 | 124 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **631 tests = 627 passed + 4 skipped，0 errors，0 failures**。
+四项跳过仍为已有 copyright。当前接口 CTest wrapper 一项通过；
+实际 colcon test-result --verbose 汇总为 **632 tests，0 errors，
+0 failures，4 skipped**。九份历史 CTest XML 按时间排除，不与
+本轮 JUnit 混用/重复计数；aggregate 没有独立 pytest case。
+自 4817dd4 后新增 11 项核对执行且不跳过：KTH 启动覆盖/本地
+原子拒绝/公开参数 RPC 三项，快照重复运行/单节点自环四项及
+同时缺边诊断一项，Core 空 suffix/tuple suffix 三项。此前新增
+23 项、四个真实 DDS 场景、Studio consumer、快照 fallback、IRL
+commit/step reset、接受环/结果转换、native translator/POSIX、
+HIL、monitor、launch 与 lint 亦核对。保留 NetworkX/NumPy np.int
+及 SelectableGroups 弃用警告；五包有 stderr，不作为零警告结果。
+
+构建/测试前后 HEAD 和清洁树均核对，常用 Core、ROS planner/
+snapshot、execution 及 monitor 实际导入来自本 checkout，消息
+来自隔离生成接口。主代理另核对 Product、snapshot、IRL、2D
+generator、KTH driver 五模块 resolve 和完整 git 源字节，均绑定
+资格提交。collector 只执行一次，verification_be23c75.json、
+verified_summary_be23c75.json、verified_changed_imports_be23c75.json、
+historical_hashes_before_be23c75.json 与新 JUnit/当前 CTest、完整
+构建/测试实体日志冻结于 verified_results_be23c75，清单 83 文件
+逐项 SHA256 通过。log_combo_be23c75 的便利 symlink 不复制，
+实体日志保留；后续 test-result 查询使用独立 log_query_be23c75。
+旧 4817dd4 的 83 文件清单在本轮前先校验，旧资格/失败/近期旧
+模块重放等 119 份历史证据前后哈希保持。没有覆盖最初五项失败、
+KTH 旧模块三项失败或原生对照源码/证据，也没有重跑旧执行脚本。
+
+本轮没有 LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy
+验证；资格命令耗时不作为规划速度，组合通过不证明 IRL 收敛或
+逆最优性。本次仓库只更新 README 与此记录，源码/测试保持
+be23c75。前 72 节历史正文完整保留，13 个本地链接/锚点及
+doc-only diff 检查通过。
+
+### 11.74 Planner 初始状态等待配置的只读启动契约（2026-10-07）
+
+基线为干净 `81cc78afde35f3e03bf930a04df40073aabdfdb0`。
+源码审阅确认 initial_ts_state_from_agent 仅在构造时读取为内部
+_waiting_for_initial_state；后者随后由生命周期更新，不是动态
+参数的回调。更改前用真实 Node/Context、空 TS 路径和独立 domain
+229 观察：默认参数/等待缓存均 False，运行时写入 True 返回成功，
+参数变为 True 但缓存仍 False。启动 True override 能应用。两个
+行为开关和 use_sim_time 的原子更新成功，确认它们仍应保持动态。
+
+生产修改仅为该声明添加独立 ParameterDescriptor(read_only=True)
+及既有 rcl_interfaces.msg 的 import。启动 override 保留；运行时
+单项及含该项的原子更新由 ROS 参数 API 拒绝。replan_on_unplanned_move、
+check_timestamp 的已有回调和 use_sim_time 保持；任务、权重、TS/
+插件配置在后续初始化时读取的路径不变。没有修改生命周期、规划、
+代价、接受性、IRL 学习范围/启用配置、接口定义、依赖或 launch。
+
+复用现有 test_planner_node.py，只新增两个函数、三个 case：
+False/True 启动覆盖分别检查参数/缓存一致，直接反向写入被拒绝；
+将三个可变参数置前、只读参数置后的 mixed atomic batch 拒绝后，
+参数与缓存保持，随后 mutable-only 更新成功。第三项通过真实
+SetParametersAtomically RPC 检查同样的拒绝、完整性及可变更新；
+沿用 2 秒 discovery / 3 秒 future 上限，finally 清理 client。
+节点/Context/executor 清理保留。最终整文件 **30 passed，exit 0**，
+两条既有 NetworkX/NumPy np.int 弃用警告。此前拆分为四新增 case
+的草稿整文件为 31 passed，不与最终结果累计。最终两文件
+py_compile、ament_flake8 --linelength 99、测试 pep257 和 diff 通过。
+
+主代理在修改后加载 git show 81cc78a 的完整旧 planner_node.py，
+核对完整字节、当前 checkout import resolve 和所收集测试绑定
+旧 PlannerNode。第一次 helper 的 collection hook 早于 pytest
+筛选，断言 3 项时收到 30 项，实际 INTERNAL_ERROR，未运行测试；
+原日志保留，不作为回归失败证据。修正为筛选完成后核对，使用
+新 run2 XML/log，旧源码不覆盖。实际 pytest **exit 1：3 failed /
+27 deselected**，无 errors/skips；两项 direct API 与一项公开 RPC
+均先执行写入，再因旧 successful=True 失败，早于 descriptor 检查。
+helper 核对预期失败后自身 exit 0；这不是更改前的新用例 RED。
+
+旧源码为隔离目录 planner_node_baseline_81cc78a.py；结果为
+planner_initial_param_old_81cc78a_run2.xml/.log，对照脚本为 Windows
+Temp/replay_planner_initial_param_81cc78a_run2.py；第一次 .log 与
+脚本亦保留。环境仍为既有 WSL Ubuntu-22.04-D / ROS 2 Humble /
+Python 3.10.12 隔离 overlay，新测试与旧重放使用包测试 domain 215。
+新增 case 使用真实节点及其原生通信实体、公开参数 RPC，空 TS
+路径不创建 planner；不构成有效规划、执行/时钟反馈闭环或 IRL
+效果验证。没有七包、LLM、benchmark、仿真、实机/机器人示范或
+Jazzy 验证；11.73 的 631 项只属于 be23c75 历史资格。
+README/API 同步；前 73 节正文完整保留，本地链接/锚点和五文件
+范围/diff 检查通过。
+
+### 11.75 TS 动作转换的稳定节点快照与切片缩减（2026-10-07）
+
+基线为干净 `c559fd60dc65f82c95e1290cd418634194a78b02`。
+先对动态参数做只读审计：当前 Planner 只注册一个参数回调，先
+校验两个行为参数再更新缓存。安装的 Humble rclpy 在用户回调前
+执行 descriptor/type/read-only 校验。真实空 TS Node/Context、
+domain 230 的三种 mixed atomic probe（合法 behavior=False 在前，
+其它参数错误 string、只读初始参数或另一个 behavior 错误 int 在后）
+均返回拒绝，四参数与两个行为/等待缓存保持原值；随后合法两行为
+更新成功且参数/缓存同步，probe exit 0。没有发现不一致，没有为
+该审计修改回调、注册新插件机制或扩大参数兼容范围。
+
+本轮生产修改仅在 ProdAut_Run.plan_output：保留 line/loop 两个
+输出 list 和 loop 追加首节点，将原四次相邻节点尾部 list 切片换为
+每段一次稳定 tuple 与 zip/islice。空/单节点 prefix 使用空 tuple；
+suffix 仍读取原追加闭合节点的 loop。全部次序、重复项、自环、
+动作后取 weight、成本字段、错误/部分更新、日志及公开 zip 类型/
+消费保持。发生转换错误后，剩余 zip 仍读取本次原节点快照，即使
+line/loop 随后原地修改也不受影响；没有跨调用缓存。Product 边列表
+转换、历史重规划调用点、搜索、接受性、目标函数和可选 IRL 不变。
+
+仅补强现有缺失 action/weight 的两个 case，不新增测试函数：有效
+prefix 改为 start/goal/goal，手算成本 3/1/13；失败后原精确 KeyError、
+partial action/cost、suffix 原输出保持，再改 line/loop 为单节点列表，
+剩余 prefix 和未消费 suffix zip 均仍返回原 s1->s1。Product 与
+discrete-plan 两现有文件一次 **57 passed**，两条既有 NetworkX/
+NumPy np.int 弃用警告。最终两文件 py_compile、ament_flake8
+--linelength 99、测试 pep257 与 diff 通过，没有更换依赖。
+
+主代理独立加载逐字匹配 git show c559fd6 的完整旧 Product 模块，
+使用原生 single/safe/KTH 小规划的同一 Product 与运行输入构造旧/新
+ProdAut_Run。完整字段、line/loop、动作及分项成本、已耗尽 TS zip、
+info 调用、完整 ROS 快照与 Product ID 映射一致；旧/新转换的 graph/run 输入
+pickle 字节保持。成本分别 3/1/13、3/2/23、20/20/220。观察真实
+plan_output 传给 zip 的节点容器类型、身份与长度：原四个临时尾部
+list 变成两个 tuple，复制节点引用分别 6/8/8 -> 5/6/6。重复 prefix
+控制为 4 -> 2 容器、8 -> 6 引用；空/单节点 prefix 为 4 -> 1 容器、
+2 -> 2 引用。两种缺字段的精确错误、部分输出及原地修改 line/loop
+后剩余 zip 的隔离亦与完整旧模块一致。不是总分配或耗时/加速测量。
+属于语义保持对照，没有前置新用例 RED，也没有重跑旧执行脚本。
+
+旧源码保留在隔离目录 product_baseline_c559fd6.py；独立脚本为
+Windows Temp/probe_ts_output_snapshots_c559fd6.py，成功 stdout
+保留于工具记录。实际 Product import resolve 来自本 checkout，
+原生 translator 仍为 /home/yuhling/.local/bin/ltl2ba；环境为既有 WSL
+Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 隔离 overlay。
+本轮没有七包、完整演示、LLM、benchmark、仿真、实机/机器人示范或
+Jazzy 验证。11.73 的 631 项仍属于 be23c75，11.74 的 Planner 30 项
+仍属于 c559fd6 局部资格；不作当前整包通过或 IRL 效果声明。
+README 同步；前 74 节正文完整保留，本地链接/锚点及四文件范围/
+diff 检查通过。
+
+### 11.76 Planner 参数与 TS 转换改动后的七包组合资格（2026-10-07）
+
+资格基线为干净 `b555100743fb348f60554c084da1f372273ef81d`。
+前两轮改动 Planner 只读启动参数及 TS 动作转换的稳定节点快照，
+本轮重新执行完整组合。colcon 发现的七包与 aggregate 的六个
+exec_depend 一致。环境为既有 WSL Ubuntu-22.04-D / ROS 2 Humble /
+Python 3.10.12 / NetworkX 2.4，原生 translator 仍为
+/home/yuhling/.local/bin/ltl2ba，隔离 build/install 保持。
+一次 build 使用 --executor sequential、--symlink-install、
+--packages-up-to ltl_automaton_core 和 -DBUILD_TESTING=ON，实际
+exec session 14031 terminal exit 0，耗时 28.073706513 秒。一次
+test 选择全部七包、默认并行与 --return-code-on-test-failure，实际
+exec session 81802 terminal exit 0，耗时 54.444397821 秒。主代理
+实际确认同一 test wrapper PID345/colcon PID366 存活；工具 yield
+只等待原句柄，未重启。新 helper 另有 exclusive run marker，
+包级 domain 215/216/217/218 保持，无 pytest 筛选、缩时或改条件。
+
+独立核对测试开始后的六份新 JUnit：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 188 | 187 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 124 | 124 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **634 tests = 630 passed + 4 skipped，0 errors，0 failures**。
+四项跳过仍为已有 copyright。当前接口 CTest wrapper 一项通过；
+实际 colcon test-result --verbose 为 **635 tests，0 errors，0 failures，
+4 skipped**。十份历史 CTest XML 按时间排除，不与当前 JUnit 混用/
+重复计数；aggregate 没有独立 pytest case。相对 be23c75 增加的
+三项 Planner False/True 启动覆盖/运行时拒绝及公开参数 RPC 均执行，
+两个补强的 TS 缺 action/weight 与剩余 zip 隔离 case 亦执行、不新增
+计数。此前 23+11 项新增回归、四个真实 DDS 场景、Studio consumer、
+快照 fallback、IRL commit/step reset、native translator/POSIX、
+HIL、monitor、launch 与 lint 亦核对。保留 NetworkX/NumPy np.int
+与 SelectableGroups 弃用警告，五包有 stderr，不作为零警告结果。
+
+构建/测试前后 HEAD 与清洁树核对，start gate 的常用 Core、ROS
+planner/snapshot、execution、monitor 来自本 checkout，消息来自
+隔离生成接口。主代理另核对 Planner、Product、snapshot、IRL、2D
+generator、KTH driver 六模块 resolve 和完整 git 源字节，均绑定
+资格提交。collector 只执行一次，verification_b555100.json、
+verified_summary_b555100.json、verified_changed_imports_b555100.json、
+historical_hashes_before_b555100.json 与新 JUnit/当前 CTest、完整
+构建/测试实体日志冻结于 verified_results_b555100，清单 83 文件
+逐项 SHA256 通过。log_combo_b555100 便利 symlink 排除，实体日志
+保留；后续查询使用独立 log_query_b555100，不改冻结闭包。
+旧 be23c75 的 83 文件清单在执行前先校验；五个旧资格/失败目录
+与选定 standalone receipt、旧模块/失败日志等 213 份历史证据前后
+哈希保持。原 be23c75/4817dd4/6cbfd39 统计、最初五项失败、KTH
+与 Planner 旧模块失败、Planner 首次 helper INTERNAL_ERROR 以及
+原生旧/新对照源码均保留，没有重跑原 helper 或覆盖原证据。
+
+本轮没有 LLM、benchmark、物理仿真、实机/机器人示范或 Jazzy
+验证；执行场景仍为符号级 FakeBackend。命令耗时不是规划性能，
+组合通过不证明 IRL 收敛、逆最优性或机器人示范效果。本次仓库
+只更新 README 与本记录，源码/测试保持 b555100。前 75 节历史
+正文完整保留，13 个本地链接/锚点及 doc-only diff 检查通过。
+
+### 11.77 执行快照中不可变符号状态的单次转换复用（2026-10-07）
+
+基线为干净 `3484d801d0874c1c00be52d4a8a2bfa52ee5e3c8`。
+先只读检查默认 FakeBackend 的延迟、异步失败及 busy 释放，并以
+既有 Humble 空 Node、domain 231 验证非有限参数与 ROS timer 范围；
+未发现新缺陷，没有为该审计改动后端或参数行为。随后三个原生
+single/safe/KTH public snapshot 的投影分别有 4/8/24 个 Product 节点，
+却只有 2/2/6 种不可变符号状态，为本轮局部复用提供输入证据。
+
+生产修改仅在 ExecutionManagerNode._snapshot_from_message：嵌套
+generator 的本地字典按 dimension/value tuple 复用已校验的普通
+str SymbolicState。仍先 int(node.id)，再取两 tuple；子类/非字符串
+继续执行原构造校验。缓存只存在于本次转换，全部节点 ID/顺序、
+边、accepted-run、实例/代际和下游执行策略保持；未修改消息接口、
+搜索、接受性、代价、后端完成/TS 观测权威或默认关闭的可选 IRL。
+
+新增四个定向测试函数、六个 case：重复状态与节点顺序、原消息
+保持、后续修改与先前投影隔离、有效不可哈希 str 子类类型/值保持，
+以及三种 malformed 字段的原 ValueError/ID 转换优先次序。后两类
+使用 SimpleNamespace 检查直接转换路径，不宣称畸形字段可通过 DDS。
+三个文件 test_execution_node.py、test_accepted_run_resolver.py、
+test_snapshot_timeout.py 一次 **76 passed in 2.84s**，实际 exit 0，
+无 skips/warnings；新增六项全部执行。命令未使用 --junitxml，未生成
+本轮 JUnit，stdout 保留在执行代理工具记录。两个修改 Python 文件
+py_compile、ament_flake8 --linelength 99、测试文件 ament_pep257 与
+diff 检查均 exit 0，保留既有依赖。属于实现后的语义保持验证，无前置 RED。
+
+主代理另加载逐字匹配 git show 3484d80 的完整旧 execution_node.py，
+核对当前 checkout import resolve 及 models/resolver/manager/snapshot/
+Product 五个依赖模块完整基线字节。三个原生规划的完整新旧投影与
+实际 AcceptedRunResolver/ExecutionManager 符号派发一致，立即完成的
+recording backend 分别记录 3/4/4 条命令，重复序号仍拒绝；成本分别
+3/1/13、3/2/23、20/20/220。每份投影保留的 SymbolicState 对象实测
+4/8/24 -> 2/2/6；相同消息再次转换的状态对象集合互不相交。
+完整 ROS 输入字段、pickle 字节保持，五次 CDR roundtrip 均还原原
+消息；六种错误的精确 type/args 及有效不可哈希值子类亦与旧模块一致。
+只统计投影持有对象，不是总分配、总内存或时间/加速测量。
+
+原生对照辅助脚本有两次实际失败，均保留：首次 exit 1 因 tiny
+planning fixture 没有 PlannerNode lifetime 身份，执行仲裁拒绝空身份；
+run2 先通过 single，随后 safe 的 CDR 原始字节比较失败。只读诊断
+exit 0 证明，未调用转换时同一消息五次连续 CDR 序列化已出现不同
+字节，而完整旧/新投影、输入对象/pickle 相同。run3 对输入补有效
+fixture 身份，旧/新空身份拒绝仍单独核对，并以完整消息、pickle 和
+CDR 反序列化字段验证语义，实际 exit 0。原辅助检查不适合用非规范
+CDR 字节判定输入变化；不是产品缺陷或 pytest 失败，没有更改生产
+代码、规划条件或用户验收标准以通过这些检查。
+
+Windows Temp/probe_exec_state_reuse_3484d80.py、_run2.py、_run3.py 和
+diagnose_exec_snapshot_bytes_3484d80.py 保留，旧源码分别留在隔离目录
+execution_node_baseline_3484d80.py 及 _run2/_run3 版本；
+成功 receipt 为 execution_state_reuse_3484d80_run3.json，工具输出另
+保留为 execution_state_reuse_3484d80_tool_results.json。首次统计脚本
+inspect_exec_state_counts_3484d80.py 未重跑；旧七包冻结闭包不改写。
+环境仍为既有 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12
+隔离 overlay，原生 translator 为 /home/yuhling/.local/bin/ltl2ba。
+没有七包、LLM、benchmark、完整演示、物理仿真、实机/机器人示范或
+Jazzy 验证；上述派发仅为 ROS-independent 符号 recording backend。
+11.76 的 634 项只属于 b555100 历史源码资格，不作当前整包声明。
+README 同步；前 76 节正文完整保留，五文件范围与本地链接检查通过。
+
+### 11.78 接受运行状态分组的合法值契约与无哈希比较（2026-10-07）
+
+基线为干净 `87ac8d578d595209173f85bf2b35aa048b9e9aa1`，本地
+upstream 与 GitHub PR#10 head 相同。只读审计发现，SymbolicState
+允许非空 str 子类值，快照转换也保留其类型，但 resolver 将状态
+加入 source/target set；有效子类若定义 __hash__=None，会抛 TypeError，
+不能解析合法命令。该缺口涉及直接 Python 模型/字符串子类；普通
+ROS DDS 字符串没有该失败，不扩大到新的接口或兼容框架。
+
+生产修改仅在 AcceptedRunResolver.resolve：source 以首个有序 ID
+的状态和其它候选按 dataclass 值比较；target 保留首个匹配值及
+ambiguity flag，仍遍历所有匹配并收集完整 ID 集合。首次 target
+以目标 ID 集合尚空判定，避免用 None 值充当首个状态标记而改变
+已有直接输入的歧义行为。状态值/类型不转换，不调用状态 hash；
+原 no-target、distinct-source、ambiguous-target 消息保持。
+快照索引、retained-pair 转换、结构/漏边/漏节点/重复 ID 错误与
+索引提交点不变；有效图索引安装后的命令拒绝仍保留该有效索引，
+只有索引重建失败才保留前一有效索引。未改规划、代价、接受性、
+执行身份/TS 观测权威、消息定义或默认关闭的可选 IRL。
+
+补强现有多候选测试，不新增测试函数：已有两种 node_ids 顺序
+加 None/1/3 的不可哈希状态位置参数，原两项扩为六项、净增四项。
+断言完整 ExecutionStep、全部排序后的匹配 ID、reversed 输入及
+合法子类输入类型保持。生产改动前 RED 实际 exit 1：**2 passed /
+4 failed / 25 deselected**；四项分别在 source/target hash set 触发
+精确 TypeError。首版两文件 GREEN 为 63 passed；按审查修正首个
+target 判定后，resolver 与 execution-node 两文件最终一次
+**63 passed in 2.77s**、exit 0，0 errors/failures/skips，无 warnings。
+两次 GREEN 为同一测试人口，不能相加；六项 targeted case 都执行。
+最终源码/测试 py_compile、ament_flake8 --linelength 99、测试
+pep257 与 diff 检查通过。根代理静态工具 yield 后继续原 session
+56139，最终 terminal exit 0，没有重新启动该检查。
+
+原 RED XML 为 /tmp/accepted_run_unhashable_red_3484d801.xml，
+首版 GREEN 为 /tmp/accepted_run_unhashable_green_3484d801.xml；
+3484d801 只是这两个文件的标签，本轮权威基线为 87ac8d5。最终 XML 为
+/tmp/accepted_run_unhashable_green_run2_87ac8d5.xml。主代理只读核对
+三份 XML 的精确计数、时间顺序、六项 targeted case、旧 source/
+target traceback，并保存 SHA256 于隔离目录
+resolver_state_equality_87ac8d5_pytest_receipts.json；原 stdout 保留
+在执行代理工具记录，没有重跑 RED 或覆盖任一 XML。
+
+主代理加载逐字匹配 git show 87ac8d5 的完整旧 resolver，并核对
+当前 resolver import resolve 与 models/manager/execution-node/snapshot/
+Product 五个未修改模块的完整基线源字节。三个原生 single/safe/KTH
+快照经实际 manager/resolver 与立即完成的 symbolic recording backend
+分别派发 3/4/4 条命令，完整旧/新步骤、诊断、重复序号拒绝相同；
+成本保持 3/1/13、3/2/23、20/20/220。仅在解析调用内观察实际
+SymbolicState.__hash__，调用数 6/8/8 -> 0/0/0；输入快照 deepcopy/
+pickle 保持。九种原错误的 type/args、正确阶段的缓存提交/保留与
+后续代际恢复保持，包括漏闭合边先于漏节点、重复缺边顺序/重复项、
+重复 ID、不同来源、结构错误、目标歧义及直接 None target 控制。
+最后一项不是合法 SymbolicState 或 DDS 输入，只检查旧直接调用行为。
+
+首次独立 helper 在三个原生场景通过后实际 exit 1：缓存断言把
+“有效图建立索引后，命令歧义拒绝”也误算为重建失败，要求回到旧
+索引；该断言过宽。run2 区分这两个阶段，实际 exit 0，生产源码不变。
+Windows Temp/probe_resolver_state_equality_87ac8d5.py 与 _run2.py、
+两个逐字校验的完整旧模块 accepted_run_resolver_baseline_87ac8d5.py
+及 _run2.py 均保留。成功 receipt 为
+resolver_state_equality_87ac8d5_run2.json，失败/成功工具输出为
+resolver_state_equality_87ac8d5_tool_results.json；旧七包冻结证据不改写。
+
+环境仍为既有 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12
+隔离 overlay，原 translator 为 /home/yuhling/.local/bin/ltl2ba。
+状态 hash 调用减少不是总分配、总内存、规划耗时或整体加速证据。
+本轮没有七包、LLM、benchmark、完整演示、物理仿真、实机/机器人
+示范或 Jazzy 验证；原生对照仅为 ROS-independent symbolic 派发。
+11.76 的 634 项仍只属于 b555100 历史源码；11.77 的 76 项属于
+87ac8d5 局部资格，不作本轮整包通过声明。README 同步，前 77 节
+正文完整保留，五文件范围、本地链接/锚点与 diff 检查通过。
+
+### 11.79 执行快照与状态解析改动后的七包组合资格（2026-10-07）
+
+资格源码为干净 `d6f49838c2fba0f7e96bd7faf03fbd53f187b9be`。
+11.77 的单次状态转换复用与 11.78 的不可哈希合法字符串值解析
+本轮纳入整包组合。七包 inventory 与 aggregate 的六个 exec_depend
+一致，使用既有 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4 隔离 build/install，原 translator 保持
+/home/yuhling/.local/bin/ltl2ba。
+
+build 使用 --executor sequential、--symlink-install、
+--packages-up-to ltl_automaton_core、-DBUILD_TESTING=ON；执行代理
+实际 session 34300 terminal exit 0，耗时 28.852778987 秒。
+test 选择全部七包、默认并行、--return-code-on-test-failure；实际
+session 19272 terminal exit 0，耗时 51.195945840 秒。各执行一次，
+没有重启或重跑；新 helper 使用 exclusive run marker，工具 yield
+仅等待原句柄。主代理本轮没有独立观察运行中的 PID，不把旧轮 PID
+或完成 marker 作为该项证据。测试 domain 215/216/217/218 保持，
+无 pytest 筛选、缩时或修改条件。
+
+主代理独立解析实际 test_start_ns 之后的六份新 JUnit，核对 testcase
+数量、错误/失败/跳过及冻结副本与当前 XML 的完整字节：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 188 | 187 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 134 | 134 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **644 tests = 640 passed + 4 skipped，0 errors，0 failures**。
+四项跳过均为已有 copyright；接口 CTest wrapper 一项通过，实际
+colcon test-result --verbose 汇总 **645 tests，0 errors，0 failures，
+4 skipped**。11 份历史 CTest XML 按时间排除，不混入本轮
+JUnit 或重复计数，aggregate 没有独立 pytest case。
+新增六项快照转换 case 均执行：重复状态与输入次序、跨消息不复用、
+合法不可哈希 str 子类、三个畸形输入的原校验顺序。解析器完整六项
+多候选参数 case（两种次序 × 普通/source/target 不可哈希位置）均
+执行，其中四项为 11.78 净新增；相对 b555100 总数净增十项。
+近期 Planner 参数、TS 缺 action/weight 与剩余 zip 隔离、其它已列
+回归、四个真实 DDS 场景、Studio consumer、快照 fallback、IRL
+commit/step reset、native translator/POSIX、HIL、monitor、launch
+与 lint 亦核对。保留 np.int 和 SelectableGroups 弃用警告，五包
+有 stderr，不作为零警告结果。
+
+构建/测试前后 HEAD 与清洁树核对。start gate 实际核对十个源码
+模块 resolve 与隔离生成接口；主代理另核对执行节点、解析器、
+Planner、Product、snapshot、IRL、2D generator、KTH driver 八模块
+resolve、SHA256 及完整 git 源字节，均绑定资格源码。
+collector 只执行一次，verification_d6f4983.json、
+verified_summary_d6f4983.json、verified_changed_imports_d6f4983.json、
+historical_hashes_before_d6f4983.json 与新 JUnit/当前 CTest、完整
+构建/测试实体日志冻结于 verified_results_d6f4983；清单 83 文件
+逐项 SHA256 通过，无便利 symlink。正确查询使用独立 log_query_d6f4983_correct，
+不改冻结闭包。执行代理首次查询遗漏隔离 test-result-base，读到工作
+目录旧 build 的 86 项；原 log_query_d6f4983.txt 保留且不参与资格。
+主代理显式指定 /tmp/ltl_ros2_completion_20261006/build 只读查询，
+实际 exit 0、645 项；没有重跑构建/测试或改写新 XML。
+
+执行前先校验 b555100 的 83 文件闭包与此前 213 份选择清单，再将
+该闭包及近期独立 receipts、旧模块、三份 RED/首版/最终 XML 等
+共 314 份历史证据固定哈希；本轮前后完整保持。b555100 等旧资格、
+最初五项失败、11.77/11.78 的 helper 失败与最终成功分别保留，
+没有重跑旧 helper 或覆盖旧证据，局部测试人口不累加到本轮。
+
+仓库本次只更新 README 与本记录，源码/测试保持 d6f4983，前 78 节
+历史正文完整保留。未运行 LLM、benchmark、完整演示、物理仿真、
+实机/机器人示范或 Jazzy；执行仍为符号级 FakeBackend。IRL 按用户
+选择保留原示范学习 β 范围，默认关闭。命令耗时不是规划性能，
+组合通过不证明 IRL 收敛、逆最优性、示范效果或整体加速。
+
+### 11.80 执行接受运行相邻边的尾部切片消除（2026-10-07）
+
+基线为干净 `d4d8c05a1f1f570d31cd4f56a14e714bae6a0b78`。
+AcceptedRunResolver._retained_pairs 的 prefix[1:]/suffix[1:]
+改用 islice，省去两次尾部切片；输出仍为完整 tuple，prefix/suffix
+次序、重复边、单节点自环及唯一隐式闭合边保持。原 prefix/suffix
+非空、共享边界与重复 suffix 起点校验位置和诊断保持，索引构造、
+提交/失败保留及下一代恢复规则不变。不改消息、身份、状态分组、
+搜索、接受性、代价或可选 IRL，不扩大为单次 generator 输入。
+
+执行代理一次运行现有 test_accepted_run_resolver.py 与
+test_execution_node.py，**63 passed in 1.47s**，实际 exit 0，
+0 errors/failures/skips、无 warnings。未新增测试；主代理独立解析
+/tmp/accepted_run_pairs_islice_d4d8c05.xml，确认全部 63 项及既有三项
+有序边对、三项结构拒绝/恢复、一项重复缺边诊断和六项多候选 case
+实际执行，XML SHA256 为
+79f0aa95b8628623767d49f993be2c91fe861a692c5e922741ba68bd41e8283d。
+py_compile、ament_flake8 --linelength 99 与 git diff --check 通过。
+
+主代理完整旧 resolver 逐字匹配 git show d4d8c05，当前 import resolve
+绑定 checkout；models、manager、execution-node、snapshot、Product
+五模块完整未修改字节匹配基线，原 translator 保持。旧/新三个原生
+single/safe/KTH 经实际 manager/resolver 与立即完成的 symbolic
+recording backend 派发 3/4/4 条命令，完整步骤、诊断与重复序号拒绝
+一致，成本保持 3/1/13、3/2/23、20/20/220。调用生产边对转换的
+tuple 子类记录器测得每例尾部切片 **2 -> 0**，复制尾部引用
+**2/3/3 -> 0**；不声称总分配、总内存或整体加速。
+
+单节点、普通与重复路径的 tuple/list 六种直接输入保留全部 pairs、
+输出类型及原输入 pickle 字节。九种错误的 type/args、正确阶段的
+缓存安装/保留与后续恢复一致，包含漏边先于漏节点、重复缺边次序、
+重复 ID、不同来源、空 prefix、显式闭合 suffix 和目标歧义；None
+target 仅为历史直接调用控制，不是合法模型或 DDS 输入。原生普通
+快照 deepcopy/pickle 不变。独立 helper 一次实际 exit 0，完整旧模块、
+helper 与 resolver_state_equality_d4d8c05.json 独立保留；主代理工具
+输出和明确标记的执行代理报告保存于
+resolver_pairs_d4d8c05_tool_results.json，没有重跑验证。
+
+此前 d6f4983 的 83 文件冻结闭包与 314 份选定历史证据 SHA256
+重新核对保持，未覆盖旧 XML 或重跑旧 helper。11.79 的 644 项仅
+属于 d6f4983 历史整包资格，不作当前修改后的整包声明；本轮 63 项
+独立计数。README 与执行包说明同步，前 79 节历史正文完整保留。
+本轮未运行七包、LLM、benchmark、完整演示、物理仿真、实机示范
+或 Jazzy；原生派发仍是符号级记录后端，IRL 范围与默认关闭保持。
+
+### 11.81 合法不可哈希维度的状态与观察契约修复（2026-10-07）
+
+基线为干净 `8548a3bd8ffe142125dcffe21c641868b4bed317`。
+SymbolicState 原已允许非空 str 子类且保持原字段对象，但 dimension
+去重的 set 对 __hash__=None 的合法名字泄漏 TypeError；执行观察的
+set 匹配、dict 构造及按 expected 名字查询也有相同缺口。仅修模型
+会使合法新状态随后在观察管线失败，本轮同时覆盖两处源码。
+普通/hashable 字符串保留原 set/dict 路径；仅这些 hash 操作出现
+TypeError 时用本次调用的值比较及序列索引。名称非空仍先于唯一性，
+唯一性仍先于 values 校验，重复维度保留精确原 ValueError；观察不
+匹配先按原 warning 拒绝，匹配后按活动快照的维度顺序发布。
+不转换名字/值或改变模型 hash、消息、身份、调度、规划/接受性、
+代价或可选 IRL。异常分支按值比较，维度数较大时可为平方复杂度，
+常用可哈希路径保持；不声称整体加速。
+
+净新增八项定向 case：既有字符串子类保留测试新增不可哈希参数，
+三种混合/双侧重复名字保持 duplicate 诊断先于非法 value，既有
+快照转换测试新增维度参数，三个 observer 参数覆盖 observed-only、
+expected-only、both。最终 observer 使用实际 ExecutionManagerNode、
+RecordingObserver 与生成消息的 spy publisher，反序维度有效→未知
+→有效反馈发布数 1→1→2，值按计划重排，backend.calls 保持空。
+
+原始阶段 XML 分别保留，主代理独立核对完整计数、失败、mtime
+先后、所有新/既有关键 case 与 SHA256：
+
+| phase | passed | failed | child tool exit |
+|---|---:|---:|---:|
+| 原模型/快照 targeted RED | 2 | 5 | 1 |
+| 修模型后的初始 GREEN | 105 | 0 | 0 |
+| 原观察节点 targeted RED | 0 | 3 | 1 |
+| GREEN run2 | 107 | 1 | 1 |
+| GREEN run3 | 108 | 0 | 0 |
+| 最终 GREEN run4 | 108 | 0 | 0 |
+
+首 RED 另有 67 deselected，observer RED 33 deselected；失败均为
+TypeError。run2 漏将 expected-only 的 dict 查询放入 try，同一缺口
+导致一项失败；随后修正，不改变输入或验收。run3→run4 仅增强
+valid→unknown→valid 与无派发断言，生产源码未再改动。初始 105
+项 stdout 另含 “The following exception was never retrieved: late
+exception”，原诊断保留，不记为零诊断结果。最终三个现有文件
+test_backend.py、test_accepted_run_resolver.py、test_execution_node.py
+一次 **108 passed in 1.77s**、实际 exit 0，0 errors/failures/skips，
+无 warnings，XML 为 /tmp/symbolic_dimensions_green_run4_8548a3b.xml。
+各版属于不同阶段/重叠人口，不相加；未重跑原 RED 或覆盖 XML。
+静态首次误写不存在的 ltl_automaton_core/.../execution_node.py 路径
+而 exit 1，原错误保留；改为正确四文件后 py_compile、
+ament_flake8 --linelength 99、测试 pep257 与 diff 检查实际 exit 0。
+
+主代理独立 helper 一次实际 exit 0。完整旧 models/node 逐字匹配
+git show 8548a3b，当前 import resolve 与源 SHA256 核对；resolver、
+manager、snapshot、Product、IRL 五模块完整未修改字节匹配基线。
+十种普通构造/精确错误保持，字段与 frozen 契约保持，hashable
+名字构造的 hash 调用 2/2 保持；五种不可哈希名字按既有契约修正。
+未绑定/绑定活动维度的普通 observer 控制一致，三个不可哈希位置
+完成重排、未知维度拒绝与恢复。三个原生 single/safe/KTH 快照的
+完整字段投影、实际 manager/resolver 派发步骤、诊断与重复序号
+拒绝一致，派发 3/4/4，成本 3/1/13、3/2/23、20/20/220；原消息
+deepcopy 相等。该对照按字段比较两个模型类，不把不同类身份当作
+公开字段差异；记录后端仍为立即完成的符号后端，不是物理验证。
+
+完整旧模块、helper、symbolic_dimensions_8548a3b.json、
+symbolic_dimensions_8548a3b_xml_receipts.json 与明确标记代理报告的
+symbolic_dimensions_8548a3b_tool_results.json 独立保留。此前 83
+文件冻结闭包、314 份选定历史哈希及上一轮 63 项 XML SHA256 保持。
+README 与执行包说明同步，前 80 节历史正文完整保留。本轮未执行
+七包、LLM、benchmark、完整演示、物理仿真、实机示范或 Jazzy；
+11.79 的 644 项仍只属于 d6f4983 历史整包资格，IRL 原范围/默认
+关闭保持。108 项局部通过不证明完整系统或 IRL 科学效果。
+
+### 11.82 丢弃快照回调时读取 Future 异常（2026-10-07）
+
+基线为干净 `6d8466a7360790a56a1ec704674effa3d95e57a0`。
+11.81 初始 105 项 stdout 中的未读取异常诊断原样保留。核对实际
+Humble rclpy/task.py：exception() 非阻塞地返回错误并标记已读取，
+Future 析构时报告未读取的错误；取消/完成会调度并清空 callbacks。
+原测试在销毁并取消之后再注入异常，回调未必会执行，不能仅凭
+那条诊断认定真实晚到回调已经执行。本轮改用真实 executor 排队：
+完成 Future 后销毁节点，再 spin 执行已经排队的回调，明确复现
+节点销毁后未读取错误的缺口。
+
+生产修改仅在 _on_snapshot 的三个丢弃返回点调用 future.exception()：
+节点已销毁、deadline 已过、请求已被替换。保留原 guard 与 detach/
+latest-observation 恢复顺序，不提前调用 result()，不访问已销毁
+logger。当前请求的异常/None/unsuccessful 仍按原 warning 与重试
+处理，成功响应仍按身份、schema、快照转换及最新观测派发。消息、
+身份、调度、planner/接受性、代价、可选 β 学习与默认关闭均保持。
+
+既有销毁测试的 success/failure/exception 三参数使用真实 Humble
+Future + SingleThreadedExecutor，检查无 Destroyable warning、无
+pending/request/派发；weakref 与 gc 确认 Future 已实际回收，再检查
+捕获的 stderr 没有未读取异常。既有 timeout late-error 测试检查
+exception 被读取，既有 callback-deadline 测试新增异常参数（净增
+一项 case），仍断言旧请求零派发及替换请求成功恢复。受控 Future
+只补齐真实 exception() 的读取语义；没有过滤生产 stderr 或放宽
+错误/恢复条件。
+
+执行代理原始 targeted RED 一次实际 exit 1：**3 failed / 4 passed /
+47 deselected**，XML 为 /tmp/snapshot_discard_red_6d8466a.xml；
+失败为真实销毁异常、timeout 晚到异常与 callback 过期异常。修复后
+test_backend.py、test_accepted_run_resolver.py、test_execution_node.py、
+test_snapshot_timeout.py 四个完整既有文件一次 **126 passed in 3.11s**，
+实际 exit 0，0 errors/failures/skips，无 warnings；XML 为
+/tmp/snapshot_discard_green_6d8466a.xml。真实排队三参数、timeout
+两参数、deadline 两参数与此前维度/解析回归均执行。RED 与 GREEN
+计数、失败、时间顺序、关键 case 与 SHA256 核对后分别保留，不
+重跑或覆盖原 XML，不相加测试人口。三份修改文件 py_compile、
+ament_flake8 --linelength 99、两测试文件 pep257 与 diff 检查实际
+exit 0；静态 session 9353 在原 handle 上等待至完成。
+
+主代理独立 helper 一次实际 exit 0。完整旧 execution_node.py 与
+git show 6d8466a 逐字匹配，当前 runtime import/源字节核对；models、
+manager、resolver、snapshot、Product、IRL 六模块完整未修改字节
+绑定基线，原生 translator 路径保持。真实 Humble Future 的 shutdown/
+expired/superseded 三种丢弃边界中，请求/替换请求、pending、timer、
+warning、缓存与维度状态一致，Future 实际回收，baseline 原始 stderr
+有未读取诊断而 current 无。当前请求的 exception/None/unsuccessful
+三个控制保留原 warning/最新重试及请求释放，且没有未读取诊断。
+三个原生 single/safe/KTH 通过实际成功快照回调、manager/resolver
+和符号 recording backend，对照完整快照、派发步骤、诊断与重复
+序号拒绝一致；派发 3/4/4，成本 3/1/13、3/2/23、20/20/220。
+
+完整旧模块、probe_snapshot_discard_6d8466a.py、
+snapshot_discard_6d8466a.json、snapshot_discard_6d8466a_xml_receipts.json
+与明确区分主代理实际结果/执行代理报告的工具记录独立保留。
+此前 83 文件冻结闭包、314 份选定历史哈希、11.81 六阶段 XML 与
+上一轮 63 项 XML SHA256 保持。README 与执行包说明同步，前 81
+节历史正文完整保留。本轮未执行七包、LLM、benchmark、完整演示、
+物理仿真、实机示范或 Jazzy；11.79 的 644 项仍只属于 d6f4983
+历史整包资格。本轮为局部行为验证，不证明整体加速、完整系统
+或 IRL 科学效果。
+
+### 11.83 近三轮执行改动后的七包组合资格（2026-10-07）
+
+源码资格为干净 `ef300b4eb2a6f3c709e402679c8e7d8ba48fc9d2`。
+11.80 的相邻边 islice、11.81 的维度值契约及 11.82 的丢弃回调
+异常读取此前只有局部验证，本轮将它们一起纳入完整七包组合。
+测试前固定源树/七包清单、预期执行包 143 项与总 JUnit 653 项，
+保全此前 83 文件闭包、314 份旧哈希及近三轮产物共 424 文件。
+不改源码、测试、pytest domain、超时、过滤或验收条件。
+
+环境沿用 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4，translator 为 /home/yuhling/.local/bin/ltl2ba。
+aggregate 六项 exec_depend 完整对应六功能包，测试 domains
+215/216/217/218 保持。build 使用 --executor sequential、
+--symlink-install、--packages-up-to ltl_automaton_core 和
+-DBUILD_TESTING=ON；test 选择全部七包及 --return-code-on-test-failure，
+保持默认并行。执行代理 build session 44331 与 test session 33138
+各启动一次，均在原 handle 等待至实际 exit 0；receipt 命令耗时
+分别为 35.918813251 与 60.804561879 秒，不作为规划加速比。
+主代理未采到运行中 PID，不将代理报告或状态文件当成活进程观测。
+
+六份 test_start_ns 之后的新鲜 JUnit 独立核对如下：
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 188 | 187 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+合计 **653 tests = 649 passed + 4 skipped，0 errors、0 failures**。
+跳过均为既有 copyright，接口 CTest wrapper 另有一项通过。主代理
+仅查询一次，显式 --test-result-base /tmp/ltl_ros2_completion_20261006/build，
+实际 exit 0，Summary: 654 tests, 0 errors, 0 failures, 4 skipped。
+12 份历史 CTest XML 按 test_start_ns 排除，没有重跑构建或测试。
+
+相对 d6f4983 净增九项执行包参数 case，完整覆盖合法维度子类、
+重复维度诊断、快照转换、observed-only/expected-only/both 重排及
+callback-deadline 异常。真实 executor 排队销毁回调三参数、timeout
+两参数、deadline 两参数均执行；既有接受路径/解析缓存、Planner
+参数、TS 错误/剩余迭代器、四个真实 DDS 场景、Studio consumer、
+快照 fallback、IRL commit/step reset、native ltl2ba/POSIX、HIL、
+monitor、launch 与 lint 也执行。保留 np.int/SelectableGroups 依赖
+弃用警告，五包 stderr 非空；完整 stderr 未见未读取 Future 诊断。
+
+start gate 核对十个源码 import resolve 与隔离生成消息路径。主代理
+另外核对 models、执行节点/解析器、Planner、Product、snapshot、
+IRL、2D generator、KTH driver 九模块完整 git 源字节。collector
+仅执行一次，新 XML、命令 receipt、导入记录、历史哈希及完整实体
+构建/测试/查询日志冻结为 85 文件 SHA256 闭包；独立 audit 对比
+fresh/live/frozen 字节、全计数、关键 case、wrapper、命令次序和
+完整源码，实际 exit 0，424 份历史哈希保持。记录位于隔离目录的
+verification_ef300b4.json、verified_changed_imports_ef300b4.json、
+verified_summary_ef300b4.json、colcon_query_ef300b4.json、
+verified_results_ef300b4/sha256_manifest.json 与独立工具记录。
+
+本轮仅刷新 README 与验证记录，源码与测试仍为 ef300b4，前 82 节
+正文完整保留。此前 d6f4983 的 644 项、其他整包历史、局部 63/108/
+126 项及原始失败分别保留，不与本轮重复累加。本轮没有 LLM、
+benchmark、完整演示、物理仿真、实机示范或 Jazzy 验证；符号级
+FakeBackend 的组合通过不证明整体加速、IRL 收敛、逆最优性或
+机器人示范效果。IRL 保持原示范学习 β 范围，默认关闭。
+
+### 11.84 IRL 示范选择中复用本次软距离评分（2026-10-07）
+
+基线为干净 b3097ffc4ee32cdfaca7583f62197ea34dea80f8，其源码/测试
+沿用 11.83 的 ef300b4 资格。learn_beta 原先在 min 的 key 中评分
+全部示范，再对选中的路径重新评分。ROS worker 已隔离候选
+Product，学习过程本身不改调用者输入；本轮将 (path, score) 流式
+交给带显式 score key 的 min，直接复用选中分数。同分保留输入
+迭代顺序中的首条，不按 path tuple 排序，不合并重复路径，也不
+跨调用缓存。全部路径仍先验证，私有 deepcopy、margin 算术、
+gradient、step、20 次上限、<=0.3 停止与结果字段均保持。
+
+原 test_irl.py 新增三项 case：同分 bad-first/good-first 两参数，
+固定规划 suffix 隔离选择手算，beta_sequence=(0.0,) 且匹配分数
+分别为 2/3；下一次调用改 hub→good 软距离为 2，选中示范从
+good 变为 bad，gradient=-1，前十步 beta=1..10，第十一步
+10+1/11 满足停止规则，匹配分数为 (2,)*11。各次私有 margin
+按选择路径手算，输入 edge/weight/initial/possible/beta 保持。
+既有真实 planner 与全部二十步大梯度检查未删减。
+
+执行代理初轮 73 passed / 1 failed 的 XML 原样保留：fixture 将
+good 两条边都改为 2，软距离为 4，实际 gradient=-3，手算不符。
+改为只修改 hub→good 后，完整 test_irl.py 与 test_plan_ltl_action.py
+一次最终 **74 passed**，session 36936 实际 exit 0，0 errors/
+failures/skips，保留两项既有 NetworkX/NumPy 弃用 warnings。
+两 XML 分别为 /tmp/irl_demonstration_score_b3097ff.xml 和
+/tmp/irl_demonstration_score_b3097ff_run2.xml，不将初轮称为原算法
+RED 或累加人口。静态 session 30763 实际 exit 0，两文件
+py_compile、ament_flake8 --linelength 99、测试 pep257、diff 检查通过。
+
+主代理完整旧 learner 与 fixture 逐字取自 git show b3097ff，当前
+import/source SHA256 核对，Product、discrete_plan、ltl_planner、
+TS、planner_node、snapshot 六模块完整字节绑定基线。独立 helper
+一次实际 exit 0，七种实际 Product/Dijkstra 小图（其中一项两次
+调用）全部结果字段相同、调用者完整公开图及 possible_states
+保持；输入评分调用 R+1→R，每次少读选中示范的 L-1 条软距离。
+普通两路径为 3→2 次、6→4 次读取；重复长路径为 4→3 次、
+12→8 次读取。计数在输入 edge 字典读取处记录，私有副本用普通
+属性字典；没有测量速度或内存。六种错误类型/精确消息保持，
+前五种在评分前拒绝；无接受环控制的原始两条诊断也保留。
+
+主代理独立核对两 XML 的计数/失败/mtime/SHA 和三项新增、
+二十步、权重 overflow 与全部 IRL 提交/失效场景。首次 collector
+把既有 snapshot preparation 的 copy/ids 两参数错计为一项，
+helper exit 1 保留；核对未修改的基线声明后，只更正独立计数
+脚本，run2 exit 0，没有重跑测试或修改 XML/条件。此前 85 文件
+闭包及 424 份历史哈希保持，合并选定历史记录为 518 文件。
+完整旧模块/fixture、probe、irl_demonstration_score_b3097ff.json、
+irl_demo_b3097ff_xml_receipts.json、历史清单与区分根代理实际结果/
+执行代理报告的工具记录分别保留。
+
+README 同步，前 83 节正文完整保留。本轮未重跑七包，11.83 的
+653 项只属于 ef300b4 历史源码资格，不作为当前 IRL 改动后的整包
+声明。本轮无 LLM、benchmark、完整演示、物理仿真、实机示范或
+Jazzy 验证，不证明整体加速、IRL 收敛、逆最优性或机器人示范效果。
+
+### 11.85 执行快照索引复用每条边的 ID 对（2026-10-07）
+
+基线为干净 4d047cca0ac9042d8e9ddbb53353b3f2b1b7a640。
+_snapshot_index 原先为匹配检查和 matched_pairs.add 分别构造
+(source_id, target_id)。本轮在每条边的循环内构造一次 pair，
+匹配后复用。完整有序运行对及重复项、保留边顺序、缺边先于
+缺节点的校验、目标歧义判断和全部校验后提交索引缓存均保持。
+没有跨快照缓存或增加依赖，IRL 和测试文件未修改。
+
+执行代理完整 test_accepted_run_resolver.py 与 test_backend.py
+各执行一次，共 **72 passed**，0 errors/failures/skips，无 warnings；
+现有两文件分别 31/41 项。JUnit 为 /tmp/resolver_edge_key_4d047cc.xml，
+SHA256 为 8fc8982f19a73e8508fb05fe31ec40d996b2aa4ff2365484562c5ba3ab849ca0。
+源码 py_compile、ament_flake8 --linelength 99 与 diff 检查通过。
+
+主代理完整旧解析器逐字取自 git show 4d047cc，核对当前 import
+及源码 SHA，并绑定未修改的 models、manager、execution_node、
+snapshot、Product 五模块。对照 helper 一次实际 exit 0，三个原生
+single/safe/KTH 的完整步骤、诊断、重复序号拒绝与输入保持相同，
+派发 3/4/4 次，成本分别为 3/1/13、3/2/23、20/20/220。
+六种 tuple/list 运行对及九种错误的精确消息、缓存完整性和恢复
+一致。计数使用单独的 ProductEdge 子类快照，不改原生快照：
+首次索引的 ID 读取分别为 22→16、36→28、104→96，缓存再次
+命中均为零；重复保留边与重复运行对控制的索引结果也相同。
+这里只验证每条匹配边减少两次字段读取，未测速度或内存。
+
+主代理检查原 XML、计数与源码绑定，没有重跑测试。首次审计
+脚本误写 XML classname/后端文件名，exit 1 保留；读取真实 XML
+和文件清单后，仅修正审计脚本，run2 exit 0。完整旧模块、helper、
+resolver_edge_key_4d047cc.json 与 resolver_edge_key_4d047cc_receipt.json
+保留在既有隔离目录。README 同步，前 84 节正文完整保留。
+本轮未重跑七包；11.84 的 IRL 74 项与 11.83 的 ef300b4 整包
+653 项分别属于此前验证，不累加为当前人口。IRL 继续从示范学习
+β，默认关闭；无 LLM、benchmark、物理仿真、实机或 Jazzy 验证。
+
+### 11.86 IRL 与执行索引优化后的七包组合资格（2026-10-07）
+
+干净源码资格为 e5a663c06ce45533cf098edd9eef91e69b3f5f6c，将
+11.84 的 IRL 示范评分复用和 11.85 的索引键复用纳入完整组合。
+本轮只更新 README 与验证记录，源码、测试、domains 和验收条件
+保持。测试前固定预期 JUnit 656 项，其中 Core 191 项；其余包
+与上次资格一致。此前 85 文件冻结闭包与 518 份选定历史哈希
+核对，追加最近局部证据后预先固定 529 文件，不覆盖原始失败。
+
+WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 / NetworkX 2.4
+及 /home/yuhling/.local/bin/ltl2ba 保持。aggregate 六项依赖对应
+六功能包；build 使用 --executor sequential、--symlink-install、
+--packages-up-to ltl_automaton_core 与 -DBUILD_TESTING=ON。
+test 选择完整七包，默认并行并带 --return-code-on-test-failure，
+无筛选、缩时或条件调整。执行代理 build session 17106 与 test
+session 22338 各启动一次，在原 handle 等待至实际 exit 0；
+命令耗时分别 37.042412937 / 63.917228888 秒，不作为加速比。
+主代理实际观测到 build runner/colcon PID 4332/4353，以及
+test runner/colcon PID 4854/4879，未用状态文件推断活进程。
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 191 | 190 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 103 | 102 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+六份新鲜 JUnit 合计 **656 tests = 652 passed + 4 skipped**，0 errors/
+failures。四项跳过均为既有 copyright。接口 CTest wrapper
+另有一项通过；主代理对实际隔离 build 查询一次，exit 0，
+汇总为 657 tests、0 errors、0 failures、4 skipped。13 份历史
+CTest XML 按 test_start_ns 排除，不把旧结果或 wrapper 重复累加。
+
+新增 IRL 同分顺序两参数及跨调用评分一项、原完整二十步和
+四个溢出参数、IRL commit/step reset、执行解析/缓存及四个真实
+DDS 场景执行；既有 Studio consumer、snapshot fallback、原生
+ltl2ba/POSIX、HIL、monitor、launch 与 lint 均执行。保留 np.int/
+SelectableGroups 弃用警告，五包 stderr 非空；检查完整 stderr
+未见未读取 Future 诊断。start gate 核对十一项源码 import 与
+隔离生成消息，主代理再绑定九模块完整 git 源字节，包含当前
+IRL 与 resolver，不使用旧 receipt 代替当前源码证明。
+
+collector、独立 fresh/live/frozen audit 和日志 receipt 检查均
+各一次 exit 0；新 XML、构建/测试/查询完整实体日志、命令 receipt、
+源码 import 与历史清单冻结为 85 文件 SHA256 闭包，529 份历史
+哈希保持。记录在既有隔离目录的 verification_e5a663c.json、
+verified_summary_e5a663c.json、verified_changed_imports_e5a663c.json、
+colcon_query_e5a663c.json、inspected_combo_receipts_e5a663c.json 与
+verified_results_e5a663c/sha256_manifest.json，独立工具结果另存。
+前 85 节正文完整保留，旧 74/72 局部与 ef300b4 的 653 项保留
+各自范围，不相加为本轮人口。无 LLM、benchmark、完整演示、
+物理仿真、实机示范或 Jazzy 验证；通过不证明整体加速、IRL
+收敛或逆最优性。IRL 沿用原示范学习 β 范围，默认关闭。
+
+### 11.87 Product 快照节点的维度名列表隔离（2026-10-07）
+
+基线为干净 07d7d14afda036a851748d4c2fdea6f6fca27d5f。
+Python builder 原先把同一个 dimension_names 列表交给所有
+ProductGraphNode 的 TransitionSystemState；生成消息的 setter 保留
+该列表，因此编辑一个节点会改变其余节点。主代理原生 single/
+safe/KTH 复现分别为 4/8/24 节点、3/7/23 个受影响兄弟节点，
+源 TS 维度定义保持。该问题针对 Python 对象，未声称 DDS 反序列化
+后仍有同一对象别名。本轮仅改为每个节点 list(dimension_names)，
+保留字段值、验证顺序、节点/边/运行次序、ID、代价与接受性。
+
+扩展既有 test_reused_ts_values_keep_message_state_arrays_independent
+的两个 soft_task 参数，检查状态值及维度列表独立、源 TS 格式和
+下一次完整快照/ID 保持，没有增加用例人口。执行代理首次直接
+pytest 因 PATH 无命令 exit 127，在启动前终止、未生成 XML；改用
+python3 -m pytest 后，修复前两用例实际 exit 1，2 failed、18 deselected。
+修复后完整 test_planning_graph_snapshot.py 和
+test_snapshot_service_copy.py 一次 **23 passed**，实际 exit 0，
+0 errors/failures/skips。两轮各保留两项既有 NetworkX/NumPy np.int
+弃用警告。静态 session 88471 终态 exit 0，两文件 py_compile、
+ament_flake8 --linelength 99、测试 pep257、diff 检查通过。
+
+两份原始 JUnit 为 /tmp/snapshot_dimensions_red_07d7d14.xml 与
+/tmp/snapshot_dimensions_green_07d7d14.xml，SHA256 分别为
+6591e4160a76722f07b746b77e22254a64ce684cdb2618407bf07f003cd1df52 和
+8774dd9c364b53de31342aa63a8bfcf08e864dae1f96c8392834b1af9f8e01a9。
+主代理独立读取 XML，核对计数及两个参数的失败/通过，没有重跑测试。
+首次 inline XML 读取命令因 shell 引号错误 exit 1，未启动 Python；
+随后改用保存的 helper，一次实际 exit 0。
+
+完整旧 serializer 来自 git show 07d7d14；当前运行 import 路径与
+源码字节绑定，确认仅上述一行改变。旧/新原生 single、safe、KTH
+全部消息字段与 Product ID 相同，成本分别为 3/1/13、3/2/23、
+20/20/220。旧维度列表共享、本轮各节点值/维度列表均独立；编辑
+首节点后其他节点、源 TS 格式、下一次完整快照与 ID 保持。
+比较使用生成消息字段值，不使用有 padding 的 CDR 字节作判据。
+原复现、完整旧模块、verify_snapshot_dimensions_07d7d14.py 和
+snapshot_dimensions_verified_07d7d14.json 保留于既有隔离目录及
+主机临时目录。当前 serializer SHA256 为
+4c7e2a654cd60a5c0cb04bb01d4315f9cc2d5d20bd3750f2e583528aa903c8c5。
+
+README 与 Planning API 同步，前 86 节正文保留。本轮未重跑七包，
+11.86 的 656 项属于 e5a663c 历史源码资格，未与局部结果累加。
+IRL 学习 β 的范围和默认关闭保持；无 LLM、benchmark、物理仿真、
+实机或 Jazzy 验证，列表隔离不构成整体加速或 IRL 科学效果证据。
+
+### 11.88 HIL 拒绝重复 TS 维度并保留合法状态（2026-10-07）
+
+基线为干净 90ccd8e1613fa35a0fa9631a0c74703acb36fbee。
+主代理用生成的 ROS 消息复现 ['load', 'load'] 被 HIL validator
+接受；BoolCommandPolicy 随后用 index=0 选取 empty→loaded，
+保留重复维度和第二个状态值。这证明输入校验缺口，未声称实机
+执行了错误动作。本轮在既有长度及 required dimension 检查后
+验证所有维度名唯一性，重复时 ValueError；普通名称走 set，
+TypeError 时按值比较，保留合法不可哈希 str 子类。没有更改
+Bool/Velocity 仲裁、缓存更新、查询身份、超时、IRL 或规划语义。
+
+扩展既有 validator 用例，覆盖 required/其他维度重复以及
+不可哈希字符串；两个新增 async 用例各含 bool/velocity 参数，
+共四项，检查无缓存拒绝后恢复、合法缓存/revision/pending query
+保持及后续合法状态更新。执行代理先改测试后运行 RED，实际
+exit 1：5 failed、73 deselected；修复后完整 test_policies.py 与
+test_hil_async.py 一次实际 exit 0：**78 passed**，0 errors/failures/
+skips。两轮各保留两项既有 NetworkX/NumPy np.int 弃用警告。
+静态 session 37917 终态 exit 0，三文件 py_compile、
+ament_flake8 --linelength 99、两测试 pep257 和 diff 检查通过。
+
+RED/GREEN XML 为 /tmp/hil_duplicate_dimensions_red_90ccd8e.xml 和
+/tmp/hil_duplicate_dimensions_green_90ccd8e.xml，SHA256 分别为
+3446b54d85fcbf05a7907a4edec2bd3a3d5611a8c0e108a59053355ee8845056 和
+bbc8720b6d13e12740cd470a9b4b7c2c5424167034bdfe16d5a03e801e0585c7。
+主代理独立读取 XML 核对 5/78 项及四个回调参数，不重跑测试；
+完整旧 policies 来自 git show 90ccd8e，运行 import/源码字节
+绑定，确认生产改动仅在 validator。四种实际生成消息的合法
+输入（单维、多维、重排、不可哈希字符串）结果相同且原对象/
+字段保持；三种重复输入均从接受变为拒绝。长度先于重复、缺
+required 先于重复的精确诊断保持。独立 helper 一次实际 exit 0。
+
+原复现、完整旧模块、verify_hil_duplicate_dimensions_90ccd8e.py
+及 hil_duplicate_dimensions_verified_90ccd8e.json 保留在既有
+隔离目录/主机临时目录，当前 policies SHA256 为
+e05fe6e719dc72e784e9af5bb313e996f2619cb7450fc9bfca1c7c4efe718421。
+README/HIL README 同步，前 87 节正文保留。本轮未重跑七包，
+e5a663c 的 656 项与 90ccd8e 的快照 23 项保留各自资格，不相加
+为当前结果。验证使用真实 ROS 节点和受控 Future，没有实机、
+LLM、benchmark、物理仿真或 Jazzy 验证，也未改变 IRL 学习范围。
+
+### 11.89 快照隔离与 HIL 校验后的七包组合资格（2026-10-07）
+
+干净源码资格为 aa7acf862749651b3e2b7eaaba70e1b6cff029d0，
+将 11.87 的快照维度列表隔离和 11.88 的 HIL 重复维度校验纳入
+完整组合。本轮只更新 README 与验证记录，源码、测试、domains
+和验收条件保持。测试前固定预期 JUnit 660 项、4 项 copyright
+跳过；四个新增 HIL 参数使该包从 103 到 107，快照扩展既有
+两参数不增加人口。此前 85 文件冻结闭包和 529 份历史哈希
+核对，加入最近整包与两轮局部证据后预先固定 625 份历史哈希。
+
+沿用 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4 及 /home/yuhling/.local/bin/ltl2ba。七包 build
+使用 executor sequential、symlink install、既有隔离 build/
+install、packages-up-to ltl_automaton_core 与 BUILD_TESTING=ON；
+test 使用完整七包默认并行及 --return-code-on-test-failure，
+没有筛选、重跑、缩时或改变测试条件。执行代理 build session
+27747 和 test session 75846 各启动一次并等待原 handle 至实际
+exit 0，耗时分别 42.331240952 / 81.227143791 秒，不作为性能
+测量。主代理实际从 /proc 观测 build runner/colcon PID
+11213/11234 及 test runner/colcon PID 11703/11733。
+
+| package | tests | passed | skipped |
+|---|---:|---:|---:|
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 191 | 190 | 1 |
+| ltl_automaton_planner | 159 | 158 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 107 | 106 | 1 |
+| ltl_automaton_std_transition_systems | 49 | 48 | 1 |
+
+六份 test_start_ns 之后的新鲜 JUnit 合计
+**660 tests = 656 passed + 4 skipped**，0 errors/failures，跳过均为既有 copyright。
+接口 CTest wrapper 另有一项通过；主代理对实际隔离 build 的
+colcon 查询一次 exit 0：661 tests、0 errors/failures、4 skipped。
+14 份历史 CTest XML 按开始时间排除，不与当前人口或 wrapper
+重复累加。快照两个列表隔离参数、原子服务复制三参数、HIL
+validator 和新增四回调参数均执行；IRL 完整二十步、四个 overflow
+参数、IRL commit/step reset、四个真实 DDS 场景，以及 Studio、
+fallback、原生 ltl2ba/POSIX、HIL、monitor、launch 和 lint 均执行。
+
+启动门槛核对十四项源码 import 和隔离生成消息；十二模块完整
+源码字节与 Git 资格版本绑定，含 snapshot、IRL、resolver 和
+HIL policies/两个 mixer。主代理 collector、独立 fresh/live/
+frozen audit、query 及完整日志 receipt 检查各一次实际 exit 0。
+保留 np.int/SelectableGroups 弃用警告，五包 stderr 非空；完整
+stderr 未见未读取 Future 诊断。新 XML、原命令 receipt、源码
+导入和完整构建/测试/查询实体日志冻结为 85 文件 SHA256 闭包，
+625 份历史哈希保持。记录为既有隔离目录的
+verification_aa7acf8.json、verified_summary_aa7acf8.json、
+verified_changed_imports_aa7acf8.json、colcon_query_aa7acf8.json、
+inspected_combo_receipts_aa7acf8.json 及
+verified_results_aa7acf8/sha256_manifest.json。
+
+README 同步，前 88 节正文保留；旧局部 23/78 项及 e5a663c
+整包 656 项保留各自源码资格，不相加为本轮人口。IRL 沿用原
+示范学习 β 范围，默认关闭；执行验证仍为符号级 FakeBackend，
+没有 LLM、benchmark、完整演示、物理仿真、实机示范或 Jazzy
+验证。通过不证明整体加速、IRL 收敛、逆最优性或机器人效果。
+
+### 11.90 IRL 轨迹消息的维度列表隔离（2026-10-07）
+
+基线为干净 7feb701902d4ef831f12b4372ca2dc56766acdd4。
+IRLPlugin.publish_possible_runs 原先将同一个 dimensions 列表
+交给所有 LTLState。扩展既有 composed-state 列表独立性用例后，
+直接 unittest RED 实际 exit 1：1 failed、0 errors，六个轨迹点
+只有一份维度名列表（1 != 6）。本轮仅改为 list(dimensions)，
+每个出现点独立持有列表，保留消息字段值、排序、历史集、源 TS
+格式、缓冲规则、默认关闭与仅学习 β 的原范围。该问题针对
+Python 消息对象，不声称 DDS 接收端仍有同一对象别名。
+
+首次按普通 pytest 类名/方法节点定位因 launch_testing 的
+LaunchTestModule 包装失败，实际 exit 1，未执行目标用例；原始
+/tmp/irl_dimension_lists_red_7feb701.xml 保留，不把该 invocation
+错误称为算法 RED。collect-only 实际 exit 0，显示一个聚合入口；
+随后直接运行既有 unittest 完成上述 RED，没有改变验收条件。
+修复后完整 test_irl_plugin.py 与 test_irl_preference.py 一次
+实际 exit 0：两个 pytest 入口 passed，含插件 launch_testing
+包装与真实 ROS β 偏好学习集成；两项既有 np.int 警告保留。
+另直接运行强化的同一 unittest 一次 GREEN，1 passed；它与
+聚合入口不相加为三个独立用例。静态 session 49156 在原 handle
+等待至实际 exit 0，两文件 py_compile、flake8 --linelength 99、
+pep257 和 diff 检查通过。
+
+完整旧插件来自 git show 7feb701，运行 import/source 字节核对，
+确认生产改动仅上述一行。单维、多维各六出现点及空轨迹对照，
+完整字段/次序保持；编辑首点后受影响兄弟从 5 变为 0，历史集、
+源格式和下一次完整发布保持。直接 RED JSON、完整旧模块及
+irl_dimension_lists_verified_7feb701.json 保留在既有隔离目录，
+helper 位于主机临时目录。GREEN XML 为
+/tmp/irl_dimension_lists_green_7feb701.xml，SHA256 为
+6aad9e08dfb1061f9cbca8cc8f59cf3cfa1e68835975fbe5173b045dfb570010。
+当前插件 SHA256 为
+f0f01ffbe90c7fe95c45b71f83e387a92c1b004222f50d932f338670800c4857。
+
+README/HIL README 同步，前 89 节正文保持。本轮未重跑七包，
+11.89 的 660 项属于 aa7acf8 历史源码资格，不作本轮整包声明。
+没有 LLM、benchmark、物理仿真、实机或 Jazzy 验证，不将列表
+隔离或局部集成通过称为整体加速、IRL 收敛或机器人示范效果。
+
+### 11.91 丢弃 HIL 回调时读取 Future 异常（2026-10-07）
+
+基线为 8f8c93739d1b9bc9f925ebfd005fa0f720b3704c，运行环境为
+WSL Ubuntu-22.04-D / ROS 2 Humble，使用既有隔离 overlay。真实
+rclpy Future 在异常完成并调度 callback 后，若回调因节点销毁、
+context/Future 身份替换或 deadline 而提前返回，旧实现没有读取
+异常，GC 会报告 exception was never retrieved。Humble 的
+Future.exception() 不等待并标记异常已读取；已完成 Future 的
+cancel() 不会代替这一步。本轮只在 Bool trap、Velocity closest
+和 Velocity trap 三个入口各增加四行读取，保留所有原 guard、
+deadline、result、错误日志、请求释放和导航回退顺序。对既有受控
+Future 缺少 exception() 方法的情况沿用原 result() 路径。
+
+新增参数化用例覆盖三回调 × 四丢弃条件，使用真实控制器节点、
+Future 和 SingleThreadedExecutor。先异常完成并排队，再真实
+destroy_node()、替换身份或将受控 steady clock 推进到原 deadline，
+随后 spin 一次。检查旧命令零派发、替换请求保留、超时释放及速度
+零导航回退；weakref/GC 确认 Future 实际回收且没有未读取异常。
+executor 在 finally 关闭，fixture 不重复销毁节点。
+
+第一次 RED 为 12 failed、47 deselected；第一次两文件 GREEN 为
+90 passed。随后静态检查发现三处 E731，改用 partial。审查还发现
+首版 fixture 在完成前改变丢弃条件，closed 只切换标记；它没有验证
+已排队回调与真实销毁的完整时序。保留原 XML，不将它们作为最终
+测试字节的资格。修正上述时序和清理后，暂时仅移除十二行生产修复，
+run2 RED 实际 exit 1：12 failed、47 deselected、2 warnings，
+4.10 秒；失败均为 late HIL failure 未读取。恢复相同源码字节后，
+最终两文件 GREEN 实际 exit 0：90 passed、2 warnings，5.27 秒。
+两项警告均为既有 NetworkX np.int 弃用，0 errors/failures/skipped。
+没有改变参数人口、丢弃条件、deadline 或验收标准。
+
+最终命令在 source Humble 与隔离 install/setup.bash 后执行：
+
+```bash
+python3 -m pytest -q ltl_automaton_hil_mic/test/test_hil_async.py \
+  -k discarded_real_future_exceptions_are_consumed \
+  --junitxml=/tmp/hil_future_discard_red_run2_8f8c937.xml
+python3 -m pytest -q ltl_automaton_hil_mic/test/test_hil_async.py \
+  ltl_automaton_hil_mic/test/test_policies.py \
+  --junitxml=/tmp/hil_future_discard_green_run2_8f8c937.xml
+```
+
+RED、GREEN 均无持续 session，各自等待至上述实际退出。最终静态
+session 1571 在原 handle 等待至 exit 0：三个改动文件 py_compile、
+flake8 --linelength 99，回调测试 pep257 及 git diff --check。
+GREEN XML SHA256 为
+c3e0c4a0e9c4b48f5c7f295576d13d48d260ef2ddde8f917df49f3b8d0725d3f。
+最终 Bool/Velocity 源码 SHA256 分别为
+a17ab247306a9de8b3b9e2d60caef9a1761f571fce4b73d92e1c5c997e90707d、
+1e2d07ac8b1bd03d36df111bbd8db07ff439b245fd0d19dbe6eab7062e9b2347；
+测试 SHA256 为
+fe9d51dfb4c252fd81a5a0f2e6be622fc50e487d938eaa9b645b99edeebcebc0。
+
+主代理从 git show 8f8c937 加载完整旧模块并核对运行 import 与
+源字节，采用真实 Future/executor、受控 host hooks，独立对照
+三回调 × 五条件（另含当前请求失败）共十五格。完成先于条件改变；
+十二个丢弃格旧版有诊断、新版 stderr 为空，三项当前失败保持
+日志/释放/回退 trace，全部旧新 trace 相等且 Future 实际回收。
+此对照的 closed 使用 host 标记，真实销毁由上述节点测试覆盖。
+未把十五格重复加到九十项 pytest 人口。
+
+原 XML /tmp/hil_future_discard_red_8f8c937.xml 与
+/tmp/hil_future_discard_green_8f8c937.xml 保留；run2 两 XML 如上。
+完整旧模块、hil_future_baseline_8f8c937.json、
+hil_future_compare_8f8c937.json、hil_future_inspected_results_8f8c937.json
+位于 /tmp/ltl_ros2_completion_20261006，helper 在主机临时目录。
+主代理逐一检查四 XML 计数/新用例名/SHA、最终三文件 SHA 与仅十二行
+生产差异。README/HIL README 同步，前九十节正文保持。本轮未重跑
+七包，11.89 的 660 项仍属于 aa7acf8 历史源码。没有 LLM、benchmark、
+物理仿真、实机或 Jazzy 验证，不声称整体加速或 IRL 科学效果。
+
+### 11.92 KTH driver 状态消息的维度列表隔离（2026-10-07）
+
+基线为干净 ad4d1d6fe2a426080d5f5a33705f3230c4fae194。
+先检查执行入口：ROS 消息的可变列表已转换为 frozen 模型内的 tuple，
+缓存只持有该不可变投影，本轮没有修改 resolver 或执行缓存。继续检查
+演示发布时发现 KthDemoDriver._publish_state 将模块 STATE_DIMENSIONS
+直接赋给每条 ROS 消息。原生生成消息实证两次发布只有一份维度名列表；
+编辑首条会改变第二条、模块定义和下一次发布。状态值原本分别 list(state)。
+本轮生产改动只有 list(STATE_DIMENSIONS) 一行，保留字段值、排序、时间戳
+获取、日志、scenario、max_steps、timer、任务切换与合法偏离流程。
+
+新增一个检查，用现有 isolated ROS Context/真实 Node 构造 fixture，
+publisher 记录真实生成消息。核对两条消息字段与两种列表独立，编辑首条
+后第二条、模块常量、两个输入状态元组及下一次发布保持；finally 恢复
+模块常量并销毁节点/context，RED 失败不污染其他用例。旧实现定向运行
+实际 exit 1：1 failed、21 deselected，0.92 秒，失败为维度列表 is not
+断言。修复后该完整测试文件实际 exit 0：22 passed，1.44 秒，无 pytest
+warnings、errors、failures 或 skipped；原21项和新增一项均执行。
+没有修改阶段、步数、超时或验收条件，也没有运行完整演示。
+
+source Humble 与既有隔离 install/setup.bash 后的实际命令：
+
+```bash
+python3 -m pytest -q ltl_automaton_planner/test/test_kth_demo_driver.py \
+  -k published_state_messages_own_dimension_and_state_lists \
+  --junitxml=/tmp/demo_dimension_lists_red_ad4d1d6.xml
+python3 -m pytest -q ltl_automaton_planner/test/test_kth_demo_driver.py \
+  --junitxml=/tmp/demo_dimension_lists_green_ad4d1d6.xml
+```
+
+两次测试均无持续 session，各自实际退出；没有中间静态失败，GREEN 后
+未改变源码/测试。静态 session 40080 在原 handle 等待至 exit 0：两个
+文件 py_compile、flake8 --linelength 99、pep257 与 diff 检查通过。
+GREEN XML SHA256 为
+14af687d35a5d56e8a236ca0b0f729fd47b40661e2a6db1aa02ebf6faf4f6274。
+最终 driver/test SHA256 分别为
+01d84081b5ea27642bfdb71ccf98f5b24ca5f09fd185f4dda1f6a927b28b7a24、
+8660340ca4e57612e5a3e04fa6ac0ff72661b45d454d14c04b3a0965bf908af0。
+
+主代理从 git show ad4d1d6 加载完整旧 driver，核对运行 import、旧新源
+字节及仅一行生产差异。原生 ROS 消息配合受控 clock/publisher/logger
+hooks 对照：两条消息的完整 header、状态字段与三次日志一致；维度列表
+份数由1变2，编辑首条对兄弟、模块定义和下一次发布的影响均由有变无，
+状态列表份数保持2、输入元组保持。这里验证 Python 消息对象所有权，
+没有声称 DDS 订阅端保留同一别名；该独立对照不加到22项 pytest 人口。
+
+XML 如上；完整旧模块 demo_dimension_baseline_ad4d1d6.py 及
+demo_dimensions_baseline_ad4d1d6.json、demo_dimensions_compare_ad4d1d6.json、
+demo_dimensions_inspected_ad4d1d6.json 在 /tmp/ltl_ros2_completion_20261006，
+helper 在主机临时目录。主代理核对 XML 计数/用例名/SHA 和最终两文件
+字节，README/演示说明同步，前九十一节正文保持。本轮未重跑七包；
+660 项仍属于 aa7acf8 历史源码资格，HIL 的90项与 IRL 的两个 pytest
+入口保留各自源码资格，不相加。没有 LLM、benchmark、物理仿真、实机
+或 Jazzy 验证，不称为整体加速、IRL 科学效果或完整演示验收。
+
+### 11.93 IRL、HIL Future 与 driver 修复后的七包组合资格（2026-10-07）
+
+资格源码为干净 0beaa3ed08cc456e8c7f0ac6c3e9586aa3c8256c，
+包括 11.90–11.92 的三个生产修复。本轮没有新的算法/接口改动。
+测试开始前固定七包、预期六份 JUnit 673项与4项 copyright 跳过，
+保留完整默认并行人口、domain、timeout、max_steps 和原验收条件。
+环境为 WSL Ubuntu-22.04-D / ROS 2 Humble / Python 3.10.12 /
+NetworkX 2.4，原生 translator 为 /home/yuhling/.local/bin/ltl2ba。
+
+使用既有隔离 build/install，build session 43807、test session
+95248 均沿原 handle 等待至实际 exit 0，各执行一次，真实 elapsed
+分别 43.926285402秒与81.327542842秒。根代理从 /proc 确认 build
+runner/colcon PID19057/19070，随后 test runner/colcon PID19407/19428；
+没有用标记文件或观察超时推断进程停止，也没有启动替代运行。
+
+```bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_0beaa3e build \
+  --executor sequential \
+  --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --symlink-install --packages-up-to ltl_automaton_core \
+  --cmake-args -DBUILD_TESTING=ON
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_0beaa3e test \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --packages-select ltl_automaton_core ltl_automaton_msgs \
+  ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution \
+  ltl_automaton_hil_mic ltl_automaton_std_transition_systems \
+  --return-code-on-test-failure
+```
+
+构建后 source 同一隔离 overlay，start gate 核对16项源码 import
+和生成消息路径；13个相关生产模块完整字节与 git show 0beaa3e 绑定，
+包含本次三个修复及原执行/规划模块。aggregate exec_depend 正好为
+六个功能包。新鲜六份 JUnit 为
+**673 tests = 669 passed + 4 skipped**，0 errors/failures：
+msgs11/0skip、core191/1、planner160/1、execution143/0、
+HIL119/1、std49/1。四项跳过均为既有 copyright。
+
+新增 HIL 十二个真实 Future 丢弃参数与 driver 列表检查均执行，
+IRL 插件 launch_testing 聚合入口与真实 β 偏好学习入口各一项通过；
+聚合内部用例不另加到 JUnit 人口。原二十步/overflow/commit、
+快照隔离、原子服务复制、执行 resolver/timeout、四个真实 DDS 场景、
+Studio、fallback、原生 ltl2ba/POSIX、monitor、launch 与 lint 保持通过。
+接口 CTest wrapper 另一项 passed，实际隔离 build 查询为674tests，
+0 errors/failures、4 skipped；15份历史 CTest XML 按开始时间排除。
+
+完整 stderr 中五包各923bytes，包含既有 np.int/SelectableGroups
+依赖弃用警告；未见 exception was never retrieved 诊断。旧AA的
+85文件冻结闭包及731份选定历史哈希在前后核对均保持；新的完整 XML、
+receipt、import与colcon日志冻结为另一份85文件闭包。根代理查询、
+collector、独立 audit 与 receipt 检查各一次实际 exit 0，核对全部
+计数/required cases/时间边界/源字节/原日志，未用历史绿项替换当前结果。
+
+证据位于 /tmp/ltl_ros2_completion_20261006：
+verification_0beaa3e.json、verified_changed_imports_0beaa3e.json、
+verified_summary_0beaa3e.json、colcon_query_0beaa3e.json、
+historical_hashes_before_0beaa3e.json、inspected_combo_receipts_0beaa3e.json
+及 verified_results_0beaa3e/sha256_manifest.json。日志在
+log_combo_0beaa3e 与 log_query_0beaa3e，helper 在主机临时目录。
+
+README 改为当前组合表，前九十二节正文保持。旧660项组合、IRL/HIL/
+driver 局部资格与各次原始失败仍按各自版本保留，不累加为本轮人口。
+IRL 沿用原示范学习 β 范围，默认关闭；执行仍为符号级 FakeBackend。
+没有 LLM、benchmark、完整演示、物理仿真、实机/机器人示范或 Jazzy
+验证，通过不证明整体加速、IRL 收敛/逆最优性或机器人效果。
+
+### 11.94 Trap 初始相交判断省去临时集合（2026-10-07）
+
+基线为干净 9d2eca3c6d3d624b67405118d99232a405c013f1。本轮只有一行
+生产改动：possible_states & visited 改为 not possible_states.isdisjoint(visited)。
+保留 set/frozenset 与 DiGraph 的原入口检查、逆向单次遍历、缺失节点和
+列表输入的原 has_path 分支，以及每次查询重新读取活动图的行为。
+这是布尔查询的容器优化，没有增加测试或修改算法/IRL 学习范围。
+
+WSL Ubuntu-22.04-D 中 source Humble 与既有隔离 install/setup.bash 后，
+一次运行两个完整现有测试文件，实际 exit 0：21 passed，0 errors、
+failures 或 skipped，终端报告3.99秒，无持续 session；两项警告均为既有
+NetworkX np.int 弃用。
+
+```bash
+python3 -m pytest ltl_automaton_hil_mic/test/test_trap_detection.py \
+  ltl_automaton_hil_mic/test/test_trap_plugin_launch.py \
+  --junitxml=/tmp/trap_disjoint_green_9d2eca3.xml
+```
+
+静态 session 57990 沿原 handle 等待至实际 exit 0：改动源码 py_compile、
+flake8 --linelength 99、pep257 与 git diff --check 通过。根代理检查新鲜
+XML 的21个入口、计数与 SHA256；JUnit suite time 为3.972秒，XML SHA256为
+d8e5b3f748584c2f30d21b87862a3ec76cfde4a761a4f69ed4c95d863ff3e7e1。
+最终源码 SHA256 为
+a81bb4dc536da6f9f0c6be91b1544ef3e132667fe8fd7802495c47cee64f15f0。
+
+独立旧新对照加载完整 git show 9d2eca3 模块，核对运行 import 和仅一行
+源差异。16个双节点有向图（含全部自边组合）×4候选子集×4接受子集×
+4种 set/frozenset 配对，每版1,024格，全部与 NetworkX has_path 参考
+结果一致，包含空集合及零边续行。二进制交集字节码位置由1变0；此数值
+是静态结构检查，没有测量时延/RSS或声称整体加速。对照不加到pytest人口。
+
+完整旧模块 trap_disjoint_baseline_9d2eca3.py、baseline/compare JSON 与
+trap_disjoint_inspected_9d2eca3.json 位于 /tmp/ltl_ros2_completion_20261006，
+helper 位于主机临时目录，XML 如上。README/HIL 说明同步；此前93节正文
+保持。本轮未重跑七包，11.93 的673项资格仍属于0beaa3e历史源码。
+没有 LLM、benchmark、物理仿真、实机或 Jazzy 验证。
+
+### 11.95 6D monitor 搜索复用入口位置校验（2026-10-07）
+
+基线为干净 93841ea9a52acb5285a5c9d1c4c127dcb03d77d1。旧版 update
+在入口校验位置后，_find 通过 is_in_region 为每个候选区域重复校验。
+本轮把几何主体提取为私有 _contains_position，内部 _find 复用 update
+入口校验；公开 is_in_region 仍先独立校验。不返回或缓存新坐标对象，
+保留 math.hypot、严格 <、额外关节忽略、候选与连接优先级、状态更新及
+错误优先级。_find 的现有调用均来自已校验的 update。
+
+WSL Ubuntu-22.04-D 中 source Humble 与既有隔离 install/setup.bash 后，
+一次运行三个完整现有测试文件，实际 exit 0：46 passed，0 errors、
+failures 或 skipped；两项警告为既有 NetworkX np.int 弃用，终端4.27秒，
+无持续 session。37项模型、8项节点输入、1项 launch_testing 聚合入口；
+聚合内部两 monitor 的通信及关闭检查不另计数。没有增改测试或运行 RED。
+
+```bash
+python3 -m pytest ltl_automaton_std_transition_systems/test/test_region_models.py \
+  ltl_automaton_std_transition_systems/test/test_monitor_inputs.py \
+  ltl_automaton_std_transition_systems/test/test_monitor_launch.py \
+  --junitxml=/tmp/joint_validation_green_93841ea.xml
+```
+
+静态 session 29716 沿原 handle 等待至实际 exit 0：改动源码 py_compile、
+flake8 --linelength 99、pep257 与 git diff --check 通过。根代理逐项核对
+新鲜 XML 的数量、入口与 SHA256；JUnit suite time 为4.25秒，XML SHA256为
+cea8150f23023aef2538ba4832b5a02e08ceae550838055b0f0e5066ae8dc578。
+最终源码 SHA256 为
+19544ada9177b6fa934d9850c0fd94c6f5d527456af1d6586c395f02f23d8508。
+
+完整旧模块与当前 import 独立对照43格，返回、错误类型/文本/cause、状态
+及输入/配置不变性一致。包含连通/断连回退、未命中、后续恢复、额外关节、
+tuple/bool、首末坐标的非有限值/溢出/非数字、未知区域、严格半径相邻浮点
+与直接调用 hysteresis。初次/连通/断连三种 update 校验由2/3/6次变1次，
+每格仍执行一次输入校验；计数不证明整体加速，不加入46项pytest人口。
+
+完整旧模块 joint_validation_baseline_93841ea.py、baseline/compare JSON 与
+joint_validation_inspected_93841ea.json 位于 /tmp/ltl_ros2_completion_20261006，
+helper 位于主机临时目录，XML 如上。README/标准 TS 说明同步，前94节正文
+保持。11.93 的673项组合与11.94的trap局部资格保留原源码版本，本轮未重跑
+七包。没有 LLM、benchmark、物理仿真、实机或 Jazzy 验证。
+
+### 11.96 2D station 判定复用单次 yaw 差值（2026-10-07）
+
+基线为干净 abc12b4103a8f17600f826864345522d30c3a9db。旧 is_in_station
+分别在 sin/cos 内重复计算同一个 pose 的 yaw 和角度差；本轮在 distance
+之后按原先先读 heading 再读 quaternion 的顺序计算局部 yaw_difference，供两者
+共用。保留原未归一化 quaternion/yaw 公式、sin/cos/atan2/abs 次序、±π
+环绕、严格边界、threshold 优先级、station access、滞回及错误优先级。
+没有跨调用缓存，后续调用仍读取 pose 和区域配置；其他源码/测试保持。
+
+source Humble 与既有隔离 overlay 后，一次运行三个完整现有文件，实际
+exit 0：46 passed，0 errors/failures/skipped。37项模型、8项节点输入、
+1项 launch_testing 聚合入口；内部通信/关闭用例不另计数。终端4.33秒，
+无持续 session，两项警告均为既有 NetworkX np.int 弃用，无新增测试/RED。
+
+```bash
+python3 -m pytest ltl_automaton_std_transition_systems/test/test_region_models.py \
+  ltl_automaton_std_transition_systems/test/test_monitor_inputs.py \
+  ltl_automaton_std_transition_systems/test/test_monitor_launch.py \
+  --junitxml=/tmp/station_yaw_green_abc12b4.xml
+```
+
+静态 session 83155 沿原 handle 等待至实际 exit 0：改动源码 py_compile、
+flake8 --linelength 99、pep257 与 git diff --check 通过。根代理检查 XML
+入口、数量与哈希，JUnit suite time 为4.308秒，XML SHA256为
+3f2902ec45860249edfb9f6ea1a8cfb4c8bfbabf4dd2a816146743ea1235e07f。
+最终源码 SHA256 为
+9e64af55ac56ec4b5ac6e79a88611e5b8d19422db0c6707c9d5640e2e24c0cbe。
+
+完整旧模块与当前 import 独立对照43格：原生 Pose 的±π及相邻角度、
+严格半径相邻浮点、距离/角度滞回、非单位 quaternion、threshold/tolerance
+优先级、station 请求/释放/离开与无效输入。返回、错误类型/文本/cause、
+状态及输入/配置不变性一致。缺失 heading 仍先于缺失 orientation 报错；
+正常 station 判定 yaw 调用由2次变1次。此计数不证明整体加速，不加入
+46项pytest人口。
+
+完整旧模块 station_yaw_baseline_abc12b4.py、baseline/compare JSON 与
+station_yaw_inspected_abc12b4.json 位于 /tmp/ltl_ros2_completion_20261006，
+helper 位于主机临时目录，XML 如上。README 同步，前95节正文保持；11.93
+的673项组合及11.94–11.95局部资格保留原版本，本轮未重跑七包。没有 LLM、
+benchmark、物理仿真、实机或 Jazzy 验证。
+
+### 11.97 Trap 与2D/6D monitor 优化后的七包组合资格（2026-10-07）
+
+资格源码为干净 9c9a80d6f5a0ef91291fe0fc04689e0bdcc1552d，包括
+11.94–11.96 的三个生产优化；本轮没有新的算法/接口或测试变更。
+开始前核对与0be资格之间仅三源文件和四文档变化，固定七包、六份JUnit
+673项与4项 copyright 跳过，保留默认并行、domain、timeout、max_steps
+和原验收条件。环境为 WSL Ubuntu-22.04-D / ROS 2 Humble /
+Python3.10.12 / NetworkX2.4，原生 ltl2ba 路径与完整二进制SHA保持。
+
+既有隔离 build/install 下各执行一次。build session94245、test session
+88838 沿原 handle 等待至实际 exit0，receipt elapsed 分别43.635586786秒
+与78.790072845秒；import/start gate session9367 实际exit0。构建后核对
+18项源码 import 与生成消息路径，16个完整相关生产模块与 Git 字节匹配，
+包含三个最新优化。主代理未捕获运行期PID，终态按原执行handle及原始
+receipt/log核对；没有据空进程观测、marker或观察超时启动替代运行。
+
+```bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_9c9a80d build \
+  --executor sequential \
+  --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --symlink-install --packages-up-to ltl_automaton_core \
+  --cmake-args -DBUILD_TESTING=ON
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_9c9a80d test \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --packages-select ltl_automaton_core ltl_automaton_msgs \
+  ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution \
+  ltl_automaton_hil_mic ltl_automaton_std_transition_systems \
+  --return-code-on-test-failure
+```
+
+六份新鲜JUnit：**673 tests = 669 passed + 4 skipped**，0 errors/failures。
+msgs11/0skip、core191/1、planner160/1、execution143/0、HIL119/1、std49/1；
+四项跳过均为既有 copyright。Trap 九种可达性、缺失节点/短路/图变更，
+2D station access/closest、6D连通/严格半径/extra joint及monitor/plugin
+launch入口均执行；原12项HIL Future、driver列表、IRL launch/真实β偏好、
+二十步/overflow/commit、快照隔离/原子复制、resolver/timeout、四个DDS、
+Studio、fallback、原生translator/POSIX、readonly参数、launch和lint通过。
+聚合内部与此前独立旧新对照不重复累加。接口CTest wrapper另1项通过，
+实际隔离build查询674tests、0 errors/failures、4 skipped；16份历史CTest
+XML按测试开始时间排除。完整stderr五包各923bytes，保留np.int/
+SelectableGroups依赖弃用警告，未见未读取Future异常诊断。
+
+前一0be的85文件闭包与833份选定历史hash前后均保持；本轮XML、receipt、
+imports、完整常规colcon日志另冻结为85文件闭包。根代理query、collector、
+独立audit与receipt检查各一次实际exit0，核对源字节/人口/入口/时间/日志。
+证据位于 /tmp/ltl_ros2_completion_20261006：verification_9c9a80d.json、
+verified_changed_imports_9c9a80d.json、verified_summary_9c9a80d.json、
+colcon_query_9c9a80d.json、historical_hashes_before_9c9a80d.json、
+inspected_combo_receipts_9c9a80d.json及verified_results_9c9a80d/sha256_manifest.json。
+日志在log_combo_9c9a80d/log_query_9c9a80d，helper在主机临时目录。
+
+README改为当前组合表，前96节正文保持。旧0be/AA组合、各版局部资格和
+原始失败仍按原源码保留。IRL仅学习β、默认关闭，执行仍为符号级FakeBackend；
+没有LLM、benchmark、完整演示、物理仿真、实机/机器人示范或Jazzy验证。
+通过不证明整体加速、IRL收敛/逆最优性或机器人效果。
+
+### 11.98 单维 TS 初始状态容器隔离（2026-10-07）
+
+基线为 d8431042334fb325f93e7fdc705691c811a3ae6c。单维 build_full 直接
+引用输入 initial 容器，导致组合 TS、输入与兄弟实例的成员修改互相污染；
+多维组合原本生成独立集合。修复用 copy.copy 复制单维 initial 容器，
+保留 set/list/tuple/frozenset 类型和值，其他图属性、guard、节点和边不变。
+源ts.py SHA从 f6a235c1c3b10972d3ceb9afea397d9b31eb528d43d6ff31a6e16ceaf05453f4
+变为 3b8c4f8ff2fc67be00a87d12dff750ac0229d047a5a0795af478f1fd6f159d44。
+
+新增 set/list 两个行为回归：组合/输入双向隔离、兄弟实例、有效及未知
+set_initial、重建读取当前输入且再次隔离，保留边值。初稿RED实际exit1，
+2 failed/13 deselected（0.88秒；JUnit0.835秒），第120行输入被污染断言失败。
+前两次完整尝试均72 passed/2 failed：初稿先向model添加r2，后来却要求
+model只含r1，错误预期在第124行失败；对应JUnit3.286/2.901秒。修正用例
+使用clear并核对空集合与来源后，第三次完整运行实际exit0，**74 passed**
+（15项TS、33项Product、26项LTLPlanner），0 errors/failures/skipped；
+pytest3.06秒、JUnit3.030秒，保留两项np.int依赖警告。
+
+```bash
+export PYTHONPATH=/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core:$PYTHONPATH
+python3 -m pytest ltl_automaton_planner_core/test/test_ts.py \
+  ltl_automaton_planner_core/test/test_product.py \
+  ltl_automaton_planner_core/test/test_ltl_planner.py \
+  --junitxml=/tmp/ts_initial_green_run3_d843104.xml
+```
+
+环境沿用11.97；最终import明确绑定当前checkout，源与测试SHA核对。
+第一次尝试只记录build路径而未保存当时源SHA，对旧build字节的疑虑不能
+作为失败归因；XML实际支持上述预期错误。四份XML保留原名并逐一冻结，
+原stdout/receipt未单独保存，退出码按原工具终态记录。静态session47125
+实际exit0：py_compile、ament_flake8 --linelength 99、ament_pep257、diff检查。
+
+主代理独立六格旧新对照实际exit0：四种容器的完整节点/边、初始值、
+类型、set_initial成功/拒绝及重建结果一致；set/list双向及兄弟实例污染
+由旧实现复现，修复后隔离。对照不累加到JUnit或作为加速证明。
+证据在 /tmp/ltl_ros2_completion_20261006：ts_initial_baseline_d843104.py、
+ts_initial_{baseline,compare,inspected,attempts_inspected}_d843104.json；
+XML位于/tmp：ts_initial_red_d843104.xml、ts_initial_green_d843104.xml、
+ts_initial_green_run2_d843104.xml、ts_initial_green_run3_d843104.xml。
+最终XML SHA为 3f417326b6e5dc1acbccdd4a6700f6fb80e3f55d7104a041dc5699335bc42ad0。
+README同步，前97节正文保持；673项组合保留为9c源码历史资格。
+本轮未重跑七包、调用LLM、跑benchmark/物理仿真/实机或Jazzy。
+
+### 11.99 冻结成员集合的完整快照转换（2026-10-07）
+
+基线 a25622f0b7dd8ed41803abe8509ccd3294f407a8 的 _membership 支持
+set/list/tuple，却拒绝同值frozenset。真实single/safe Core计划冻结
+Büchi/Product initial及accept后Dijkstra仍给出原代价，但转换报类型错误。
+修复只在既有容器判断中加入frozenset；整个value作为已有图节点时仍优先
+匹配，成员标记、ID、公式、代价、运行边界及输入图保持原行为。
+源SHA从 4c7e2a654cd60a5c0cb04bb01d4315f9cc2d5d20bd3750f2e583528aa903c8c5
+变为 45dda1335c5c229671b0cf875af0ee2d9fffeae1096a03169ff7ae24f092dc3b。
+
+新增single/safe任务 × Product/Büchi × initial/accept八格完整消息回归。
+RED实际exit1，8 failed/20 deselected，JUnit2.021秒；原错误为membership
+拒绝。随后三次启动各有2/2/1个collection error，分别为源目录遮蔽生成
+消息、缺rosidl_parser和缺core.configuration，没有完成测试人口。
+三份失败XML保留。第四次实际exit0，31 passed（28项snapshot、3项服务
+复制），pytest1.92秒、JUnit1.894秒，保留两项np.int依赖警告。
+这些子代理运行未单独保存stdout/receipt，绑定输出不含当时完整SHA。
+
+根代理针对运行绑定/记录缺口，沿已验证ROS overlay保存一次相同两文件
+完整运行：六个生产模块resolve路径及完整字节与checkout/Git核对，另有
+一个生成消息模块和两份测试SHA。先绑定模块再调用pytest.main，无filter、
+timeout或验收变化。原工具chunk c33bb4实际exit0，receipt5.496040565秒；
+**31 passed**，0 errors/failures/skipped，pytest1.25秒、JUnit1.228秒，
+输出未列pytest警告汇总。命令、环境、原stdout/stderr、import证明均保存。
+首个结果检查器误要求此前警告文本，实际人口和状态已通过；读取原日志
+后修正该文本检查，未重跑测试，最终证据检查实际exit0。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_frozen_membership_a25622f.py
+```
+
+wrapper子进程在隔离workspace执行pytest.main，参数为两个checkout完整
+测试路径，XML=/tmp/frozen_membership_green_root_a25622f.xml。静态session
+23654实际exit0：py_compile、ament_flake8 --linelength 99、ament_pep257、diff。
+根代理15种独立输入中既有13格结果/错误保持，含tuple/frozenset节点优先级；
+空/非空冻结集合恢复。两份真实single/safe ROS消息及ID表逐字段与set基准
+相等，run与冻结成员对象保持，Core代价不变。独立对照不累加JUnit人口。
+
+证据在 /tmp/ltl_ros2_completion_20261006：frozen_membership_baseline_a25622f.py、
+frozen_membership_{baseline,compare,root_run,root_imports,inspected}_a25622f.json，
+原日志frozen_membership_root_run_a25622f.log。六份XML在/tmp，原RED、
+GREEN、GREEN_run2/3/4及GREEN_root分别冻结，文件名见inspected清单。
+根代理最终XML SHA为 243982ff3389f4e92c6b75569387956e03a2dfd038f875ec5a3ce1760d36b446。
+README同步，前98节正文保持；本轮未重跑七包或做LLM/benchmark/物理仿真/
+实机/Jazzy验证，不改变消息schema、算法、IRL范围或学习规则。
+
+### 11.100 TS 隔离与冻结集合快照修复后的七包组合资格（2026-10-07）
+
+资格源码为干净 6ce560f340cd2ca1e96f31c8e0b0237700f2be0d，包含11.98–11.99
+的两个修复。开始前核对相对9c资格仅两生产文件、两测试与两文档变化，
+固定七包、六份JUnit的683项与4项copyright跳过。新增两项TS及八项快照
+回归计入各自文件，不把先前74/31项局部运行或独立对照再相加。保留默认
+并行、domain、timeout、max_steps及原验收。环境沿用WSL Ubuntu-22.04-D /
+ROS2 Humble / Python3.10.12 / NetworkX2.4；原生ltl2ba二进制完整SHA仍为
+d4785c387b67be41052800f6913b8476dbaff56730ef962553fd3d339c378ed3。
+
+在既有隔离build/install下各执行一次。build session89524与test session
+82507沿原handle等待至实际exit0，receipt elapsed分别38.235287731秒、
+64.205967504秒。主代理运行中观察到build wrapper PID31275及colcon
+PID31304；未捕获运行期test PID，测试终态由原handle、receipt和日志核对，
+没有据空进程观测或观察超时启动替代运行。构建后18项源码import及生成
+消息路径核对通过，原16个完整生产模块与Git字节一致；另补核对改动TS的
+import、完整Git字节及SHA，单独保存证明，合计17模块。
+
+```bash
+source /opt/ros/humble/setup.bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_6ce560f build \
+  --executor sequential \
+  --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --symlink-install --packages-up-to ltl_automaton_core \
+  --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_6ce560f test \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --packages-select ltl_automaton_core ltl_automaton_msgs \
+  ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution \
+  ltl_automaton_hil_mic ltl_automaton_std_transition_systems \
+  --return-code-on-test-failure
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_query_6ce560f test-result \
+  --test-result-base /tmp/ltl_ros2_completion_20261006/build --verbose
+```
+
+六份新鲜JUnit：**683 tests = 679 passed + 4 skipped**，0 errors/failures。
+msgs11/0skip、core193/1、planner168/1、execution143/0、HIL119/1、std49/1。
+四项跳过均为既有copyright；接口CTest wrapper另1项通过，查询684tests、
+0 errors/failures、4 skipped；17份历史CTest XML按测试开始时间排除。
+新增TS初始容器隔离/重建两格与冻结集合八格均执行；此前IRL插件及真实β
+偏好、完整二十步/overflow/commit、HIL十二项Future、driver列表隔离、
+Trap/monitor、快照/服务复制、resolver/timeout、四个DDS、Studio/fallback、
+原生translator/POSIX、参数、launch和lint通过。聚合内部不重复计数。
+五包stderr各923bytes，保留np.int/SelectableGroups依赖弃用警告，未见
+未读取Future异常诊断；本轮时间仅记录该次运行，不作为加速比较。
+
+先前9c的85文件闭包及944份选定历史hash前后均保持。本轮XML、receipt、
+原16模块证明、TS补证与完整TS源码、完整常规colcon日志冻结为87文件闭包。
+根代理query、collector、独立audit与receipt检查各一次实际exit0；核对
+人口、所有要求入口、源字节、日志、时间、新鲜度、聚合依赖及闭包哈希。
+证据位于/tmp/ltl_ros2_completion_20261006：verification_6ce560f.json、
+verified_changed_imports_6ce560f.json、verified_ts_import_bytes_6ce560f.json、
+verified_summary_6ce560f.json、colcon_query_6ce560f.json、
+historical_hashes_before_6ce560f.json、inspected_combo_receipts_6ce560f.json
+及verified_results_6ce560f/sha256_manifest.json；日志在log_combo_6ce560f/
+log_query_6ce560f，helper在主机临时目录。
+
+README同步当前组合表，前99节正文保持，旧组合、局部资格及原始失败
+按原源码保留。本轮不改消息schema、算法或IRL学习规则；IRL仅学习β且
+默认关闭，执行仍为符号级FakeBackend。没有LLM、benchmark、完整演示、
+物理仿真、实机/机器人示范或Jazzy验证；通过不证明整体加速、IRL收敛、
+逆最优性或机器人效果。
+
+### 11.101 Product 权重更新复用边属性（2026-10-07）
+
+基线为26f1cf0424d23e30fb2d1ab0e8a37bc007465a48。仅改ProdAut.update_beta：
+从edges(data=True)获取当前边属性，省去每边三次self[u][v]邻接查找。
+仍先写graph['beta']，按原边顺序计算transition_cost + beta * soft_task_dist，
+保留属性字典对象、其它字段与缺失属性/无效beta时的原异常及部分更新行为。
+不增加参数验证或跨调用缓存，不改IRL、接受性、消息schema和其它方法。
+源SHA从77cf0812e699381fc9b8e880469754ef83d368f6acf577105b7e839d1c34bf23
+变为6e99f3f906f0402ddf355208420aa5005aa69aee2ed097bebde02164625c53d5。
+
+WSL/Humble环境沿用11.100；两个完整相关测试文件在修改前按原XML固定
+33项Product与24项discrete_plan，没有新增测试或改变filter/验收条件。
+一次正式运行session65325沿原handle等待至实际exit0：**57 passed**，
+0 errors/failures/skipped，pytest0.96秒、JUnit0.940秒，receipt5.19313363秒。
+启动前核对三个生产模块的真实import/完整字节及两个测试的Git字节，
+保存原命令、环境路径、stdout/stderr和receipt。先绑定模块再pytest.main，
+输出未列pytest警告汇总，没有额外警告过滤。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_beta_update_26f1cf0.py
+```
+
+worker在隔离workspace调用pytest.main，参数为checkout完整路径的
+test_product.py、test_discrete_plan.py和
+--junitxml=/tmp/ltl_ros2_completion_20261006/beta_update_26f1cf0.xml。
+静态helper session14824实际exit0：py_compile、安装的ament_flake8.main
+API（--linelength 99分开传参）、ament_pep257.main与git diff --check通过。
+首个静态命令误用python -m ament_flake8，无__main__而exit1；随后内联
+入口探查遇PowerShell引号解析错误，未启动Linux检查。改为临时脚本读取
+已安装API并调用。结果检查器首次在静态handle尚未结束时读取receipt而
+FileNotFoundError；等待原handle终态后再次核对通过，没有重跑正式测试。
+
+完整旧模块独立13格对照：空图、零/大/负beta、Fraction、NaN/Infinity、
+None/字符串、重复更新后重新读取软距离，以及缺首个cost、后续distance、
+同时缺字段的错误优先级。返回、错误类型/文本、部分权重、graph beta、
+节点/边引用、TS与initial/accept/cycle/possible_states均保持。
+三个手算场景gamma=1：beta=0选a环总代价2，beta=5选b环总代价5，再回到
+beta=0恢复a环；旧新完整run字段、路径、动作及代价一致。四边计数探针
+邻接查找12次变0；首次探针计数器未初始化而AttributeError，修正辅助
+类后完整对照通过。此计数与对照不加入57项JUnit，不证明整体加速。
+
+证据在/tmp/ltl_ros2_completion_20261006：beta_update_baseline_26f1cf0.py、
+beta_update_26f1cf0.xml、beta_update_{run,imports,compare,static,inspected}_26f1cf0.json
+及beta_update_run_26f1cf0.log，helper在主机临时目录；原工具失败诊断如上，
+未另外保存失败尝试的独立stdout/receipt。最终XML SHA为
+da35c42e68b0cc8d3037c8dbf1f6774d4e2087333f453e71b46dc81f594d9b0d。
+
+README同步当前局部资格，前100节正文保持；11.100的683项组合仍按
+6ce源码保留，本轮未重跑七包或推算新组合人口。IRL仍仅学习beta且默认
+关闭，执行仍为符号级FakeBackend；未做LLM、benchmark、完整演示、
+物理仿真、实机/机器人示范或Jazzy验证。
+
+### 11.102 TS 维度名容器与来源/兄弟实例隔离（2026-10-07）
+
+基线a152954be18540fa8552e7b8c542a23b36e1a638。配置加载器生成合法
+ts_state_format=[维度名]，单维TSModel直接引用该列表，多维组合的每个
+内部列表也共享来源；编辑成品会污染来源/兄弟，来源修改也污染已有成品。
+修复仅用既有copy浅复制这两处格式容器，保留格式类型/形状与值；
+显式build_full重新读取来源最新格式。节点、边、guard、initial、
+算法、IRL与消息schema不变，不深拷贝其它图属性或嵌套任意对象。
+源SHA从3b8c4f8ff2fc67be00a87d12dff750ac0229d047a5a0795af478f1fd6f159d44
+变为786d6366a3d0eb880a185fca872a687dec4f2a3905ccdf042c56e97e0d2938fd。
+
+新增真实state_models_from_ts配置的单维/双维两例，验证双向及兄弟隔离、
+显式重建刷新、再次隔离与节点/边/initial不变。初稿RED session53031
+实际exit1，2 failed/15 deselected；其列表比较把维度字符串拆成字符，
+另有修改成品后错误要求恢复原值的未执行断言。修正预期后RED2实际exit1，
+2 failed/15 deselected，来源实得['model_only']而非['region']，明确复现
+共享列表污染；生产源码当时仍与Git基线完全相同。两次原XML/日志保留。
+
+开始前从旧XML固定相关文件59项加新两例为61项。修复后一次完整GREEN
+session59543沿原handle等待至实际exit0：**61 passed**，0 errors/failures/
+skipped；TS17、configuration18、LTLPlanner26，pytest1.43秒、JUnit1.406秒，
+测试子进程receipt4.761738248秒。五生产模块真实import/完整字节与测试SHA
+记录，未改模块与基线Git字节一致；ltl2ba真实路径及原二进制SHA核对通过。
+先绑定模块再pytest.main，无额外警告过滤，输出未列pytest警告汇总。
+编译、源码和新测试flake8 --linelength 99、源码pep257、diff检查通过。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_ts_format_a152954.py \
+  green 786d6366a3d0eb880a185fca872a687dec4f2a3905ccdf042c56e97e0d2938fd
+```
+
+worker在隔离workspace运行checkout绝对路径的test_ts.py、
+test_transition_system.py、test_ltl_planner.py完整文件；XML位于
+/tmp/ltl_ros2_completion_20261006/ts_format_green_a152954.xml，SHA为
+e2c154a3cfe042195901e3c71360277c659880d37da55250cfcdbcf1911aac78。
+同目录保存ts_format_{red,red2,green}_run_a152954.json/.log、三份imports
+证明、三份XML、ts_format_population_a152954.json和ts_format_inspected_a152954.json。
+根代理结果检查实际exit0，核对原始失败/人口/入口/新鲜度/源码/日志哈希；
+只两处格式复制变化。helper位于主机临时目录，所有尝试按原版本分别计数。
+
+README同步当前局部资格，前101节正文保持；57项权重更新资格按a152源码、
+683项组合按6ce源码保留，本轮未重跑七包或推算新组合人口。验证为
+WSL Ubuntu-22.04-D/ROS2 Humble符号级；未做LLM、benchmark、完整演示、
+物理仿真、实机/机器人示范或Jazzy验证，不作为整体加速或IRL科学效果证据。
+
+### 11.103 权重更新与维度名隔离后的七包组合资格（2026-10-07）
+
+资格源码为干净0b6b7ebf604a2acfea04c6ce2b82e771011ac258，包含11.101–11.102
+的两个生产改动。开始前核对相对6ce仅两生产文件、一测试和两文档变化，
+新增TS格式隔离的单维/双维两例，固定七包、六份JUnit的685项及4项既有
+copyright跳过。保留默认并行、domain、timeout、max_steps与原验收条件。
+WSL Ubuntu-22.04-D/ROS2 Humble/Python3.10.12/NetworkX2.4及原生ltl2ba路径
+和完整二进制SHA核对通过，聚合六个exec_depend完整。
+
+既有隔离build/install下构建与测试各一次：build session37422、test
+session88762沿原handle等待至实际exit0，receipt elapsed分别47.323844525秒
+与84.698237344秒。主代理观察到build wrapper/colcon PID37236/37249和test
+wrapper/colcon PID37662/37683，终态仍由原handle与receipt/log核对；没有
+替代运行。构建后18项源码import及生成消息路径通过；16完整生产模块及
+独立TS补证合计17模块，均与Git字节匹配，包含两个最新改动。
+
+```bash
+source /opt/ros/humble/setup.bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_0b6b7eb build \
+  --executor sequential \
+  --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --symlink-install --packages-up-to ltl_automaton_core \
+  --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_combo_0b6b7eb test \
+  --build-base /tmp/ltl_ros2_completion_20261006/build \
+  --install-base /tmp/ltl_ros2_completion_20261006/install \
+  --packages-select ltl_automaton_core ltl_automaton_msgs \
+  ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution \
+  ltl_automaton_hil_mic ltl_automaton_std_transition_systems \
+  --return-code-on-test-failure
+colcon --log-base /tmp/ltl_ros2_completion_20261006/log_query_0b6b7eb test-result \
+  --test-result-base /tmp/ltl_ros2_completion_20261006/build --verbose
+```
+
+六份新鲜JUnit：**685 tests = 681 passed + 4 skipped**，0 errors/failures。
+msgs11/0skip、core195/1、planner168/1、execution143/0、HIL119/1、std49/1。
+四项跳过均为既有copyright；接口CTest wrapper另1项通过，查询686tests，
+0 errors/failures、4 skipped；18份历史CTest XML按测试开始时间排除。
+两例维度名隔离和update_beta入口均执行，原单维initial/frozenset快照、
+IRL插件/真实β偏好/完整二十步/overflow/commit、HIL十二项Future、driver、
+Trap/monitor、snapshot/服务复制、resolver/timeout、四个DDS、Studio/fallback、
+原生translator/POSIX、参数、launch与lint通过。聚合内部和局部对照不加总。
+五包stderr各923bytes，保留np.int/SelectableGroups依赖弃用警告，未见
+未读取Future异常诊断；上述时间只记录该次运行，不作为加速比较。
+
+先前6ce的87文件闭包及1058份选定历史hash前后均保持；本轮新XML、receipt、
+imports/TS补证和完整TS源码、完整常规colcon日志另冻结为87文件闭包。
+query、collector、独立audit与receipt检查各一次实际exit0；核对完整
+人口、要求入口、新鲜度、source/日志字节、时序、历史及闭包哈希。
+证据在/tmp/ltl_ros2_completion_20261006：verification_0b6b7eb.json、
+verified_changed_imports_0b6b7eb.json、verified_ts_import_bytes_0b6b7eb.json、
+verified_summary_0b6b7eb.json、colcon_query_0b6b7eb.json、
+historical_hashes_before_0b6b7eb.json、inspected_combo_receipts_0b6b7eb.json
+及verified_results_0b6b7eb/sha256_manifest.json，日志在log_combo_0b6b7eb/
+log_query_0b6b7eb，helper在主机临时目录。
+
+README改为当前组合表，前102节正文保持，旧组合/局部资格/原始失败按
+原源码保留；57/61项局部运行不再叠加。IRL仍仅学习β且默认关闭，执行仍
+为符号级FakeBackend；未做LLM、benchmark、完整演示、物理仿真、实机/
+机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。
+
+### 11.104 历史重规划省去尾部列表副本（2026-10-07）
+
+基线af8bb38782679a86b3e0e2f089b190a070df68e1。唯一生产改动为
+discrete_plan.py引入islice，并将prod_states_given_history的trace[1:]
+替换为islice(trace, 1, None)。仓内唯一生产调用LTLPlanner.replan已
+传入新建列表；空/单节点、来源标签、后继筛选、逐项次序、gamma及
+规划目标保持，不增加提前返回或跨调用缓存。输入应为调用期间稳定的
+可索引序列；惰性遍历不承诺外部同时修改历史时的切片快照行为，亦不
+新增generator输入支持。
+
+从Git加载完整旧discrete_plan.py，与实际导入的新模块独立对照：
+两个手工图分别覆盖单初态和多初态/非确定性后继，各十二种历史再分别
+使用list与tuple，共48组；空、未知初态、不合法跳转、分支收敛、循环
+及4097状态长历史均与手算预期一致。输入、图节点/边和Büchi初态保持。
+另一个list子类计数探针尾部切片从1次变0，不加入JUnit，不测量耗时、
+RSS或端到端加速。
+
+在既有WSL Ubuntu-22.04-D/ROS2 Humble overlay中，一次正式运行
+session60191沿原handle等待至实际exit0：**50 passed**，0 failures/
+errors/skipped；两个完整未修改文件为discrete_plan24项、LTLPlanner26项，
+pytest1.78秒，含对照/lint的worker receipt9.964176289秒。六个生产模块
+的真实import与完整字节核对通过，未改模块及两个测试与Git基线一致；
+原生ltl2ba路径及既有二进制SHA保持。源码编译、ament_flake8.main
+--linelength 99、ament_pep257.main及git diff --check通过。lint保留
+--max-complexity的既有optparse弃用提示，没有额外警告过滤。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_history_slice_af8bb38.py
+```
+
+证据在/tmp/ltl_ros2_completion_20261006：history_slice_af8bb38.xml、
+history_slice_af8bb38_{baseline.py,proof.json,run.json,run.log}；helper在主机
+临时目录。新源码SHA为82413a403a1fcf6b8b10c72ef5cdcc9cc3e946c999c82a58ce9596380532ca9d，
+XML SHA为74d14cd090541faf324756f47ca5407ea3df8d656eed60cd335cda44df629b6e。
+README区分当前局部资格与11.103的685项组合基线，前103节正文保持。
+本轮未重跑七包、LLM、benchmark、完整演示、物理仿真、实机/机器人示范
+或Jazzy验证；IRL仍仅学习beta且默认关闭。
+
+### 11.105 旧重规划服务的候选/快照提交与有限代价（2026-10-07）
+
+基线4e7cd929c4859da93f6630e260f3b72ac39132b4。旧/replanning回调直接
+调用活动LTLPlanner.replan_task；核心成功时先替换自身run/Product/TS，
+之后wrapper才准备快照。快照copy/IDs准备失败不在异常边界内，并且
+旧服务没有Action/IRL已有的有限候选代价检查。
+
+修复只修改此服务回调及copy导入：浅复制外层planner，在该对象调用
+核心既有replan_task（内部继续一次深复制），不增加第二次整图深复制。
+搜索、有限公开代价、快照和计划消息均先准备；快照提交准备成功后才
+在锁内替换活动planner和TS。准备失败返回false、恢复ACTIVE，旧运行、
+快照、ID映射、generation/step及TS引用保持。成功复用已准备消息，
+发布顺序仍为possible_states、prefix/suffix、next_move、execution_observation，
+保留发布日志；不修改核心目标、source-label、Action/IRL及状态恢复回调。
+
+新增三项native回归：copy/ids两种可控快照准备失败，以及beta=1e308、
+gamma=1.0的有限初始运行，改soft task为(missing1 && missing2)后产生
+非有限代价。测试不修改算法或伪造run cost，失败后检查完整旧authority
+引用/快照/身份与ACTIVE，再经真实TaskPlanning服务有效重试，generation
+只增加1且step重置。首份草稿中重试soft task未恢复，主代理在任何运行
+前纠正；RED/GREEN使用同一最终测试字节，没有按结果放宽预期。
+
+生产字节仍为Git基线时，RED session27159实际exit1：**3 failed / 46
+deselected**，pytest3.51秒、JUnit3.461秒、receipt11.077337952秒。
+copy/ids分别泄漏Controlled snapshot准备RuntimeError；溢出用例旧服务
+返回success=True。两种失败和原始日志/XML保留，不计为修复后通过。
+
+开始前从冻结0b6的原XML固定90项（Action46、节点30、序列化14）加新3项
+为93项。一次完整GREEN session31105沿原handle等待至实际exit0：
+**93 passed**，0 errors/failures/skipped；Action49、节点30、序列化14。
+pytest26.55秒、JUnit26.515秒、含lint的worker receipt37.586069558秒。
+八个实际生产import/完整字节、生成消息路径、三个测试SHA及原生ltl2ba
+二进制核对通过；未改模块与Git基线一致。源码/测试编译、ament_flake8.main
+--linelength 99、ament_pep257.main、git diff --check通过，lint既有
+optparse提示保留，没有额外警告过滤。这些时间不用于性能比较。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_legacy_task_4e7cd92.py \
+  green c71109a3122b66f21233284992a537f3e18f79bcbd790c4bf7d5c1012a2f4f9f
+```
+
+证据在/tmp/ltl_ros2_completion_20261006：legacy_task_4e7cd92_population.json、
+legacy_task_4e7cd92_{red,green}.xml、对应_{red,green}_{imports.json,run.json,run.log}
+及legacy_task_4e7cd92_inspected.json；helper在主机临时目录。独立检查
+实际exit0，核对原失败文本、人口、时序、新鲜度、完整import字节和日志哈希。
+新源码SHA为c71109a3122b66f21233284992a537f3e18f79bcbd790c4bf7d5c1012a2f4f9f，
+最终XML SHA为8a13f7c0a4e6cb3c2e74be6f8a746408fb41c79e21a06cfa7aacc45178aec1e2。
+README同步服务契约和当前局部资格，前104节正文保持；11.103的685项
+仍属于0b6源码基线，未重跑七包或推算新组合人口。IRL仍仅学习beta且默认
+关闭；未做LLM、benchmark、物理仿真、实机/机器人示范或Jazzy验证。
+
+### 11.106 意外状态恢复的候选/快照提交与观测保持（2026-10-07）
+
+基线b524d8f3b5130d72c911dd575897660b4e5f7173。自动恢复回调直接调用活动
+LTLPlanner.replan_from_ts_state；核心成功时先替换自身run/Product/TS，
+wrapper随后才准备快照。快照copy/IDs准备失败会泄漏异常，自动恢复也缺少
+Action/IRL/旧服务已有的有限候选代价检查。
+
+唯一生产改动在_recover_from_ts_state：浅复制外层planner，在候选调用
+核心既有恢复（内部继续一次深复制），不增加第二次整图深复制。搜索、有限
+公开代价、快照及计划消息先准备；锁内先完成快照提交准备，再替换活动planner
+和TS。准备失败返回false并恢复ACTIVE，原运行、图、快照、ID映射、
+generation/step及活动TS引用保持。成功状态发布在提交异常边界之后；复用
+已准备计划消息，possible_states、prefix/suffix、next_move、execution_observation
+和plugins的发布/调用顺序保持。
+
+观测事实与计划提交分开：_ts_state_callback已接收的canonical状态、revision
+及时间戳保持最新；恢复失败不把实际观测的r3回滚为r1。replan_on_unplanned_move
+为false时的既有belief分支字节保持。核心目标、source-label、接受性、IRL、
+Action、服务、参数及其余生产方法保持。
+
+新增三项native回归：copy/ids两种可控快照准备失败，以及合法有限动作权重
+1e308的r3→r4→r2两边恢复路径。后者保留正常初始运行，真实计算候选代价，
+不伪造run cost。失败检查旧authority引用/快照/身份与ACTIVE，同时检查
+canonical=r3、revision加1及原始反馈时间戳。移除快照故障后直接调用native
+恢复；溢出场景先接收另一条生成的r2反馈再直接恢复，成功代价有限、generation
+只增加1、step为0。这里的恢复重试为直接方法调用，不称为DDS重试。
+
+既有延迟恢复用例的计数补丁在任何运行前从旧planner实例移至类方法，调用
+原始非绑定方法，覆盖隔离候选；原请求、同步条件、期限及调用次数保持。
+同时要求恢复后的新planner与原对象不同、旧对象仍在r1。这一条修改既有用例
+不增加测试人口。主代理在运行前去除测试中多余的时间戳/状态赋值，改用生成
+反馈维护观测；RED与GREEN使用同一冻结测试SHA，没有按结果放宽预期。
+
+生产仍为Git基线时，RED session54088沿原handle等待至实际exit1：
+**4 failed / 48 deselected**，pytest3.47秒、JUnit3.434秒、receipt10.309644303秒。
+copy/ids泄漏Controlled snapshot准备RuntimeError；溢出用例替换了原run，
+延迟恢复仍复用原planner对象。原始失败日志/XML保留，不计为修复后通过。
+
+开始前固定11.105原XML的93项（Action49、节点30、序列化14），加新3项为96。
+一次完整GREEN session50523沿原handle等待至实际exit0：**96 passed**，
+0 errors/failures/skipped；Action52、节点30、序列化14。pytest26.85秒、
+JUnit26.805秒、含lint的worker receipt37.209725057秒。八个实际生产import
+与完整字节、生成消息路径、三个测试SHA及原生ltl2ba二进制核对通过；未改
+模块与Git基线一致。源码/测试编译、ament_flake8.main --linelength 99、
+ament_pep257.main及git diff --check通过，保留lint既有optparse提示，没有
+额外警告过滤。这些时间不用于性能比较。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_state_recovery_b524d8f.py \
+  green 7f428d591b11415f6b47d1d2a02b355ac83fa40ef8379b4f0213156dfb752d3e
+```
+
+证据在/tmp/ltl_ros2_completion_20261006：state_recovery_b524d8f_population.json、
+state_recovery_b524d8f_{red,green}.xml、对应_{red,green}_{imports.json,run.json,run.log}
+及state_recovery_b524d8f_inspected.json；helper在主机临时目录。独立检查实际
+exit0，核对原失败文本、人口、时序、新鲜度、完整import字节和日志哈希。
+额外只读scope检查位于主机临时目录state_recovery_scope_b524d8f.json，确认
+其余方法/测试及模块级非函数AST不变、禁用自动恢复分支字节不变。
+首次文档检查helper错误地把旧try行纳入分支切片，实际exit1；修正切片边界，
+保留初稿helper和失败输出，未改生产/测试字节或重跑GREEN。
+旧源码SHA为c71109a3122b66f21233284992a537f3e18f79bcbd790c4bf7d5c1012a2f4f9f，
+新源码SHA为7f428d591b11415f6b47d1d2a02b355ac83fa40ef8379b4f0213156dfb752d3e；
+最终XML SHA为916af565c037e784a84c746f40ae1edb8b7758f34966661049ed1022e6fda78a。
+README同步自动恢复契约和当前局部资格，前105节正文保持；11.103的685项
+仍属于0b6源码基线，未重跑七包或推算新组合人口。IRL仍仅学习beta且默认
+关闭；未做LLM、benchmark、完整演示、物理仿真、实机/机器人示范或Jazzy验证。
+
+### 11.107 近期重规划改动的七包组合资格（2026-10-07）
+
+资格源码917c4cc8c4f6ed9e5fcdaa14d476e8cc96e4b652。本轮在既有隔离WSL
+Ubuntu-22.04-D/ROS2 Humble、Python3.10.12、NetworkX2.4环境运行；原生
+ltl2ba路径/home/yuhling/.local/bin/ltl2ba及SHA保持。启动前核对干净
+HEAD、包列表、环境和近期两个生产模块/Action测试完整Git字节及SHA。
+人口从11.103的685项加11.105/11.106各3项新回归固定为691，planner174；
+既有延迟恢复用例的修改不增加人口。required cases在观察结果前固定，未按
+结果缩减测试或调整配置、期限、验收条件。
+
+唯一七包构建session88111沿原handle等待至实际exit0，receipt47.507938646秒。
+唯一默认并行完整测试session25292沿原handle等待至实际exit0，receipt
+91.177000534秒；主代理在运行中读/proc确认build wrapper/colcon PID47177/
+47190与test wrapper/colcon PID47627/47648，未启动替代运行。保存完整原命令、
+起止时序、stdout/stderr及terminal receipt。构建仍为sequential、symlink-install、
+packages-up-to ltl_automaton_core、BUILD_TESTING=ON；测试不设置sequential或
+单独pytest参数，七包保持默认并行和return-code-on-test-failure。
+
+六份新鲜JUnit：**691 tests = 687 passed + 4 skipped**，0 errors/failures。
+msgs11/11/0、core195/194/1、planner174/173/1、execution143/143/0、
+HIL119/118/1、std TS49/48/1（tests/passed/skipped）。四项跳过均为既有
+copyright。接口CTest wrapper另有1项通过，实际隔离build的colcon查询为
+692 tests；19份历史CTest XML按测试开始时间排除，旧结果不计入新人口。
+query、collector、独立audit和receipt检查均实际exit0。
+
+历史遍历、旧服务与状态恢复的六项新事务回归、既有延迟恢复及两个Core
+history用例明确执行。四个真实DDS执行场景、Studio consumer、IRL完整二十步/
+β偏好/overflow/commit、HIL十二项Future及其余查询/状态恢复、driver、
+Trap/monitor、snapshot/服务复制、resolver/timeout、参数、launch、原生
+ltl2ba/POSIX及lint同时通过。局部50/93/96项、聚合内部检查和独立旧新对照
+均不重复计入本轮JUnit。
+
+构建后、测试前再次核对18条源码import路径及生成消息路径；主gate为17个
+完整生产模块，新加入discrete_plan，另有TS完整字节补证，合计18模块与Git
+资格字节一致。八十七文件的新冻结结果/receipt/import/完整日志闭包通过
+SHA核对，1177份历史哈希保持，包括0b6闭包与后来三个局部阶段的原始证据。
+五包stderr各923字节，保留np.int/SelectableGroups依赖弃用警告；本次日志
+未见未读取Future异常诊断。没有以空stderr或警告过滤冒充通过。
+
+临时helper在任何正式运行前经主代理审阅，修正历史manifest锚点与模块数
+断言，并补齐人口来源、源码/测试SHA和历史闭包87项检查；未因此产生新的
+build/test失败或改变生产/测试字节。本轮仓库只更新README与本节，前106节
+正文、原始失败与版本资格保持。
+
+```bash
+source /opt/ros/humble/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/snapshot_history_before_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/prepare_full_package_verification_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_build_917c4cc.py
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_changed_imports_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_ts_import_bytes_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/start_full_package_tests_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_test_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/query_full_results_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/check_full_package_results_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/audit_full_results_917c4cc.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/inspect_combo_receipts_917c4cc.py
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：verification_917c4cc.json、
+verified_changed_imports_917c4cc.json、verified_ts_import_bytes_917c4cc.json、
+verified_summary_917c4cc.json、colcon_query_917c4cc.json、
+historical_hashes_before_917c4cc.json、inspected_combo_receipts_917c4cc.json
+及verified_results_917c4cc/sha256_manifest.json；原始日志在log_combo_917c4cc/
+log_query_917c4cc，helper在主机临时目录。IRL仍仅学习β且默认关闭，执行
+仍为符号级FakeBackend；未做LLM、benchmark、完整演示、物理仿真、实机/
+机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。
+
+### 11.108 启动规划的准备/提交与有限代价（2026-10-07）
+
+基线77bf3ca9fbc6a4c57ca86ee4dadfede5bc082050，生产与11.107资格917c4cc
+相同。原_initialize_planner只捕获搜索异常，快照copy/IDs和计划消息准备
+位于异常边界之外；活动planner/canonical先于快照提交安装，也缺少已有
+模块级_validate_candidate_run_costs检查。
+
+唯一生产改动在_initialize_planner：新建候选继续原static搜索，保留无接受
+运行的独立诊断；有限公开代价、canonical、快照及共享时间戳的计划消息
+均先准备。锁内先完成既有原子快照提交，再安装planner/canonical。准备
+失败返回false并恢复READY，保留有效TS/yaml/hash，无活动计划、快照、IDs、
+canonical或generation增加。agent分支仍按原行为重建有效TS，不要求保留
+原TS对象引用。成功ACTIVE发布在提交异常边界之外，原possible_states、
+plugins、成功/动作日志、prefix/suffix、next_move、execution_observation
+顺序和发布日志保持，复用已准备消息。加载/初态/缺参数分支、其余37个
+生产方法及方法外完整内容保持；不修改核心目标、source-label或接受性。
+
+新增八项native回归：快照copy、ID映射及计划消息三类可控准备异常，各
+覆盖direct和agent；另两项以有限beta=1e308、gamma=1.0、soft任务
+(missing1 && missing2)真实计算溢出，未伪造run cost。使用真实LoadTS服务，
+agent通过生成的r1反馈调用原_ts_state_callback。失败后检查完整初始
+authority、READY、等待状态/时间戳和未初始化插件；移除故障或仅改soft
+为恒真任务后直接初始化/再次生成反馈，成功代价有限、generation=1、step=0。
+此处agent反馈为native callback，不称为DDS重试。
+
+测试草案在任何运行前修正任务配置、重复fixture、agent重建TS身份预期及
+时间戳格式；默认fixture仍使用原构造参数，旧21个函数字节保持。RED和
+两次完整验证使用同一冻结测试SHA，未按结果修改预期或缩减人口。
+基线生产完整Git字节下RED session10732沿原handle至实际exit1：
+**8 failed / 30 deselected**，pytest2.80秒、JUnit2.762秒、receipt8.850753322秒。
+copy/ids/plans异常泄漏；direct溢出返回true，agent溢出进入ACTIVE。
+
+首次完整修复验证session32724实际exit1：**8 failed / 96 passed**，pytest
+25.38秒、JUnit25.349秒、receipt30.662648252秒。主代理方案错误地把已有
+模块级检查函数接成self方法，所有有效重试被拒绝。完整候选源码、原命令、
+import、XML、日志与receipt保留，未将这次运行标为通过。仅更正该调用，
+测试、配置、期限及验收条件不变。
+
+观察结果前由11.107冻结原XML的96项（Action52、节点30、序列化14）加八项
+固定为104。最终完整验证session23973沿原handle至实际exit0：**104 passed**，
+0 errors/failures/skipped；节点38、Action52、序列化14。pytest26.05秒、
+JUnit26.016秒、含lint的receipt35.538960137秒。八个实际生产import完整字节、
+生成消息路径、三个测试SHA及原生ltl2ba核对通过；其余模块与Git基线一致。
+源码/测试编译、ament_flake8.main --linelength 99、ament_pep257.main及
+git diff --check通过，保留lint既有optparse提示，没有额外警告过滤。
+独立检查实际exit0，核对全部三次原始时序、新鲜度、失败文本、人口、完整
+导入字节和日志哈希。这些时间不用于性能比较。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_startup_77bf3ca_retry1.py \
+  green 17d2ac337ef85e6a41a68a731d5bf091dd0e7e3357394b1054b7d3b3917a2a07
+```
+
+证据在/tmp/ltl_ros2_completion_20261006：startup_77bf3ca_population.json、
+startup_77bf3ca_{red,green}.xml及对应_{red,green}_{imports.json,run.json,run.log}、
+startup_77bf3ca_failed_planner_node.py、startup_77bf3ca_retry1_green.xml及其
+_{imports.json,run.json,run.log}、startup_77bf3ca_inspected.json；helper在主机
+临时目录。旧源码SHA为7f428d591b11415f6b47d1d2a02b355ac83fa40ef8379b4f0213156dfb752d3e，
+首次候选SHA为9a4c712993c4b9695c7d165dea76de6c61ea0ff9405a26665e4823f25daeb800，
+最终源码SHA为17d2ac337ef85e6a41a68a731d5bf091dd0e7e3357394b1054b7d3b3917a2a07，
+冻结测试SHA为0e3a23b5d42d6870e8614f42c5d3a485189d8daac8d3266758e63fcce04bd6ae，
+最终XML SHA为68b497410a0022e13f961a0205a1c4919622e85426ab034cf9d28ced86f103f1。
+首次文档helper错误将新文本写为CRLF，diff检查实际exit2；更正为原LF，
+保留初稿helper及文档字节，生产/测试字节和验证结果未改，未重跑测试。
+README同步启动契约及当前局部资格，前107节正文保持。11.107的691项仍
+属于源码917c4cc七包基线，本轮未重跑七包或推算新组合结果。IRL仍仅学习β且
+默认关闭；未做LLM、benchmark、完整演示、物理仿真、实机/机器人示范或Jazzy验证。
+
+### 11.109 启动规划修复的七包组合资格（2026-10-07）
+
+资格源码02d426f17e1629ab3b22c53f0bd07b415b450a3a。本轮复用既有WSL
+Ubuntu-22.04-D/ROS2 Humble、Python3.10.12、NetworkX2.4与原生ltl2ba，
+没有安装或更换依赖。启动前核对干净HEAD、七包列表、近期生产与测试完整
+Git字节/SHA及历史冻结闭包；人口由11.107的691项加11.108八项启动回归
+固定为699（planner182），required cases在结果前固定。direct/agent的
+copy、IDs、plans和真实代价溢出参数组合均核对，没有缩减期限或验收条件。
+资格脚本草案的历史引用/长度及人口推导在任何本轮构建或测试前纠正，
+保留初稿；最终十二个资格入口静态编译通过，原版本helper与证据未覆盖。
+
+七包构建session69103及默认并行完整测试session57321各执行一次，沿各自原handle至实际exit0；
+完整命令、起止时序与stdout/stderr保留。build receipt为
+45.753871134秒，test receipt为87.378641092秒。
+构建保持sequential/symlink-install/packages-up-to ltl_automaton_core及
+BUILD_TESTING=ON；测试保持默认并行、七包select和return-code-on-test-failure。
+主代理在运行中读取/proc确认实际wrapper/colcon进程，没有以marker推断存活
+或因观察超时启动替代运行；build PID54788/54810，test PID55249/55270。
+这些时间不用于性能比较。
+
+六份新鲜JUnit：**699 tests = 695 passed + 4 skipped**，0 errors/failures。
+msgs11/11/0、core195/194/1、planner182/181/1、execution143/143/0、
+HIL119/118/1、std TS49/48/1（tests/passed/skipped）。四项跳过均为既有
+copyright；接口CTest wrapper另有1项通过，实际隔离build查询为700 tests。
+20份历史CTest XML按测试开始时间排除，旧结果不计入新人口。
+query、collector、独立audit和receipt检查均实际exit0。
+
+启动八项、旧服务/状态恢复六项事务回归、延迟恢复和两个Core history用例
+均执行。四个真实DDS场景、Studio consumer、IRL完整二十步/β偏好/溢出/
+事务提交、HIL十二项Future、driver、Trap/monitor、快照与服务隔离、resolver/
+timeout、参数、launch、原生ltl2ba/POSIX及lint同时覆盖。104及此前各版局部
+资格不重复加入人口；11.108原RED、首次修复失败和最终通过均按原源码保留。
+
+17个主gate生产模块加TS补证共18个完整模块字节与Git资格提交相同，生成
+消息路径和原生译器SHA核对通过；新冻结闭包87文件、历史1286份SHA
+保持。完整stderr保留依赖弃用提示，未发现未读取Future异常诊断，未过滤warning。
+生产代码与测试本轮未改，README同步当前组合表和历史范围，前108节正文保持。
+
+```bash
+source /opt/ros/humble/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/snapshot_history_before_02d426f.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/prepare_full_package_verification_02d426f.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_build_02d426f.py
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_changed_imports_02d426f.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_ts_import_bytes_02d426f.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/start_full_package_tests_02d426f.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_test_02d426f.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/query_full_results_02d426f.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/check_full_package_results_02d426f.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/audit_full_results_02d426f.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/inspect_combo_receipts_02d426f.py
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：verification_02d426f.json、
+verified_changed_imports_02d426f.json、verified_ts_import_bytes_02d426f.json、
+verified_summary_02d426f.json、colcon_query_02d426f.json、
+historical_hashes_before_02d426f.json、inspected_combo_receipts_02d426f.json及
+verified_results_02d426f/sha256_manifest.json；原始日志在log_combo_02d426f/
+log_query_02d426f，helper在主机临时目录。IRL仍仅学习β且默认关闭，执行仍
+为符号级FakeBackend。未做LLM、benchmark、完整演示、物理仿真、实机/
+机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。
+
+### 11.110 Action 与 IRL 成功消息的提交前准备（2026-10-07）
+
+基线5e61d4a1dad464f9d8175715fa869288d8ad5525。原共享提交方法在替换活动
+计划后才准备计划消息和成功Result；这两类准备异常导致Action被rclpy中止并
+返回默认ERROR_NONE，或从IRL executor回调泄漏，新计划却已经提交。
+仅修改_commit_plan_ltl_candidate：原新鲜度谓词通过后，在现有锁及提交
+try边界内先准备时间戳、计划消息、完整成功结果，再提交快照和planner/TS。
+准备失败使用既有ERROR_INTERNAL恢复路径，保留旧权威并释放事务；发布仍在
+提交之后，其顺序保持。其他37个生产方法、核心代价/接受性及IRL规则未改。
+
+新增六项原生回归：action_ready/action_active/irl分别组合plans/result。
+LoadTS、PlanLTL、快照服务和候选规划均为真实接口/实现；ACTIVE与IRL用DDS
+反馈推进旧step到1。IRL沿用既有注入learn_beta返回β+7并执行真实候选重规划，
+不将注入视为真实学习测量。plans仅注入当前节点方法；result保留生成类，
+其planning_time默认0.0使用原setter，仅非零值触发准备故障，失败结果可正常
+构造及传输。每项检查旧planner/run/Product、β/weights、TS/YAML/hash、
+snapshot/IDs、instance/generation/step、canonical与事务字段，并在解除
+故障后验证有效原生重试generation+1、step=0。Action返回ABORTED/
+ERROR_INTERNAL；IRL保留ACTIVE和旧β。已有55个测试函数正文保持。
+
+人口在结果前由11.109冻结XML固定为104+6=110，三个文件Action58、节点38、
+序列化14，collection hook核对全部名称；测试完整SHA在RED/GREEN间不变。
+首次辅助脚本使用pytest6不支持的item.path，session44499在收集阶段停止，
+Python receipt exit3、JUnit仅含一条internal error，未执行回归。只将helper
+改为item.fspath并另存retry1；原helper、日志/XML/receipt和人口清单均保留，
+两份人口JSON相同，生产源码和测试均未因收集错误修改。
+
+原Git生产字节上的RED session33876实际exit1：**6 failed / 52 deselected**，
+四项Action默认错误码与两项IRL受控异常均核对。单次生产修复后的GREEN
+session84131沿原handle至实际exit0：**110 passed**，0 errors/failures/skipped。
+pytest29.87秒，JUnit29.841秒，receipt38.949717397秒；不用于性能比较。
+源码和测试编译、flake8、pep257及diff检查通过，保留lint既有optparse提示。
+八个实际生产import完整字节、生成消息路径及原生ltl2ba SHA核对；独立receipt
+检查exit0，并确认新鲜度谓词、成功发布顺序及其他方法不变。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_payload_5e61d4a_retry1.py red 17d2ac337ef85e6a41a68a731d5bf091dd0e7e3357394b1054b7d3b3917a2a07
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_payload_5e61d4a_retry1.py green aa6c5dd384638cee38b5019c035a0ee3b73ee4fb319414052751f7aa5090f0b6
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/inspect_payload_5e61d4a.py aa6c5dd384638cee38b5019c035a0ee3b73ee4fb319414052751f7aa5090f0b6 a552f57541c9c1bbe6154be55963fed76ebf6b6286e92bc27aaa753bc50d63d9
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：payload_5e61d4a和
+payload_5e61d4a_retry1的_population.json、_red.xml/_red_imports.json/
+_red_run.json/_red_run.log，以及retry1的对应green文件和_inspected.json。
+当前源码SHA为aa6c5dd384638cee38b5019c035a0ee3b73ee4fb319414052751f7aa5090f0b6，
+Action测试SHA为a552f57541c9c1bbe6154be55963fed76ebf6b6286e92bc27aaa753bc50d63d9。
+README同步当前局部范围，前109节正文与原始失败保留。未重跑七包，699项仍
+属于02d426f组合基线，局部110项不相加；IRL仅学习β且默认关闭，执行仍为
+符号级FakeBackend，未运行LLM、benchmark、物理仿真、实机或Jazzy验证。
+
+### 11.111 Action/IRL 消息准备修复的七包组合资格（2026-10-07）
+
+资格源码d5f2faa28837bfe8d077e7af1492bc0d5ff59f0e。复用既有WSL Ubuntu-22.04-D/ROS2 Humble、
+Python3.10.12、NetworkX2.4与原生ltl2ba，未安装或更换依赖。启动前核对
+干净HEAD、七包列表、近期源码/测试完整Git字节及历史冻结闭包。人口由
+11.109的699项加11.110六项消息准备回归固定为705（planner188）；
+六个plans/result × action_ready/action_active/irl参数名、八个startup参数名
+及required cases均在结果前固定。准备helper的旧HEAD引用在运行前纠正，
+保留草案，旧helper与原始失败未覆盖；十二个最终入口静态编译通过。
+
+七包构建session97855与默认并行完整测试session7350各执行一次，沿各自原
+handle至实际exit0。完整命令、stdout/stderr和起止receipt保留；build为
+37.853319897秒，test为74.570586708秒，不用于性能比较。
+构建保持sequential/symlink-install/packages-up-to ltl_automaton_core及
+BUILD_TESTING=ON；测试保持默认并行、七包select与return-code-on-test-failure。
+/proc确认实际wrapper/colcon：build PID60397/60410，test PID60875/60909，
+没有以marker推断进程存活或因观察超时启动替代运行。
+
+六份新鲜JUnit：**705 tests = 701 passed + 4 skipped**，0 errors/failures。
+msgs11/11/0、core195/194/1、planner188/187/1、execution143/143/0、
+HIL119/118/1、std TS49/48/1（tests/passed/skipped）。四项跳过均为既有
+copyright；接口CTest wrapper另有1项通过，实际隔离build查询为706 tests。
+21份历史CTest XML按开始时间排除，旧结果未计入新人口。query、collector、
+独立audit与receipt检查均实际exit0。
+
+六项payload、八项startup、旧服务/状态恢复六项事务回归、延迟恢复与两个
+Core history均执行。四个真实DDS、Studio consumer、IRL完整二十步/β偏好/
+溢出/事务提交、HIL十二项Future、driver、Trap/monitor、snapshot/服务隔离、
+resolver/timeout、参数、launch、原生ltl2ba/POSIX/lint同时覆盖。110及此前
+各版局部资格不重复相加；11.110原收集错误与旧代码RED仍按原源码保留。
+
+17个主gate模块加TS补证共18个完整生产模块字节与资格Git提交一致，生成
+消息路径和原生译器SHA核对通过。新冻结闭包87文件、历史1392份SHA保持。
+五包stderr各923bytes，保留np.int/SelectableGroups弃用提示；未发现未读取
+Future异常诊断，未过滤warning。生产代码与测试本轮未改，README同步当前
+组合表和历史范围，前110节正文完整保留。
+
+```bash
+source /opt/ros/humble/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/snapshot_history_before_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/prepare_full_package_verification_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_build_d5f2faa.py
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_changed_imports_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/verify_ts_import_bytes_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/start_full_package_tests_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/run_test_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/query_full_results_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/check_full_package_results_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/audit_full_results_d5f2faa.py
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/inspect_combo_receipts_d5f2faa.py
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：verification_d5f2faa.json、
+verified_changed_imports_d5f2faa.json、verified_ts_import_bytes_d5f2faa.json、
+verified_summary_d5f2faa.json、colcon_query_d5f2faa.json、
+historical_hashes_before_d5f2faa.json、inspected_combo_receipts_d5f2faa.json及
+verified_results_d5f2faa/sha256_manifest.json；原始日志在log_combo_d5f2faa/
+log_query_d5f2faa，helper在主机临时目录。IRL仍仅学习β且默认关闭，执行仍
+为符号级FakeBackend。未做LLM、benchmark、完整演示、物理仿真、实机/
+机器人示范或Jazzy验证，不证明整体加速、IRL收敛、逆最优性或机器人效果。
+
+### 11.112 IRL 无匹配反馈后的记录恢复（2026-10-07）
+
+基线dd51014cfe3820f38016e77ef67df9d22834c814。原插件在示范无法延伸到
+Product 后继时清空 possible_runs，却保持 learning_trigger=True；后续合法
+反馈仍无法延伸空集合。仅在原空集合分支增加 learning_trigger=False，保留
+原 warning/return，停止该次记录且不请求空学习。再次发送 True 从当前有效
+Product belief 开始新记录；可直接 True 或先 False 再 True。后续非记录状态
+的反馈及单独 False 不请求学习，不自动将旧前缀接到新示范。
+
+新增一个 fake-host 回归，含两种重启流程。检查空集合、记录标志、无空学习/
+无空诊断发布、仅一次新示范提交，以及 Product 边、belief、宿主实例、代次
+和状态保持。旧测试 AST 完整保持；核心 β 学习规则、默认关闭、接口未改。
+人口在运行前固定为旧 fake-host 5 + 新回归 1 + 原真实 ROS preference 1 +
+optional safety 2 = 9；测试完整 SHA 在各次尝试及 RED/GREEN 之间不变。
+
+原 helper session65505 在收集阶段 exit3，launch-testing 将文件转换为
+LaunchTestModule，指定用例未收集；retry1 关闭 launch_testing 后仍因
+launch_ros 依赖的 hook 无注册而 exit3，未执行用例。原日志/XML/receipt
+均保留。retry2 同时关闭两个收集插件，沿用原人口和测试，不修改验收条件。
+原生产 Git 字节上的 RED 实际 exit1：**1 failed**，失败断言为候选清空后
+记录标志仍 True。一次生产修复后的 GREEN session98974 沿原 handle 至
+实际 exit0：**9 passed**，0 errors/failures/skipped；pytest2.64秒，
+receipt11.689448731秒，不用于性能比较。无匹配恢复由 fake-host 检查；
+既有 preference 用真实 ROS 接口、原生学习及重规划，未新增无匹配 DDS 场景。
+
+源码/测试编译、flake8、pep257、diff检查通过。11个实际生产 import 完整
+字节、生成消息路径及原生 ltl2ba SHA 核对；独立 receipt/scope 检查 exit0。
+关闭收集插件产生的 UnknownMarkWarning 和 lint optparse 提示均保留。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_recording_dd51014_retry2.py red f0f01ffbe90c7fe95c45b71f83e387a92c1b004222f50d932f338670800c4857
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_recording_dd51014_retry2.py green 1a323b80576da2fa556e73964096f7bec677ccd4c40b15f7eb1f2316d9b8d5be
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/inspect_recording_dd51014.py
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：recording_dd51014_population.json、
+recording_dd51014[_retry1/_retry2] 的 red.xml/red_imports.json/red_run.json/
+red_run.log，retry2 对应 green 文件及 recording_dd51014_inspected.json。
+当前源码 SHA 为1a323b80576da2fa556e73964096f7bec677ccd4c40b15f7eb1f2316d9b8d5be，
+测试 SHA 为fca325f76a7355678a1c4fccea894d0ccf791c7c1a8cdf09dd391feec536fb70。
+两份 README 同步恢复约定；前111节正文和原失败记录保留。未重跑七包，
+705项仍属于d5f2faa组合源码，9项局部结果不相加。未做LLM、benchmark、
+物理仿真、实机或Jazzy验证，不据此宣称IRL收敛或机器人示范效果。
+
+### 11.113 IRL 单元测试与 launch 收集入口拆分（2026-10-07）
+
+基线9d51dfb7436e5956d36910fa5ec33d1da2748f0c。11.112已经记录默认
+launch-testing 将混合文件转换成 LaunchTestModule、无法直接选择单元类的
+收集失败，本轮核对该日志 SHA 和当时测试 SHA 与基线相符，不重复运行失败。
+将完整 fake-host helpers 和六个单元方法移至 test_irl_plugin_unit.py；
+原 test_irl_plugin.py 保留 HUB fixture、launch 入口和唯一 DDS 方法。
+移除原文件未用 imports，仅更新模块说明；测试正文原始字节保持，未新增
+测试函数、依赖或共享 helper 模块。拆分草案中残留的重复单元类在运行前
+核对并移除；最终两个文件从 Git 基线原始字节构造，实际验证未运行草案。
+
+运行前固定六个单元方法、原 launch 的一个 DDS 方法、原 preference 一个
+方法与 safety 两个方法。默认 launch_testing 和 launch_ros 均启用，直接
+选择新文件的 TestIRLPluginFakeHost，同时执行其余三个完整文件；收集钩子
+在用例执行前核对全部十个 pytest 名称，以及 launch loader 的精确 DDS
+方法 test_real_action_and_irl_commit_contract，避免残留或遗漏单元类。
+
+单次运行 session30224 沿原 handle 至实际 exit0：**10 passed**，
+0 errors/failures/skipped，单元6、launch item1、preference1、safety2。
+launch 的一个 pre-shutdown DDS 方法实际执行，post-shutdown 没有测试；
+不把内部方法与外层 pytest item 重复计数。pytest3.46秒，receipt
+10.432461725秒，不用于性能比较。使用 -s 保留完整 ROS/launch 输出；原
+DDS 事务提交及真实 β preference 学习/重规划同时通过。编译、flake8、
+pep257、diff检查通过，lint既有 optparse 提示保留。
+
+11个实际生产 import 完整字节与基线一致，生成消息路径和原生 ltl2ba SHA
+固定；本轮生产实现未改，旧学习/恢复规则及全部原测试断言保持。四个测试
+文件 SHA 在运行前冻结，收集 proof、完整日志、JUnit 与时序 receipt 保留。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_irl_test_split_9d51dfb.py
+```
+
+证据位于/tmp/ltl_ros2_completion_20261006：irl_split_9d51dfb 的
+_population.json、_imports_collection.json、_run.json、_run.log 和 .xml。
+launch文件 SHA 为9189d5dd3ed16501d92b981907005737d33c61969cba1f9bc885ec15ee167b7c，
+unit文件 SHA 为e670a4661283dd4bdd593948fbd7be654b2f619d85026adc67f3c6f79dbaf7df。
+两份 README 同步直接选择入口，前112节正文和历史失败保留。未重跑七包，
+10项是当前局部运行范围，不推算或与历史705/9项相加；未运行LLM、benchmark、
+物理仿真、实机或Jazzy，不证明整体加速或新增机器人示范效果。
+
+### 11.114 IRL 测试拆分后的 HIL 整包发现验证（2026-10-07）
+
+资格源码0c151a25710964fae46fd0541e1c044c34ce6f85。11.113直接选择文件的
+局部运行未证明常规 colcon 自动发现新单元文件，本轮在独立临时目录构建和
+测试 HIL 包；其他包使用既有 Humble 安装环境。运行前固定旧 HIL JUnit 的
+119项和一个 copyright skip，以及从当前 AST 提取的六个独立单元方法，
+完整预期名称为125项。旧 XML/manifest SHA 核对，HIL 全部30个 tracked
+输入文件与资格 Git 字节一致，在结果前冻结。生产源码和测试本轮未修改。
+
+构建 session75378、测试 session96180 均沿原 handle 至实际 exit0，
+实际 colcon PID66138、66220；命令、完整日志、起止时序和退出码保存。
+build4.936563432秒，test17.748827654秒，不用于性能比较。构建仅选择
+HIL、symlink-install、独立 build/install，测试仅选择 HIL、默认测试发现、
+return-code-on-test-failure、console_direct 与 -s，无筛选用例或关闭插件。
+构建关于依赖来自既有安装目录的提示及原 np.int/SelectableGroups 弃用
+提示保留；未更换依赖或改动其他包。
+
+独立新结果目录仅一份新鲜 JUnit：**125 tests = 124 passed + 1 skipped**，
+0 errors/failures；全部旧119项及六个 TestIRLPluginFakeHost 名称逐项核对，
+跳过项与旧 copyright 一致。原 HIL policy、异步回调、控制器 launch、Trap
+服务/替换计划、IRL DDS 提交与真实 β preference 均执行，flake8/pep257
+也属于该次整包结果。launch 外层 item 与内部 unittest 不重复计数。
+colcon test-result 查询实际 exit0，同样报告125/0/0/1。
+
+14个实际生产 import 完整字节、生成消息路径和原生 ltl2ba SHA 核对；
+HIL package share 指向新安装前缀，安装 README 与资格源码一致。独立结果
+及日志闭包17文件保存 SHA manifest，旧冻结 HIL 证据未改。完整证据位于
+/tmp/ltl_ros2_completion_20261006/hil_package_0c151a2：population.json、
+imports.json、build/test/query_run.json、build/test/query.log、verified.json、
+result_manifest.json及 results/ltl_automaton_hil_mic/pytest.xml。
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_completion_20261006/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_hil_package_0c151a2.py prepare
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_hil_package_0c151a2.py build
+source /tmp/ltl_ros2_completion_20261006/hil_package_0c151a2/install/setup.bash
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_hil_package_0c151a2.py test
+python3 /mnt/c/Users/Yuhling/AppData/Local/Temp/qualify_hil_package_0c151a2.py verify
+```
+
+两份 README 同步 HIL 整包范围与自动发现命令；前113节正文保持。本次不
+替代七包组合资格，125项不与此前局部10/9项或历史705项相加。未运行LLM、
+benchmark、物理仿真、实机或Jazzy，不证明整体加速或机器人示范效果。
+
+### 11.115 V0.2 提交准备与 IRL 记录恢复的文档同步（2026-10-07）
+
+基线603f6594276c3945eca04da28887d2df3bf5fb9d。planning_api.md 的提交
+说明原仅列快照准备，未列已实现的时间戳、prefix/suffix消息和完整成功
+Result准备。本轮按 _commit_plan_ltl_candidate 的实际顺序补齐：锁内通过
+新鲜度检查后准备消息/结果，再准备并提交快照，最后安装候选；准备异常
+返回内部失败并释放事务，prefix/suffix发布在成功提交之后。仍明确后续
+发布或进程故障不属于该准备回滚边界，不新增执行保证。
+
+Optional IRL 部分同步11.112已实现的恢复约定：无一致延伸路径时结束记录，
+不提交空示范，随后 True 从当前有效 belief 开始新记录，可先 False。
+根 README 同步接口概述。只修改这三份文档；生产源码、测试、IDL、版本号
+及算法/学习规则保持，前114节正文保留。
+
+检查当前 planner完整SHA aa6c5dd384638cee38b5019c035a0ee3b73ee4fb319414052751f7aa5090f0b6
+与11.110的实际import proof一致；八个相关生产模块、三个测试完整字节及
+旧110项GREEN日志/XML核对，六个plans/result × READY/ACTIVE/IRL参数项
+均存在且通过。IRL恢复源码及单元正文与11.114的14模块/125项证据一致。
+正文按当前源码核对，Markdown本地链接、LF和diff检查通过。上述运行均为
+既有资格，未在本轮重跑测试，也不增加测试计数或扩大科学结论。
+
+### 11.116 执行快照维度校验避免完整节点尾切片（2026-10-08）
+
+基线60f9d60904276cf7137bd9d93f76c16ce8091cdc。只改变执行节点
+_snapshot_dimensions：保留空节点检查，以iter/next读取首节点，再顺序
+比较其余维度，移除原product_nodes[1:]的N-1引用tuple。其他生产函数、
+测试、IDL、规划与IRL规则均保持。同步两份README，前115节正文保持。
+
+在既有WSL Ubuntu-22.04-D/Humble环境运行，六个实际导入的执行模块完整
+字节核对当前工作树；除本方法外均等于基线。生成的execution observation
+和snapshot service接口来自既有隔离build。scope.json在读取检查结果前
+冻结源码/测试SHA、六个场景和100000节点分配夹具；collection.json在测试
+执行前保存完整节点文件的36个项目。空图、单节点、一致维度及首/中/末
+维度不一致的返回值或异常类型/文字与从Git基线提取的方法完全一致。
+
+tracemalloc只追踪方法调用，节点夹具已提前建立。基线峰值800080字节，
+当前峰值48字节，两个调用返回后保留量均0；这不计图构造、ROS转换或
+整个进程内存，不测速度。原test_execution_node.py全部36项通过，
+0失败/错误/跳过，pytest报告1.38秒，调用记录2.228284694秒、退出0。
+源码compile、flake8、pep257和diff检查通过，保留既有optparse lint警告。
+
+证据目录/tmp/ltl_ros2_completion_20261006/snapshot_iteration_60f9d60保存
+scope/collection/local_checks/run/verified.json与pytest.xml；完整输出另存
+同级snapshot_iteration_60f9d60_run.log。源码SHA
+8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72，
+未修改测试SHA ab1e191d14188583d2a35e42bef5a21236f47bc9f858c7a8514a198d60e79843，
+XML SHA c1634a94ca66eac98fd8ed9de37351d9ee73ccabe7e09926b8f9cd2ece051337，
+日志SHA 4a2c126493b030a76a45d94a79bbb2fdbf41444c8646e9136651175349c4659a。
+本轮未重跑colcon整包、真实DDS闭环、LLM、benchmark、物理仿真或实机；
+36项不与历史局部或七包计数相加，不证明整体加速。
+
+### 11.117 HIL Python 数值检查溢出按既有拒绝路径恢复（2026-10-08）
+
+基线feb1ccb4041556fa7e959ab7aced7a03609580fd。速度策略有限值检查仅捕获
+TypeError，程序化±10**400输入使math.isfinite抛OverflowError；直接调用
+human/navigation回调时也跳过既有无效输入的查询清理。只将五个有限值
+检查处理器扩为TypeError/OverflowError，保留ValueError文字及异常cause。
+tuple参数转换、所有数值计算、限速、gain曲线、默认值、IDL和IRL保持。
+这类Python整数不能进入ROS float64消息，不将本轮结果描述成其DDS传输。
+
+测试先加入并冻结：两项策略检查覆盖标量、轴限制、命令、gain和mix distance；
+两个既有异步恢复场景各保留原ROS NaN/Inf输入，再加正负Python整数。
+在WSL Ubuntu-22.04-D/Humble的原依赖环境，RED选择八项，六项因未捕获
+OverflowError失败、原两项通过；pytest退出1，资格脚本确认预期失败后退出0。
+GREEN执行test_policies.py及test_hil_async.py全部96项，0失败/错误/跳过；
+pytest4.72秒，调用5.478415790秒，退出0。包含原NaN/Inf、巨大有限float、
+tiny epsilon和独立Decimal曲线检查，以及取消、缓存、旧回调和合法恢复。
+三份修改Python文件compile/flake8/pep257/diff通过，既有optparse警告保留。
+
+实际导入的policies、两个mixer及core配置模块完整字节核对；非policies
+模块均等于基线。Twist来自Humble，两个服务接口来自既有隔离build。
+scope.json在RED结果前冻结源码/测试SHA、RED选择和GREEN完整文件范围；
+每次collection.json在执行前保存清单，GREEN包含RED全部八项，测试字节
+期间不变，最终生产字节只含已指定的五处异常范围变更。
+
+证据目录/tmp/ltl_ros2_completion_20261006/hil_overflow_feb1ccb保留scope、
+red/green imports/collection/run、verified.json及两份XML；完整输出为同级
+hil_overflow_feb1ccb_red.log和hil_overflow_feb1ccb_green.log。生产源码SHA
+e75d529cd4d5a04ee9bb61cb997ef2a9e91284d650842ce6dd59b1af8c9d79dd；
+GREEN XML SHA 73327dc8e9e80982e5c6d8b59c436099cb946dc6575b8ac12647efb8ea6cd026，
+GREEN日志SHA 3f626e6ce13fe278290b8ee72aab935e64dd329f7d7807d9d022a129f2fdb564。
+同步两份README，前116节正文保留。96项为局部资格，不与旧125/705或局部
+结果相加；未重跑colcon整包、Trap/IRL launch、DDS闭环、LLM、benchmark或实机。
+
+### 11.118 2D station 请求先匹配再检查名单（2026-10-08）
+
+基线55df4d7e175b2367a2541e7853e4b104e4e140bf。_find_region原对每个候选
+先检查name in self.stations再比较单个station请求；stations为list，无关
+请求也反复线性扫描。只交换这两个布尔条件，先检查请求相等；保留候选
+list拷贝、两轮顺序、station优先、状态赋值和其余方法/容器类型。普通TS
+字符串名下选择规则不变，不调整四元数、几何、滞回、规划或IRL语义。
+加两项update行为回归：请求square或未知名字仍返回所在square。
+
+在既有WSL Ubuntu-22.04-D/Humble环境，四个导入的监控/生成器/core配置
+模块完整字节核对；非2D monitor模块等于基线。两个installed示例YAML
+与当前Git基线相同，两个实际launch入口来自既有隔离install；Pose来自
+Humble，ClosestState来自既有生成build。scope.json在结果前冻结源码/
+三个测试文件/入口/配置SHA、七组序列、1000 station检查及原生launch项。
+collection.json在测试执行前保存全部48个pytest项和两个pre-shutdown/
+一个post-shutdown原生用例，默认launch_testing和launch_ros收集器启用。
+
+七组状态序列涵盖默认/合法station/square/未知请求、square及station滞回、
+释放station后移动，与从Git基线提取的查找方法返回及状态完全一致。
+1000 station夹具只计station-list __contains__调用：无请求1000→0，命中
+末尾station为1000→1，返回一致；仍使用原list membership，不测整体速度。
+test_region_models.py、test_monitor_inputs.py、test_monitor_launch.py共
+48项通过，0失败/错误/跳过；其中一个pytest launch wrapper实际运行2D/6D
+通信两项及关闭一项，不另加为51项。pytest3.48秒、调用4.476709699秒，
+退出0；两份修改Python文件compile/flake8/pep257及diff通过。完整ROS输出、
+关闭调度debug提示及既有optparse lint警告均保留。
+
+证据目录/tmp/ltl_ros2_completion_20261006/region_request_55df4d7保存scope、
+collection/local_checks/run/verified.json和pytest.xml；完整输出为同级
+region_request_55df4d7_run.log。生产SHA
+0a117af6caa6e6a4e7fc614c6960308f088a3963f97efeb4283a4e9ba77b2ea7；
+XML SHA d0f95e4dbc916f15087ef7e9dae03dadb24a936fd30363da03b3fde3485b2331，
+日志SHA b57e47405a81cc2e301654911d6e41b532bb0d9e0627f9aa1486a9f56d9cea88。
+同步两份README，前117节保留；未重跑colcon整包、规划/执行DDS闭环、
+HIL/IRL launch、LLM、benchmark、物理仿真或实机，不与历史计数相加。
+
+### 11.119 当前七包独立构建与默认整包验证（2026-10-08）
+
+资格源码完整提交 04c9833624a94fbd7bebcdccb2e442df1c92c997，测试期间工作树干净。
+只进行既有包的构建与测试，本阶段不改生产源码、测试、IDL或算法参数。
+复用既有 WSL Ubuntu-22.04-D/Humble、Python 3.10.12、NetworkX 2.4，
+原生 ltl2ba 路径 /home/yuhling/.local/bin/ltl2ba，完整 SHA256 为
+d4785c387b67be41052800f6913b8476dbaff56730ef962553fd3d339c378ed3。
+
+使用全新 /tmp/ltl_ros2_combo_04c9833 的 build/install/log/results，
+不复用历史 build 或测试 XML。构建前冻结七包发现、源码/测试 SHA、
+环境和预期人口：旧 d5f2faa 的705项加IRL独立单元6项、HIL溢出6项及
+standard TS请求2项，共719；不把已有launch内部单元另算到JUnit。
+默认launch_testing/launch_ros收集器和已有测试条件保持。
+
+构建原命令为 colcon --log-base /tmp/ltl_ros2_combo_04c9833/log_combo_04c9833
+build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2
+--build-base /tmp/ltl_ros2_combo_04c9833/build
+--install-base /tmp/ltl_ros2_combo_04c9833/install --symlink-install
+--packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON。
+构建后source新install，再核对实际导入路径和完整Git字节。
+测试原命令为 colcon --log-base /tmp/ltl_ros2_combo_04c9833/log_combo_04c9833
+test --build-base /tmp/ltl_ros2_combo_04c9833/build
+--install-base /tmp/ltl_ros2_combo_04c9833/install --packages-select
+ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core
+ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic
+ltl_automaton_std_transition_systems --return-code-on-test-failure。
+各执行一次，实际exit均0；构建92.682801705秒，
+测试82.386151206秒。保留完整原命令、时序及stdout/stderr。
+
+六份fresh JUnit实测：msgs11/0 skip，planner_core195/1，planner188/1，
+execution143/0，HIL131/1，standard TS51/1。
+总计719 tests =715 passed+4 skipped，0 errors、0 failures；四项均既有
+copyright skip。额外一份fresh CTest wrapper内一项通过，实际build查询
+为720 tests/0 errors/0 failures/4 skipped，不将wrapper或launch内部用例
+重复加到719。所有结果mtime晚于本次测试开始，没有stale XML。
+
+保留并核对旧required cases，含四个真实DDS执行场景、Studio消费闭环、
+原生翻译器、完整二十步IRL及提交、启动故障8项、候选payload准备故障6项、
+重规划事务及Core history回归；新增14项逐个检查完整参数名并均通过。
+17个生产模块加TS模块共18份实际导入的完整字节与资格Git提交一致，
+生成接口来自本次build。历史证据1602份SHA校验保持，前118节不改。
+
+证据目录 /tmp/ltl_ros2_combo_04c9833 保存 verification、changed/TS import
+proof、完整colcon query及verified_summary_04c9833.json。
+verified_results_04c9833/sha256_manifest.json冻结87个结果/receipt/
+完整日志文件，并独立核对哈希、字节、时序及包聚合依赖。stderr共
+5份/4615字节，原有依赖警告及其他实际诊断保持；未发现
+Future exception was never retrieved。详细诊断见inspected_combo_receipts。
+同步根README，Markdown本地链接、LF及diff检查通过；本阶段不重跑
+LLM/provider、benchmark、多seed、物理仿真或实机，不建立Jazzy资格，
+不据此声称整体加速、IRL科学效果或硬件效果。
+
+### 11.120 执行解析器复用已排序来源 ID 顺序（2026-10-08）
+
+基线352cc80e1cc1223fc6a96628a2f2781521139119。resolve首先将possible Product IDs
+去重排序为current_ids，原本再对匹配来源逐边set.add并在返回前sorted。
+只将来源收集改为list：按current_ids顺序读取一次匹配目标，非空时append
+该来源一次，再完整遍历目标。返回tuple(source list)，省去来源set和第二次
+排序；目标set/sorted、状态比较、全部候选、歧义与错误顺序、index/cache、
+返回字段及其他方法保持。不存在额外None fallback，不调整规划或IRL语义。
+
+复用WSL Ubuntu-22.04-D/Humble、Python3.10.12、pytest6.2.5，source既有
+/tmp/ltl_ros2_combo_04c9833/install/setup.bash。实际resolver模块路径绑定
+本checkout，源码完整SHA 0d9610b6c9eac1899bf800371dd796728f0235b2ba7aa7e400e7699c743d8278。
+测试文件完整SHA 52ab23495a337898b067313ec776a2cd953822b3ccc2c7f3ec1aa75ea0737df6，
+models完整SHA c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371；
+两者完整字节与基线一致。AST检查除resolve外所有函数与基线相同。
+
+最终运行脚本为LF，在结果前保存provenance完整源码/测试/models SHA和
+--collect-only完整31节点。实际命令python3 -m pytest
+ltl_automaton_execution/test/test_accepted_run_resolver.py
+--junitxml=/tmp/resolver_sources_352cc80_final.xml。
+31 collected/31 passed，0失败、错误、跳过，pytest0.65秒、退出0；脚本以
+捕获的pytest退出码结束。XML与collection完整名称一致，含既有完整候选6项：
+乱序/重复possible IDs、同来源多个目标、无匹配来源、完整来源/目标tuple、
+不可hash的TS字符串和重复cache调用；其他身份、闭环、错误先后及缓存恢复
+回归同时通过。生产文件py_compile、ament_flake8(99列)、pep257、diff检查
+通过。本轮未新增或修改测试文件。
+
+首轮临时脚本的31项pytest也通过，但尾部CRLF造成额外shell行错误；首轮
+输出/provenance/XML均保留，不计为最终稿资格。去掉草稿or ()并修正脚本LF
+后使用新唯一final路径验证，未覆盖首轮。证据复制到
+/tmp/ltl_ros2_completion_20261006/resolver_sources_352cc80，包含最终
+provenance/receipt/static/collection/XML/log、LF脚本、draft和verified.json；
+sha256_manifest.json冻结11个原始文件，保留4个draft文件。
+最终XML SHA 603399976e940f48e41cf588af23dafd76fe0c10251845ed5977071d027e4ba1，
+最终日志SHA 044187ebbdb582da8ee2aa593e1b4f8e013f7a4e935bcf9f831e412bd0e9ea80。
+
+同步根README和执行包README，前119节完整正文保持，Markdown本地链接、
+LF及diff检查通过。31项仅为resolver局部功能验证，不与历史719/715结果
+相加；不重跑colcon整包、DDS闭环、LLM、benchmark、物理仿真或实机，
+不测整体速度，也不据此扩大已有性能或科学效果结论。
+
+
+### 11.121 TS 后继坐标列表复用（2026-10-08）
+
+基线为 `5aeea47b830424b0f1d3f5ecb6a507186f2aefb6`。本轮仅修改
+`ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ts.py` 的
+`TSModel.compose_edges`：每个 factor 的来源状态只在首条允许后继时创建一次
+`list(node)`，后续允许边复用该列表并立即构造独立目标 tuple；false guard 和空后继不
+分配列表，不同 factor 不共享列表。其余方法的 AST 与 Git 基线相同，未改
+测试或算法接口。
+
+固定的9个案例为 `shared_two_factors`、`all_true_three_factors`、
+`mixed_three_factors`、`all_false_two_factors`、`no_successors`、
+`guard_rebuild`（两个阶段）、`missing_weight`、`missing_action_and_weight`
+和 `missing_factor_state`，共10个等价阶段。新旧图节点、边、guard 检查、错误
+类型与文字均相同；`list(node)` 计数为12→6、48→24、40→20、重建4→2，
+全 false guard 和无后继均为0。缺少 `weight`、缺少 `action` 与 `weight` 的
+字段访问优先级，以及缺失 factor 节点的 NetworkX 错误均保持。
+
+环境为 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4。
+实际命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_04c9833/install/setup.bash
+python3 -m pytest ltl_automaton_planner_core/test/test_ts.py \
+  --junitxml=/tmp/ltl_ros2_completion_20261006/ts_buffers_5aeea47/pytest.xml
+```
+
+测试收集17项，实际17 passed、0 error、0 failure、0 skipped，退出码0；pytest
+输出耗时约1.30秒，含两项既有 `np.int` 依赖警告；`run.json` 记录的进程 wall
+time 为2.1089496秒。源码 SHA256 为
+`c4edb61c9215032b6fde74291bcec9ab8d6248a051a9db7fa8baf80e62dbbe6a`，测试文件
+SHA256 为
+`2f56e536fbaac16498f32aa03dedd36e6507fb97e6e1c04066f5f8c1ff058a58`。compile、
+`ament_flake8`（99列）、`ament_pep257` 和 `git diff --check` 均通过。本轮未
+重跑七包、DDS、provider、benchmark 或 planner，也不作整体速度声明。
+
+原始证据位于 `/tmp/ltl_ros2_completion_20261006/ts_buffers_5aeea47/`：
+`scope.json`、`collection.json`、`equivalence.json`、`run.json`、
+`verified.json`、`pytest.xml` 和 `pytest.log`。`pytest.xml` SHA256 为
+`1493ac4a79a83e70282c8a37396022e978a3fdc1f8c616e51849b54a9276be33`，日志
+SHA256 为 `cc25b99a9bc8cd9428857cb771d4620d52d129f7fff9d606ce967b7010d2cd72`。
+实际源码路径绑定当前 checkout；旧方法来自 Git，除 `compose_edges` 外其他方法
+AST 相同。
+
+### 11.122 当前源码七包组合资格（2026-10-08）
+
+资格源码为 `3ef7856a9fe47e094c89327ff525f2ea77f50bef`。在 WSL
+Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4 下，使用独立工作区
+`/tmp/ltl_ros2_combo_3ef7856`，实际安装路径为
+`/tmp/ltl_ros2_combo_3ef7856/install`；原生 translator 为
+`/home/yuhling/.local/bin/ltl2ba`。构建命令（sequential）和默认并行测试命令各执行一次，
+均退出0：
+
+```bash
+source /opt/ros/humble/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_3ef7856/log_combo_3ef7856 build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_3ef7856/build --install-base /tmp/ltl_ros2_combo_3ef7856/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_3ef7856/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_3ef7856/log_combo_3ef7856 test --build-base /tmp/ltl_ros2_combo_3ef7856/build --install-base /tmp/ltl_ros2_combo_3ef7856/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+```
+
+构建 wall time 为 62.472088893 秒，测试 wall time 为 58.264321854 秒。六包结果为：
+msgs 11/11/0、planner_core 195/194/1、planner 188/187/1、execution 143/143/0、
+HIL 131/130/1、standard TS 51/50/1（tests/passed/skipped）。合计 **719 = 715
+passed + 4 skipped**，0 errors/failures；4 个 skip 均为既有 copyright，CTest wrapper
+另1项通过，query 为720，无 stale XML。完整 719 个 `(classname, name)` 与04c9833
+预冻结清单及 skip flags 逐项一致。
+
+18 个生产模块实际导入的完整字节与资格源码一致，生成消息来自新 build；`ltl2ba`
+沿用第11.119节固定的路径与 SHA256。组合还覆盖
+四真实 DDS、Studio、完整20步 IRL、事务/history、启动8项和payload6项。5份 stderr
+共4615字节，仅保留既有 `np.int`/`SelectableGroups` 警告，无 unread-Future 诊断。
+证据目录为 `/tmp/ltl_ros2_combo_3ef7856`，包括 `verification_3ef7856.json`、
+`verified_summary_3ef7856.json`、`verified_results_3ef7856/sha256_manifest.json`、
+`case_inventory_checked_3ef7856.json` 及完整日志。此资格不证明整体速度、IRL科学效果、
+实机、Jazzy、LLM、benchmark 或 provider 结果；不与局部验证计数相加。
+
+### 11.123 Boolean OR 距离零下界短路（2026-10-08）
+
+基线为 `fc6fdba106865de6ff2190356a4bd3b946e99e3d`。仅在解析器生成的 NNF
+距离表达式中，`ORExpression.distance` 在左距离为零时直接返回；非零左距离仍按原顺序
+计算右分支。该优化保持正常字符串标签、解析错误、AND/NNF、truth 和距离数值语义，
+不覆盖任意手造负距离表达式或无效标签的异常顺序。
+
+环境为 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4；实际导入
+绑定当前 checkout，使用 `/tmp/ltl_ros2_combo_3ef7856/install/setup.bash`，原生 `ltl2ba`
+路径与 SHA 沿用11.122。实际命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_3ef7856/install/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+python3 -m pytest -q ltl_automaton_planner_core/test/test_boolean_formulas.py ltl_automaton_planner_core/test/test_buchi.py ltl_automaton_planner_core/test/test_product.py ltl_automaton_planner_core/test/test_ltl_planner.py ltl_automaton_planner_core/test/test_irl.py --junitxml=/tmp/ltl_ros2_completion_20261006/or_distance_fc6fdba/pytest.xml
+```
+
+收集108项，实际108 passed、0 skip/error/failure；pytest 2.32秒，subprocess wall
+2.903701544秒，保留两项既有 `np.int` 警告。另以12个公式、16个标签和
+set/frozenset/tuple/list四种稳定容器共768组，对照旧实现、候选实现和手算距离，结果与
+truth 全部一致。256叶 OR 的首项满足访问由256降为1，末项和全不满足仍为256。
+
+parser 除 `ORExpression.distance` 外的 AST 与基线相同。parser 源码 SHA256 为
+`5ee8dbba45138ca421ce6227319816e49a34979d9297ff9b97907a5c42276abc`，测试文件 SHA256 为
+`1c6a1153780c75ada7500b7a6d79f73f3e7820d207c80eb8591a1aa06d2ff026`；XML SHA256 为
+`786df69ac7c2997d87fc66068e912a3b8c2c479cf8af7800b4dc3e9258e8c300`，日志 SHA256 为
+`c463f042430a15ce03aa073f9324aafb3257ef9c2e550704e7564778420a3f6c`。证据目录为
+`/tmp/ltl_ros2_completion_20261006/or_distance_fc6fdba`；首次 bash 包装命令在资格启动前
+因 PATH 特殊字符退出1，随后唯一正式脚本运行退出0。compile、flake8、pep257 和 diff
+检查通过；本轮未重跑七包、整体性能、provider、benchmark 或实机验证。
+
+### 11.124 Büchi membership 局部索引（2026-10-08）
+
+基线为 `f84c939dade3c8fbccac339e1e2db54813f375fb`。在有效组件图、稳定字符串状态及
+initial/accept 列表范围内，`duo_buchi_from_ltls` 在组合节点循环前为 hard/soft 的四份
+metadata 各建立一次局部 `frozenset`，随后复用 membership；不修改组件 graph metadata，
+不跨调用缓存。9个场景、10个阶段覆盖 duplicate metadata、空成员、空组件、blocked
+component 及 metadata/guard 重建；旧 Git 方法与当前实现的完整节点/边属性、顺序、初始/
+接受集合、symbols、接受层级、guard identity 及输入保持一致。除组合函数外其它 AST 相同。
+canonical 2x3 fixture 的 metadata `list.__contains__` 查询为
+42→0，wide 16x12 为1536→0；新实现每次调用仅遍历四份原 metadata 列表一次，未据此声称
+所有查询、整体速度或内存收益。
+
+环境为 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4；实际导入绑定
+当前 checkout，原生 `ltl2ba` 路径与 SHA 沿用11.122。命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_3ef7856/install/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+python3 -m pytest -q ltl_automaton_planner_core/test/test_buchi.py \
+  ltl_automaton_planner_core/test/test_buchi_integration.py \
+  ltl_automaton_planner_core/test/test_product.py \
+  ltl_automaton_planner_core/test/test_ltl_planner.py \
+  ltl_automaton_planner_core/test/test_irl.py \
+  --junitxml=/tmp/ltl_ros2_completion_20261006/buchi_membership_f84c939/pytest.xml
+```
+
+共收集97项，实际97 passed、0 skip/error/failure；pytest耗时2.34秒，wrapper wall time
+2.9375862秒，保留两项既有 `np.int` 警告，原生 ltl2ba integration 未跳过。源码
+`buchi.py` SHA256 为
+`7c83483cc119beca2b982831003a3889864982661de3e04ce740767727039b72`，测试文件 SHA256 为
+`e6b9005090befe06f8acaf1532e5b5a6c3245302abfd62945a7c81542cd3860f`；XML SHA256 为
+`ac6c91015c07e4b2b984c66a0bf11f07e0a50e2b6c621768d8ba7c0193640caf`，日志 SHA256 为
+`18649c29434c2a1162e1e002389289259edd1a37b6ce2651dda203d3c8127ded`。证据目录为
+`/tmp/ltl_ros2_completion_20261006/buchi_membership_f84c939`。compile、ament_flake8（99列）、
+ament_pep257 和 git diff --check 均通过；本轮未重跑七包、整体性能、provider、benchmark、
+LLM、实机或 Jazzy 验证。
+
+### 11.125 OR/Büchi 优化后的七包组合资格（2026-10-08）
+
+资格源码为 `62b94b39318afe120345fb5189a80a4f7c9e214f`，包含第11.123–11.124节的
+两项核心优化。在 WSL Ubuntu-22.04-D、ROS 2 Humble、Python 3.10.12、NetworkX 2.4
+下使用全新 `/tmp/ltl_ros2_combo_62b94b3`。构建和默认并行整包测试各执行一次，均退出0：
+
+```bash
+source /opt/ros/humble/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+colcon --log-base /tmp/ltl_ros2_combo_62b94b3/log_combo_62b94b3 build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_62b94b3/build --install-base /tmp/ltl_ros2_combo_62b94b3/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_62b94b3/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_62b94b3/log_combo_62b94b3 test --build-base /tmp/ltl_ros2_combo_62b94b3/build --install-base /tmp/ltl_ros2_combo_62b94b3/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+```
+
+实际构建 wall time 为62.239563875秒，测试为58.183837999秒。六份 JUnit 为：
+msgs 11/11/0、planner_core 200/199/1、planner 188/187/1、execution 143/143/0、
+HIL 131/130/1、standard TS 51/50/1（tests/passed/skipped）。合计 **724 = 720
+passed + 4 skipped**，0 errors/failures；四项 skip 均为既有 copyright。CTest wrapper
+另1项通过，实际查询为725，无 stale XML。
+
+原3ef7856的719个完整 `(classname, name, skipped)` 加新增5项在构建前冻结，执行后
+724项逐一匹配；两份当前测试文件只收集、不执行以核对新增身份。其余测试、IDL和包依赖
+相对3ef7856未变。20个生产模块实际导入的完整字节与资格源码一致，其中包括 parser 和
+Büchi；生成消息来自本次新 build，原生 `ltl2ba` 路径及 SHA256 沿用第11.119节。
+四个真实 DDS 场景、Studio、完整20步 IRL及提交、启动8项、payload准备6项及既有
+事务/history/HIL/2D/6D用例通过。5份 stderr 共4615字节，仅保留既有
+`np.int`/`SelectableGroups` 警告，无 unread-Future 诊断。
+
+证据目录为 `/tmp/ltl_ros2_combo_62b94b3`，含 `verified_summary_62b94b3.json`、
+`case_inventory_checked_62b94b3.json`、`inspected_combo_receipts_62b94b3.json`、完整日志
+及 `verified_results_62b94b3/sha256_manifest.json`（87文件）；辅助源/receipt另冻结22项。
+1,602份历史文件和原3ef7856的87文件闭包哈希保持。准备阶段的头绑定、历史目录及清单
+草稿错误在构建前更正，原草稿和修正记录保留；没有重启已完成的构建或测试。
+本资格不与局部计数相加，不证明整体加速、IRL科学效果、实机、Jazzy、LLM或provider结果。
+
+### 11.126 长 guard 的递归深度与重复分支合并（2026-10-08）
+
+对照基线为 `7717e76ba3aa02689ac1a987c1db2a9ebac36419`。默认递归限制1000下，
+2048项平坦 AND、平坦 OR、同目标 Promela 分支合并后的 guard 均实测触发
+`RecursionError`。同级运算数改为相邻配对构造平衡二叉树；Promela 条件先按 edge
+收集，完成原校验后一次 OR join，避免反复复制并包裹整个已合并字符串。
+保留 token 消费和错误诊断、优先级、NNF、叶顺序、原输入 formula、edge 首插顺序、
+`false` 孤立状态和 `skip` 的 `"1"` 自环。单分支文本保持；三条及以上重复分支的
+guard 字符串及快照 `guard_formula` 字段减少冗余括号，不宣称与旧字符串逐字节相同。
+
+WSL Ubuntu-22.04-D / ROS 2 Humble / Python3.10.12 / NetworkX2.4 下，七份定向文件
+（Boolean、Promela、Büchi、原生 ltl2ba integration、Product、planning snapshot、
+snapshot service copy）一次 pytest：**122 passed，0 skip/error/failure**，pytest
+耗时2.97秒，wrapper wall time3.931753887秒，保留两项既有 `np.int` 警告。
+2048项普通和外层否定 guard 的树深度不超过12，首项、末项、全空、全满标签的真值
+及距离符合手算值；2048条合并分支可解析，边顺序和 skip 保持。未调整递归限制。
+
+另有20公式 × 16标签 × 4稳定容器，共1280组旧实现/候选/手算真值与距离对照，
+包含否定、常量、无限距离及奇数项；check/distance 的叶子 membership 访问顺序一致。
+12个 malformed guard 和8个 malformed claim 的异常类型、精确消息一致；claim 的
+消费位置与已声明状态也一致。3条 edge × 16标签共48组 Promela 真值/距离等价，
+实际生成消息的 snapshot 节点和端点保持，新的 guard 字符串仍可正确解释。
+
+compile、ament_flake8（99列）、ament_pep257、git diff --check 通过。首次 lint CLI
+参数不被当前 ament 接受，保留错误日志并改用 `--linelength`，未重跑已通过的 pytest。
+证据位于 `/tmp/ltl_guard_depth_7717e76`：`reproduction.json`、`qualification.json`、
+完整日志/XML、基线与候选源及辅助脚本，`sha256_manifest.json` 冻结23文件。
+候选 parser SHA256 为 `af0c2b9003979a20fef6e59f774d8fb9257d42c1c371fece46de9a1c211ffc36`，
+Promela SHA256 为 `5aedbeac65d76b23deed04513aa27e6c59587ad865dd379d3adc05a6b9c5b234`。
+任意深括号或连续否定仍受递归限制；没有修改 IDL、接受性、source-label 或成本定义。
+本轮未重跑七包组合、IRL学习、整体性能、provider、benchmark、实机或 Jazzy。
+
+### 11.127 一维 TS 同来源 guard 求值复用（2026-10-08）
+
+对照基线为 `310adda47b4db68c6d55e52ef0008c79bb0edb90`。一维 TS 原先逐边
+求值相同来源/guard，虽复用已解析表达式，仍重复检查标签。现按来源 adjacency
+顺序使用局部结果字典，每次 build 新建，保留最后统一移除拒绝边的流程。
+公开 `is_action_allowed` 不缓存 truth；多维构建和动态 Product helper 不变。
+
+默认 Humble 环境下，TS、transition-system 配置、Product、LTLPlanner、IRL 五份
+定向文件一次 pytest：**124 passed，0 skip/error/failure**，pytest耗时1.83秒，
+wrapper wall time2.523767336秒，保留两项既有 `np.int` 警告。
+新增两项参数化回归覆盖显式 set 标签与 fallback 来源 tuple、精确求值/边顺序、
+完整边属性、重复构建、guard 变化及标签变化后的重建，公开 checker 按标签求值。
+
+旧实现/候选另作9场景、12阶段完整图、节点/边属性、插入顺序和输入保持对照，
+覆盖 fallback、set/frozenset/list/tuple 标签、true/false 常量、空图、标签/guard
+变化和删边重建。示例8条输入边保留5条，求值8→4；常量true/false为8→2，空图为0。
+六类错误输入的异常类型、精确消息及失败时完整图状态一致，包括 false guard 后
+缺字段的情形，未提前移除边。该操作计数不证明整体加速或内存收益。
+
+compile、ament_flake8（99列）、ament_pep257、git diff --check通过。证据位于
+`/tmp/ltl_ts_single_guard_310adda`，含基线源码、reproduction/qualification JSON、
+完整日志/XML、候选源码及辅助脚本，`sha256_manifest.json`冻结16文件。
+候选TS源码SHA256为 `08ae086ebb8212f6eeb24110c63a73c3832bef95be0601ad8a40fa2a42792d0d`。
+适用范围为构建期间稳定的 guard 字符串与标签；没有改变 source-label、成本或
+IRL学习规则。本轮未重跑七包组合、DDS、整体性能、provider、benchmark、实机或 Jazzy。
+
+### 11.128 长 guard / 一维 TS 修改后的七包组合验证（2026-10-08）
+
+资格源码 `683c333cb6028b752b80f91ce07448f6db9a3f80` 包含第11.126–11.127节修改。
+WSL Ubuntu-22.04-D、ROS 2 Humble、Python3.10.12、NetworkX2.4、原生 ltl2ba 环境
+保持，在全新 `/tmp/ltl_ros2_combo_683c333` 执行以下构建与默认并行测试，各一次，均exit0：
+
+```bash
+source /opt/ros/humble/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+colcon --log-base /tmp/ltl_ros2_combo_683c333/log build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_683c333/build --install-base /tmp/ltl_ros2_combo_683c333/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_683c333/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_683c333/log test --build-base /tmp/ltl_ros2_combo_683c333/build --install-base /tmp/ltl_ros2_combo_683c333/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+colcon --log-base /tmp/ltl_ros2_combo_683c333/query_log test-result --test-result-base /tmp/ltl_ros2_combo_683c333/build --verbose
+```
+
+构建 wall time44.054874841秒，测试44.468077318秒。六份JUnit分别为 msgs 11/11/0、
+Core 213/212/1、planner 188/187/1、execution 143/143/0、HIL 131/130/1、standard TS
+51/50/1（tests/passed/skipped）。合计 **737 = 733 passed + 4既有copyright skip**，
+0 errors/failures；CTest wrapper另1项通过，实际查询738。没有复用或重启旧构建/测试。
+
+执行前从62b94b3的724项完整身份与skip flags，加当前三份文件只收集得到的13个新增
+用例，冻结全部737项；执行后逐一匹配。138份Python/IDL/包构建文件字节与Git资格源码
+绑定；22个关键模块实际导入字节匹配，生成消息位于本次新build。四个真实DDS符号执行
+场景、Studio、IRL完整20次margin更新、IRL提交及HIL偏好提交通过，启动准备8项与
+payload准备6项均执行。其余既有完整覆盖由全部用例身份匹配保留，不改验收或skip规则。
+
+证据包含 `prepared.json`、两阶段receipt、runtime、`verified_summary.json`、完整
+JUnit/CTest XML、日志和辅助源；`verified_evidence/sha256_manifest.json` 冻结53文件。
+独立读取闭包重新核对哈希和737项状态，检查36份日志，无未读取Future异常诊断。
+5份stderr均923字节，仅有既有 `np.int` 和 `SelectableGroups` 警告。原62b94b3的87文件
+证据闭包在执行前后哈希保持。README当前计数更新，历史验证全文保留。
+这不是整体加速、IRL科学效果、LLM/provider、benchmark、物理仿真、实机或Jazzy证据。
+
+### 11.129 历史重规划单次查询后继复用（2026-10-08）
+
+对照基线为 `3ba0374f7a23815f338294399ae014f359823f38`。循环历史会再次访问相同
+Product 来源；`prod_states_given_history` 现以单次调用内的字典保存有序后继 tuple。
+每个历史步骤仍按原顺序筛选 TS 状态，完整候选集合与后续 prefix–suffix 搜索保持。
+缓存不跨调用，下一次查询会读取新增或删除的边；未增加按观测 TS 状态索引的缓存。
+适用条件为查询期间固定的 Product 图及普通稳定状态值；临时 tuple 增加存储，短或
+不重复历史可能增加分配开销。AST 对照确认该函数之外的生产模块不变。
+
+WSL Ubuntu-22.04-D、ROS 2 Humble 环境，实际导入绑定本仓库候选源码，使用第11.128节
+安装环境。`test_discrete_plan.py` 和 `test_ltl_planner.py` 一次 pytest：
+**52 passed，0 skip/error/failure**，pytest耗时3.27秒，保留两项既有 NetworkX
+`np.int` 警告。两项新增回归检查分支/汇合、每个 Product 来源读取一次及跨调用图变化。
+另与旧实现对照多初始状态、空/未知/死历史、tuple轨迹容器、后续不可哈希观测值及输入
+图属性/插入顺序/轨迹保持。实际 `ProdAut.build_full` 小图上的完整 Run 字段保持：
+重复历史下 γ=1 选择 a 接受自环，总代价4；γ=10 选择 b 接受自环，总代价18，包含
+prefix/suffix、Product 边、动作及成本。接受性、source-label、β和γ代价定义不变。
+
+六状态双节点循环的 `successors` 调用及底层 generator 邻居读取均为 **5→2**。
+该计数不包括每个历史步骤继续扫描缓存 tuple 的筛选工作，不证明整体加速。
+原资格JSON的邻居读取字面值误写为10→4；保留原文件，`counter_erratum.json` 追加
+纠正，独立计数探针核对5→2，未重跑pytest。初次 Python lint wrapper 将
+`main_with_errors` 的 tuple 返回值误判为失败，尚未进入pytest；改用既有 CLI 后
+compile、ament_flake8（99列，两改动文件）、ament_pep257、git diff --check通过。
+
+固定1001个历史状态、每来源32条无关后继的小规模耗时对照，六组交替旧/新查询的
+median分别为0.001837850和0.001722600秒，有两组候选更慢；完整原始值保留于
+`tiny_timing.json`。这只是该小图函数的波动记录，没有稳定、整体或统计加速结论。
+
+证据位于 `/tmp/ltl_history_successors_3ba0374`，含旧源码、两阶段资格记录、完整
+pytest日志/XML、计数纠正、耗时原值及辅助脚本。独立核对13文件输入哈希与52项JUnit
+状态后，`verified_evidence/sha256_manifest.json` 冻结20份独立副本，保留原误写记录。
+候选源码SHA256为 `5fd19945dce25d23945402f8d676a2eb814c1a90d0699ed91d9971fe2c94fd77`。
+本轮未重跑七包组合、DDS、IRL学习、provider、整套benchmark、实机或Jazzy；第11.128节
+的737项组合是本次修改之前的源码资格，不能作为本次后继复用的组合证据。
+
+### 11.130 完整搜索直接读取邻接边属性（2026-10-08）
+
+对照基线为 `7db6c74ae52d3ad78e22fbc2d8d635897816aa8d`。完整 NetworkX 搜索中，
+接受环闭合边原先逐一通过 `product.edges[u, v]` 查权重；现遍历公开
+`product.pred[target].items()`，直接使用同一边属性字典。紧路径恢复则每个当前节点
+读取公开 `product.adj[current]`，保留先检查已发现 parent、再读取边属性的顺序。
+适用于标准一致的 DiGraph / ProdAut，遍历顺序、默认权重1、`None` 隐藏边、精确紧边
+相等判定、完整搜索、接受性、source-label 及 β/γ代价定义保持。其他生产函数的AST不变。
+
+WSL Ubuntu-22.04-D、ROS 2 Humble，使用第11.128节安装环境。Core 离散规划、
+LTLPlanner 和 IRL 三份定向文件一次 pytest：**81 passed，0 skip/error/failure**，
+pytest耗时2.71秒，保留两项既有 NetworkX `np.int` 警告。新增回归检查完整 prefix、
+suffix、动作、成本及查询间权重变化：γ=10，闭合边权重1→3，总代价22→42。
+既有默认权重、隐藏边、零成本及IRL20次margin回归也执行。compile、ament_flake8
+（99列，两改动文件）、ament_pep257、git diff --check通过，最终runner session34204 exit0。
+
+旧/新独立对照6项路径场景及6项实际 `ProdAut.build_full` 的完整Run场景。路径包含
+零成本环/并列首parent、0.1+0.2与0.3的精确判定、多初始状态、隐藏边及两类精确异常；
+完整Run覆盖 γ=0/1/10、缺省闭合权重与改为3后的查询，prefix/suffix、Product边、
+动作和所有成本字段一致，输入Product、TS、Büchi属性及顺序保持。
+恢复路径示例的额外 EdgeView 键查找 **3→0**，完整搜索示例 **7→0**；仍读取边属性并
+遍历原有边，这不是全部图访问为零。64状态链、每来源16条死分支的六组交替耗时对照，
+median旧/新分别为0.001343550/0.001067450秒，有一组候选更慢；原值全部保留，
+只描述该小图恢复函数，不作整套或统计加速结论。
+
+初次计数探针试图替换只读 `edges` 属性失败，保留原helper，重试helper改为局部
+包装 EdgeView 方法并按所属图计数。首次执行runner在检查前因PowerShell展开bash变量
+产生语法错误；改用独立runner后，指定pytest仅执行一次。失败摘要和计数探针原helper保留。
+三个关键模块在同安装环境下的实际导入路径/哈希绑定本仓库；81项JUnit身份/状态核对，
+`/tmp/ltl_dijkstra_adjacency_7db6c74/verified_evidence/sha256_manifest.json` 冻结17份
+源码、测试、完整日志/XML、两阶段对照、辅助脚本和失败摘要，并逐一读取核对哈希/大小。
+部分runner/日志/XML文件名沿用 `3ba0374` 字样，真实基线以 `verified_summary.json`
+中的7db6c74及字节哈希为准。候选源码SHA256为
+`62c659febcceace79ac782de1440349025459d86a820dfac1899826ad2b2221b`。
+本轮未重跑七包组合、DDS、provider、整套benchmark、实机或Jazzy；第11.128节737项
+组合未包含本节修改，局部81项不能替代新的组合资格或IRL科学效果验证。
+
+### 11.131 两处规划热点修改后的七包组合验证（2026-10-08）
+
+资格源码 `ce014f78c17eaff523a0af541ff065793a10fc74` 包含第11.129–11.130节修改。
+WSL Ubuntu-22.04-D、ROS 2 Humble、Python3.10.12、NetworkX2.4及原生ltl2ba保持。
+在全新 `/tmp/ltl_ros2_combo_ce014f7` 执行七包构建和默认并行测试，各一次、均exit0：
+
+```bash
+source /opt/ros/humble/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+colcon --log-base /tmp/ltl_ros2_combo_ce014f7/log build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_ce014f7/build --install-base /tmp/ltl_ros2_combo_ce014f7/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_ce014f7/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_ce014f7/log test --build-base /tmp/ltl_ros2_combo_ce014f7/build --install-base /tmp/ltl_ros2_combo_ce014f7/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+colcon --log-base /tmp/ltl_ros2_combo_ce014f7/query_log test-result --test-result-base /tmp/ltl_ros2_combo_ce014f7/build --verbose
+```
+
+wrapper wall time：构建77.528334224秒、测试56.748037802秒。六份JUnit分别为
+msgs 11/11/0、Core 216/215/1、planner 188/187/1、execution 143/143/0、HIL
+131/130/1、standard TS 51/50/1（tests/passed/skipped）。合计 **740 = 736 passed +
+4既有copyright skip**，0 errors/failures；CTest wrapper另1项通过，实际查询741。
+
+执行前使用62b94b3的724项完整身份，加当前四文件只收集得到的16项新增用例，冻结
+全部740项的(classname/name/skip)；执行后逐项匹配。新增16项为此前长guard/TS的13项
+和本次2项历史重规划、1项邻接属性读取回归。138份Python/IDL/包构建文件与Git资格源码
+字节绑定；22个关键模块实际导入路径/哈希匹配，生成消息来自本次新build。
+四个真实DDS符号执行、Studio、IRL完整20次margin更新及提交、HIL偏好提交通过；
+初始化准备6项及overflow2项、payload准备6项和本次3个新增回归均明确核对为通过。
+
+证据包括 `prepared.json`、build/test receipt、runtime、`verified_summary.json`、
+完整JUnit/CTest XML、日志和实际辅助源；`verified_evidence/sha256_manifest.json`
+冻结53文件，独立逐一读取核对哈希/大小及740项身份/状态。36份日志无未读取Future
+异常诊断；5份stderr各923字节，保留既有 `np.int` / `SelectableGroups` 警告。
+旧62b94b3的87文件、683c333的53文件、历史重规划20文件及邻接读取17文件闭包，在
+执行前后哈希均保持。辅助脚本准备时发现的用例字典路径、新增列表及源清单错误在
+执行前修正；没有重跑已完成的prepare、构建、测试或audit阶段。
+README当前计数更新，全部历史验证字节保留；发布只更新README和本记录。
+这是Humble符号级组合资格，不证明整体加速、IRL科学效果、LLM/provider、整套benchmark、
+物理仿真、实机或Jazzy结果。
+
+### 11.132 KTH 性能定位与 guard lexer 模板复用（2026-10-08）
+
+对照基线 `c3a74d1badb05466eec68f10bfed224aa9e1ae2f`，实际源码只有
+`boolean_formulas/lexer.py` 修改，另新增两项 Boolean 测试。现有 KTH TS/task YAML、
+β=1000、γ=10、原生ltl2ba及第11.131节 Humble安装环境保持。依次运行静态规划、
+从(r2,unloaded)状态重规划、替换为配置中的r3任务并从(r1,unloaded)开始。
+基线 profile 显示静态/任务规划反复构建 PLY lexer，规则校验反复读取源文件；
+状态重规划则主要花在 deepcopy。保留后者的隔离与回滚边界，本次只改 lexer。
+
+固定模块规则首次调用时通过原有 `lex.lex()` 完整校验，私有懒模板由单项
+`lru_cache` 保存，后续通过 `clone()` 复用规则，每次独立输入/行号，显式创建独立
+状态栈。没有语法树、truth或distance缓存，没有启用PLY optimize或写入lextab。
+实际PLY3.11的clone浅复制源码及[官方 cloning 说明](https://ply.readthedocs.io/en/latest/ply.html#lexer-cloning)
+均已核对；现有规则没有类/closure的可变状态。并发首次cache miss可能重复等价构建，
+没有“并发首次恰好构建一次”的保证；两线程定向回归使用暖模板。
+
+Boolean、Promela、LTLPlanner、IRL四份定向文件最终 **104 passed，0 skip/error/failure**，
+pytest1.34秒，两项既有NetworkX np.int警告。新回归覆盖顺序调用只构建一次、实例身份、
+交错输入/lineno、非法字符恢复、独立push-state及暖模板并发解析。独立旧/新对照：
+12条有效公式×16标签的192对truth/distance、18种无效输入的精确异常类型/信息、
+26组token(type/value/lineno/lexpos)及非法字符前已产生的token均保持。parser源码SHA256
+保持 `af0c2b9003979a20fef6e59f774d8fb9257d42c1c371fece46de9a1c211ffc36`。
+compile、ament_flake8（99列，两改动文件）、ament_pep257及git diff --check通过。
+
+旧/新每阶段各一次cProfile记录如下；全部成功，Run的prefix/suffix、TS路径、动作和
+prefix/suffix/total成本九字段及图大小、当前状态、trace保持：
+
+| 阶段 | profile wall seconds 旧 / 新 | Product nodes/edges | pre/suf/total |
+|---|---:|---:|---:|
+| static | 0.037084201 / 0.004790600 | 36/72 | 70/60/670 |
+| 状态重规划 | 0.009136901 / 0.009034800 | 36/72 | 60/60/660 |
+| 任务重规划 | 0.027311600 / 0.012189100 | 24/44 | 20/20/220 |
+
+阶段内 `get_lexer` 调用数仍为11/0/4，PLY `lex()`构建为旧11/0/4→新0/0/0；
+原生ltl2ba调用保持2/0/2。`state_models_from_ts`在profile前已解析guard，候选模板
+已暖，首次构建及TS配置准备均排除在阶段计时之外。单次记录含插桩、文件系统和运行
+波动，不证明冷启动、稳定或整套加速；没有取消deepcopy或改变搜索及IRL定义。
+
+首次定向pytest为103 passed+1 failure：计数wrapper改变PLY反射调用上下文，补上
+显式module后最终104项通过；原失败日志/XML保留。首次static因PATH覆盖移除ROS CLI，
+ament_flake8未找到，修正环境后通过。基线profile启动辅助曾在实际profile前有参数、
+CRLF和导入拼写错误（执行代理记录）；成功结果使用独立retry目录，原目录保留。
+两个版本成功profile各只执行一次，不重跑已完成profile或历史组合阶段。
+
+基线 `/tmp/ltl_kth_profile_c3a74d1_retry`、候选
+`/tmp/ltl_kth_profile_c3a74d1_lexer`、语义对照 `/tmp/ltl_lexer_review_c3a74d1`。
+独立核对全部104项JUnit身份/状态、三个阶段pstats计数及输入/runtime哈希后，
+`/tmp/ltl_lexer_publication_c3a74d1/sha256_manifest.json` 冻结39份独立副本，逐一回读
+哈希/大小，包含成功/失败日志、XML、旧/新profile、源码、辅助脚本和PLY3.11源码。
+候选lexer SHA256为 `e535ce360181c4f3b014d2bf0948de21b8f4d7b21c73fe026d1e0e1a25ccf436`。
+第11.131节740项组合发生在此次lexer修改之前；本次未重跑七包/DDS、provider、
+整套benchmark、实机或Jazzy，局部验证不能替代新的组合资格或IRL科学效果验证。
+
+### 11.133 重规划深复制中的不可变状态 key 复用（2026-10-08）
+
+对照基线 `989bb8effc41226b4d3e478a0e760f2f5998eb0d`。状态和任务重规划原先
+完整 `deepcopy(self)`；现在私有 `_copy_for_replanning` 扫描TS/Product节点，
+只识别精确tuple及其中的精确str/int或一层同样组成的tuple，将合格key和内tuple
+id→自身预置到本次fresh memo，随后仍完整deepcopy。Python3.10.12实际copy.py
+源码核对表明这些tuple原本也返回原对象，只是反复遍历其元素；
+[Python deepcopy 文档](https://docs.python.org/3.10/library/copy.html)的memo接口保持。
+不跨重规划保存memo，custom/subclass key不预置；图、属性、Run、日志、执行字段
+及其内部别名继续深复制，目标初始状态、style、控制流和失败回滚边界不变。
+新增key扫描与临时memo有开销，小图或不命中的key不保证收益。生产AST对照确认
+除新增helper和两个candidate赋值外不变，接受性、source-label、β/γ目标和IRL不变。
+
+Humble环境下，LTLPlanner、discrete-plan、IRL三份定向文件最终 **83 passed，
+0 skip/error/failure**，pytest1.19秒，保留两项既有np.int警告。两个新增回归覆盖
+完整图/Run属性对照、内部TS别名、可变图属性/Run列表/历史/日志隔离、独立再次复制，
+及custom tuple/int/str、可变hashable key、custom叶tuple和copy异常。
+compile、ament_flake8（99列，两改动文件）、ament_pep257、git diff --check通过。
+初始两次各82 passed+1 failure，原因依次为独立guard对象和zip迭代器的身份比较。
+改为guard公式/结构及全部Run字段内容比较，保持clone迭代器独立后，中间83项通过；
+补齐内tuple memo和独立性断言后，再执行最终83项。失败和中间记录均保留。
+
+独立小图将普通deepcopy与候选完整pickle序列逐字节比较，含图、Run所有字段、
+TS/Product/Run/自身别名和跨容器共享可变列表；修改候选后原始序列保持。
+另有7类自定义key对照，包括tuple内的str/int subclass，类型、复制内容和隔离保持；
+自定义copy失败的精确异常一致。该夹具deepcopy调用1178→660，tuple复制243→23；
+它是确定性小图检查，没有provider、正式实验或整套性能含义。
+
+沿用第11.132节KTH配置、β=1000、γ=10、原生ltl2ba，候选三阶段各执行一次。
+历史profile捕获于989bb8e发布前，其metadata仍为c3a74d1加未提交lexer修改；
+保留原metadata，独立核对其实际导入模块字节与989bb8e Git一致，未重标为新执行。
+原有39文件闭包保持；候选实际模块绑定本仓库，TS/lexer另作实际导入哈希核对。
+两个版本Run九字段、图大小、trace及当前状态保持，三阶段成本仍为70/60/670、
+60/60/660、20/20/220，原生翻译器调用仍为2/0/2。
+
+| 阶段 | profile wall seconds 历史 / 候选 | deepcopy调用 | tuple复制调用 |
+|---|---:|---:|---:|
+| static | 0.004790600 / 0.004986700 | 0 / 0 | 0 / 0 |
+| 状态重规划 | 0.009034800 / 0.005766300 | 5183 / 3060 | 1150 / 259 |
+| 任务重规划 | 0.012189100 / 0.009169500 | 5170 / 3100 | 1139 / 273 |
+
+重规划的dict复制均352→352，list分别43→43、45→45。单次带插桩观察包含运行波动，
+不证明稳定/端到端加速或RSS收益；TS配置准备仍在profile外，模板已暖。
+证据位于 `/tmp/ltl_replan_copy_989bb8e`、`/tmp/ltl_kth_replan_copy_989bb8e`、
+`/tmp/ltl_replan_copy_review_989bb8e`；独立核对83项JUnit身份/状态、输入/runtime、
+源和pstats后，`/tmp/ltl_replan_copy_publication_989bb8e/sha256_manifest.json`
+冻结43份独立副本并逐一回读哈希/大小，含失败/中间/最终日志/XML、源码、Python
+copy.py、profile及辅助脚本。候选源码SHA256为
+`07ebbb1fab1cbcb3d5329ae2955f9e9f3687f7df24d35b10cc9b20c551d1ab6b`。
+第11.131节740项组合先于lexer及本节修改；本次未重跑七包/DDS、provider、整套
+benchmark、实机或Jazzy，83项局部验证不能替代新的组合资格或IRL科学效果验证。
+
+### 11.134 Lexer 与重规划复制优化后的七包组合验证（2026-10-08）
+
+资格源码 `ab45b9b7333ead2e371211a3ccb932dfb254fdad` 包含第11.132–11.133节修改。
+WSL Ubuntu-22.04-D、ROS 2 Humble、Python3.10.12、NetworkX2.4及原生ltl2ba保持。
+全新 `/tmp/ltl_ros2_combo_ab45b9b` 的七包构建和默认并行测试各执行一次、均exit0：
+
+```bash
+source /opt/ros/humble/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+colcon --log-base /tmp/ltl_ros2_combo_ab45b9b/log build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_ab45b9b/build --install-base /tmp/ltl_ros2_combo_ab45b9b/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_ab45b9b/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_ab45b9b/log test --build-base /tmp/ltl_ros2_combo_ab45b9b/build --install-base /tmp/ltl_ros2_combo_ab45b9b/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+colcon --log-base /tmp/ltl_ros2_combo_ab45b9b/query_log test-result --test-result-base /tmp/ltl_ros2_combo_ab45b9b/build --verbose
+```
+
+wrapper wall time：构建66.821490934秒、测试53.339167568秒。六份JUnit分别为
+msgs 11/11/0、Core 220/219/1、planner 188/187/1、execution 143/143/0、HIL
+131/130/1、standard TS 51/50/1（tests/passed/skipped）。合计 **744 = 740 passed +
+4既有copyright skip**，0 errors/failures；CTest wrapper另1项通过，实际查询745。
+
+执行前从第11.131节冻结XML读取740项完整身份，并只收集Boolean/LTLPlanner两个文件，
+核对原用例保持、恰好新增2项lexer及2项复制回归。全部744项(classname/name/skip)
+执行后逐项匹配，四项新增均通过。138份Python/IDL/包构建文件与Git资格源码字节绑定；
+23个关键模块实际导入路径/哈希匹配，包含lexer，生成消息来自本次新build。
+四个真实DDS符号执行、Studio、完整20次IRL margin更新与提交、HIL偏好提交通过；
+初始化准备6项及overflow2项、payload准备6项及此前3项规划热点回归均明确核对通过。
+
+`verified_evidence/sha256_manifest.json` 冻结53份独立证据副本，包含执行前清单、
+build/test receipt、runtime、summary、完整JUnit/CTest XML、日志及实际辅助源。
+独立逐一读取核对哈希/大小、全部744项身份/状态及18类明确要求的用例；36份日志无
+未读取Future异常诊断。5份stderr各923字节，共4615字节，保留既有np.int与
+SelectableGroups依赖警告。此前组合53文件、lexer局部39文件和复制局部43文件闭包
+在执行前后保持，均按原版本保留。本次未重新核对更早闭包，不将旧核对重标为新执行。
+辅助草稿中的旧计数与归档文件名在prepare之前修正；prepare、构建、runtime、测试、
+audit各只执行一次，没有重跑已完成阶段，也未改变验收条件或skip flags。
+
+发布只更新README与本记录，前133节全部历史字节保留，138份资格源码/构建文件保持。
+这是Humble符号级组合验证，不证明整体加速、内存收益或IRL科学效果；未执行provider、
+整套benchmark、物理仿真、实机或Jazzy。局部与各版本组合计数分别保留，不相加。
+
+### 11.135 重规划复制中的基础标量 memo（2026-10-08）
+
+对照基线 `a9f02079d7f9d649c12a21c8926c8def93cf5819` 的生产源码与第11.134节ab45b9b相同。
+现有KTH profile中，状态/任务重规划仍有1695/1718次 `_deepcopy_atomic` 分派。
+`_copy_for_replanning` 保留原tuple memo，在同一TS/Product的普通边属性dict中，
+只将精确str/int/float/bool/None的key/value id→原对象预置本次memo。最终仍完整
+`deepcopy(self, memo)`，字典、列表及全部可变状态在原遍历时点深复制；custom scalar
+和dict subclass不预置，不跨调用缓存。新增边扫描及memo有成本，不保证小图收益。
+仅该helper的生产AST改变，其余规划控制流、接受性、source-label、β/γ目标及IRL保持。
+
+提前浅复制scalar边字典的首个方案虽有84项通过，但独立反例表明custom deepcopy hook
+改写原weight时，普通复制读到2、提前字典读到1，因此否决，未纳入最终资格。该轮只保留
+helper、XML及日志，未保存其独立源码快照，不能追溯为最终候选源码。改为标量memo后，
+新增fixture漏掉TS build_full导致83 passed+1 failure；补齐fixture后最终 **84 passed，
+0 skip/error/failure**，pytest1.26秒、两项既有np.int警告。文件为LTLPlanner、discrete-plan、
+IRL三份；新增hook/边字典/图metadata/planner引用别名及隔离回归，原83项身份保持。
+compile、ament_flake8（99列）、ament_pep257及diff检查通过；静态启动的PowerShell
+quoting/PATH错误也未重标为通过。最终测试及静态证据在
+`/tmp/ltl_replan_edge_copy_a9f0207_final2`，旧两轮按原输出路径分别保留。
+
+独立小图将普通deepcopy、旧tuple memo及最终候选的完整pickle逐字节比较，覆盖
+跨图/Run/planner边字典别名、再次复制独立性、custom scalar、可变列表、实际edge dict
+subclass、复制期间hook及精确异常。候选保持全部内容和可变隔离；atomic dispatch
+283→174，deepcopy均539、dict均62、tuple均16，没有省略字典复制。
+
+沿用第11.133节同一KTH配置、β=1000、γ=10及原生ltl2ba，候选三阶段各一次。
+辅助profile源仅更改输出目录；TS准备及lexer冷构建仍在profile之外。旧/新完整snapshot
+除planning_time外一致，包含Run九字段、图大小、trace与当前状态，成本保持70/60/670、
+60/60/660、20/20/220。候选保留实际a9f0207+两文件dirty metadata及运行源码哈希。
+
+| 阶段 | profile wall seconds 旧 / 候选 | atomic dispatch 旧 / 候选 | dict / list / tuple复制（保持） |
+|---|---:|---:|---:|
+| static | 0.004986700 / 0.006306400 | 0 / 0 | 0 / 0 / 0 |
+| 状态重规划 | 0.005766300 / 0.005541900 | 1695 / 854 | 352 / 43 / 259 |
+| 任务重规划 | 0.009169500 / 0.009253599 | 1718 / 865 | 352 / 45 / 273 |
+
+deepcopy调用仍分别为0/3060/3100。耗时有升有降，单次插桩记录不证明稳定或端到端加速，
+也不证明内存收益。`/tmp/ltl_replan_atomic_publication_a9f0207/sha256_manifest.json`
+冻结46份独立副本并回读哈希/大小，包含最终源码、失败/弃用/最终日志与XML、profile、
+反例、review、Python copy.py及辅助源；旧43文件闭包保持。独立审阅确认84项身份及状态、
+输入/runtime绑定、完整snapshot及pstats计数；审阅辅助源的JUnit classname前缀在冻结前
+纠正，没有重跑已完成测试或profile。候选源码SHA256为
+`d7480909c6a1649c0ef6014f3a4f32016bec258b49e3b66406ea9a0acc32b98c`。
+前134节历史字节保持。第11.134节744项组合先于此修改；本轮未重跑七包/DDS、provider、
+整套benchmark、物理仿真、实机或Jazzy，局部结果不能替代组合资格或IRL科学效果验证。
+
+### 11.136 可达 SCC 拓扑物化（2026-10-08）
+
+基线为干净提交 `3df6e238a6b9abc298b55f8b8276c51520120c97`。`dijkstra_plan_networkX` 的
+SCC 可达图现在只物化 `prefix_dist` 中的可达节点及其全部结构边，使用普通 `DiGraph`；
+节点、边属性不复制，`weight=None` 的隐藏边仍保留给结构 SCC，而全部加权搜索、闭合边
+筛选和路径恢复继续读取原 Product。新增临时拓扑的空间开销为 O(Vr+Er)，不宣称整体加速
+或内存收益。
+
+在 Humble、Ubuntu-22.04-D、Python3.10.12、NetworkX2.4 下，定向命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_ab45b9b/install/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+export PYTHONPATH="/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core:$PYTHONPATH"
+cd /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2
+python3 -m pytest -q --junitxml=/tmp/ltl_scc_topology_3df6e23_final4/pytest.xml \
+  ltl_automaton_planner_core/test/test_discrete_plan.py \
+  ltl_automaton_planner_core/test/test_ltl_planner.py \
+  ltl_automaton_planner_core/test/test_irl.py
+```
+
+最终 `final4` 为 **85 passed、0 skipped/errors/failures**，pytest 显示 2 项既有
+`np.int` warning、2.82 秒；py_compile、ament_flake8（99列）、ament_pep257 和
+`git diff --check` 均通过，原84项身份保持、恰好新增一项回归。
+另行完成31组完整 Run/精确错误对照及输入图保持检查；
+新增回归使用 `s→a/b`、`a→b` 的隐藏边、`b→a` 权重2和 `a` 自环权重3，验证
+`a` 的 prefix/suffix/total 为 1/3/31，并由真实 suffix 搜索观察到 `b→a` 距离2，
+而 `None` 边不参与有限距离。96节点/96边探针的 filtered coreview 调用为 2111→0，
+手算成本为 23/2/43。首次 review 的 pickle 断言失败来自普通 `NetworkX.nodes` 访问
+创建懒 NodeView；priming 后的独立复核通过，不是算法差异。
+
+KTH 三阶段只执行一次，旧/候选 elapsed（秒）分别为 static `.006306400/.009907600`、
+状态重规划 `.005541900/.016026900`、任务重规划 `.009253599/.019327200`；完整
+snapshot（除 planning_time）及成本 70/60/670、60/60/660、20/20/220 保持，
+三阶段候选记录均高于旧记录；这是单次插桩观察，不作稳定速度结论。两个非静态阶段的
+pstats 分别记录 atomic dispatch 854→890、865→895，deepcopy 3060→3132、
+3100→3157，tuple 259→286、273→294；dict 分别保持352/352，list 分别保持43/45。
+这些是不同进程的单次计数，不能据此归因或宣称整体收益。
+三阶段 generic_graph_view、subgraph_view 与 filtered coreview 调用均为0；
+Dijkstra 核心调用分别保持3/3/7，mission_to_buchi保持1/0/1。
+固定96节点、6组交替的无cProfile局部对照，预先固定协议与23/2/43成本，规划耗时
+中位数旧/新为 `.002141050/.001063950` 秒，12次完整 Run 相同；该小图结果只作局部证据，不是统计或整体
+速度结论。证据位于 `/tmp/ltl_scc_topology_3df6e23`、其 `final2`/`final3`/`final4`、
+`/tmp/ltl_scc_topology_review_3df6e23_retry`、`/tmp/ltl_kth_scc_topology_3df6e23` 和
+`/tmp/ltl_scc_topology_pair_3df6e23`；发布冻结目录为
+`/tmp/ltl_scc_topology_publication_3df6e23/sha256_manifest.json` 冻结61份独立副本并回读
+哈希/大小，含源码、失败/中间/最终XML与日志、旧/新profile、review、小图协议及辅助源；
+旧46文件闭包保持。冻结脚本初次将final2 XML哈希漏抄末位，归档创建前失败；
+新脚本按原文件纠正后通过，旧脚本保留，没有重跑已完成测试或profile。
+候选生产源码SHA256为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`。
+首次review失败未单独保存stdout文件，仅保留原helper和工具回执标识，不能重标为通过。
+
+初始 fixture 运行的 84+1 失败来自建图时直接使用 `None` 权重；`final2` 的 84+1
+失败来自场景使用 `s` 而 helper 默认 initial 为 `s0`。`final3` 的 85 passed 早于
+真实 suffix distance 断言，`final4` 为最终版本。最新 744 项 `ab45b9b` 组合早于
+基础标量 memo 与本节 SCC 修改；本节未重跑七包、DDS、provider、benchmark、实机或
+Jazzy，局部结果不能替代新组合资格或IRL科学效果验证。前135节历史字节保持。
+
+### 11.137 重规划邻接目标 tuple 的本次 memo 复用（2026-10-08）
+
+对照基线 `f8d367c965b795e262e1dd85ef349141a202f3ea`。`ProdAut.composition` 在相同节点
+已存在时仍返回新建 tuple；NetworkX2.4 的 DiGraph 允许邻接字典保留相等但对象不同的
+端点 key。原 `_copy_for_replanning` 只预置 canonical 图节点，可能遗漏这些目标 key。
+本次只在既有 `edges(data=True)` 遍历中，将符合原类型限制的目标 tuple 及一层内 tuple
+加入本次 memo：精确 tuple，元素为精确 str/int 或只含精确 str/int 的一层 tuple。
+已有 memo 条目跳过重复检查，全部可变对象仍在原遍历时点完整 deepcopy；标量处理、
+自定义类型回退、规划控制流、source-label、β/γ目标和IRL保持。
+没有增加 predecessor 扫描或跨调用缓存；额外每边memo查询及临时条目有成本。
+
+独立临时候选先于仓库修改，生产文件与该候选字节相同，SHA256为
+`83efed9c6bbd4117edf86be592b5db52e52c790a0a32e7075625afa86a67f6fd`。
+仅复制helper的生产AST改变。普通deepcopy、基线helper和候选完整pickle逐字节相同，
+覆盖跨TS/Product/Run/planner别名、再次复制独立性、可变属性隔离、custom scalar、
+实际edge dict subclass、复制期间hook及精确异常。失败异常三者均为
+`ValueError: edge value copy failure`；没有省略任何字典或列表复制。
+
+手工图的单次cProfile记录：tuple复制16→11、deepcopy539→529，dict62、list26及
+atomic174保持。预先固定六组交替、无cProfile的复制耗时中位数旧/新为
+0.000794250/0.000695200秒，全部复制内容一致；三组候选更慢，不能作稳定或整体速度
+结论。图准备及校验在复制计时外；没有translator、provider或整套benchmark调用。
+证据位于 `/tmp/ltl_replan_endpoint_review_f8d367c`，八份文件按原manifest回读哈希/大小；
+包含预先协议、完整辅助源、旧/候选源码、pstats及全部六对原始耗时。
+
+同Humble环境、最新ab45b9b overlay及原生ltl2ba下，discrete-plan、LTLPlanner、IRL
+三份文件一次运行：**85 passed，0 skip/error/failure**，pytest2.02秒、两项既有np.int
+警告。原85项身份与状态保持，没有新增或跳过测试。py_compile、ament_flake8（99列）、
+ament_pep257及diff检查通过；最终日志/XML位于 `/tmp/ltl_replan_endpoint_f8d367c`。
+
+KTH沿用同一配置、β=1000、γ=10，辅助profile源只更改输出目录，三阶段各一次。
+旧记录保留实际3df6e23+dirty metadata，其生产模块字节与f8d367c相同，不重标为新执行；
+候选记录实际f8d367c+生产文件和两文档dirty。完整snapshot除planning_time外相同，
+包含Run九字段、图大小、trace与当前状态；成本保持70/60/670、60/60/660、20/20/220。
+
+| 阶段 | profile wall seconds 旧 / 候选 | tuple复制 旧 / 候选 | deepcopy 旧 / 候选 | atomic分派 旧 / 候选 |
+|---|---:|---:|---:|---:|
+| static | 0.009907600 / 0.010200700 | 0 / 0 | 0 / 0 | 0 / 0 |
+| 状态重规划 | 0.016026900 / 0.010067200 | 286 / 74 | 3132 / 2645 | 890 / 638 |
+| 任务重规划 | 0.019327200 / 0.013172301 | 294 / 88 | 3157 / 2685 | 895 / 649 |
+
+dict分别保持0/352/352，list保持0/43/45，Dijkstra核心调用保持3/3/7。
+两次重规划记录更快，初始规划略慢；不同进程单次插桩不证明稳定或端到端加速，也不证明
+内存收益。TS准备及lexer冷构建仍在profile外，候选输出在
+`/tmp/ltl_kth_replan_endpoint_f8d367c`。本次未重跑七包、DDS、provider、整套benchmark、
+物理仿真、实机或Jazzy；第11.134节744项组合先于标量memo、SCC和本节修改。
+
+本次测试使用source后的WSL环境，未显式覆盖PATH/PYTHONPATH；实际命令为：
+
+```bash
+source /opt/ros/humble/setup.bash
+source /tmp/ltl_ros2_combo_ab45b9b/install/setup.bash
+cd /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2
+python3 -m pytest -q --junitxml=/tmp/ltl_replan_endpoint_f8d367c/pytest.xml \
+  ltl_automaton_planner_core/test/test_discrete_plan.py \
+  ltl_automaton_planner_core/test/test_ltl_planner.py \
+  ltl_automaton_planner_core/test/test_irl.py
+```
+
+独立定位probe的最终输出 `/tmp/ltl_replan_tuple_keys_f8d367c_run4` 绑定基线d748090源码。
+手工三状态图的旧memo有18项预置，canonical/inner tuple及initial/accept命中，
+等值异对象的succ目标、pred来源及Run key未显式预置；Python普通deepcopy仍返回这些
+不可变tuple原对象。本次只补充succ目标覆盖，未声称覆盖全部不可变对象。
+该probe先后遇到shell展开、自检、错误包名及TS tuple身份fixture错误；前两目录空，
+run3仅留下中间pstats，最终helper曾原地修正，未保存各失败源快照及独立stdout。
+这些工具失败按执行记录保留，不将空目录或中间pstats作为最终资格。
+
+`/tmp/ltl_replan_endpoint_publication_f8d367c/sha256_manifest.json` 冻结44份独立副本并
+逐一回读哈希/大小，含最终源码、85项XML/日志、静态状态、旧/新profile、定位及review
+源、协议、原始六对耗时和执行记录。旧61文件闭包保持。KTH原manifest按原字节保留，
+后来另存helper副本和补充manifest；补充执行回执来自实际工具结果的记录，未保存原始
+stdout文件，不将记录重标为原始日志。独立核对85项身份/状态、runtime/配置/模块字节、
+完整snapshot和pstats；没有重跑已完成阶段。前136节历史字节保持。
+
+
+### 11.138 三处 Core 优化后的七包组合验证（2026-10-08）
+
+资格源码 `803f28e58307268b4dc328154d195536225867f1` 覆盖第11.135–11.137节标量memo、SCC拓扑及邻接目标tuple修改。
+WSL Ubuntu-22.04-D、ROS2 Humble、Python3.10.12、NetworkX2.4及原生ltl2ba保持。
+全新 `/tmp/ltl_ros2_combo_803f28e` 七包构建与默认并行测试各一次、均exit0：
+
+```bash
+source /opt/ros/humble/setup.bash
+export PATH="/home/yuhling/.local/bin:$PATH"
+colcon --log-base /tmp/ltl_ros2_combo_803f28e/log build --executor sequential --base-paths /mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2 --build-base /tmp/ltl_ros2_combo_803f28e/build --install-base /tmp/ltl_ros2_combo_803f28e/install --symlink-install --packages-up-to ltl_automaton_core --cmake-args -DBUILD_TESTING=ON
+source /tmp/ltl_ros2_combo_803f28e/install/setup.bash
+colcon --log-base /tmp/ltl_ros2_combo_803f28e/log test --build-base /tmp/ltl_ros2_combo_803f28e/build --install-base /tmp/ltl_ros2_combo_803f28e/install --packages-select ltl_automaton_core ltl_automaton_msgs ltl_automaton_planner_core ltl_automaton_planner ltl_automaton_execution ltl_automaton_hil_mic ltl_automaton_std_transition_systems --return-code-on-test-failure
+colcon --log-base /tmp/ltl_ros2_combo_803f28e/query_log test-result --test-result-base /tmp/ltl_ros2_combo_803f28e/build --verbose
+```
+
+wrapper wall time：构建95.795641045秒、测试68.469351431秒。
+六份JUnit的tests/passed/skipped分别为msgs11/11/0、Core222/221/1、planner188/187/1、
+execution143/143/0、HIL131/130/1、standard TS51/50/1。合计 **746 = 742 passed +
+4既有copyright skip**，0 errors/failures；CTest wrapper另1项通过，实际查询747。
+
+执行前读取第11.134节冻结XML的744项身份，只收集discrete-plan/LTLPlanner两个文件，
+确认旧用例保持且恰新增hook顺序与None结构边两项；执行后全部746项身份与skip flags
+逐项一致，新两项均通过。138份Python/IDL/包构建文件与Git资格源码字节绑定；23个
+关键模块实际导入路径/哈希匹配，包括lexer、当前复制helper及离散搜索，生成消息来自
+本次新build。四个真实DDS符号场景、Studio、完整20次IRL margin更新及提交、HIL偏好
+提交、启动准备6项和overflow2项、payload准备6项均通过；20类明确要求的用例包含
+历史后继/闭合边、lexer、复制、custom key、hook及None结构边回归，全部未跳过。
+
+`verified_evidence/sha256_manifest.json` 冻结53份独立副本，包含执行前清单、
+build/test receipt、runtime、完整JUnit/CTest XML、日志、summary及实际helper/wrappers。
+独立逐一回读哈希/大小、全部746项身份/状态与20类用例，36份日志无未读取Future异常。
+5份stderr共4615字节，保留既有np.int与SelectableGroups依赖警告。此前组合53文件、
+标量memo46文件、SCC61文件及目标memo44文件闭包在执行前后保持；未将更早未重新核对的
+闭包重标为新执行。helper草稿的历史路径/新增计数在prepare前纠正，控制/runtime执行
+AST保持；prepare、build、runtime、test及audit均一次，没有重跑已完成阶段或改变验收。
+独立stderr读取的两次检查先后误包含msgs空日志、误用manifest大小字段；确认实际schema后，
+按summary列出的五个Python包读取并核对通过，msgs为0字节，未重跑构建或测试。
+
+发布只更新README与本记录，前137节全部历史字节和138份资格源码/构建文件保持。
+这是Humble符号级组合验证，不证明整体加速、内存收益或IRL科学效果；本轮未执行新性能
+profile、provider、整套benchmark、物理仿真、实机或Jazzy。各版本及局部计数不相加。
+
+
+### 11.139 前驱 key memo 候选评价与拒绝（2026-10-08）
+
+工作树基线 `67dd013a54929f7d40883eace0ea0c260ee5a22b`，生产Core仍为第11.138节资格源码。
+只读既有KTH profile显示完整deepcopy是主要重规划热点。单次tuple定位记录74次dispatch、
+56个唯一tuple；分类计数属于唯一对象。未标记的Product形tuple只支持来源推断，
+不能当作前驱key的直接id证明。候选只在原节点循环补充 `graph.predecessors(node)`
+及同一 `remember_node`，保持原类型限制、标量memo、边扫描和完整deepcopy。
+候选方法SHA256为 `4c3c984d28d98b4f1c395d4c13812616505d2363d6b848da52f865add3354859`，未写入生产。
+
+执行前冻结门槛：语义/隔离/hook/异常断言全部通过，tuple及total deepcopy调用严格减少、
+dict/list不变，六组交替纯复制的候选中位数不高于旧memo。WSL Ubuntu-22.04-D、Humble、
+Python3.10.12、NetworkX2.4、原生ltl2ba与KTH配置保持，beta=1000/gamma=10。
+评价单独新构造一次标准KTH static planner（36节点/72边），cold旧/候选对照及三条路径
+的复制计数完成。普通/旧/候选的deepcopy分别5187/2649/2601，tuple1150/74/50；
+旧/候选dict352、list43、atomic638均保持。计数用插桩和cProfile，不用其时间作速度结果。
+
+辅助失败均保留：最初定位的shell重定向失败在Python前，错误tuple handler签名的定位
+在复制时失败，修正helper另一次成功；初版评价在import前置失败，run2草稿未执行。
+root helper先在缩进匹配前置断言失败；修正后cold/计数已完成，但第一条纯旧memo复制后，
+错误比较回读对象与原pickle文件字节而中止，未落盘该次耗时及直接id归因。只做loads/dumps、
+不规划或复制的最小诊断也出现字节变化，故此辅助断言不能判断candidate语义。
+
+保留失败与三份pstats，仅续未完成阶段，未重构planner或重跑cold/计数。修正计时输入为同一
+已加载的固定实例，用该实例复制前后的完整pickle作不变性检查，未预热新pred View。
+成功续行固定六组12次纯复制，检查与序列化在计时区间外；计入前次失败的旧复制，
+实际共13次计时调用，不能称为全部原流程一次成功。每组旧/候选的完整pickle、输入不变、
+TS/Product内部edge alias、可变隔离通过；两次副本隔离、既有custom key、hook顺序与
+精确 `ValueError("custom node deepcopy failed")` 对照通过。未保存的id记录未恢复或伪造。
+
+修正后六组旧/候选复制中位数为 **0.0023533 / 0.00319085秒**，候选五组更慢。
+`median_not_slower=false`，其余三项资源门槛为true，最终 `accepted=false`。
+因此拒绝额外前驱扫描，不改变条件、不加跑，也不以调用减少宣称整体加速。
+结果只属于此固定KTH复制探针及修正后的辅助控制，不是新的七包测试或端到端重规划结果。
+本轮未运行测试、provider、完整benchmark、物理仿真或实机，生产代码保持。
+
+证据副本在 `/tmp/ltl_replan_predecessor_publication_67dd013`：原manifest42文件及
+补充manifest45项保留。原summary误述成功tuple定位的id未保存，追加更正说明
+56个id/label实际已在JSON中，缺失的是root run2前驱对应记录；原summary及manifest未改。
+补充manifest SHA256为 `01a5161180bd76f6bd32b94169de14e38810ab3ff2eada69b768875b792a1d96`。
+独立直接路径检查发现补充manifest使用虚拟frozen/metadata前缀，不能当作实际文件路径；
+另加 `canonical_manifest.json`，用实际相对路径绑定原42文件及四份metadata，46项回读
+哈希/大小通过，SHA256为 `1175af4777278224b37e8a37065a9e58074128c87956c33ebddc6db7e8d22e54`。
+最初shell工具回执与序列化诊断原stdout未另存文件，不将说明当作原始日志。最新803组合
+53文件本轮只读回读通过，未称作本轮执行前后核对；138份资格源码/构建文件及前138节
+历史字节保持。本次只发布README与本记录，不更新七包或各局部测试计数。
+
+### 11.140 节点属性标量 memo 的未完成对照（2026-10-09）
+
+基线为 `3ea98c182f88de7050989811ff8d11a79c260d0d`。复用已保存的 KTH planner
+快照 `warmed_planner.pkl`（SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`），
+不重新构建或规划。准备统计发现节点属性相对现有边标量 memo 新增4个对象id、120次
+出现：label key 6、unvisited value 42、buchi key 36、ts key 36；出现次数不是复制调用数。
+候选只扫描精确dict节点表及精确dict节点属性，用既有类型限制预置基础标量，仍完整
+deepcopy。候选方法SHA256为 `6fcd0969b79ff17073592e9ee81ed59b4ed55d8845b6db52177f94602bc7d669`，
+没有写入生产代码。
+
+执行前按本机 Python3.10 copy.py 更正资源预期：标量 memo 减少的是 atomic 分派，
+deepcopy函数入口及dict/list/tuple次数应保持。冻结条件为 atomic 减少、其余上述入口
+次数相同、六组交替纯复制的候选中位数不更慢，以及完整状态、alias、hook和隔离通过。
+没有观察候选结果后调整条件。准备使用了仓库内旧overlay，目标两模块仍从当前源Core
+导入且哈希匹配；后续评估改用第11.138节803组合overlay并校验Core实际导入路径。
+两份存在输入重载/字典控制或导入集合问题的未执行稿保留；修正前SHA转录少一位使
+前置guard拒绝，尚未修改文件或执行复制，失败源和修正源均保留。
+
+固定评估只执行一次，exit=1。第一条ordinary deepcopy已经完成，其原始pstats记录为
+deepcopy **5187**、atomic **3420**、tuple **1150**、dict **352**、list **43**，
+随后 `packed(source)==before and packed(clone)==before` 检查失败。此前实际实例的
+before为10661字节，SHA256 `b8487117c3e92ac20582ad5a82ec7594be0270651c8ff857127c8b09ec2920c4`。
+首次未分开记录两个子条件，也未保存after/clone字节，因此不能确定失败项或原因；
+不能将原始调用计数当作已通过语义检查。old/candidate profile、六组计时、后续
+custom/hook/mapping/独立性控制均未执行，没有候选调用数、中位数或接受结果。
+
+仅对未完成正确性阶段做一次额外ordinary复制诊断，没有重跑已完成profile。该新进程
+只加载一次同一快照，保存的before/after/clone均为10661字节，SHA256均为
+`4dd4d940eea0a1b71dfeee75aec5bc4a4b972218088ddc25a3a07b36cd4a6fe2`，
+pickletools反汇编diff为空。这次诊断未复现，且before SHA不同于首次实例，不能恢复
+首次失败字节或证明其原因，不归因于set顺序。本轮实际ordinary复制共两次，原失败
+保留；没有执行候选、计时、测试、provider、benchmark、物理仿真或实机。
+
+本轮结论为 **incomplete / not_adopted**，不判定候选性能通过或失败，不增加测试计数。
+生产保持，第11.138节746项组合资格保持；本轮只读核对其prepared记录中的138份
+源码/IDL/构建字节全部匹配，没有重跑七包，也不称作本轮执行前后核对。
+准备、两份未执行稿、失败pstats/日志、独立诊断和源码副本保存于
+`/tmp/ltl_replan_node_scalar_publication_3ea98c1`，按实际相对路径的manifest核对。
+原canonical manifest绑定40份副本，原summary误记两份root Temp源缺失；实际源位于
+明确的 `/mnt/c/Users/Yuhling/AppData/Local/Temp`，另补两份源及audit correction，原
+metadata保持。补充 `publication_manifest.json` 绑定47份实际文件，逐一回读size/SHA
+通过，SHA256为 `6290a4cda21d989e92b289300b12a7369eae1e8fdf77cfe325d3a93359faf072`。
+root前置失败的工具消息为标注转录，不冒充原始重定向日志；评估和诊断的原始日志保留。
+
+### 11.141 IRL 路径软距离的单次边视图复用（2026-10-09）
+
+基线为 `84c159a4d9c344aa7e2f2a89ffd9888813498ab0`。NetworkX 2.4 的普通
+DiGraph.edges 每次属性访问构造 OutEdgeView；原 `_path_soft_distance` 每条边访问一次。
+本次只在该函数内用局部 generator 惰性取得一次边视图，再按原 zip/islice 顺序查找
+soft_task_dist 并交给原 sum 累加。没有跨调用缓存或路径复制；空/单节点路径仍不访问
+边视图，下次调用读取当前图。其余 IRL AST 保持，示范选择、margin、β 更新、步长、
+最多20次迭代及停止规则不变。完整 irl.py SHA256 从
+`e1dcbdb08cb86dc4071f9bf69cb77d441ba37ba059b5fb1e2528f81f15eea263` 变为
+`d53a06d1eced93a76f4437ba003f17e8e1ceca5a9a4a2c55fea3f33b1329e2c8`。
+冻结候选函数301字节，SHA256为
+`aaf727ddc42e0794a92128ed2814ef4dc984d0d4637f6d2f1fbbd6de134c605c`。
+
+带访问计数的探针确认0/1/2/128边路径的旧/新 EdgeView 访问为0/0、1/1、2/1、128/1。
+重复边、自环、浮点累加顺序、缺边/缺 soft_task_dist 的精确异常类型与args、generator
+消耗顺序、下一次调用修改边值以及输入图保持对照通过。首次修改值控制误用同一图，
+使旧/新得到不同起始数据；失败结果和日志保留，修正为各自新图后通过。修正时完整重复
+了带计数计时，两轮合计14400 timed calls；首版helper源已覆盖而无法补回，当前helper
+仅绑定修正轮，不将两轮视为同一源码资格。两轮计时包含计数包装，不用于普通图速度声明。
+
+为排除计数包装，仅新增一次精确普通 DiGraph 的纯批次计时：1/2/128边，各六组交替
+old/candidate，每批200次，共7200 timed calls。计时内只有批次循环与函数调用，不含
+计数器、profiler、断言、快照或IO；每批结束后验证结果和图不变。执行前固定条件为
+前述语义/资源通过且128边候选中位数不更慢；短路径只报告，不据结果调整门槛。
+
+| 边数 | 旧/新批次中位数（ms，每200次调用） | 候选更慢的组数 |
+|---:|---:|---:|
+| 1 | 0.4475 / 0.4513 | 2/6 |
+| 2 | 0.7048 / 0.4974 | 0/6 |
+| 128 | 38.1612495 / 9.68495 | 0/6 |
+
+普通图探针 accepted=true，采用该局部候选。短路径可能增加开销，结果只属于合成路径
+微对照，不证明稳定、整套规划/重规划或完整 IRL 加速，也不证明内存或科学效果。
+
+同 Humble、Python 3.10 与第11.138节803 overlay，前置当前源Core及原生ltl2ba PATH，
+实际导入 irl.py 与新哈希匹配。discrete-plan、LTLPlanner、IRL 三份既有测试只运行一次：
+**85 passed，0 skip/error/failure**，2项既有 np.int 警告。JUnit逐项回读85个testcase，
+`test_learning_keeps_all_twenty_margin_updates_on_one_private_product` 通过，覆盖完整20步
+margin、β序列及源边不变；既有复制、alias、hook和隔离检查也通过。compileall、
+ament_flake8 `--linelength 99`、ament_pep257 通过。首版shell的未定义环境变量、错误
+lint参数与未正确加载环境的启动失败源/命令和日志保留，修正仅续未执行检查，没有重跑
+已通过pytest或compile。该新 IRL 字节没有新的七包组合资格；第11.138节746项仍绑定
+803f28e，不能当作新字节的组合验证或与85项相加。
+
+复制失败的独立续查未执行节点memo候选：只读清单发现三个多元素set，分别位于
+Product.graph.accept、Product.graph.accept_with_cycle 与 Product.graph.buchi.graph.symbols。
+copy.py 的set reduce及pickle迭代路径只能说明序列化可能受迭代顺序影响，不能证明首次
+失败原因。另一次明确 PYTHONHASHSEED=0 的ordinary复制完成后，后处理因把Product
+集合误定位到Büchi而KeyError；保存的before/after/clone实际字节相同，均10661字节，SHA256
+`421d0935109423b9e914da7c5bfeae081732a7d19342fed097ce630d7487a858`。
+原helper与字节保留，但没有成功result.json，原工具回执未另存为重定向日志。加上第11.140
+节两次，该节点memo评估及诊断的ordinary复制累计三次；两次额外诊断均未复现，首次原因仍unknown，节点memo
+仍incomplete / not_adopted，没有候选调用数或计时，不放宽原pickle门槛。
+
+已有probe、纯批次结果、runner/命令、日志/XML、源/测试副本及复制续查按实际相对路径
+冻结于 `/tmp/ltl_irl_path_view_publication_84c159a`。manifest绑定80份文件，逐一回读
+size/SHA256通过，manifest SHA256为
+`a31096c9ad42db1be5777856f8ef02d52921101ca4ea1258a8ed8066a07085d8`。
+完整env dump不在冻结范围，保留命令和实际模块身份。前140节393247字节保持，旧SHA256为
+`4486e071d816a1c6b91577a67f51e3d676e78496b717fae07fe536593d39e450`。
+本轮未重跑七包、DDS、provider、完整benchmark、物理仿真、实机或Jazzy。
+
+### 11.142 完整 Product 构图的 TS 来源邻接复用（2026-10-09）
+
+基线为 `7321c75945d4f46e18c21cd3c8648018754fc11d`。只读旧 KTH pstats 时，
+discrete-plan、Product、LTLPlanner 三份源码与当时当前字节匹配；这是历史profile检查，
+没有重跑其阶段或将旧耗时当作本轮实测。legacy build_full_margin 未在当前规划/IRL
+链路调用，本轮没有优化该方法。默认 build_full 为每个 TS successor 重取来源邻接；
+现在通过一个局部 generator 惰性取得一次，仍用 tuple 保存同序 successor/原edge dict。
+空邻接零读取，下次重建重新读取；构图时 TS 邻接保持稳定，不保证自定义带副作用
+__getitem__ 的调用次数不变。guard 次序、source-label、节点/边插入顺序、β成本和 SCC
+保持，只有 build_full 的 AST 改变。完整 product.py SHA256 从
+`6e99f3f906f0402ddf355208420aa5005aa69aee2ed097bebde02164625c53d5` 变为
+`78cb32ba52e4b52fca5fa0679b273e0ea7fef7c781da4946ae18f6fcf5641060`。
+
+N分支往返 TS 含N+1节点和2N边，单节点初始/接受 Büchi 使用 allow guard。带计数
+控制的N=0/1/2/128旧/新 TS.__getitem__ 次数为0/0、2/2、4/3、256/129。
+有序节点/边、成本、接受集合、successor次序、删除/新增/更新后的重建及精确
+KeyError('weight')对照通过。原快照未覆盖 Product.possible_states 属性和深层输入值；
+独立补充检查确认该属性值等于initial且为独立set，mutable action内容/id及原TS action
+在Product内的引用保持，label的frozenset、TS edge dict id、guard primitive字段/id均
+不变。缺weight后两侧均只有source/q0节点、无边、同等接受集合且无possible_states属性。
+
+普通精确 DiGraph 纯批次仅执行一次：N=1/2/128各六组交替，每批20次完整build_full
+（含SCC），合计720 timed builds。计时内不含计数器、profiler、断言、快照或IO；
+每批之后检查完整有序结果与输入。执行前冻结条件为语义/资源通过且N=128候选中位数
+不更慢；短案例只报告，没有据结果修改门槛。
+
+| 分支N | 旧/新中位数（ms，每20次完整构图） | 候选更慢组数 |
+|---:|---:|---:|
+| 1 | 0.72975 / 0.72155 | 2/6 |
+| 2 | 0.99990 / 1.00470 | 3/6 |
+| 128 | 38.4715005 / 37.45740 | 1/6 |
+
+gate=true，采用局部候选；收益幅度小且有波动，不证明稳定或端到端加速、内存或科学效果。
+前置SHA常量缺一位在构图前拒绝；第一轮语义控制因独立guard身份比较及空alias误判失败，
+修正后通过。两轮语义控制共28次build；第一轮同名semantic/result JSON被后续覆盖，
+未保存原JSON，只保留原helper及stdout/stderr，不能宣称失败原JSON闭包完整。
+首版补充执行4次build后因set不能JSON序列化退出，结果未保存。追加冻结amendment只改
+set/frozenset记录器和输出名，checks/gate/fixture保持，再执行4次，补充共8次build；
+没有重跑720次计时。补充gate=true；外层退出传播转义错误返回1，Python独立OS退出码
+未捕获，0只能从源代码/结果推断，不将其记作独立实测成功退出。原回执未另存原始日志。
+
+同Humble/Python3.10、803 overlay与当前源Core优先路径，Product/Planner两份既有测试
+只执行一次：**62 passed，0 skip/error/failure**，2项既有np.int警告；JUnit62个testcase
+及重建刷新/分支成本用例逐项回读通过。实际四个Core模块路径/哈希匹配，compileall、
+ament_flake8 --linelength 99与ament_pep257均rc0。首版runner因已冻结目录存在而前置
+拒绝，未启动测试，其源保留但原stdout/stderr未另存；修正版完成唯一实际验证。
+未修改tests或其他生产方法；62项不与第11.141节85项或旧七包746项相加，旧组合资格
+仍绑定803f28e，未覆盖新的Product/IRL字节。本轮未重跑七包、DDS、KTH阶段/profile、
+复制、provider、完整benchmark、物理仿真、实机或Jazzy。
+
+现存probe、补充、源、命令、日志/XML及只读profile检查冻结于
+`/tmp/ltl_product_source_edges_publication_7321c75`。按实际相对路径的manifest绑定74文件，
+回读size/SHA256通过，manifest SHA256为
+`337eb3d135611c9aba7aec11103e103afe2134fcf336c17ab009e98dccae60a9`。
+缺失的首轮JSON及工具日志明确排除，不重建冒充原件。前141节398156字节保持，旧SHA256为
+`9b2c91e90bdbf23615689ede631505324af8cd4cbde8dd3af2f4cb385ef4b7e8`。
+
+### 11.143 可达 SCC 邻接视图绑定候选未纳入（2026-10-09）
+
+本轮只记录一个离散规划局部候选，基线为 HEAD `d49fedd0b01897f71a4a91eb78fafe6cc459a0ce`。
+当前生产 `discrete_plan.py` SHA256 为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`；
+冻结候选完整文件 SHA256 为
+`834b922b3c0080a61cc8c8b7afe7fad23e23f3fdcfc20fcbacf5cd283f7e513a`。
+候选仅在 `dijkstra_plan_networkX` 的 SCC 拓扑生成前绑定一次 `product.adj`，其余生产字节未改。
+
+语义/资源阶段共 9 个案例、20 次搜索调用，全部通过。标准 N=0/1/2/128 的 old/candidate adjacency getter 读取分别为 `1/1`、`2/1`、`3/1`、`129/1`；3 个 early-return 案例均为 `0/0`。完整 Run、TS/Büchi/Product 深层 primitive 内容与顶层属性 value 身份、`possible_states`、输入不变性、可达结构中的 `None` 边、缺省 weight、zero-cost tie，以及跨调用删改后的新输出均对照通过。
+
+纯 timing 只使用精确普通 `networkx.DiGraph`，每个 N 做 6 组交替、每组每侧 20 次完整搜索，共 720 次 timed calls；计时内没有 counter、profile、断言或 IO，每组只比较最后一次 timed Run，无额外搜索。
+
+| 分支 N | 原/候选中位数（ms，每组20次） | 候选更慢组数 |
+|---:|---:|---:|
+| 1 | 1.05060 / 1.00015 | 0/6 |
+| 2 | 1.19140 / 1.19070 | 3/6 |
+| 128 | 37.769801 / 39.987201 | 4/6 |
+
+`semantic_gate=true`、`timing_gate=true`，但 N=128 候选中位数更慢，原预先门槛未通过，最终 `gate=false`。总调用数为 semantic 20 + timed 720 = 740；helper 状态为 `completed`，traceback 为 null，实际 helper rc 为 3。资源减少不作为加速结论，未修改 gate，也未补采样。
+
+运行绑定为 Humble + 803 overlay、source Core 优先路径和 NetworkX 2.4；4 个 Core 模块实际导入路径均为当前 source Core，冻结清单中的 4 个源码与 3 个测试输入哈希匹配。原 `helper.py` 与 `helper_fix1.py` 仅冻结审查、未执行；本轮只执行 `helper_fix2.py` 一次。未测 malformed adjacency 的精确异常，也不保证 custom 动态 getter 的副作用次数语义；结论限于稳定标准 DiGraph。
+
+未修改生产或测试，用于三份既有核心测试的单个 runner 未执行；没有新增 pytest、compile、lint 或七包组合资格，也未重跑 DDS、KTH 阶段/profile、复制、provider、完整 benchmark、仿真、实机或 Jazzy。旧七包资格仍绑定 803f28e，不包含后续 IRL/Product 字节，各局部与组合计数不相加。
+manifest 绑定 26 份实际文件，逐一回读 size/SHA256 通过，位于 `/tmp/ltl_dp_scc_adj_publication_d49fedd`；manifest SHA256 为 `dffb013e2696b92b74f413f6c72f5adcdf703d0fae0a33266adb9c7436d7cb86`。
+原 validation 前 402656 bytes 保持不变，旧 SHA256 为 `9ce3a73f77b2976c9fe20bb4ad366c10d42d720b33458655f74672e2b8933209`。
+
+### 11.144 节点属性标量遍历融合候选的前置复制停止（2026-10-09）
+
+基线为 `bf32f2907f171a99ca38e6fbfacc15a72a142996`，生产 `ltl_planner.py` SHA256
+仍为 `83efed9c6bbd4117edf86be592b5db52e52c790a0a32e7075625afa86a67f6fd`。
+新候选完整文件 SHA256 为 `2b47a408f1268a3b99edb15d4760a8350f82fee851977d84675194fa42a61759`：
+只对精确 DiGraph/TSModel/ProdAut 与精确 dict 节点表，将节点属性基础标量收集并入
+现有节点遍历；自定义图/节点表保留原迭代，节点属性 dict 子类不扫描。边处理与完整
+deepcopy 保持。这是新候选，不替代第11.140节独立扫描候选或其缺失的首次失败副本。
+
+执行前冻结原门槛：old profile 完整字节/隔离通过后才调用候选；atomic dispatch 严格
+减少、deepcopy 总数与 dict/list/tuple 次数不变；6类控制各3种操作，全部通过后才做
+六组交替纯计时，并要求候选中位数不更慢。上限32次复制，没有选定或设置 HASHSEED。
+复用原 `warmed_planner.pkl`，SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`；
+没有重新构建或规划 KTH，没有普通 deepcopy profile。
+
+原 helper 与 fix1 仅准备、未执行。fix2 helper 一次在 snapshot 加载前停止，所有复制
+调用为0：协议中的 copy.py SHA 只有63位，末位5漏写。修订单独冻结为 fix3，校验值为
+`27dcfc53a4b9d4fbc3d90c74e549eb6eca9301524d6d2fbff9a6589cf51b6fd5`；仅修正该值
+及新输出名称，绑定全部 fix2 失败产物，候选、门槛、控制和计时协议保持。直接执行
+fix2 shell 曾因无执行权限停止、helper未启动，其工具回执未单独归档；随后使用 bash。
+
+fix3 helper 只执行一次、snapshot 加载一次；Humble + 803 overlay、Python3.10.12、
+NetworkX2.4、5个 Core source 导入与8个源码/测试输入绑定通过，HASHSEED 实际为 null。
+仅完成现有生产方法一次 cProfile copy：deepcopy/atomic/tuple/dict/list 调用分别为
+2649/638/74/352/43。源 before、after 及 after-check 完全相等，均为10661 bytes、SHA256
+`dda202fb7a0aa7d6962bdbd525f27926e6a41f417dd60467121a57a10a171bc1`；clone 与 after-check
+副本均为10661 bytes、SHA256 `f3b7461b5cb6187bd15e0ece3cc05e881c37703c31b4e98e7a5a50abf8592826`。
+完整 raw pickle 和 pstats 在断言之前保存。check_clone 的别名/隔离断言完成，最后
+`packed(clone) == packed(source)` 失败，状态为 `stopped_old_raw_gate`、gate=false。
+candidate、18项控制及12次计时均未执行。runner记录 fix2 rc=1、fix3 rc=3；fix3工具
+wrapper exit=1且输出为空，转录明确标注，未声称独立捕获 helper OS exit。
+
+只读 pickletools 检查不反序列化或重写 pickle，也不再调用复制。两侧4517个opcode，
+差异严格限于 EMPTY_SET/MEMOIZE/MARK 后的 `[3469,3480)` 字节区间、ADDITEMS之前：
+source引用顺序为229/228/340/230，clone为340/229/228/230，全部引用及次数保持，区间外
+所有字节完全相同。本次 raw 失败归因为一个 set 的成员输出顺序差异；不据此推断
+第11.140节缺失副本的原因，也未放宽或重跑原门槛。首个诊断因目录已存在而失败，
+原helper/日志保留；后续按ADDITEMS分段的报告包含非set指令，root另做精确边界检查。
+
+本候选仍为 incomplete / not_adopted，无候选性能或语义资格；生产和测试未修改，
+准备的节点hook永久测试未执行，未新增 pytest/compile/lint 或七包资格，也未运行
+DDS、provider、完整benchmark、仿真、实机或Jazzy。70份原件副本逐一回读size/SHA256，
+冻结于 `/tmp/ltl_replan_node_fused_publication_bf32f29`，manifest SHA256为
+`2d04c88bf977a7d57f1afea05a1750ca19e8d67f5123ee113cc1f406f25c2a08`。
+本节之前405580 bytes原文保持，旧SHA256为
+`a50fc911cc530b4f702421be75a73c51fe6e933428c49c42655f7bcd0c5d2b18`。
+
+### 11.145 重规划嵌套 tuple 的直接类型检查（2026-10-09）
+
+基线为 `2f327a18d615b15f39e25d3cc7feda48c73b4734`。当前源码匹配的历史复制 profile
+用于定位内层生成器开销，没有重跑其 KTH 阶段。仅在 `_copy_for_replanning` 内部的
+`is_immutable_node` 将 `all(type(inner) in (str, int) for inner in item)` 换为直接 for
+短路循环；精确 tuple/str/int 类型、两级深度、空 tuple 与原检查顺序保持，bool和各
+子类仍走普通复制。imports、memo、节点/边遍历及最后完整 deepcopy 字节保持；完整
+`ltl_planner.py` SHA256 从 `83efed9c6bbd4117edf86be592b5db52e52c790a0a32e7075625afa86a67f6fd`
+变为 `a0ba43e4ff046bed8d9b969e7be858f837a24d1bebb6654c12ef956b88bddd2d`。
+
+原 helper 与 fix1 仅准备、未执行。原 run_probe.sh 误存为 Python writer，执行前修正
+为独立 Bash runner；补齐内层空tuple/整数及非法leaf控制并统一协议列表后，冻结fix2。
+24类手算输入各调用old/new一次，预期布尔结果、类型结构指纹均一致；含三层嵌套、
+bool/float/None、str/int/tuple子类、首尾非法leaf及禁止迭代的tuple子类。资源各profile
+16项嵌套tuple一次，实际predicate调用16/16，cProfile genexpr调用96/0；这是生成器
+恢复调用计数，不是完整复制次数。执行前门槛为控制/资源通过且嵌套输入候选中位数
+不更慢；平坦输入只报告，未据结果改变条件。
+
+纯计时每侧每批16项tuple×1000次遍历，flat/nested分别六组交替，共384000次predicate
+调用；计时只有循环和函数调用，profile、计数器、断言与IO在外。每组原始时间保留：
+
+| 输入 | 旧/新中位数（ms，每批16000次检查） | 候选更慢组数 |
+|---|---:|---:|
+| flat TS tuple | 3.65710 / 3.69655 | 3/6 |
+| nested Product tuple | 17.17190 / 9.85425 | 0/6 |
+
+fix2 helper/runner只执行一次、rc=0、stderr为空，gate=true；controls48次与profile32次
+另计。此探针没有调用planner或deepcopy，没有重新构建、规划或加载 KTH；继承HASHSEED
+为null。结果只说明该嵌套类型检查的局部耗时，不证明完整复制、重规划、内存或整套加速。
+
+应用精确候选后，Humble + 803 overlay、Python3.10.12、NetworkX2.4、4个Core模块实际
+source导入绑定通过。三份既有 discrete-plan/LTLPlanner/IRL 测试只运行一次，85 passed、
+0skip/error/failure，包含完整复制/别名隔离、custom key与hook顺序及完整20步margin/β
+序列回归。compile、flake8（99列）、pep257各一次rc=0；保留2个既有np.int警告。
+没有新增测试文件或新七包资格，未运行新KTH copy/profile、DDS、provider、完整benchmark、
+物理仿真、实机或Jazzy。旧七包仍绑定803f28e；各局部与组合计数独立。第11.140/11.144节
+节点memo候选及失败门槛保持，不把本次谓词优化视为那些候选已完成。
+
+66份实际文件冻结并逐一回读size/SHA256，位于 `/tmp/ltl_replan_tuple_check_publication_2f327a1`；
+manifest SHA256为 `2ed9208ab865bab28e5590305765b3baceaeefb386ed6f399572e1a58dc7dfd2`。
+本节之前409506 bytes原文保持，旧SHA256为
+`45c0cf640a5d887667306090e4aa08865cc40e75f54195407d0984c589943fdd`。
+
+### 11.146 完整搜索共享 SCC 带权图复用候选未采用（2026-10-09）
+
+本轮基线为 HEAD `7614d9dc6bfad0ecda1b1407f652e24f62e94425`，原始
+`discrete_plan.py` SHA256 为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`，
+冻结候选 SHA256 为
+`8ccae8f851a8803d9cc95514227ae201d6a4c618068f4465eb94be2198bd437f`。
+候选只对 exact `DiGraph`/`ProdAut` 的多目标 SCC 建立一次临时带权 `DiGraph`，
+读取 exact edge dict 和 native `int/float/bool/None` 权重；custom graph、MultiDiGraph、
+edge-dict subclass 和 custom numeric weight 回退原 `component_weight` 路径。临时图只在
+单次调用内存在，会增加额外空间成本，不跨调用缓存，也不修改源图。历史
+`warmed_planner.pkl` SHA256 为
+`32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`，仅作为历史 KTH
+输入；本轮执行该保存图上的完整搜索，没有重跑 KTH 构图、翻译或三阶段场景。
+
+独立结构 inventory 成功执行一次：36节点、72边、21个 SCC（一个16节点 SCC和20个
+singleton）；两个 `accept_with_cycle` 目标共享该16节点 SCC。首次 inventory 的输出目录
+创建失败证据保留，没有覆盖后续 inventory。
+
+原 helper/fix1 仅准备。fix2 首次实际执行完成32次 semantic control，随后在
+snapshot/profile/timing 前停止；原因是 capture 先 pickle、后首次读取 NetworkX
+`nodes`/`NodeView` 缓存，导致 raw bytes 不同。完整 pickle、日志和失败产物保留，
+root 的 pickletools 只读诊断没有新增搜索。fix3 在保存比较前先完成签名初始化，
+保留严格 raw 相等条件，不删除缓存或归一化 pickle；候选、样本与时间门槛保持。执行一次：
+32 semantic、2 profile、720 timed，合计754次；snapshot加载1次。15个语义控制、手算
+成本、路线、动作引用、输入/source检查全部通过，跨调用权重和边修改使总成本
+`31→22`。
+
+profile 中 old/candidate 的 `component_weight` 调用为 `4096→0`，但本机 weighted
+实现的 native lambda 调用为 `64→4160`；两种权重回调合计均为4160次。两侧均为
+64 loop wrapper、1 prefix boundary，多源函数总调用65，完整 Run 和 source 检查通过。
+
+计时采用 N=1、N=64 和历史 KTH 图，各6组交替、每侧每组20次完整 kernel；计时包含
+临时图、SCC 和路径恢复，只有一轮720次，无重跑。原始 ns 已保存：
+
+| fixture | old median / candidate median | candidate slower |
+|---|---:|---:|
+| N=1 | 0.651150 / 0.677850 ms | 3/6 |
+| N=64 | 73.269250 / 77.385650 ms | 6/6 |
+| KTH | 5.934200 / 7.536700 ms | 6/6 |
+
+`source_raw=true`、`source_signature=true`。预设 N=64 与 KTH 候选中位数不慢门槛未通过，
+因此 `gate=false`，评估完成，结论为 `not_adopted`。fix2 的32次与
+fix3的754次分开计数；累计搜索调用为786，但不合并为754的资格分母。wrapper工具
+exit为1，runner rc 分别为 fix2=`2`、fix3=`4`，均独立保留。
+
+本轮没有生产或测试修改，未重跑现有85项核心测试、compile、lint、七包重建、翻译、
+provider、DDS、仿真或实机。312份证据副本逐项回读size/SHA256一致，冻结发布目录为
+`/tmp/ltl_dp_shared_scc_publication_7614d9d`，manifest SHA256 为
+`414f75a6b47749bf32a07f3916fe7436d2ec6009fed15065cc2382e7920bdb64`。
+本节之前412770 bytes原文保持，旧SHA256为
+`49589f9c4b3e40252c10a05888f043af395237a48b7a6fb462a84936af871288`。
+
+### 11.147 完整搜索闭合 SCC 原生权重复用候选未采用（2026-10-09）
+
+本轮基线 HEAD 为 `02d8a494fa559402b5c401024f3aa54447947c34`；原始
+`discrete_plan.py` SHA256 仍为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`，
+独立候选 SHA256 为
+`4748797f89bc3e8fd9154a3388506e99815e02ebadc60666e492f428c60d768d`。
+候选不建立额外带权图或预扫描：第一次受限 suffix Dijkstra 若覆盖完整 SCC，且扫描
+中未发现任何分量外边，才允许该分量后续接受目标使用原 Product 的 `weight="weight"`。
+仅 exact `DiGraph`/`ProdAut` 可用；custom graph/MultiDiGraph 保持原 callback。内部
+None 隐藏边可存在，但部分覆盖不能认证闭合；即使 None 出口也阻止复用。此证明依赖
+单次搜索期间图和权重稳定，目标集合只在本次调用存在，下一次重新检查。
+
+独立结构 inventory 只执行一次 snapshot 加载和一次 SCC 枚举，没有 planner 搜索。
+历史图36节点、72边、21个 SCC；两个接受环目标所在分量为16节点、31条内部边、
+0条出口，输入 pickle 前后原始字节相等。历史 snapshot SHA256 为
+`32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`；
+后续探针另加载该 snapshot 一次，只在保存图上完整搜索，没有新构图、翻译或 KTH 三阶段运行。
+
+原 helper/fix1 只准备，执行前补齐定义、实际导入路径和 runner rc/exit 传播；原稿保留。
+fix2 首次实际执行36次语义调用后停止，profile/timing/snapshot 加载均为0：辅助断言
+错误地要求内部隐藏边场景始终使用 callback，而路径、动作、手算代价及源图已相等。
+fix3 只观察既有搜索返回的节点数，按完整覆盖条件检查路线，并纠正协议中的旧文件名和
+fallback 标签；候选、输入、严格 source/Run 检查、样本和时间门槛保持。修正后该场景
+实际为先 callback 覆盖1节点，再 callback 覆盖4节点，最后两次 native 各覆盖4节点。
+
+fix3 仅执行一次，17个场景全部通过：36 semantic、2 profile、720 timed，合计758次；
+含默认权重、None 内部边/出口、零成本并列、Fraction/custom numeric、custom edge dict、
+custom graph/MultiDiGraph、显式与不连通起点、无接受目标及跨调用修改。跨调用修改的
+总成本仍为 `31→22`。完整 Run 所有字段、代价类型、动作引用及源图内容/身份/raw 检查通过。
+Humble + 803 overlay 下实际导入绑定当前源码；Python3.10.12、NetworkX2.4，HASHSEED 未设置。
+
+N64 profile 的 old/candidate `component_weight` 调用为 `4096→64`，native lambda 为
+`64→4096`，总权重回调仍为4160。两侧均64次 suffix、1次 prefix，多源函数总调用65；
+profile 的完整 Run 与源图检查通过。回调类型变化不等于搜索次数减少。
+
+各输入固定6组交替，每侧每组20次完整 kernel；计时包括 SCC、闭合确认、路径恢复和
+Run 构造，计数/序列化/断言/IO在计时外。唯一一轮720次原始 ns 及每组 Run/source 检查保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N=1 | 0.768100 / 0.796100 ms | 4/6 |
+| N=64 | 87.676750 / 86.743200 ms | 2/6 |
+| KTH 保存图 | 7.072750 / 7.121600 ms | 4/6 |
+
+每组路径与源图保持；最终 `source_raw=true`、`source_signature=true`。预设采用条件为
+N64 和 KTH 候选中位数均不更慢，N1只报告；KTH 未通过，故 `gate=false`、`not_adopted`。
+没有补采样或修改门槛。fix2 的36次与 fix3 的758次独立计数；wrapper工具 exit 均为1，
+runner rc 为 fix2=`2`、fix3=`4`。fix3 stderr 中六条无接受运行消息对应既定负例，原文保留。
+
+本轮仅发布 README/验证记录，没有生产或测试修改，未重跑现有85项核心测试、compile、
+lint或七包组合；未运行 provider、DDS、benchmark、仿真、实机或Jazzy。此前资格与
+未采用候选的结论保持，采用优化数量仍为16项。
+352份实际证据副本逐项独立回读原件/副本size与SHA256一致，冻结目录为
+`/tmp/ltl_dp_sink_reuse_publication_02d8a49`，manifest SHA256 为
+`e18ca9afc4c2af5e1c72d2769b524b72530995ddb216a15232f2ddb292da86d1`。
+本节之前416280 bytes原文保持，旧SHA256为
+`3553205de47c8390f80a5a75b950fd04c9e3b7069369d9cf6f0f302b0af33982`。
+
+### 11.148 闭环代价界裁剪 suffix 搜索候选未采用（2026-10-09）
+
+本轮基线 HEAD 为 `534e3630d1eb3232c5c184ce96f2aae245843597`；原始
+`discrete_plan.py` SHA256 为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`，
+独立候选 SHA256 为
+`7ace47a41fd90b6d2ff6cdea929a12323733fdf8fb8c3677e65d09f375fa4c99`。
+先只读取此前 N64 pstats 和结构 inventory；未新增搜索或构图。保存 KTH 图没有
+self-loop，两个接受目标也没有可用的直接二边闭环界，故没有执行这些专用候选。
+
+本候选在原有可达拓扑扫描中检查标准 DiGraph/ProdAut、dict factories、exact dict 边
+属性及非负 native int/float/bool 权重。权重须不超过 `(1<<53)//(2*Vr)`，None 隐藏边
+保持。符合条件时，suffix Dijkstra 用已找到的真实闭环代价作为搜索界；仅跳过严格大于
+该界的节点或松弛，保留整个同成本层及原 incoming predecessor 顺序。前缀、目标顺序、
+目标函数及紧路径恢复保持；单次查询期间图与权重须稳定。Fraction、自定义图/边/数值、
+MultiDiGraph、负权重和过大数值沿用原 callback 搜索，不转为浮点。
+原始 arithmetic draft 只准备未执行：mixed int/float 可能把 `2**53+1` 向下舍入，
+因此在执行前改用上述精确整数界，保留未执行原稿。
+
+helper/fix1 只静态准备，执行前修正同图输入、异常路由记录、计数与 runner 展开；
+fix2 首次实际执行到 Fraction 后停止：14 semantic、0 profile、0 timed、0 snapshot。
+旧/候选均返回精确 `Fraction(40,1)`，完整 Run、source 与 route 已通过；辅助手算预期
+仍写为整数40，导致编码后的类型比较失败。fix3 只把该预期改为 `Fraction(40,1)`，
+使用独立输出目录；候选、输入、样本、严格原始字节检查和时间门槛保持。失败原件保留。
+
+fix3 只执行一次：27 regular 场景及跨调用修改共58 semantic、4 profile、960 timed，
+合计1022次，snapshot 加载1次。默认/None 权重、零成本同层、较便宜二元环、浮点、bool、
+Fraction/custom 容器、显式/不连通起点、无接受目标、大整数混算异常及 γ=0/Fraction
+全部通过。两类混算保留原 OverflowError/ValueError 类型与 args；跨调用成本仍为31→22。
+58次语义及4次 profile 的完整 Run/代价类型/动作引用与源图内容、身份、raw 检查通过；
+960次计时按每侧每批记录最后一次完整 Run，所有批次 Run/source 检查通过。
+实际导入绑定当前源码；Humble + 803 overlay、Python3.10.12、NetworkX2.4，HASHSEED 未设置。
+
+ring64 profile：component_weight `4096→0`、native lambda `64→64`；原 legacy suffix64
+改为 bounded helper64，返回节点总数仍4096。bounded64：component_weight `65→0`、
+native lambda `65→65`，suffix 搜索仍1次，返回节点数 `64→1`。
+NetworkX multi_source 函数调用分别 `65→1`、`2→1`，是路由改变，不能当作实际搜索次数下降。
+
+每种输入固定6组交替，每侧每组20次完整 kernel，包含安全扫描、SCC、搜索、恢复及
+Run 构造；profile、断言、计数、序列化和IO在计时外。唯一960次计时及全部原始 ns 保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1 | 0.7538505 / 0.8198500 ms | 6/6 |
+| N64ring | 78.5874725 / 101.1298285 ms | 6/6 |
+| N64bounded | 8.6744520 / 8.8159530 ms | 5/6 |
+| KTH | 6.7552520 / 7.3104020 ms | 5/6 |
+
+最终 KTH raw/内容/身份检查通过；预设 N64ring、N64bounded、KTH 中位数均不得更慢，
+三项均未通过，故 `gate=false`、`not_adopted`。N1只报告。没有补采样、改门槛或应用候选。
+fix2 的14次与 fix3 的1022次分别计数，外层 WSL 工具 exit 均为1，runner rc 分别2、4。
+fix3 stderr 六条无接受运行消息对应预定负例，原文保留。
+
+本轮只发布 README/验证记录，没有生产或测试修改；未重跑85项核心测试、compile、
+lint或七包组合，未运行 provider、DDS、benchmark、新KTH三阶段、仿真、实机或Jazzy。
+此前局部与803f28e七包资格保持，采用优化数量仍为16项。
+初次归档漏收结构 inventory，原归档保留；最终 fix1 补齐，不改变实际执行记录。
+443份证据副本独立回读原件与副本，共886次size/SHA256检查一致；冻结目录为
+`/tmp/ltl_dp_closing_frontier_publication_534e363_fix1`，manifest SHA256 为
+`98e6ae5eae9560641c420ce6484f116df8c1d42b03e8104485b0353599f836a7`。
+本节之前420704 bytes原文保持，旧SHA256为
+`c1815845efcc8c87c06f4b53c383392199700683a9f98fe24f3ffebd63460de3`。
+
+### 11.149 Run 输出阶段的 TS 邻接复用（2026-10-09）
+
+对照基线为 `3c278b19cebd8bb6cb523157321da830dd96b7c3`，旧 `product.py` SHA256 为
+`78cb32ba52e4b52fca5fa0679b273e0ea7fef7c781da4946ae18f6fcf5641060`。
+只读已有 N64 pstats 后，定位到 `ProdAut_Run.plan_output` 的逐边 Graph/AtlasView 查询；
+该阶段约占那次完整 kernel profile 的2.3%，不是主要搜索耗时。没有新增探索搜索或构图。
+
+本次仅在 `plan_output` 首条实际 TS 边时惰性绑定邻接：Product metadata 须为 exact dict，
+TS 须为 exact `DiGraph` 或 `TSModel`，随后直接读取该次调用的 `_adj[u][v]`。
+绑定只存在于本次调用；下一次重新读取 TS，包括整个 TS 对象被替换的情况。
+custom TS/subclass、MultiDiGraph 或 custom metadata mapping 保留公共查询路径。
+动作先追加、再读取权重的顺序，以及原 edge/action 引用、路径 tuple 快照、zip 迭代器、
+成本列表、输入 prefix/suffix 引用、possible_states 和异常保持。
+适用条件是一次输出期间原生 Product metadata 与 TS 邻接稳定；不支持在该调用中途替换 TS。
+未修改搜索算法、tie 顺序、prefix/suffix 目标函数或 IRL 的 β 学习范围。
+
+原始 helper、fix1、fix2 只做静态准备，均未执行。root 在执行前修正辅助编码比较、
+mutation 的输出隔离门槛和部分计时失败保存；候选、输入、规模与采用门槛保持。
+fix3 compile/pyflakes/bash-n 与33项静态绑定通过后，只执行一次：
+16类常规场景各 old/new 加跨调用修改，共36 semantic；2 profile；1680 timed，合计1718次。
+17个语义控制全部通过，包括 TSModel、空前缀、重复边、128步环、tuple/list、缺 TS/source/
+target/action/weight、空 suffix、自定义 TS/metadata/edge hook 和 MultiDiGraph 异常。
+错误保留类型、args 与部分输出；缺 weight 时保留已经追加的动作。
+跨调用替换 TS 后，四个输出列表均重新建立，旧输出列表、路径别名和总成本字段保持。
+完整 Run、代价类型、动作引用及源图内容/身份/raw 检查通过。
+
+128步 Run profile 中 TS `__getitem__` 为128→0；仅统计 fixture TS 的真实查询。
+计时按每个输入固定6组交替顺序，Run1/Run128 每侧每组50次完整构造，N64/KTH 为20次
+完整 kernel，包含 SCC、搜索、恢复和 Run 构造。输入向量在计时外建立；计数、profile、
+断言、序列化和IO在计时外。每侧每批保存最后一次完整 Run，全部批次 Run/source/alias
+检查通过；不是对每次计时调用逐一序列化验收。原始 ns 与所有批次输出保留：
+
+| fixture | 每侧每批次数 | old median / candidate median | candidate slower |
+|---|---:|---:|---:|
+| Run1 | 50 | 0.2995495 / 0.2684500 ms | 0/6 |
+| Run128 | 50 | 6.9386470 / 2.5918985 ms | 0/6 |
+| N64 | 20 | 92.3682105 / 91.0305605 ms | 3/6 |
+| KTH | 20 | 7.4393930 / 6.9836440 ms | 2/6 |
+
+N64 保持全部64个接受目标。KTH 只加载已绑定的旧 `warmed_planner.pkl` 一次（10636 bytes，
+SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`）；
+实际 TS 为 exact TSModel，没有重新翻译任务或执行新三阶段。最终 KTH 源图保持。
+Humble + 803 overlay，Python3.10.12 / NetworkX2.4，实际六核心与四测试、NetworkX源文件
+绑定；HASHSEED 未设置。预设 Run128、N64、KTH 中位数均不得更慢，三项通过，Run1只报告。
+`gate=true`，采用冻结候选 SHA256
+`74fc26ec60964c3a8fe313c7b7247aa28efe37c3be29155b659f28cc74c2d103`。
+没有补采样或改门槛；N64仍有3/6组、KTH有2/6组更慢，不能声称稳定或整套加速。
+
+应用后只更新 Product 源码与其定向测试：更新既有公共查询计数断言，补充整个 TS 对象替换
+后的刷新/旧列表隔离和 custom TS `__getitem__` 动作回归。测试源码 SHA256 为
+`0e890bcd00826696ee1613f1a6923ec51bdc0113ae10a1315708d4efc89363b6`。
+四个相关模块一次 pytest：Product34、discrete-plan28、LTLPlanner29、IRL28，共119 passed，
+0 skipped/errors/failures，保留2条 np.int 警告；完整20步 margin/β 与复制/hook 回归保持。
+实际六个核心模块和四测试导入/hash与资格源码绑定。改动的两个文件各一次 compile、
+ament_flake8（linelength99）、ament_pep257，六个实际阶段均 rc0。
+两个外层 runner 最终 `exit` 因 CRLF 报 numeric argument required，外层工具退出码未单独
+持久化；事后转录明确标记，实际 pytest/lint/compile rc 与 JUnit 原件均保存，不重跑。
+未进行新七包、DDS、provider、benchmark、仿真、实机或Jazzy验证；803f28e七包资格仍独立。
+累计采用17项局部优化；没有新增 IRL 科学效果或内存收益声明。
+
+证据冻结于 `/tmp/ltl_run_output_adj_publication_3c278b1`，manifest SHA256 为
+`120145c6beea5faabafb72d90840c2624b6d13e5b8e08329d68be0fdb36a1177`。373条目独立回读：366个文件原件与副本、4条 Git 基线对象
+与副本、3份归档生成记录单独验证，共743次 size/SHA256 核验，无不一致。
+基线 Product/test_product 在应用后按同一 HEAD 从 Git 取回，与执行前绑定 SHA 完全一致；
+应用后资格源码另存。首次回读器把 Git/归档标识当文件路径而停止，随后仅修正读取分类，
+没有改归档或运行结果。本节之前425420 bytes原文保持，旧 SHA256 为
+`71545917e0d68835d58d5778c1e763a96eff83648669904e224307f1ae65d5ec`。
+
+
+### 11.150 suffix 单源 distance-only Dijkstra 内联（2026-10-09）
+
+本轮基线 HEAD 为 `bcdd2b22a20ec5afdba588c428c0eb52c6a8a260`；当前生产
+原始 `discrete_plan.py` SHA256 为
+`2fb96ffebc912f0861736d9f7c11a77731b16fcce12b0cb16b67d456183a63c2`；当前生产
+`discrete_plan.py` SHA256 为
+`81d4551190cfeebbe7d030f27b97d2205e1f0296ac67ae8426e0b637c842fdcc`，testDP
+最终 SHA256 为
+`2f11033c21d3049d22640d47563d46f600da59ebafaa9a152e28cbb1e3fead6e`。
+候选将 NetworkX 2.4 distance-only suffix Dijkstra 按原 heap counter、默认/None
+权重、精确 numeric 运算、seen 等值比较和错误顺序内联到 `_component_distances`，
+省去固定为 None 的 cutoff/pred/paths 分支判断与 component-weight closure/single-source
+wrapper。prefix、SCC 扫描、接受目标次序、tight restore、Run、source/action identity、
+NodeNotFound/负权错误 args、source=None 早停及 gamma/IRL 范围保持；候选文件含完整
+NetworkX BSD-3-Clause notice。
+
+首轮应用后检查先执行四模块 pytest 与 DP/testDP compile/flake8；pytest 为120 passed、
+2条既有 `np.int` warning，DP compile/flake8 通过，testDP flake8 因 E303/E501 停止，
+因此未执行当轮 pep257。root 仅修复 testDP 格式且保留原测试 AST 与首轮字节，fix1 重新执行
+四模块 pytest（Product34、DP29、LTLPlanner29、IRL28，共120 passed）、testDP compile/
+flake8，以及 DP/testDP 各一次 pep257，全部 rc=0；两轮均0 skip/error/failure，完整20步 margin/β
+与复制/hook 回归保持，DP compile/flake8 已通过且未重复。两轮 runner 的失败与成功边界、
+stdout/stderr、JUnit 和外层工具回执均独立保存；不能把首轮 runner 描述成全绿。
+
+独立探针 fix2 实际执行62 semantic 后在 DirectNumeric 编码比较处停止，profile/timing/
+snapshot 均为0；fix3 只修正该数值编码，未改变候选、输入、规模或门槛。fix3 一次完成
+66 semantic（54 regular、4 mutation、8 direct distance）、4 profile、960 timed，合计
+1030 次，历史 warmed snapshot 加载1次。32个控制记录全部通过，包含 missing-source 精确
+异常、undirected zero tie/component exit、source=None 早停、自定义 edge.get 与 add/lt/eq
+事件、跨调用修改成本 `31→22`；有序 distance/value type、source 顺序、完整 Run、动作引用
+及输入图 source content/identity/raw 检查均通过。
+
+Profile 中 ring64 的 `component_weight` callback 为 `4096→0`，bounded64 为 `65→0`；
+ring64 suffix 搜索仍处理64个源、返回节点4096项，bounded suffix仍处理1个源、返回节点64项。
+NetworkX multi-source wrapper 调用分别为 `65→1` 和 `2→1`，这是 wrapper 路由变化，不是
+搜索节点或搜索次数下降。四个 fixture 固定6组交替、每侧每组20次完整 kernel，计时含 SCC、搜索、恢复与 Run；每侧
+每批保存并检查最后一次完整 Run/source/alias，未逐次序列化全部计时调用；profile、counter、
+断言、序列化和 IO 在计时外。所有原始 ns/失败保留，无补采样或门槛修改：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N=1（仅报告） | 0.719900 / 0.676850 ms | 1/6 |
+| N=64 ring | 71.158452 / 63.304952 ms | 0/6 |
+| N=64 bounded | 8.846200 / 8.747200 ms | 1/6 |
+| KTH 保存图 | 6.4851005 / 6.321400 ms | 2/6 |
+
+预设 N64 ring、N64 bounded、KTH 中位数均不得更慢，三项通过，N1 只报告；候选已采用。
+KTH 旧 `warmed_planner.pkl` 仅加载一次，10636 bytes，SHA256 为
+`32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`；运行使用 Humble+
+803 overlay、Python3.10.12、NetworkX2.4，HASHSEED 未设置。没有新 KTH 图构建、任务翻译或新三阶段；没有 provider、DDS、benchmark、仿真或实机验证；
+Jazzy 未验证，当前七包仍为 `803f28e` 的独立旧资格；这项局部结果不代表稳定整体加速、
+内存收益或 IRL 科学效果。
+
+证据已冻结于 `/tmp/ltl_dp_suffix_inline_publication_bcdd2b2`，612 entries 包含606个物理原件
+与6个 Git 基线，分别与副本核对，共1224次 size/SHA256 检查、0 mismatch；manifest SHA256 为
+`205c028fc66bf0e433230983b9ca482a8fc8564a00e8e827abb894a919e74fe3`；archive receipt SHA256
+为 `83151f118a8357babbd61fab0bdec45f600d54d453df53cbf4f80c569b6bb5ca`。其中2项
+`manifest_bound_git-show-baseline` 按 bcdd Git 对象解析；首轮 reader 停止后只修分类，archive/results
+不变。首轮失败 checks 与 fix1 成功 checks 分开保存，旧 DP/testDP 由 HEAD 的 Git 对象独立取回。
+本节之前430953 bytes原文保持，旧SHA256为
+`72abae9a9abf45910f9c227c897e9e0af78843be68587151c168542925089452`。
+
+
+### 11.151 可达 SCC 临时拓扑直接建边候选（2026-10-09）
+
+对照基线为 `9681280a3663623a0c49d719e33afedd2e2fa713`，旧 DP SHA256 为
+`81d4551190cfeebbe7d030f27b97d2205e1f0296ac67ae8426e0b637c842fdcc`。
+只读前轮 ring64/bounded64 candidate pstats；它们绑定相同 DP/Product 字节，包含
+Run 的 `__init__` 与 `plan_output`，用于定位已有热点，不是本轮新增探索 profile。
+候选 `_reachable_topology` 保留先加入全部可达节点，再按原 Product.adj 次序扫描结构边。
+临时图的 _succ/_pred 为 exact dict，inner/edge factories 为 dict 时，直接插入双向邻接，
+每边创建独立空属性字典，并保持后继/前驱属性 alias；否则沿用原 add_edges_from。
+None 结构边、节点/邻接/前驱顺序保持，不复制 weight/metadata，搜索仍读取原 Product。
+节点 hash/equality 须在构建期间稳定；不声称临时图内部 hash 调用次数保持。
+候选 SHA256 为 `cb3732b7d542f8e51bebfbf8e803012a27c2fd4991bb66094c269a6456cdea56`。
+
+原稿与 fix1 仅静态准备，未执行。root fix2 在执行前修正直接建图控制、custom 标签手算
+预期、计数、regular topology 落盘与逐侧 source 检查；输入、候选和时间门槛保持。
+root 静态 writer 首次因结果文件名断言停止，修正映射后才生成执行文件，未调用 planner。
+唯一 fix2 执行：27 regular 各 old/new 共54次、mutation4次、六 direct topology 各两次
+共12次，合计70 semantic；34组控制全部通过。四次 profile、960 timed，共1034混合调用。
+普通两SCC、零权tie、空可达集合、None结构边及 edge/inner/outer custom factories
+控制通过独立手算节点/邻接/前驱与属性 alias/独立性。工厂 fallback 事件一致，edge 为
+E次初始化/2E次update，inner为2V次初始化/E次get，outer为2次初始化/2V次set。
+完整 Run、代价类型、动作引用、SCC拓扑、有序 suffix 距离/来源与源图内容/身份/raw保持；
+跨调用成本仍31→22。ring64/bounded64 的临时 add_edges_from 为1→0、helper为0→1，
+实际 suffix 搜索仍64/1次，返回节点仍4096/64，未减少搜索或裁剪节点。
+
+每种输入固定6组交替，每侧每批20次完整 kernel，包含工厂检查、拓扑、SCC、搜索、恢复
+与 Run；profile/counter/断言/序列化/IO在计时外。每侧每批仅检查最后一次 Run/source/alias，
+不逐次序列化全部计时调用。所有原始 ns、输出、静态原稿与失败均保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1（仅报告） | 0.580500 / 0.537700 ms | 2/6 |
+| N64 ring | 49.378451 / 50.457350 ms | 3/6 |
+| N64 bounded | 7.441200 / 6.642150 ms | 0/6 |
+| KTH 保存图 | 5.140050 / 4.725000 ms | 1/6 |
+
+预设三个主要输入的候选中位数均不得更慢；N64 ring未通过，`gate=false`、`not_adopted`。
+未补采样、修改门槛或应用候选。runner rc4与真实外层工具rc1分别保存，不推断退出码差异原因。
+Humble+803 overlay、Python3.10.12/NetworkX2.4、HASHSEED未设置；仅加载一次旧KTH
+snapshot（10636 bytes，SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`），
+没有新任务翻译、KTH图构建或三阶段。
+
+证据冻结于 `/tmp/ltl_dp_topology_insert_publication_9681280`，manifest SHA256 为
+`d35d82bf910d6288d514f43e53d4dfff50a56cfe557c73cc47cadeb59de2ce1b`。
+468条目含4个显式Git基线；文档修改前原件与副本独立936次size/SHA回读，0不一致。
+122组capture原始字节前后及KTH原始字节保持；全部六组中位数独立重算一致。
+首次reader对/mnt/d的UNC访问被拒绝，随后仅改为native drive映射，归档与结果保持。
+
+本轮只更新README与验证记录，生产和测试字节保持，采用优化数量仍18项。
+未新增核心pytest/compile/lint、七包、DDS、provider、benchmark、仿真、实机或Jazzy资格。
+最近四模块120项及完整20步IRL margin/β为9681280的既有资格；七包仍为803f28e的独立旧资格。
+局部结果不代表整体稳定加速、内存收益或IRL科学效果。本节之前435721 bytes原文保持，
+旧SHA256为 `3e3af611fe1e33f20a93647315ec3fe3f8a0163a015f63481074dc36579a4901`。
+
+
+### 11.152 后缀松弛复用刚弹出的距离（2026-10-09）
+
+基线为 `e4156ca91e8aa04edd832f9208e00d17b126e4d3`，DP SHA256 为
+`81d4551190cfeebbe7d030f27b97d2205e1f0296ac67ae8426e0b637c842fdcc`。
+只读前轮绑定相同生产 DP/Product 字节的 ring64/bounded64 old pstats 定位热点，没有新增
+探索 profile。候选仅将 `_component_distances` 的 `distances[current] + cost` 改为
+`distance + cost`；distances[current] 刚被赋为弹出的同一 distance 对象，减少每个有效
+松弛边的一次字典读取。搜索期间图及节点 hash/equality 须稳定；内部节点 hash 调用次数
+有意减少，不承诺动态 hash/equality hook 的调用次序保持。不新增检查、fallback 或配置。
+heap/counter/tie、source=None 早停、成员过滤、default/None weight、自定义 numeric 对象与
+add/radd/lt/eq 事件、异常 args、prefix/SCC/恢复/Run、目标函数及 IRL 范围保持。
+候选与最终 DP SHA256 为 `56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7`，
+22536 bytes；完整 NetworkX BSD notice 保留，其他五核心与四测试字节不变。
+
+初稿及修复稿均只静态准备；执行前修正直接控制的同图输入、实际返回键编码、非空
+operand identity 事件、真实源图 content/identity/raw 检查和 literal shell 退出码保存。
+root 最后排除两侧不同证据路径对辅助 equal 字段的影响；手算门槛、候选与输入保持。
+最终 helper SHA256 为 `8ef8f23b3477aa8f3a5d00f5bc5615bc2060338eaec512281d36fe0b40868b30`，
+35项输入 manifest 为 `03b25c037b0bf3949edc4efbebbf72ee5e500de01493a5503e1ddfc23e0a96c9`。
+AST/compile、LF runner 与 bash -n 静态检查通过；pyflakes 不可用，未安装。
+
+唯一一次执行：27 regular 各两侧共54次、cross-call mutation4次、六 direct distance
+各两侧共12次，共70 semantic/34控制组；4 profile、960 timed，合计1034混合调用。
+missing-source、undirected zero tie/component exit、source=None、自定义 edge.get/numeric
+事件、操作数身份、有序距离与类型、跨调用成本31→22、完整Run/动作引用与源图全部通过。
+四节点四边 stable HashNode 控制的 helper 内 hash 次数34→30，真实返回顺序 n0..n3，
+距离0/1/2/3保持；cProfile不测量字典 BINARY_SUBSCR 次数，该直接控制也不推断所有图收益。
+ring64/bounded64 的 suffix 搜索仍64/1次、返回节点4096/64，native lambda64/65；
+临时 SCC add_edges_from 两侧均1次，topology helper均0次，拓扑/距离/来源顺序保持。
+
+每输入固定6组交替，每侧每批20次完整 kernel，包括SCC、搜索、恢复与Run；
+profile/counter/断言/序列化/IO在计时外。每侧每批检查最后一次Run/source/alias，
+不逐次序列化所有计时调用，全部原始ns保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1（仅报告） | 0.549350 / 0.552001 ms | 5/6 |
+| N64 ring | 48.323156 / 44.890905 ms | 0/6 |
+| N64 bounded | 7.301401 / 6.906501 ms | 1/6 |
+| KTH 保存图 | 5.011351 / 4.896301 ms | 3/6 |
+
+三个主要输入均通过预设 candidate median <= old 门槛，`gate=true`，采用此一行修改；
+N1仅报告，略慢。没有补采样、修改门槛或裁剪搜索。runner和真实外层工具均rc0。
+Humble+803 overlay、Python3.10.12/NetworkX2.4，HASHSEED继承环境；旧KTH snapshot仅
+加载一次（10636 bytes，SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`），
+没有新任务翻译、KTH构图或三阶段执行。
+
+结果 SHA256 为 `565878b2af10c2a7fb008a709aeeaaccc7ea516b98826904d3734ffb22c1bd18`。
+探针归档 `/tmp/ltl_dp_popped_distance_publication_e4156ca` 的 manifest SHA256 为
+`d7b4bcdca7a75732aa25b0738fbd0561a1a781ced0f9ffe8773d3f896a2d7a60`；
+428条目含12个显式Git基线，采用前原件/副本独立856次size/SHA回读一致。
+独立重算六组中位数一致；110组普通capture与12组direct原始字节前后保持，KTH raw保持。
+首次root reader误用前轮122组capture断言；只读计数确认本轮220个capture文件对应110组，
+另有12组direct文件后，仅修正reader计数。原reader与错误转录保留，未重跑探针。
+一次 PowerShell JSON 查看因大整数解析失败；Python读取原件后完成检查，结果未改。
+
+应用后四模块 pytest 一次120 passed（Product34、DP29、LTLPlanner29、IRL28），
+0 skip/error/failure，2条既有np.int警告；完整20步margin/β与复制/hook回归保持。
+首个runner误沿用testDP compile/flake8及DP/testDP pep257；实际这些检查均rc0，记录保留。
+之后只补跑改变的DP文件compile/flake8各一次，均rc0；已通过pytest和DP pep257不重复。
+六核心/四测试的真实导入路径、size/SHA按本次候选字节另行校验，全部匹配。
+资格归档 `/tmp/ltl_dp_popped_distance_checks_publication_e4156ca` 的 manifest SHA256 为
+`173015a575c6e4c6f2045611949291ab4ba2920fd9025720fb8456d1171c307a`，487条目原件/副本独立974次size/SHA回读一致。
+
+README同步，累计采用十九项局部优化。未新增七包、DDS、provider、benchmark、仿真、
+实机或Jazzy资格；七包仍为803f28e的独立旧资格。上述局部结果不证明整体稳定加速、
+内存收益或IRL科学效果。本节之前440028 bytes原文保持，旧SHA256为
+`5e1d7a133939f385edeb9e71b9a62c854c05d0dfc0f33b37fe81a8f2b8b792ee`。
+
+
+### 11.153 tight 路径恢复的原生 AtlasView 候选（2026-10-09）
+
+基线为 `dd5679081ca331993bacb9a7ec087a8220cc7419`，DP SHA256 为
+`56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7`。
+只读上一轮绑定相同 DP/Product 字节的候选 pstats 定位热点，它们是 e4156ca 探针的历史
+记录，包含完整 Run。ring64 的 `_restore_tight_path` 各2次，贡献63次 AdjacencyView
+节点查询与63次 AtlasView 边数据查询；Graph.__getitem__ 191次来自SCC，不是恢复。
+bounded64 两次恢复立即命中target，未产生这两类查询，不将总view计数误作恢复贡献。
+
+候选保留 `product.adj[current]` 原查询；仅 exact NetworkX AtlasView 且内部 `_atlas`
+为 exact dict 时复用该字典。迭代次序、原data引用、parent检查后才读取data/weight、
+零代价tie、算术与错误保持；view subclass或custom inner dict沿用原查询。适用条件是
+原生NetworkX2.4视图实现与恢复期间稳定的邻接。只增加import和两行type guard/赋值，
+候选SHA256为 `ba21c614bb9dd5f9d4bf3e3e85af34355a765e801360ea76ecbd95c76cc2e2af`。
+AST loader为两侧分别加载各自dijkstra/component/restore函数及同一原生AtlasView，
+确保候选恢复函数实际参与对照。候选未应用到生产或测试。
+
+初稿只静态准备；执行前root修正继承的hash差断言为0（component未变，两侧均30次），
+并在protocol明确恢复各2次、suffix搜索64/1次，所有输入和计时门槛保持。
+最终helper为 `888c7c98af5e5ecd7cd30ce785243d9e17a4f16005c17166916a42f03ccd71e2`，
+32项manifest为 `77895deebbfd015ba64c3f01c10293ce822b1bfdf462b58f2b00b81f71e1e207`。
+候选/helper AST与compile、LF runner/bash-n及绑定回读通过；pyflakes不可用，未安装。
+
+首轮实际76 semantic（54 regular、4 mutation、12 prior direct distance、6 direct
+restore）、37控制全部通过，4 profile完成。新增三类恢复控制：native exact view、
+view subclass和custom inner dict；固定selfloop/返边/tie图手算路径为s→a→j。
+读取weight事件严格为s-a、s-b、a-j，default均1；已在parent中的self/返s不读data。
+custom iter各2次、getitem键顺序a/b/j保持，完整事件、图内容/身份/raw及距离/来源输入保持。
+完整Run、代价类型、动作引用、SCC/后缀距离/来源次序保持；跨调用成本仍31→22。
+ring恢复的AtlasView边查询63→0、AdjacencyView节点查询63→63；bounded两者均0。
+实际恢复2/2、suffix搜索64/1、返回节点4096/64、native lambda64/65、临时建边1/1保持。
+上述caller只匹配精确coreviews.py:53/80及两侧恢复函数文件，不把其他调用混入。
+
+首轮helper的main仍误将restore_helper_calls要求为64/1；实际是2/2，因此runner rc3、
+外层工具rc1，未计时、未加载snapshot。原helper、protocol、manifest、failure、profiles
+和actual tool receipt均保留。只读诊断确认这一条与执行前protocol的2/2定义不一致，
+其余语义/资源/源图检查全部通过。没有修改原件或重新执行这些已完成阶段。
+
+root另建timing-only continuation：242份首轮原件及新runner在执行前冻结，manifest为
+`51e7b3c61b4af4ba1df7546756233a604f1e633bd5c1a4da79d14d3a0b881749`。
+重新核验同一HEAD/32项源绑定、37控制、原资源定义和raw前后后，继承已执行76/4计数；
+新进程实际只执行0 semantic、0 profile、960 timed及一次snapshot加载。明确区分继承
+计数与新执行计数，不把首轮说成全绿，也没有新增warmup/planner调用或重复计时。
+全轮合计1040混合调用，首轮76+4与continuation960分别保存。
+
+每输入仍固定6组交替，每侧每批20次完整kernel，包括SCC、搜索、恢复与Run；
+profile/counter/断言/序列化/IO在计时外。每侧每批只核对最后Run/source/alias，
+不逐次序列化全部计时调用，所有原始ns保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1（仅报告） | 0.573150 / 0.560550 ms | 1/6 |
+| N64 ring | 50.561600 / 49.475050 ms | 2/6 |
+| N64 bounded | 7.657400 / 7.650750 ms | 2/6 |
+| KTH 保存图 | 5.045150 / 5.059900 ms | 3/6 |
+
+预设三个主要输入candidate中位数均不得更慢；KTH增加约0.292%，未通过，gate=false，
+not_adopted。即使ring约低2.149%，也不忽略KTH；未补采样或改门槛。continuation
+runner rc4/真实外层工具rc1保留，不推断外层退出差异原因。Humble+803 overlay、
+Python3.10.12/NetworkX2.4、HASHSEED继承环境。旧KTH snapshot仅加载一次，10636 bytes，
+SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`；无新翻译、构图或三阶段。
+
+结果SHA256为 `37a8da2a938b00619b2d2a5fa92a0eb292689e3965a3d560c3e0c8da2bd897bf`。
+证据归档 `/tmp/ltl_dp_tight_atlas_publication_dd56790`，manifest SHA256为
+`a72677e355d77415bdd04394cb7dfabde28e1ef3f965a34a1c409121030d0ddd`。
+457条目含12个显式Git基线，文档修改前原件/副本独立914次size/SHA回读，0不一致。
+首轮62组普通capture与continuation48组、18组direct图raw共128组前后保持；
+另6组direct距离/来源输入及KTH raw保持，中位数独立重算一致。
+
+本轮只更新README和验证记录，生产/测试字节与采用数十九保持。未新增pytest或生产
+compile/lint、七包、DDS、provider、benchmark、仿真、实机或Jazzy资格。最近四模块120项
+与完整20步IRL为dd56790的既有资格，七包仍为803f28e独立旧资格。局部结果不证明稳定
+或整体加速、内存收益或IRL科学效果。本节之前445506 bytes原文保持，旧SHA256为
+`a57a21cd3983e43def5e7b9b54d737916095bf0c5093dc42e5cecb7359c8c8ee`。
+
+
+### 11.154 纯有向环的线性后缀距离候选（2026-10-09）
+
+基线 `af9c605ba279095c6f209fd870bc2fa5559031fb`，DP SHA256 为
+`56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7`。
+只读结构 inventory 使用同一10636-byte保存图，加载1次、不调用planner/profile/timer；
+36节点72边、21个SCC中没有纯有向环。该分析的load1与下面probe的load1独立，不合并。
+历史ring64 profile显示后缀heap累计4096次，因此准备线性遍历候选。
+
+候选仅接受 exact DiGraph/ProdAut、原生后继/边字典，整图每节点恰一个后继。
+先检查字典形状，再确认原生str/int或两级tuple节点键，以免调用custom key比较。
+只认证有可达接受目标且唯一后继在分量内的SCC，权重限exact非负int，缺省仍为1；
+缓存本次环的(successor, weight)，每接受目标沿环累加有序距离。float/Fraction/bool、
+None、负权、custom对象/字典、分支和出口沿用原heap。下一调用重新认证；适用于整个
+搜索期间图、节点hash/equality稳定的场景。prefix、接受目标/前驱选择、gamma目标函数、
+tight恢复和完整Run保持。即使不用heap，后缀搜索次数和返回节点仍64/1及4096/64。
+
+候选SHA256 `77e06aff8999dc5985f330ba3b7506ed4cef1ce5731bf8e372da6d1bb755f88d`，
+25079 bytes；未应用到生产。fix1/fix2只静态，root fix3修正候选map、资格fixture、实际
+manifest路径与heap builtin提取，格式化AST等价；候选/测试/helper compile及runner
+bash-n通过。候选测试只准备，未执行pytest；pyflakes不可用、未安装。
+63项执行前manifest为 `d662958683e1092611ec77128f0f2cd08f30c1f67026baa8c6a69bbfeae34211`。
+
+首轮实际76 semantic、37组控制通过（27 regular、1 mutation、9 direct groups），
+包含完整Run、成本类型/距离次序、默认/None权重、tie、numeric事件、源图和动作引用；
+跨调用成本31→22保持。另16项环资格控制、26次直接distance调用与3项classifier-only
+控制通过，独立于1040混合调用计数。零权、缺省权和异权环有手算有序距离参照。
+4 profile完成：ring heap push/pop各4160→64，prefix仍64、suffix4096→0；
+带分支图两侧各128=prefix64+suffix64，native lambda65为边评估数。
+恢复各2次，edge/node视图查询ring各63、bounded各0，临时建边1、multi-source1保持。
+
+首轮main/protocol错误要求bounded heap129而非128，runner rc3/outer rc1，实际计时0、
+snapshot0。只读caller核对确认唯一失败是该辅助计数，其他resource predicates通过。
+原protocol、profile、failure与receipt均保留，不将首轮描述为全绿。
+timing-only continuation重新绑定270份首轮原件，manifest为
+`892e1ad0f0e523ba6c48225296be041171f73f7c53c39b9f3e5541f7025f1d2d`；
+修正确定性的资源定义，不修改候选、输入或时间门槛，也不重跑semantic/profile。
+一次执行前把Python script SHA误当runner SHA的preflight停止已保存，未执行新phase。
+continuation实际0 semantic、0 profile、960 timed、snapshot1；全轮合计1040混合调用。
+
+固定六组交替、每侧每批20次完整kernel，包含SCC、搜索、恢复和Run；计时内没有profile、
+counter、序列化、断言或IO。每侧每批最后Run/source/alias检查通过，全部原始ns保留：
+
+| fixture | old median / candidate median（每20次） | candidate slower |
+|---|---:|---:|
+| N1（仅报告） | 0.585550 / 0.678100 ms | 6/6 |
+| N64 ring | 49.206050 / 19.638900 ms | 0/6 |
+| N64 bounded | 7.407850 / 7.514700 ms | 4/6 |
+| KTH保存图 | 5.242600 / 5.219150 ms | 3/6 |
+
+预设ring/bounded/KTH三个中位数均不得更慢。虽然ring约低60.088%，bounded约增1.442%，
+gate=false/not_adopted；未补采样、改时间门槛或采用。continuation runner rc4/outer rc1
+原件保留，不推断退出码差异原因。Humble+803 overlay，Python3.10.12/NetworkX2.4，
+HASHSEED继承并记录。旧snapshot只在此probe加载一次，无新翻译、构图或三阶段执行。
+
+结果SHA256 `6c3dc34e16f95c5137c112a2bd26ffc67f860b686f22bc1a5b8f552564908753`。
+独立重算中位数一致；首轮62组与continuation48组普通capture、18组direct图raw、
+6组direct输入及KTH raw保持。独立reader首次误读HashNode的events字段，改按实际
+hash_count/labels检查；两侧hash30保持，结果与执行阶段未改。
+
+归档 `/tmp/ltl_dp_single_cycle_publication_af9c605`，536条目含12个显式Git基线。
+原manifest将归档生成summary误标物理file，原件/receipt保持；独立reader因此停止。
+另存 `manifest_fix1.json`，明确523份物理原件、12个Git对象与1份生成metadata；
+SHA256 `5ab8ef22de1302a15057a019e045a912ab77902d548cc4faa8107362b3a6b240`。
+原件/副本双回读及生成metadata一次回读共1071次size/SHA检查，0不一致。
+两次root reader失败的原外层receipt未单独持久化，错误转录明确标记；成功回读另存。
+
+本輪只更新README/验证记录。生产六核心、四测试及采用数十九保持，dd56790的既有
+120项与完整20步IRL资格保持；未新增pytest/生产lint、七包、DDS、provider、benchmark、
+仿真、实机或Jazzy资格。七包仍为803f28e的独立旧资格。本次局部候选结果不证明整体
+或稳定加速、内存收益或IRL科学效果。本节之前451283 bytes原文保持，旧SHA256为
+`82fa829cd931e7a73c7d5d0d63ba643e86ff73b057ca4035b55d60f2a963bfeb`。
+
+
+### 11.155 可达接受目标阈值的 cycle-dispatch 候选（2026-10-09）
+
+本节基线为 commit 679f8349db2b3e1ea883701d843254dfe8c80c22，生产 DP SHA 为
+56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7。候选为 25637 bytes，
+SHA 为 f882bb9c0af7f1e48eea8db3e350ecf19743eda5a7720bfc729bd1aad7c1f271。
+
+可达接受目标至少为4时才调用全图形状认证：exact DiGraph/ProdAut、原生后继字典，
+len(product._succ) 须等于 len(prefix_dist)，每节点恰一个后继；键限原生str/int或两级tuple。
+同一 SCC 的可达接受目标也至少为4才认证闭环：原生边字典及str键、唯一后继在分量内、
+权重为exact非负int（缺省仍1），随后绑定本次 successor-weight map；其他输入回退。
+原三参数 component distance helper 的 AST 与 fallback 保持。cycle distance 不读取
+Product、不使用 heap，也不跨调用缓存；图及节点hash/equality须在完整搜索期间稳定。
+prefix、SCC 和目标遍历顺序、tie、gamma、Run、动作引用、异常参数及输入图别名保持检查。
+
+本轮资格控制为 17 个 case（28 次 direct distance、3 个 classifier-only），37 个语义
+控制共 76 次 semantic calls；另有 accepting target 数 1/2/3/4 的真实 old/new 路由控制
+8 次调用。总量为 76 semantic + 8 route + 4 profile + 960 timed = 1048 calls；额外的
+17项资格控制及其28次direct distance不并入此混合计数。历史 warmed snapshot 加载1次，SHA 为
+32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554。独立 inventory 的
+snapshot load 为另一项只读分析，不并入本 probe phase count。
+
+资源结果中，ring64 的 component/cycle 调用为 64→0 / 0→64，heap push 与 heap pop
+均为 4160→64；bounded64 保持 component 1、heap push/pop 各 128。37 个控制、路由、
+source/raw、Run 和资源检查全部通过。
+
+每个 fixture 固定 6 组交替 pair，每侧每批 20 次完整搜索；所有原始 ns、失败边界和最后
+一次 Run/source 检查均保留，未补采样或修改门槛。中位数（旧/候选，ms）与较慢 pair 数为：
+
+| fixture | old | candidate | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1（仅报告） | 0.528050 | 0.549550 | 4/6 |
+| N64 ring | 46.788205 | 19.130702 | 0/6 |
+| N64 bounded | 6.810601 | 6.723551 | 3/6 |
+| KTH | 6.1608505 | 6.650401 | 4/6 |
+
+N64 ring、N64 bounded 和 KTH 是预设门槛；KTH 候选较旧值增加约 7.946%，因此整体
+gate=false，候选 not_adopted。未新增生产 pytest、compile 或 lint；本轮只
+完成静态 compile/bash-n 检查与 probe，未运行七包、DDS、provider、benchmark、物理仿真
+或 Jazzy 验证。采用数保持十九项；dd56790 的既有 120 项与完整 20 步 IRL 资格保持，
+803f28e 七包资格仍是独立旧边界。
+
+证据绑定：helper SHA f5846fbd8eeb56c01fc86d12051d502ffc7aa2d29f035edd8be470449598702f，
+preflight manifest SHA 606daa5b5eef48d52340b78d46c2d72b94f376ec329da9f3c7b37e40211e45dc，
+publication manifest SHA 9d4fc8067f0ca071cf9a789ffb7f0a199b4c8768cb77ee84055bcb628764f719，
+result SHA b853059723b47d6ed76947d0a29beb56a8405069948422d6ff99d6f1284234d0。归档位于
+/tmp/ltl_dp_cycle_dispatch_publication_679f834，包含 514 file、12 git、1 generated，共
+1053 项 size/SHA 检查且无 mismatch；独立 reader 保留 118 普通 raw pairs、18 direct 图、
+6 direct 输入与 KTH raw。runner rc 为 4，outer receipt rc 为 1，均保留原件。
+
+fix0、fix1 和 prebind 仅为静态稿；唯一执行的是 final fix2。生产与测试字节未改，未新增
+本轮 pytest 或测试资格。
+
+
+### 11.156 prefix 原生权重查询内联（2026-10-09）
+
+基线 commit 为 635e9fda393e207c05c677d3727a8a7bd7248cf8。DP 原 SHA 为
+56f8c6c411f4d34bdf8deb5bec8c3a30054dde5c115e9517b2abf0dcf076abd7；采用候选为
+24518 bytes，SHA f140302778648b08bfed00d1af2d016f024f37eb2e87af9fdd7de5e456326dff。
+testDP SHA 为 d228719c5cc848781914a6ea8a0fb173e3b7eaffada8da054ca0d2383f941736。
+
+完整搜索仍只做一次多源 prefix 搜索。exact DiGraph/ProdAut 的 distance-only loop 将
+固定的 weight="weight" 回调改为 data.get("weight", 1)，保留原始 source 对象/迭代、
+membership、heap/counter/tie、target=None 等值判断、默认/None 权重及异常参数。
+松弛仍使用 distances[current] + cost，保持 prefix HashNode 与 numeric 事件。
+custom graph/subclass、MultiDiGraph 和原生实例覆写 is_multigraph 的输入沿用 NetworkX；
+实例覆写检查先于 source truthiness，避免增加 bool/callback。不跨调用缓存；适用于完整
+搜索期间图及节点 hash/equality 稳定的场景。component/restore 两函数 AST 与基线一致，
+SCC、accept 次序、Run、动作引用和 prefix_cost + gamma * suffix_cost 保持；两距离 helper
+共用完整 NetworkX BSD-3-Clause notice。
+
+执行前冻结 54 项 size/SHA manifest。13 个 prefix 资格案例、26 次直接调用独立计数，
+含重复 source、多源零权重 tie、default/None、空/缺失源、None target、numeric/edge
+事件、稳定 HashNode、Graph/Multi/custom fallback、generator、float contradictory
+异常及原生实例覆写/source bool 顺序。37 个公共控制为 76 次 semantic（其中 component/
+restore direct 18 次），另有 8 次 profile、12000 次 timed，共 12084 次混合调用。
+历史 warmed snapshot 只在 probe 加载1次，无额外 inventory load。
+
+profile 中各 fixture 的旧/新 prefix native lambda 为 ring64 64/0、bounded64 65/0、
+dense64 4096/0、KTH 31/0；逻辑 prefix 搜索均1次。heap push/pop 各自的旧/新计数
+均保持：4160、128、128、48；suffix 搜索64、1、1、2次，返回节点4096、64、64、32。
+restore 边视图/节点查询各63、0、0、24；restore helper 每侧2次，拓扑 add_edges_from
+每侧1次。减少的是权重回调，未减少搜索次数或返回节点。
+
+pending protocol_fix2 的 batch20 稿未执行且保留。任何 runtime 结果出现前，将唯一
+正式 protocol_fix3 的 batch 固定为200，六组交替 pair 和四项中位数门槛保持；这是
+执行前减少短批次噪声的调整。每侧每批200次完整 kernel，全部原始 ns 与每批最后
+Run/source/alias 保留，未补采样或改执行后门槛。批次中位数（旧/新，ms）如下：
+
+| fixture | old | candidate | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1（仅报告） | 5.000099 | 4.9075995 | 1/6 |
+| N64 ring | 466.1751435 | 465.9131875 | 3/6 |
+| N64 bounded | 69.373548 | 67.540448 | 1/6 |
+| N64 dense | 1047.8200015 | 1003.1286055 | 0/6 |
+| KTH | 51.9628965 | 51.523848 | 1/6 |
+
+ring、bounded、dense、KTH 四项预设门槛通过，bounded/dense/KTH 本轮约降低
+2.642%/4.265%/0.845%；ring 约0.056%的差异很小，不作稳定加速声明。
+独立 reader 重算中位数并验证 126 组普通 raw、26组 prefix raw、18组 direct 图、
+6组 direct 输入及 KTH raw；各图内容/身份、动作原引用、距离有序值/类型保持。
+唯一次 helper_fix3 执行使用 candidate_fix2，runner/outer rc 均0。早期候选/helper
+草稿与静态修订均保留；
+没有因 runtime 失败重跑探针。
+
+helper SHA 42aeb5b4734190f622b9d9f2e43ed85c52f514878959016eee01df4ae0edbb7c；
+preflight manifest SHA 252ccd9dc7c9e57840fe57d5254dc796fd59562f81fadb070524d6bd3936e9a8；
+result SHA 2a4a34d4f8083e6af486c8939fc35cd089e3fb73f1a937cd40f8df31ff401375。
+归档 /tmp/ltl_dp_prefix_inline_publication_635e9fd 的 manifest SHA 为
+3336e48efb3842063d0967177acdea0f17d48f30ec8a015b157a6eb12d7e1e97，617条目含
+604 file、12 git、1 generated；独立原件/副本及 generated 单次回读共1233项检查，
+0 mismatch，采用前保持 clean 基线。
+
+采用后仅运行 Product/discrete-plan/LTLPlanner/IRL 的相关回归：123 passed，
+0 skip/error/failure（34/32/29/28），2个既有 np.int 警告，1.43s；含完整20步 margin/β
+及复制、hook、跨调用刷新。首 runner 的 PATH/PYTHONPATH 错误转义导致 python3
+command not found，runner rc127、outer rc1，pytest实际0次，首日志/脚本/receipt保留。
+修正版 fix1 唯一运行 pytest，runner/outer rc均0，不重复已通过阶段。两份采用文件的
+相同字节 compile/flake8/pep257 在应用前通过，未在应用后重复；其他五核心/三测试字节
+及 component/restore AST保持。运行环境实际import六核心并核对四测试，绑定当前源码。
+回归归档 /tmp/ltl_dp_prefix_inline_regression_publication_635e9fd，24条目含23 file及
+1 generated；manifest SHA 3e80e95b2af90f7f8b5a8e76242f44af494c5b1f329ae4aa42eb16354da43bd5。
+独立回读原件/副本与generated单次共47项size/SHA检查，0 mismatch，JUnit与import资格
+一致。生产资格仍为 Python3.10.12/NetworkX2.4 的局部对照。
+
+采用数更新为二十项；此次局部资格不替代803f28e的旧七包组合，未新增七包、DDS、
+provider、benchmark、仿真、实机或Jazzy资格，也不证明整体速度、内存收益或IRL科学效果。
+本节之前460448 bytes验证记录完整保持，旧SHA为
+8664efe4b26a94fa9eae24f1bf563e4584d1783f8a526338339ebb50611cb4ee。
+
+
+### 11.157 prefix 松弛复用弹出距离候选（未采用，2026-10-09）
+
+基线 commit 84a0cd1707ed38978fea0b465ffa6d6b9eb84827，DP SHA
+f140302778648b08bfed00d1af2d016f024f37eb2e87af9fdd7de5e456326dff；候选仅将
+_prefix_distances 中 candidate = distances[current] + cost 改为 candidate = distance + cost。
+候选24508 bytes，SHA b70c6982aa1ac13b0e79296963c2a2b0ec4fd15eecc535682df28d49e5d967e6。
+距离字典刚写入同一弹出对象，适用于完整搜索期间图与节点hash/equality稳定的场景；
+减少内部hash调用有意，numeric操作、source/heap/tie/default/None/error保持。
+suffix/restore及其他函数AST不变，没有应用到生产文件。
+
+正式执行前冻结41项size/SHA manifest，SHA
+7187bafb4fc27ac9abdc4fe297bbf2bd4a4ea20711784b7efb4add317876b002。
+helper SHA 4fa525b78daec1012b9250d13255be12a5ba71a4b19285e9bd9b18256d251957；
+protocol SHA 7c917df6874872f25126cbf6d302c83876ee6f79154468eac1b817a25ef8969e。
+早期准备manifest17项保留。其 qualification_fragment_reference 是未执行的原始草稿；
+正式执行采用从此前已资格化的 eaf71059 fragment 派生的 prefix_qualification.py，SHA
+629f491931304b932d70c2a93d56b25ea50c360eac21cf843105c5d8d69604ef。
+
+13项prefix资格控制、26次direct调用独立计数；stable HashNode 路径n0→n1→n2→n3
+原调用计数6/7/7/6，候选5/6/6/6，共26→23，与执行前逐边推算一致。38组公共控制
+共78次semantic，含18次既有component/restore direct及2次新增prefix operand identity
+控制；新增控制验证add/radd收到的对象就是刚弹出对象，完整numeric事件顺序保持。
+8次profile和唯一12000次timed，总混合调用12086。probe snapshot加载1次，无额外
+inventory加载；各阶段没有失败或continuation，仅最终性能gate未通过。
+
+逻辑prefix搜索每侧1次，native weight lambda每侧0次；ring/bounded/dense/KTH的
+heap push/pop各4160/128/128/48、suffix搜索64/1/1/2、返回节点4096/64/64/32保持。
+完整Run、代价类型/距离次序、动作原引用、输入图内容/身份/raw保持。
+独立reader核对126组普通raw、26组prefix raw、20组direct图、6组direct输入及KTH raw，
+并从原始ns重算全部中位数。四项门槛沿用执行前固定规则，每fixture六组交替pair，
+每侧每批200次完整kernel，无补采样或执行后改门槛：
+
+| fixture | old ms | candidate ms | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1（仅报告） | 5.198851 | 5.0062005 | 2/6 |
+| N64 ring | 459.442831 | 467.647636 | 4/6 |
+| N64 bounded | 66.517906 | 65.8648055 | 1/6 |
+| N64 dense | 992.9731075 | 988.6685975 | 2/6 |
+| KTH | 49.791151 | 48.266851 | 1/6 |
+
+ring候选约增加1.785816%，未通过四项中位数门槛，因此gate=false、not_adopted。
+其他三个fixture的本轮改善不替代ring门槛；runner/outer均rc4，实际工具receipt保留。
+result SHA a20b0c947754102269ea7182bf3a617fe51beafcbc72fe38f676aa372e146575。
+
+归档 /tmp/ltl_dp_prefix_distance_publication_84a0cd1，596项含583 file、12 git、
+1 generated；manifest SHA 2345c953a0b3d43282c28cb25ced200570f604f74c9bfd1be86461eb9c2218cf。
+独立原件/副本与generated自身一次回读共1191项size/SHA检查，0 mismatch。
+原归档receipt计1192次，包含generated自身配对两读；原件保持，独立reader明确按
+generated一次检查计算1191，没有将生成记录当作独立原件/副本。
+
+首次文档追加用Windows默认GBK解码UTF-8草稿，在写入前停止；后续校验因工作树尚无
+文档变化而停止。原脚本保持，fix1显式UTF-8后仅重做文档追加和核对，未重复probe。
+
+本轮仅追加README/验证记录。生产六核心和四测试字节、二十项已采用优化保持，
+84a0cd1的既有四模块123项及完整20步IRL margin/β资格保持；未重新运行pytest、
+生产lint、七包、DDS、provider、benchmark、仿真、实机或Jazzy。候选只做静态
+compile/bash-n与上述局部probe，不作稳定或整套速度/内存/IRL科学效果声明。
+本节之前465998 bytes验证正文保持，旧SHA
+3eb6294feef3f9b544a6dace6293051eb2972066a225bd8c6cb38dc75f871ceb。
+
+
+### 11.158 history TS 状态索引候选（未采用，2026-10-10）
+
+基线6aa81125aa1da68480db415b8499b631fb2abdf4，DP SHA
+f140302778648b08bfed00d1af2d016f024f37eb2e87af9fdd7de5e456326dff。
+候选只在同一次history调用重复访问、后继数大于1时，按TS状态建立原生索引；
+首次访问继续扫描，索引保留后继次序和原tuple引用，不跨调用缓存或提前截断trace。
+源Product节点和观测TS键只支持exact str/int及一层嵌套原生tuple；后继须为exact
+非空tuple且TS键原生，Buchi分量保留原引用。上述键/tuple含bool/float、子类、
+自定义hash/eq/getitem或更深tuple时继续旧扫描。调用期间图与hash/equality须稳定。
+初始候选将建索引放在cache miss路径，静态修正后才执行fix1：26188 bytes，SHA
+93ce03314419096641c7986c926119b8dc21804af9497847fbc6ac263817ad0a。
+除history函数和两个新helper外，所有既有函数AST相同；未应用到生产。
+
+准备阶段helper_fix1只是计划计数，helper_fix2存在不完整分支图、无效数值/tuple
+场景、KTH替代图与轨迹配方、计时混入校验、交替侧标签错误等问题；两版均未执行，
+草稿与manifest保留。根代理重建真实64条双向分支、数值/tuple图、原始回调及
+完整Run检查，并冻结33条目，manifest SHA
+749118ff82469f88682a3f22178fbd4344798cdaf88da103c0668f17f8422716。
+root_fix3 helper SHA c2d47e02f2788261f326d3fdf624eda9b4f00e721b7b8726f7b953dbfc73fe1a；
+首轮26次helper资格及22次历史调用通过后，在构造custom_buchi图时因NetworkX2.4
+无clear_edges停止，profile/timed/snapshot均0，runner/outer rc1，失败完整保留。
+
+root_fix4仅将尚未执行场景的构图改为remove_edges_from(tuple(edges))，读取已通过
+记录，只执行余下14次历史调用、6次profile、9600次timed与1次snapshot加载；
+没有重复已完成阶段。continuation冻结175条目，manifest SHA
+90a2040a710221dec6368d919bd18f231085bdc47d7ae60bdac19878ab86df47；helper SHA
+e591034560123df48480fddba1c75bebf74a28f5d9d9c62fd5a36674904360a5；protocol SHA
+c798b55a65200ce4158cee6a11aa1abe8e25b11ce055b74ae2afa4bf88893340。
+
+累计20项key与6项index资格，共26次direct独立计数；16组历史语义32次调用加
+跨调用删/增边刷新4次，共17组36次。覆盖空/未知、歧义/不同分支、长历史、
+bool/int及float/int相等、NaN后继续消费完整trace、自定义str/tuple/Buchi回调、
+原生/过深tuple、malformed successor的原IndexError；结果与手算值、原引用、
+回调/异常顺序、输入内容/身份/raw保持。完整Run各字段、代价类型、动作原引用保持。
+
+synthetic语义和profile门槛通过后，保存的KTH warmed_planner.pkl仅加载1次，
+SHA 32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554。
+观测配方为原prefix加8个完整闭合suffix循环，共56个观测；未替代为合成图。
+single2/branch64长历史各129观测，shortBranch64为3观测。
+profile旧/候选history过滤行访问single2 128/128、branch64 4160/128、KTH280/24；
+successors调用各2/2、2/2、10/10。候选分别建立0/1/10个索引；branch/KTH
+native key检查190/248次，索引与类型检查开销保留。prefix搜索各1次、suffix各1/1/2次，
+heap push/pop各4/130/48、返回prefix节点2/65/16和suffix节点[2]/[65]/[16,16]保持。
+
+计时调用plain完整improve_plan_given_history，source/Run检查在计时外；每fixture
+六组交替pair，每侧每批200次，按old/new标签重算中位数。累计36 semantic +
+6 profile +9600 timed =9642混合调用，26 direct另计；没有缩短、提前停止或补采样。
+
+| fixture | old ms | candidate ms | candidate slower |
+| --- | ---: | ---: | ---: |
+| single2，129观测 | 16.8119 | 18.67855 | 6/6 |
+| branch64，129观测 | 195.881549 | 175.697699 | 1/6 |
+| shortBranch64，3观测，仅报告 | 135.312 | 137.0506 | 4/6 |
+| KTH，56观测 | 60.4059 | 82.7338995 | 5/6 |
+
+执行前固定single2/branch64/KTH三项候选中位数均不高于旧版；single2与KTH
+分别约增加11.1031%与36.9633%，gate=false，候选未采用，runner/outer均rc4。
+branch64本轮约降10.3041%不能替代另外两项门槛；减扫描不构成整套性能改善。
+result 30065534 bytes，SHA cb640d7379b64e033acad191eb2f4a52b55effdbb99ad650c691c083484553d3。
+
+归档/tmp/ltl_history_index_publication_6aa8112，574项含561 file、12 Git、1 generated，
+manifest SHA f42dccc95bb4336974da6437b001f00feb18430112dcbe4071d310889b4cbcbf。
+独立reader对原件/副本和generated自身一次共1147项size/SHA检查，0 mismatch；
+另核对175冻结输入与90组记录的180对原始graph/trace bytes、完整中位数、侧标签、
+实际失败/continuation计数。pickle仅probe内加载上述snapshot，归档/reader未加载。
+
+本轮只追加README/验证记录。六核心、四测试、ROS2 V0.2接口与可选IRL学习范围保持；
+二十项已采用优化及84a0cd1的既有四模块123项/完整20步margin/β资格保持，未新增
+pytest、生产lint、七包、DDS、provider、benchmark、仿真、实机或Jazzy资格。
+局部probe不证明稳定加速、内存收益或IRL科学效果。
+本节之前470185 bytes验证正文保持，旧SHA
+9c1f576214f00bba265a3090bc02d07bed29a924d7be530943ab34259436d85f。
+
+
+### 11.159 可达 SCC 来源邻接直接迭代（2026-10-10）
+
+基线e1126ce7c8b3d22d2bb48cbc7c116699f7f05e58，DP SHA
+f140302778648b08bfed00d1af2d016f024f37eb2e87af9fdd7de5e456326dff。
+只在dijkstra_plan_networkX的拓扑生成器中，对exact DiGraph/ProdAut绑定product._succ，
+按原prefix_dist和内层邻接顺序迭代；其他图仍逐source读取product.adj[source]。
+保留add_nodes_from/add_edges_from、SCC、None结构边、权重/前缀/后缀/恢复与目标函数。
+与11.143仅绑定AdjacencyView、11.151直接写临时图不同，此候选只省去来源图的包装。
+新DP 24861 bytes，SHA
+06c485fd0afff5b4c084a073a03c2835763c4844d72d2aae753df3b969a61f03；
+仅此函数AST变化，无新import/helper，其他五核心、四测试及BSD notice保持。
+适用冻结的NX2.4原生图实现及搜索期间稳定的图/hash/equality；ordinary映射的
+getitem/iter事件保持，不保证运行中类猴子补丁或caller frame反射的语义。
+
+helper由已资格化prefix-inline helper派生，旧reference只冻结、未执行；未沿用旧资格
+fragment或运行与此改动无关的direct helper控制。执行前27输入manifest SHA
+d0a460ec49a079a4555a119555352e2cb4a1c072b923dc99a3073e8dfdc935c1；helper SHA
+16745372c0da30064f5deba304e2126513576729e5181cd92502339ef215af3c；protocol SHA
+8966d5a71c25e88f6ab77a2c43c63a1d21cb0e36a47a14814c06805157cca9f1。
+唯一probe helper_fix1完成：27 regular各两侧54次，跨调用修改4次，四个新source
+控制各两侧8次，共32组66 semantic；8 profile、12000 timed，共12074混合调用。
+snapshot仅在synthetic门槛通过后加载1次，没有探索inventory、失败后续跑或补采样。
+
+既有default/None/zero tie、Fraction/custom numeric、custom graph/MultiDiGraph、
+显式/无接受/不连通起点、overflow/精确异常与跨调用成本31→22均通过。
+新增控制覆盖原生ProdAut、外层dict subclass、内层dict subclass及custom adj getter；
+每侧外层getitem 15次；内层items8/iter7次；自定义getter7次，事件顺序相同。
+完整Run各字段、代价类型/有序距离、动作原引用、临时拓扑节点/邻接/前驱顺序及边alias
+保持；输入内容/身份与134对capture原始pickle字节和KTH源字节保持。
+
+profile的来源拓扑adj getter旧/新：ring64、bounded64、dense64各64→0，KTH16→0；
+prefix各1次，suffix各64/1/1/2次，返回suffix节点4096/64/64/32，heap push/pop
+4160/128/128/48，restore各2次、临时add_edges_from各1次保持。没有裁剪节点或减少
+搜索次数。历史KTH snapshot SHA
+32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554；
+只执行保存Product的完整kernel，没有重新翻译、构图、三阶段或provider调用。
+
+计时plain完整kernel，每fixture六组交替、每侧每批200次；计数、profile、原始源检查、
+最后Run/动作引用校验及IO都在计时外。原始ns按明确侧标签独立重算：
+
+| fixture | old ms | candidate ms | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1，仅报告 | 5.3658995 | 5.2709 | 0/6 |
+| N64 ring | 496.0914945 | 485.64454 | 1/6 |
+| N64 bounded | 70.3512505 | 62.93305 | 0/6 |
+| N64 dense | 1070.3221885 | 1051.1463895 | 2/6 |
+| KTH | 53.850398 | 52.2244985 | 1/6 |
+
+执行前固定四个主要fixture候选中位数均不高于旧版，本轮全部通过，gate=true、
+runner/outer均rc0，未执行后改门槛。局部降幅约2.1059%/10.5445%/1.7916%/3.0193%，
+不作稳定、整体速度、内存或IRL科学效果声明。result SHA
+4bebd7fb173e484920f8f9e9d2eec45f1bfbbc5675fe11f96f9f67f5b7861a25。
+
+probe归档/tmp/ltl_dp_scc_source_adj_publication_e1126ce，480项含467 file、12 Git、
+1 generated；manifest SHA
+f4d94eaf3802629bf091682f39ef8f7a25adedb380a0c501b2e57df1d3ffe953。
+原receipt报告959项原件/副本检查；独立reader发现清单指向的临时归档脚本原件已缺失，
+该1项只能核对归档副本。原manifest/receipt不改：实际958项size/SHA核对包括466对
+物理原件/副本、12对Git/副本、归档脚本自身一次和generated自身一次，0 mismatch、
+1 missing original。此脚本副本SHA
+8280ff1c4f910c8be47b8ca8d07e0d16347ab4fc8c1cc877c6b353d4b361e7da；
+缺失声明与修正版reader单列，不将脚本副本伪装为独立原件。候选/输入/结果原件均存在。
+归档冻结后新增的lint文件另归下述补充档，不修改已冻结清单。
+
+同一候选字节py_compile/flake8(99列)通过。首python -m pep257因模块不存在rc1，
+实际未启动该lint；保留失败后只用已有ament_pep257执行此项，rc0，没有安装依赖或
+重复compile/flake8。精确应用后一次四模块123 passed、0 skip/error/failure，
+Product/DP/LTLPlanner/IRL为34/32/29/28，含完整20步margin/β、复制/hook/跨调用刷新。
+保留2个既有np.int警告，pytest 1.07s、runner/outer0；六source实际import与四测试
+前后size/SHA相同，绑定新DP。首reader误要求DeprecationWarning标签出现2次，实际
+pytest将两个来源合并为一个Warning段；修正版只读取既有stdout/JUnit，没有重跑pytest。
+
+补充回归/lint归档/tmp/ltl_dp_scc_source_adj_regression_publication_e1126ce，
+55项；manifest SHA f94f0ddce4a203c1c974a6892871b574f7e76f3dc6dce5174284d2c2170a49ed。
+独立原件/副本与generated自身一次共109项size/SHA检查，0 mismatch；
+同时保存首lint/reader失败、归档路径修正、runtime/JUnit与十个新资格source/test字节。
+
+累计采用二十一项；本次局部source资格不替代803f28e的旧七包组合，未新增七包、DDS、
+provider、benchmark、仿真、实机或Jazzy。ROS2 V0.2接口与可选IRL原范围保持。
+本节之前475525 bytes验证正文保持，旧SHA
+a8476286321d9992a834f16f7245ca43877b36cc27fd4e849cad2c27be3f8525。
+
+
+### 11.160 可达临时图的 SCC 原生邻接遍历（2026-10-10）
+
+基线 c4e51082a49dcf858c842aae5467ad8d54f29ee5，旧DP SHA
+06c485fd0afff5b4c084a073a03c2835763c4844d72d2aae753df3b969a61f03。
+新增私有_reachable_components：内部plain DiGraph沿用运行环境NX2.4的
+Tarjan/Nuutila非递归算法，仅将两处G[v]邻接视图读取改为绑定的_succ[v]；
+preorder、lowlink、min列表、stack/set构造、节点与分量yield顺序保持。
+其他图类型调用原NX函数。只替换主规划函数的SCC入口，其余原函数AST保持，
+五个其他core源码保持；BSD声明与SCC作者说明保留。新DP 26588 bytes、SHA
+da118889531ed9a65695423e982f5b398fe35da392308f277e7f507e27914d26。
+
+probe位于/tmp/ltl_dp_scc_native_walk_probe_c4e5108。执行前固定4组独立SCC资格
+8次调用，覆盖空图、手算多分量/出口/孤立点、dense及自定义节点hash回调；
+32组规划控制66次调用、8次profile、12000次完整kernel计时，聚合12082次混合调用。
+snapshot只在资格/语义/合成资源门槛后加载一次。第一次helper在6次合成profile后
+rc3：误把cProfile的generator恢复次数当成单次入口，未加载snapshot、未计时。
+保留helper_fix1/failure/runner/outer及结果；helper_fix2仅读取此前成功结果，
+修正为NX原函数匹配数=分量数+2（含decorator），候选=分量数+1，
+只新增KTH的2次profile及12000次固定计时，未重跑已成功阶段或补采样。
+候选字节与四项性能门槛始终不变。
+
+独立reader在应用前核对226项冻结size/SHA、268个capture的134对原始pickle
+及KTH前后原始字节；完整Run字段、代价类型、动作引用、source content/identity、
+有序prefix/suffix距离、拓扑和实际yield分量次序均保持。
+SCC Graph.__getitem__ profile调用在ring/bounded/dense为191→0，KTH为47→0；
+prefix一次、restore两次，suffix搜索64/1/1/2，返回节点4096/64/64/32，
+heap push/pop 4160/128/128/48保持。自定义来源图getter与outer/inner映射回调保持。
+
+固定六组交替顺序，每侧每组200次完整kernel；profile、序列化、断言、
+文件IO和计数均在计时边界外。单位ms为整批中位数：
+
+| fixture | old | candidate | 更慢配对 |
+| --- | ---: | ---: | ---: |
+| KTH | 54.33415 | 48.23785 | 0/6 |
+| N1 | 5.1228505 | 4.57895 | 0/6 |
+| N64bounded | 74.572952 | 50.7156515 | 0/6 |
+| N64dense | 1129.169406 | 1086.360178 | 1/6 |
+| N64ring | 543.038163 | 491.1619635 | 1/6 |
+
+N1仅报告，其他四项候选中位数不高于旧版为执行前门槛，本轮gate=true，
+续跑runner/outer均rc0。ring/dense各1组更慢，保留所有配对；上述降幅不扩展成
+稳定或端到端速度声明。result_fix2 SHA
+e935d5cda8e68cbf815729be479cacc79971a6801c221fca3111ae5c3d51c16e。
+
+probe归档/tmp/ltl_dp_scc_native_walk_publication_c4e5108，474项
+（461 file、12 Git、1 generated），manifest SHA
+22bc80fae590f1297029bf400faf32e4700ea2675b5cdb0ace3d122b2aa3706e。
+主代理独立原件/副本及generated自身一次共947项size/SHA检查，
+0 mismatch、0 missing original。producer /tmp/archive_scc_native_walk_c4e5108.py
+原件保留，首轮失败与续跑证据均在归档中。
+
+精确应用候选后只运行一次四模块pytest：126 passed、0 skip/error/failure，
+Product/DP/LTLPlanner/IRL为34/35/29/28，1.15s；新增3项分量手算/空图与非原生图
+回退检查，原完整20步margin/β、复制与跨调用刷新测试保持。2个既有np.int警告保留。
+实际source/test的py_compile、flake8(99列)、ament_pep257均rc0；
+六source import与十个source/test前后size/SHA相同。新DP测试34265 bytes、SHA
+d6f136e550407e9ad4c97caa12d42e5481f2707b3cf2f742161c81e5c815821d；
+原32751 bytes测试前缀保持。JUnit SHA
+36bc03464720a971125022ce7ea0c8a5b21272097384fecbc2e8340db55e4fdb。
+
+回归补充归档/tmp/ltl_dp_scc_native_walk_regression_publication_c4e5108，
+47项，manifest SHA de855821d81a48ac4c82401b1706b33e8bbe0a25b258bbd1a765352120efb5c9；
+独立原件/副本及generated自身一次共93项size/SHA检查，
+0 mismatch、0 missing original；producer原件保留，旧primary归档未修改。
+
+累计采用二十二项；本轮为局部源码资格，七包组合资格仍为803f28e，
+未新增七包组合、DDS、provider、benchmark、仿真/实机/Jazzy执行。
+ROS2 V0.2接口和可选IRL的示范轨迹学习软任务权重β范围保持。
+本节之前481358 bytes验证正文保持，旧SHA
+c100b58c594148310167f6a62db3f36d20529e68378defae3e51c4061c91e2c9。
+
+
+### 11.161 SCC lowlink 的 min 两参数候选未采用（2026-10-10）
+
+基线4c5ab125267c0b02ebed0a8790832d51da6e9f89，生产DP仍为26588 bytes、SHA
+da118889531ed9a65695423e982f5b398fe35da392308f277e7f507e27914d26。
+候选仅把_reachable_components内两处min([a,b])改为min(a,b)，移除逐边两元素
+临时列表；lowlink/preorder值为算法自身生成的int，两个字典读取、比较与赋值顺序
+保持。候选26584 bytes、SHA
+6aeafc92daecbb3bbdddfc127678b73964540f7f081e9f4e7f29a4a191f27922；
+其余函数AST与BSD声明保持，未修改生产文件。
+
+目录/tmp/ltl_dp_scc_min_args_probe_4c5ab12。helper.py和helper_fix1.py均未执行：
+静态审阅先纠正来自上一候选的SCC计数条件与builtin min pstats名称，
+再将manifest记录由dict统一为runtime_check读取的list；此前准备记录均保留。
+候选字节和四项性能门槛始终未改。唯一实际执行为helper_fix2.py，完成全部阶段，
+没有运行异常或阶段重跑；runner/outer rc4表示性能门槛未全通过。
+
+本轮4组独立SCC资格8次调用（空图、手算多分量、dense、自定义节点hash），
+32组规划语义66次调用、8次profile、12000次完整kernel计时，聚合12082次混合调用。
+snapshot只在资格、语义及合成资源门槛后加载一次。独立reader核对29项manifest
+size/SHA、268个capture的134对原始pickle与KTH前后字节；六source实际import、
+四测试、六NX文件与snapshot均按固定runtime检查，前后相同。
+完整Run字段、代价类型、action/source别名、outer/inner/getter/hash回调、
+有序拓扑、分量yield、prefix/suffix距离和跨调用权重更新均保持。
+
+本轮profile独立提取各DP文件_reachable_components caller的builtin min调用：
+ring/bounded/dense/KTH两侧均为64/65/4096/31。按代码，旧版每次调用前构造
+两元素列表，候选改传两个参数；此项是调用计数及源码证据，不是总内存测量。
+双方SCC Graph.__getitem__均0、单分量generator恢复数均2；
+prefix一次、restore两次、suffix搜索64/1/1/2、返回节点4096/64/64/32与
+heap push/pop 4160/128/128/48保持。历史profile定位reader与本轮实际profile
+分开记录，未把上轮计数作为本轮执行结果。
+
+固定六组交替，每侧每组200次完整kernel；profile、计数、序列化、断言和IO
+在计时边界外。整批中位数单位ms：
+
+| fixture | old | candidate | 更慢配对 |
+| --- | ---: | ---: | ---: |
+| KTH | 45.0435 | 43.7661495 | 3/6 |
+| N1 | 4.93365 | 4.8858995 | 3/6 |
+| N64bounded | 44.18395 | 44.68125 | 2/6 |
+| N64dense | 1052.4307965 | 1026.0908485 | 1/6 |
+| N64ring | 491.7786995 | 488.8721995 | 1/6 |
+
+N1仅报告；执行前要求其余四项候选中位数均不高于旧版。bounded约慢1.1255%，
+故gate=false，候选不采用；ring/dense/KTH约降0.5910%/2.5028%/2.8358%，
+不以这些子项覆盖失败门槛或扩展稳定速度声明，未补采样。
+result_fix2 SHA
+1c7a0b3c50b81e08d2295654d92af70fb0bc6c76f740bb7a486b5c72937e8843。
+
+归档/tmp/ltl_dp_scc_min_args_publication_4c5ab12，共479项
+（466 file、12 Git、1 generated），manifest SHA
+2c7e518e3e540edf178d54d6857082bcdceb38fa8224af80f2e473f504d2c0c5。
+主代理独立原件/副本及generated自身一次共957项size/SHA核对，
+0 mismatch、0 missing original；producer /tmp/archive_scc_min_args_4c5ab12.py
+原件与未执行准备版本保留，包含完整原始计时/语义/profile证据及HEAD的12个Git blobs。
+
+本轮只修改README/本记录，六core与四测试字节保持，未新增pytest或lint执行。
+二十二项已采用优化与4c5ab12既有126 passed、完整20步IRL margin/β资格保持，
+七包组合资格仍为803f28e；未新增七包、DDS、provider、benchmark、仿真/实机/Jazzy。
+ROS2 V0.2接口与可选IRL原范围保持。
+本节之前485938 bytes验证正文保持，旧SHA
+78edc2736a298e8df2fc4285dc388f899ad56e07f64303f2031a9233f7848f09。
+
+
+### 11.162 当前二十二项优化的七包组合验证刷新（2026-10-10）
+
+本次资格绑定源码提交 `bd75495f7a539d80be1ca0eea0c593a1c25b8c06`，不是把此前局部回归计数相加。
+该提交生产字节与4c5ab12一致，包含二十二项已采用优化；此前完整七包资格为
+`803f28e58307268b4dc328154d195536225867f1`（第11.138节）。
+
+构建/测试目录为 `/tmp/ltl_ros2_combo_bd75495`。冻结七包全部169项受版本控制输入，
+其中原源码闭包138项（Python、IDL、package.xml、CMakeLists.txt），额外31项为
+9份YAML、5份setup.cfg、5个resource marker、6份已安装Markdown和6份LICENSE。
+prepare、build、runtime、test、audit均核对当前字节/哈希与上述Git提交；
+本文发布后仅README和本validation追加记录，因此169项资格绑定执行时的bd75495快照，
+不把追加后的validation字节称作执行过的安装输入。
+
+prepare仅执行一次DP/Product的collect-only，实际收集69项；对旧六份XML的746项
+完整身份/跳过清单，只加入精确8项新增定向用例，执行前固定754项及4项copyright跳过。
+原准备helper及fix1均未执行：静态审阅纠正旧实现重定义、测试名过滤、导入/输入检查
+顺序以及未闭合audit输出的归档。prepare/build实际执行helper为combo_bd75495_fix2.py，SHA
+`d392dcb4565ccbbcaff6ca3f1247a3bdf5fc3678ef77c45e51780f649d09838d`；
+其首次runtime前置检查误将本轮symlink-install生成的WORK/build PYTHONPATH条目
+判作旧combo，rc1，23模块导入和test均未开始；stderr与wrapper聚合test.rc1保留。
+只修正检查器为允许当前WORK/install或WORK/build中的路径，继续拒绝任何旧combo
+及手工repo PYTHONPATH，源码、环境和754项标准均未改。fix3仅续跑runtime/test/audit，
+helper SHA `14921a98c33fde2e924a80db153635bd5a3465f179ca6a4eb0394f9900bf2e22`。
+所有原未执行准备、protocol、manifest与修正producer保留。没有构建或测试阶段重跑。
+
+构建仅source `/opt/ros/humble/setup.bash`，使用sequential executor、symlink-install、
+`--packages-up-to ltl_automaton_core`及BUILD_TESTING=ON。七包均成功，退出码0，
+实际耗时46.233070s。runtime/test仅source Humble和本轮新install，
+未手工prepend repo/core PYTHONPATH；七包ament prefix均来自该install。
+23个实际导入模块路径/size/SHA与169输入一致；生成消息来自本轮build下
+`ltl_automaton_msgs/rosidl_generator_py`。Python3.10.12、NetworkX2.4、原生ltl2ba，
+translator SHA `d4785c387b67be41052800f6913b8476dbaff56730ef962553fd3d339c378ed3`。
+
+七包colcon test保持默认并行executor及完整原用例，退出码0，实际耗时
+36.072696s。六份JUnit结果如下；aggregate包无独立JUnit用例。
+
+| package | tests | passed | skipped |
+| --- | ---: | ---: | ---: |
+| ltl_automaton_msgs | 11 | 11 | 0 |
+| ltl_automaton_planner_core | 230 | 229 | 1 |
+| ltl_automaton_planner | 188 | 187 | 1 |
+| ltl_automaton_execution | 143 | 143 | 0 |
+| ltl_automaton_hil_mic | 131 | 130 | 1 |
+| ltl_automaton_std_transition_systems | 51 | 50 | 1 |
+
+合计**754 tests =750 passed /4 skipped，0 errors/failures**。六份XML的全部
+classname/name/skip标志与prepare冻结清单相等，旧用例无删除、改名或新增跳过；
+新增8项均通过（DP equality、prefix默认/None/zero-tie、两种非原生图回退、
+SCC顺序/输入及两种回退、Product自定义TS getter/action）。
+26类规定用例全部未跳过，包括四个真实DDS闭环、Studio consumer、历史重规划、
+完整20轮IRL margin学习、β事务提交及HIL教学提交、初始/候选失败恢复、
+deepcopy/custom-key/edge-hook、隐藏/缺省权重和SCC拓扑检查。
+CTest包装用例1项passed；colcon test-result汇总755 tests、0 errors、0 failures、4 skipped。
+这些是不同计数层级，不把CTest包装或此前局部126项再次计入754个JUnit用例。
+
+所有32份本轮完整test日志已保存并扫描，未出现
+`Future exception was never retrieved`。已有NetworkX np.int及SelectableGroups弃用警告
+原样保留，不隐去stderr。归档 `/tmp/ltl_ros2_combo_bd75495/verified_evidence`，
+共92份文件，manifest SHA `5f5c5b257343a061509081ade32a505baad34d5db9bd1fec15da3727128e74d9`；主代理独立对原件/副本
+完成184项size/SHA核对，0 mismatch、0 missing original，
+并独立核对169项Git/当前字节、23项导入、六份全量XML、skip、26类要求、CTest和查询结果。
+原803f28e的53份证据及三份历史归档46/61/44项哈希保持，后者仅为历史证据完整性，
+不作为当前源码运行资格。
+
+本轮刷新组合验证，不新增优化或性能采样，累计采用数量仍为二十二项；
+ROS2 V0.2接口和可选IRL原范围保持。验证包含ROS2 DDS与符号执行，
+未执行provider、完整benchmark、物理仿真、实机或Jazzy。
+本节之前489926 bytes验证正文保持，旧SHA
+`d15eab07d639a580ae32e92115960a9e79b0ce32863eba813e99a38a6c71c4e9`。
+
+
+### 11.163 SCC 首次 DFS 邻居迭代器缓存候选评估（2026-10-10，未采用）
+
+本轮基线提交 `d4f5d7efb4bf3ecb3cf75d4501fe672c3f136fc4`，生产字节与第11.162节源码bd75495及
+第11.160节4c5ab12一致。先只读四份历史pstats定位SCC首次DFS的重复扫描，
+未将历史profile当作新测量。候选仅改`_reachable_components`：exact DiGraph、
+普通_node/_succ/inner dict及受限exact str/int/tuple节点形状下，每个首次访问节点
+保存一个邻居迭代器；第二次lowlink扫描、min列表表达式、分量队列与yield逻辑保持。
+自定义图使用原NetworkX回退；自定义节点或映射使用原手工遍历。
+迭代器为单次调用内保存，增加O(V)迭代器存储；本轮未测总内存。
+
+候选27764 bytes，SHA `beba05ce45bfd26a5cdaff2533e25f04b4e1b7ca60d0a5f88369d4512408de5c`；
+基线26588 bytes，SHA `da118889531ed9a65695423e982f5b398fe35da392308f277e7f507e27914d26`。
+原helper的custom图observer未覆盖exact-DiGraph的新增guard，fix1补充这些分支；
+fix1中二节点手算计数7在执行前修正为6（三次while访问加三次邻居检查）。
+原版与fix1均未执行且完整保留。更早的模块级草稿未在静态替换前保存，
+protocol明确记录不可恢复，未声称存在重建原件。
+
+唯一实际执行`helper_fix2.py`，SHA `a68e155d2e28e97ea7fd7e497acdfa5fd30a730f358e1092d50e98e40a537bd8`；
+manifest39项，SHA `3cb3d86470783a5a78189390d65d094dc11083ce9f4cba59a7707e2dd7e56ca3`。
+环境仍为Ubuntu-22.04-D、ROS2 Humble、Python3.10.12、NetworkX2.4，
+source Humble及第11.162节新install；六个实际核心import、四份测试、六份NetworkX文件、
+HEAD/clean与全部冻结输入在前后回读一致。只载入原始warm KTH快照一次，
+且发生于synthetic语义与资源门槛之后；未重建KTH或重跑三阶段演示。
+
+实际完成4组直接SCC/8次调用、32组原语义/66次调用、8次profile、12000次计时，
+原阶段合计12082次。另有独立7组observer/14次AST克隆调用，合计12096次。
+observer只替换preorder为计数dict并记录显式iter，不进入实际profile/计时函数。
+ring3的preorder检查10→8、dense2为9→7，candidate显式iter各3/2次；
+自定义图及exact-DiGraph的_node、outer、inner映射与HashNode四个独立回退组，
+两侧显式iter均为0；exact二节点回退的preorder检查均6次。
+分量顺序及fallback membership/映射/hash事件两侧相等。
+
+全部手算/完整Run/代价类型/动作和来源引用/异常及回调检查通过。
+四图profile保留prefix1、restore2、suffix搜索64/1/1/2、返回suffix节点4096/64/64/32、
+heap push/pop各4160/128/128/48；拓扑、距离次序、SCC生成器恢复次数、输入原字节保持。
+SCC内min调用两侧仍64/65/4096/31，Graph getitem两侧均0；
+显式builtins.iter caller由0变为64/64/64/16，均核对为候选SCC函数。
+主代理独立核对39项冻结输入、134对原始pickle及KTH前后原字节；没有反序列化快照。
+
+计时仍为五图各六对交替顺序、每侧200次完整planner调用；四项强制门槛为
+candidate批次中位数<=baseline，N1仅报告，未放宽、截断或补采样。
+以下单位为200次调用的批次ms，变化为candidate/old−1。
+
+| fixture | old median ms | candidate median ms | 变化 | candidate较慢对数 | 门槛 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| N1 | 4.3175000 | 4.8861000 | +13.1697% | 6/6 | 仅报告 |
+| N64ring | 460.2540505 | 466.9326005 | +1.4511% | 4/6 | 未通过 |
+| N64bounded | 43.1123000 | 45.9142500 | +6.4992% | 6/6 | 未通过 |
+| N64dense | 1049.8415505 | 1022.8402005 | -2.5719% | 2/6 | 通过 |
+| KTH | 45.1902000 | 47.5695500 | +5.2652% | 4/6 | 未通过 |
+
+全部六对批次ms原值（每格old/candidate）：
+
+| fixture | pair0 | pair1 | pair2 | pair3 | pair4 | pair5 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| N1 | 4.4900000/5.1845000 | 4.6128000/5.1271000 | 4.1321000/4.4899000 | 4.2210000/6.3022000 | 4.3548000/4.6451000 | 4.2802000/4.5607000 |
+| N64ring | 481.2467010/503.0596000 | 472.1600000/473.6798000 | 456.4727000/461.5291000 | 449.0301000/472.3361010 | 454.4964000/452.8029000 | 464.0354010/452.1240000 |
+| N64bounded | 43.3754000/46.5272000 | 44.8898000/46.5622000 | 46.3031000/47.3481000 | 42.7614000/45.0290000 | 42.8492000/45.3013000 | 42.6146000/45.0300000 |
+| N64dense | 973.6147010/1012.5177000 | 1205.9218010/996.7527010 | 1071.9757010/1033.4253000 | 1020.2529010/1000.6914010 | 1027.7074000/1053.2215010 | 1127.9850000/1033.1627010 |
+| KTH | 46.0912000/48.4748000 | 47.3461010/46.4022000 | 46.0973000/45.5353000 | 42.9899000/47.1917000 | 42.8506000/50.0183000 | 44.2892000/47.9474000 |
+
+三项强制中位数变慢，最终gate=false，Linux runner记录rc4；同一exec session35096
+最终工具/PowerShell外层退出为1，两值分别保存，未把外层值覆盖成Linux值。
+首版独立reader在误将两者要求相等处停止；修正仅分别记录两层退出值，
+再次只读核对，未重跑planner/profile/计时。stderr保留六条语义控制中的
+no-accepting-run诊断，未清除失败信息。
+准备时未cd的失败diff重定向曾在checkout产生0字节candidate.diff；执行者已确认来源，
+主代理可逆移动并保留在TEMP，实际1923字节diff独立保留，执行前checkout clean。
+
+归档 `/tmp/ltl_dp_scc_neighbors_publication_d4f5d7e`：504项=491份原文件+12份基线
+Git blob+1份生成metadata，manifest SHA
+`edd07932344eb33d8c8014de4cec965c25ecfd11879575049975ef9aae5c0262`。
+主代理独立完成1007项原件/副本size及SHA核对，0 mismatch、0 missing original；
+生成metadata只核对一次，manifest/receipt不自校验。原件producer、未执行准备、
+完整输出/捕获/30对计时、历史profile、reader失败与修正、空diff均保留。
+实际result5060231 bytes，SHA `974b91ce02fab7d5fd4e5268ece358b6b7cc2e4bb130720ca9ccd80d7e91b91d`。
+
+候选未采用，本轮只追加README与验证记录，生产和测试不变，累计仍二十二项。
+既有四模块126项及第11.162节754个JUnit用例继续绑定各自qualified源码，
+不将本轮控制调用计入回归、不声称新pytest或新的七包执行。
+ROS2 V0.2接口、默认关闭的示范轨迹软权重β学习与完整20轮IRL资格保持；
+未执行provider、完整benchmark、物理仿真、实机或Jazzy。
+本节之前494956 bytes验证正文保持，旧SHA
+`7be65e3e599a699509d1fe0bfc4e844d788145d6591518617b2f8ae3394626d0`。
+
+
+### 11.164 tight 路径恢复逐节点读取原生后继映射（2026-10-10，采用）
+
+本轮基线 `9cc1ef99d2a233eff5e8953ceedb625c9c6d8207`。先只读四份历史pstats定位恢复过程的视图包装，
+未把历史profile当作新测量。候选只改`_restore_tight_path`：在target提前退出之后，
+exact DiGraph/ProdAut每个展开节点重新读取`product._succ[current]`；
+自定义图仍读取`product.adj[current]`。没有整图缓存或把guard移到target退出之前。
+NetworkX2.4的标准adj属性和coreviews两层getitem均只是转发映射/包装视图；
+原有neighbor顺序、parent/tie选择、默认权重、cost运算和返回节点引用保持。
+逐节点读取使本次恢复中被替换的后继映射可见。接受性、SCC、heap和IRL算法未改。
+
+基线26588 bytes，SHA `da118889531ed9a65695423e982f5b398fe35da392308f277e7f507e27914d26`；
+采用26719 bytes，SHA `d740e5e7c610b4c9d320016972415a61187d26c0c7d00df66f103821640a5b5c`。
+主代理核对完整替换字节、该函数以外的模块AST、guard位置及每次展开的fresh读取。
+原提交helper（SHA `1a0736233ebda8a8a90ccbaf53e2c2ef304ed8fde6ff764862ff078a00d622ca`）
+未执行且保留；静态审阅修正getter计数、外置event日志、原始9→1重绑定和HashNode控制。
+首实际helper_fix1（SHA `33913d1ca2c4885501f6cba59dc4be98f7d7c274ccc188f6205ea127607378cc`）
+完成SCC8次和第一组恢复2次后停止，rc1，没有执行原语义/profile/计时或加载KTH。
+原因是observer先捕获raw再读graph.nodes，旧图的lazy NodeView缓存随后改变了pickle字节，
+而候选图已暖；失败原字节、输出和诊断保留。只把content/identity观察置于raw捕获之前，
+未删除cache、规范化pickle、改算法或门槛。
+
+实际续跑helper_fix2 79017 bytes，SHA
+`d47e2e4ae720156a403fca4c7a0206d9d44155c4e360357b163b72f4045a255b`；
+protocol SHA `290efd854cb577f0e5e184d4a0eaab00302864863891ac4c6db82fb7abf4ac88`，
+manifest56项，SHA `d03685c7bc65b9a0fcf4f8212e020128e364806d530b7ce2f839290a33ad50fb`。
+环境为Ubuntu-22.04-D、ROS2 Humble、Python3.10.12、NetworkX2.4，
+source Humble及第11.162节combo_bd75495的install；六源码import与四测试字节绑定基线。
+只在synthetic语义/资源检查后载入原warm KTH图一次；未重建图或重跑三阶段演示。
+
+续跑直接继承已完成的SCC8次，不再次执行；九组恢复控制新执行18次，
+包括重检最初失败的native pair2次。原32组语义66次、8次profile、12000次完整计时
+仅执行一次，原阶段新调用12074，加入直接恢复18次为12092；
+再计首失败阶段实际10次，累计实际12102次。继承SCC8次不能重复相加。
+九组控制覆盖native DiGraph/ProdAut、自定义adj getter、exact outer/inner映射、
+HashNode、9→1重绑定、缺失distance及无法恢复的完整RuntimeError args。
+外置回调、邻接读取次序、边默认值、路径节点引用、sources/distances保持；
+重绑定前后图故意改变，但旧/新实现的变化后原字节相等。
+32组完整Run、代价及其类型、动作/来源引用、异常和回调通过。
+
+四图profile保留prefix1、restore2，suffix搜索64/1/1/2、
+返回suffix节点4096/64/64/32、heap push/pop各4160/128/128/48、
+prefix距离节点64/64/64/16和SCC min64/65/4096/31；Graph getitem仍为0。
+恢复函数中coreviews.py两类getitem（line53与80）分别由ring63→0、KTH24→0，
+bounded/dense均0→0。主代理独立读取全部8份pstats并核对这两个精确caller；
+拓扑/距离次序、原始输入保持。独立核对134对raw捕获、18对直接控制捕获及KTH前后
+原字节，未在reader中反序列化快照。
+
+唯一固定五图各六对、交替顺序、每侧200次完整planner调用；四项强制门槛为
+candidate批次中位数<=baseline，N1预设仅报告。没有补采样或放宽门槛。
+以下单位均为200次调用的批次ms，变化为candidate/old−1。
+
+| fixture | old median ms | candidate median ms | 变化 | candidate较慢对数 | 门槛 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| N1 | 4.4740000 | 4.5660010 | +2.0563% | 5/6 | 仅报告 |
+| N64ring | 486.6050810 | 470.7205515 | -3.2644% | 1/6 | 通过 |
+| N64bounded | 43.8264500 | 43.5889000 | -0.5420% | 3/6 | 通过 |
+| N64dense | 1033.4107120 | 1030.9547125 | -0.2377% | 2/6 | 通过 |
+| KTH | 45.8062910 | 41.8776420 | -8.5767% | 0/6 | 通过 |
+
+全部六对原始批次ms（每格old/candidate）：
+
+| fixture | pair0 | pair1 | pair2 | pair3 | pair4 | pair5 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| N1 | 4.4871010/4.6108010 | 4.4712000/4.6749000 | 4.4768000/4.5212010 | 4.8234010/4.7374010 | 4.1158010/4.2606010 | 4.0394000/4.2643010 |
+| N64ring | 474.1423450/461.8597470 | 473.4100530/469.6151510 | 504.1817700/510.7033730 | 497.5584660/495.4534650 | 489.0222620/471.8259520 | 484.1879000/469.5712470 |
+| N64bounded | 42.3368000/43.5310000 | 45.5531000/42.9143000 | 42.5061000/43.6468000 | 44.0563000/41.9746000 | 43.5966000/43.6783000 | 47.7536000/43.6933000 |
+| N64dense | 1028.0831020/1020.7352070 | 1050.8863200/1045.0639200 | 1032.5574200/1017.3589190 | 1026.2977200/1034.2384200 | 1034.2640040/1037.9506020 | 1035.8796030/1027.6710050 |
+| KTH | 47.0278910/40.2348920 | 44.6439920/41.9192920 | 43.6132920/43.3901920 | 46.0194910/41.8487920 | 46.5910910/41.9064920 | 45.5930910/40.8412920 |
+
+四项强制门槛通过，gate=true，续跑Linux runner与PowerShell/tool外层rc均0；
+初次rc1失败保留。bounded/dense差异很小，且分别3/6和2/6对变慢；N1较慢5/6。
+这是本轮固定样例的局部测量，不声称所有图、整套规划或稳定性能改善。
+result_fix2.json 5062379 bytes，SHA
+`c09d6decd2255bb763b9f2adbcc69024ba208acd2b3bdb1842c027bf7e774dbf`。
+应用源码之前，主代理独立核对56项冻结记录、全部语义/原始捕获、计时中位数/attempts、
+来源图和资源计数。主归档`/tmp/ltl_dp_restore_native_publication_9cc1ef9`，
+539项=526份原文件+12份基线Git blob+1份生成metadata，manifest SHA
+`264c25927f48dadcd11771c5b21bb626c82f1f1bea919740a92aa876131b178b`；
+独立1077项原件/副本size及SHA核对，0 mismatch、0 missing original。
+未执行提交草稿、首次失败、修正producer及全部完整计时/profile/capture均保留。
+
+应用后回归目录`/tmp/ltl_dp_restore_native_regression_9cc1ef9`。
+执行共四次runner调用，均无live session：
+原runner因PATH被错误转义，在runtime检查前mkdir失败，tool/外层rc127；
+fix1首次调用同样PATH失败、tool rc127，此后该runner被原地修正且同名outer rc被覆盖，
+因此这次失败只有执行者从工具输出报告的127，没有单独持久化rc或修正前fix1原字节。
+明确保留此缺口，不重建或声称有该原件。以上两次均未执行pytest、compile或lint。
+fix1修正PATH后六import、pytest/JUnit成功，但compile仍用了少一层目录的DP路径，
+compile rc1、tool/outer rc1；stderr和当前runner保留。
+最后fix2仅执行未通过的compile及尚未运行的flake8/pep257，tool/outer rc0，
+未重跑pytest。原runner、当前fix1、fix2及三份实际持久化outer rc均保留，
+四次attempt来源/缺口另存authored metadata，不冒充原始工具stdout/stderr。
+
+回归没有手工repo PYTHONPATH或旧combo overlay。加载Humble及combo_bd75495/install后，
+六个实际core import路径/字节与当前qualification一致，四测试输入执行前绑定。
+四模块仅一次完整pytest：**130 passed、0 skipped/errors/failures**
+（DP39、Product34、LTL29、IRL28）；两条既有NetworkX np.int警告保留。
+旧126项完整classname/name身份及既有测试34265 bytes前缀保持，新增4项为
+native DiGraph/ProdAut/custom-adj三分支和rebound映射；
+检查outer/inner/getter/edge回调、默认值、返回节点引用和sources/distances。
+完整20轮margin/β学习用例通过，IRL源码及测试没有改动。
+新增测试文件40727 bytes，SHA `18fe11b944286a19dff210574c4ef3f0995653f93100c76027f7c851de7fc21e`；
+两份改动Python文件最终py_compile、99列ament_flake8、ament_pep257均rc0，
+资格字节与pytest时一致。主代理独立核对JUnit全量身份、十份源码/测试绑定、
+六import及各实际阶段/outer记录。首次独立reader误用未生成的flake8.rc文件名而停止；
+保留reader，修正为实际fix2文件名及分别记录失败attempt后只读回读通过，未重跑测试。
+
+累计采用二十三项。本轮新源码资格为上述四模块130项；
+第11.162节七包754个JUnit用例仍绑定源码bd75495，不将两者相加或声称重跑七包。
+ROS2 V0.2接口及默认关闭、从示范轨迹学习软任务权重β的IRL原范围保持。
+未新增provider、完整benchmark、DDS、物理仿真、实机或Jazzy执行。
+本节之前501500 bytes验证正文保持，旧SHA
+`d8949f3e04027f33b50cb692dd916a4ce88bae08eee1b01313cc919cb49249a6`。
+
+
+### 11.165 前驱外层视图候选评估（2026-10-10，未采用）
+
+本轮从独立ROS2 checkout的干净HEAD
+`582cf9406f51e4458daf139bdead68e6130b40e1`开始。
+仅评估关闭边扫描的外层前驱视图开销，没有改变目标函数、初始状态、接受性或IRL范围。
+生产源码、四测试输入保持，最终只追加README及本节。
+
+历史只读盘点`/tmp/ltl_dp_hotspot_inventory_582cf94/inventory.json`绑定当前十份源码/测试及
+上轮四份candidate pstats；其SHA为
+`3d7f1f0c5c23291a4c48e6e7cca77fe603b72982929d291cdf0f6641995d912d`。
+盘点使用上轮已执行的profile，不能作为本轮当前性能实测。
+盘点中coreviews.py:80的类名标签应为`AdjacencyView.__getitem__`，该函数构造AtlasView；
+原盘点保持，修正说明保存在主代理静态源码凭据中。
+
+候选冻结于`/tmp/ltl_dp_pred_view_probe_582cf94`。
+baseline DP26719 bytes，SHA
+`d740e5e7c610b4c9d320016972415a61187d26c0c7d00df66f103821640a5b5c`；
+candidate DP26952 bytes，SHA
+`2477bd83f37becc16285a985011a51a7e26a0dd738b94b28474ceaeb68aa0219`。
+候选只新增AtlasView导入，并在每个接受目标的关闭边扫描前，对精确DiGraph/ProdAut使用
+`AtlasView(product._pred[prod_target])`；自定义图类型保留`product.pred[prod_target]`。
+逐目标重新读取outer mapping，内层Mapping.items/AtlasView迭代与key读取保持，
+没有改为直接dict.items；其余函数AST和源码保持。
+
+提交原稿、fix1和root fix2均未执行并原样保留。
+静态修正涉及旧restore getter计数、前驱方向与edge-data alias、实际action引用、
+Run迭代器消费顺序、手算成本、rebound预期，以及PATH转义和Windows proof的Linux路径。
+fix3首次真实运行的tool/Linux/outer rc均为1：SCC8 calls、restore18 calls及前四组pred8 calls
+已经完成；在第五组exact_pred_inner的调用前，pickle触发夹具的PredInner.items禁止检查而失败。
+这次共34混合调用，semantic/profile/timing/snapshot均0，未进入计时。
+原failure_fix3只记录PHASE，遗漏独立restore/pred计数；18次由完成restore原件证明，
+8次pred由八份完整结果及失败traceback发生于下一次计数增加前证明，保留该记录限制。
+没有重建缺失原始工具输出。
+
+root fix4仅让PredInner.items禁止检查在完整kernel执行期间生效，
+序列化期间正常调用dict.items；原始pickle没有去缓存、清洗或归一化。
+failure记录补充独立计数，固定语义/资源/性能门槛保持。
+所有124份冻结输入size/SHA及当前Git输入字节在执行前后核对；
+环境为Humble+combo_bd75495/install、Python3.10.12/NetworkX2.4，
+没有手工repo PYTHONPATH，六个实际core import均来自当前仓库。
+fix4 runner只执行一次并真实终止，tool/Linux/outer rc均为4，结果完整。
+
+本次fix4：四组直接SCC8 calls，九组路径恢复18 calls，七组完整kernel前驱控制14 calls，
+32组原语义66 calls、四图双侧profile8 calls、固定计时12000 calls，共12114混合调用；
+warm KTH snapshot加载一次。加上fix3失败前34次，累计12148，不合并两次采样统计。
+原稿/fix1/fix2 preparation为零运行；没有继承上轮SCC调用冒充当前实测。
+七组pred覆盖exact DiGraph、native ProdAut、custom pred getter、exact outer、
+exact inner、HashNode、首次读取后替换outer mapping。
+手算prefix `[0]`、suffix `[0,1]`，int prefix/suffix/total cost为0/2/20；
+完整Run字段、输出action和返回node的源对象引用、前驱/后继edge-data alias、
+九次weight.get及默认值1、inner/getter/hash事件顺序均保持。
+rebound保留真实raw变化，且old/new post raw一致；其余raw均前后相等。
+此前32组语义、九组restore及RuntimeError类型/完整args检查均通过。
+
+八份原始pstats独立回读：`dijkstra_plan_networkX`精确caller的coreviews.py:80次数
+ring/bounded/dense/KTH从64/1/1/2降为0；line53主函数caller仍均为0，
+line53所有caller总数分别64/2/64/4，两侧保持并保存完整caller明细。
+restore helper对line53/80计数两侧均0。
+suffix搜索64/1/1/2、返回距离节点4096/64/64/32、heap push/pop4160/128/128/48，
+单次prefix搜索、两次restore及此前SCC资源约束均保持。
+134组常规原始capture、18组restore raw、14组pred raw及KTH before/after原件独立回读；
+reader没有加载原始snapshot、重跑planner/profile或额外计时。
+
+每图六对交替顺序、每侧200次完整kernel调用。预设四项必须各自candidate中位数不高于baseline，
+N1仅报告；没有删掉慢对、缩短批次、重采样或放宽门槛。
+
+| 输入 | baseline批次中位ms | candidate批次中位ms | 相对变化 | 较慢对/6 | 预设结果 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| N1 | 4.610696 | 4.761796 | +3.277% | 4 | 仅报告 |
+| N64ring | 467.9997005 | 466.573756 | -0.305% | 2 | 通过 |
+| N64bounded | 42.8585335 | 44.1456315 | +3.003% | 4 | 失败 |
+| N64dense | 1034.644417 | 1036.665749 | +0.195% | 4 | 失败 |
+| KTH | 40.535797 | 40.256697 | -0.689% | 3 | 通过 |
+
+候选总体gate=false，只能支持上述固定运行的结果，不能声称稳定或整套加速。
+`result_fix4.json`5134770 bytes，SHA
+`bd9eb738e1ceddb7a71f6ee7d4f14e88cb84068b90017ddb76c89b8830149ff2`。
+结果、全部实际计时/profile/capture、首次失败和各未执行稿都保留。
+主归档`/tmp/ltl_dp_pred_view_publication_582cf94`有637项
+（624原始file、12不可变Git blob、1生成metadata），manifest SHA
+`644d3686191d0d7fe9e66a614408154d286f6a1025d194d531b79735ce6c525a`。
+独立1273次原件/副本size+SHA核对，0 mismatch/缺件，归档/reader均零runtime和snapshot加载。
+原准备稿及fix1的producer/patch只有执行者内联工具调用，没有单独保存脚本；
+两次外层PowerShell wrapper也只有内联调用，保存的outer rc为原件。
+root fix2/fix3/fix4 producer和Linux runner、stdout/stderr/rc均有文件。
+另存authored provenance说明这些边界，不把它冒充原始工具transcript。
+复制文件名中的original_unexecuted指本轮未执行的继承稿；其来源是上轮已执行并通过的
+restore-view harness，不声称它在历史上从未执行。
+
+生产源码和测试完全保持第11.164节字节，累计采用仍为二十三项。
+已有四模块130项资格与完整20轮可选IRL检查仍绑定该未改动源码；本轮没有执行pytest/compile/lint。
+第11.162节七包754项资格继续绑定原源码bd75495，不与130相加，也不声称新跑七包。
+ROS2 V0.2接口及默认关闭、从示范轨迹学习软任务权重β的IRL原范围保持。
+未新增provider、完整benchmark、DDS、仿真、实机或Jazzy执行。
+本节之前510499 bytes验证正文及52703 bytes README前缀保持，旧SHA分别
+`f42fbb74247ec778c2e5053b83f67d4d57ebdb6a7324b0511f0df3287b150194`与
+`7e93de16b65b74d2d0d4dca979394a38b7da8367e6c56a917e6e510e4c59b4de`。
+
+
+### 11.166 可达拓扑原生字典构建（2026-10-10，已采用）
+
+本轮从独立ROS2 checkout的干净HEAD
+`54bc23ae3ec847753b5551bc52c19b96e1cb6efe`开始。只读热点盘点沿用上轮四份baseline
+pstats，未产生新的性能样本；其文件为`/tmp/ltl_dp_hotspot_inventory_54bc23a/inventory.json`，
+SHA `78057da2a7a3a2d79aba3025d13c1339c1dde24b3b642c8ce445efaa3dd95138`。
+
+候选`_reachable_topology`保持原节点与边插入顺序，在私有DiGraph的outer/inner/edge
+工厂为原生dict时绑定succ/pred及每个source的inner，直接写入独立空edge data，
+同一边的succ/pred共享该data。精确DiGraph/ProdAut沿用原source mapping访问；
+自定义source图仍每个source访问一次公开adj，自定义拓扑工厂仍调用add_edges_from。
+没有改变前缀/后缀搜索、接受性、目标函数、初始状态、代价类型、动作引用或IRL范围。
+此实现相对第11.151节旧候选增加了当前原生source访问与每source inner绑定，
+本轮固定采样独立执行，没有重复使用旧候选失败后的计时数据。
+
+baseline DP26719 bytes，SHA
+`d740e5e7c610b4c9d320016972415a61187d26c0c7d00df66f103821640a5b5c`；
+最终candidate/采用DP27763 bytes，SHA
+`556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`。
+其余五个core文件及三个原测试文件保持；test_discrete_plan.py保留40727-byte原前缀并
+追加六项手算检查：精确DiGraph/ProdAut、custom adj getter及edge/inner/outer factory回退。
+
+准备阶段有明确证据缺口：未执行的27709-byte候选原稿被最终fix1覆盖，
+原稿SHA为`d468ef28bd3adaeb94c06dceee471ea7eeee5820b012690613fe104f86d366c7`，
+覆盖前字节副本缺失；原准备记录因而指向已覆盖路径。保留原producer、diff和说明，
+没有把重建文件当作原件。首次静态producer发生run_probe.sh尚不存在的FileNotFoundError，
+原producer保留，没有补造单独工具stdout/stderr或outer receipt。未执行的重复函数草稿也保留。
+
+fix2首次真实执行在hash_node手算检查失败：SCC8、restore18及pred12共38 calls，
+semantic/profile/timing/topology/snapshot均0。集合推导对两个接受节点分别发生membership与
+set insertion，原oracle漏算后者。主代理独立读取完整轨迹，确认私有建图外所有hash轨迹
+相同，建图内预设减少8次、每个label减少4次，才修正oracle的前4次hash；候选和门槛不改。
+要求hash/equality稳定，不承诺图内部所有hash回调次数相同。fix2 tool/Linux rc独立为1；
+outer rc原文件只有LF，不能作为数值rc，原样保留。fix3用PowerShell直接读取LASTEXITCODE，
+tool/Linux/outer rc均0。独立读取脚本一次沿用旧candidate文件名导致caller匹配失败；
+只修正读取路径，未重新执行planner、profile、计时或snapshot。
+
+fix3单次完整运行绑定141份冻结输入size/SHA，Humble+combo_bd75495/install、
+Python3.10.12/NetworkX2.4、六个实际core import来自当前仓库，未手工设置repo PYTHONPATH。
+四组SCC8 calls、九组restore18、七组完整kernel pred14、六组topology12、
+32组semantic66、四fixture双侧profile8、五fixture固定6对×200/side共12000 timed calls：
+新增12126混合调用，连同首次失败38为12164；暖KTH快照只加载1次。
+146对源图原始pickle、18对restore原始pickle、14对pred原始pickle及KTH源快照逐字节核对；
+Run字段/成本类型/动作引用、factory/getter/weight事件、顺序、源图内容与identity均通过。
+独立reader只读JSON、pstats及原始bytes，不反序列化源快照，不新增运行调用。
+
+profile中add_edges_from调用由每fixture 1→0，其dict.update caller次数
+ring/bounded/dense/KTH为128/130/8192/62→0；add_nodes_from update仍64/64/64/16。
+搜索次数、heap、返回节点、pred getter及路径恢复getter保持预设计数。
+以下是每批200次完整kernel的耗时，不能当作单次调用时延。
+
+| fixture | baseline中位ms | candidate中位ms | 变化 | candidate较慢pair | 门槛 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| N1 | 4.654250 | 4.581500 | -1.563% | 3/6 | 仅报告 |
+| N64ring | 490.468961 | 477.558110 | -2.632% | 1/6 | 通过 |
+| N64bounded | 43.951752 | 39.314852 | -10.550% | 0/6 | 通过 |
+| N64dense | 1114.797221 | 772.020514 | -30.748% | 0/6 | 通过 |
+| KTH | 43.411099 | 39.475850 | -9.065% | 0/6 | 通过 |
+
+四项mandatory门槛全部通过；N1仅报告。未缩短调用、停止于成功前缀、重采样或放宽门槛。
+完整结果`/tmp/ltl_dp_topology_native_probe_54bc23a/result_fix3.json`5193900 bytes，SHA
+`a92b388dd1f53fb339c8205a478b09d3597cc02a96de566534a5edd1abdeb7c0`。
+采用前归档`/tmp/ltl_dp_topology_native_publication_54bc23a`含694条记录
+（681 file、12不可变Git blob、1生成metadata），独立1387次size/SHA读取均通过；manifest SHA
+`23c3b0104e8f838a07417bd0baed167f1287984861500f48c34a065286433aeb`。
+该核对针对留存原件，不能补足前述已丢失草稿字节。
+
+采用后首次四模块pytest为133 passed/3 failed：三项新增factory检查将Counter直接与含零项的
+plain dict比较，实际事件数符合手算值。原失败JUnit、logs、runner及当时test源码字节保留。
+仅修正显式零计数比较并禁止未知事件名，手算数量、候选及性能数据保持；独立新目录执行后
+四模块pytest 136 passed（原130名称全保留、新增6），
+`test_learning_keeps_all_twenty_margin_updates_on_one_private_product`通过，
+确认完整20次IRL更新回归仍执行。六个core实际import与十份source/test输入size/SHA核对通过；
+修改的DP/test通过py_compile、ament_flake8 --linelength 99和ament_pep257。
+JUnit与新source/test SHA由独立regression readback绑定，后续发布追加归档保存。
+累计采用二十四项优化。本轮为定向回归与固定夹具/暖快照测量，未运行正式benchmark、provider、
+Gazebo、Jazzy或机器人端到端；七包754项历史资格仍绑定bd75495，没有与136合并。
+
+
+### 11.167 SCC lowlink 的局部 min/list 消除候选（2026-10-10，未采用）
+
+本轮基线为 HEAD `2bfbd8127b8c28b225b7a48851ba6a954c47a4fb`，生产 DP 字节 SHA 为
+`556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`。候选只在
+`_reachable_components` 的两个 lowlink 更新处去掉临时两元素列表和 builtin `min`，改为
+两个私有整数的条件表达式；preorder 条件、键访问顺序、比较顺序、最终写回顺序、SCC
+分区与遍历顺序保持。候选字节 SHA 为
+`cafaffd627557488eb82d3665fb43c17fcb230feba0a77c338717f81075f14b2`。
+
+32 个语义组共 66 calls、SCC 8、restore 18、pred 14、topology 12、profile 8，固定
+五个 fixture 六组交替 pair、每侧每批 200 次完整 kernel，共 12000 timed calls；暖 KTH
+快照只加载一次，总 mixed calls 为 12126，初始失败计数为0。完整 Run、代价类型、动作
+引用、现有夹具的完整 hash 轨迹与代价回调顺序、源图 content/identity/raw bytes、
+自定义图与 factory fallback 均通过。生产源码/测试字节未改，本轮未重跑pytest、compile或lint。
+
+profile 的 topology add_edges、helper、dict.update 分别在 old/candidate 为 0/0、1/1、
+0/0；reachable min calls 为 ring64 64/0、bounded64 65/0、dense64 4096/0、KTH 31/0，
+其余 heap、prefix、suffix、恢复、节点和 source checks 保持。
+
+| fixture | baseline median ms | candidate median ms | candidate slower |
+| --- | ---: | ---: | ---: |
+| N1（仅报告） | 4.584950 | 4.495150 | 2/6 |
+| N64ring | 484.197477 | 507.159174 | 5/6 |
+| N64bounded | 38.033098 | 36.675498 | 0/6 |
+| N64dense | 689.666255 | 596.194328 | 0/6 |
+| KTH | 36.914099 | 37.265850 | 3/6 |
+
+四项 mandatory gate 中 ring 与 KTH 的 candidate median 高于 baseline，故候选未采用，未
+重采样且未改变门槛。结果 `result_fix1.json` SHA 为
+`fbd1a24f797c24b1c6d8fce0c1fe62ff5e36c38d69f4254ac97ead8d2bca775a`；Linux runner、外层
+PowerShell runner 均为 rc4。原始 stdout/stderr、profile、timing、pickle、已保存准备原稿与静态失败说明均保留。
+
+早期未执行草稿中的分支重复赋值和继承 hash-delta 检查已在静态阶段修正；root checker 的
+等价 old topology builder 文字匹配问题另存更正凭据。盘点历史 source 路径标签的说明保留，
+没有把静态稿或历史 profile 当作本轮额外实验。归档 `/tmp/ltl_dp_scc_inline_min_publication_2bfbd81` 已独立读回，记录：`600` entries、
+`1199` size/SHA checks、manifest SHA `73008685576f70dc1f82fe23ea83dc6449a69155ccd08f09847c506cfd1b2fab`。
+
+本轮不改变二十四项已采用优化、不改变四模块136项资格；七包754项历史资格仍绑定
+`bd75495`，不与当前资格合并。IRL/V0.2 接口与默认关闭的示范轨迹软权重 β 范围保持。
+
+
+### 11.168 搜索循环 builtin next 的局部绑定候选（2026-10-10，未采用）
+
+本轮从干净 HEAD `c8a42cbb04cd28d3a7b61a603e1ed1e17b6d8a77` 继续。生产 DP 为27763 bytes，SHA256 `556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`，与已通过四模块136项资格的2bfbd81源码一致。只读最近四份 `_old.pstats`，它们绑定同一 DP；历史 ring64 的 suffix helper 调用64次、返回4096个距离节点，next 调用4096次，prefix next 64次。历史 profile 用于定位，未重复执行探索 profile。
+
+候选仅在 `_prefix_distances` 与 `_component_distances` 的 `sequence = count()` 后各加 `advance = next`，并把四个 `next(sequence)` 改为 `advance(sequence)`。候选27813 bytes，SHA256 `ecc41bc4aa0a97a73f53401e5cbf43346f66cef7c38ed739a8060e57a91cd684`。count、heap/counter/tie、source 校验、numeric 运算、SCC、路径恢复与完整Run保持；不使用 `sequence.__next__`，不增加按图/fixture分流。适用边界为冻结的普通 builtins/count；未建立运行中模块全局重绑定的兼容性结论。Native 静态 AST/字节码检查确认仅上述六行差异，其他函数 AST 保持。
+
+fix1 保留了上一轮“SCC builtin min 候选为零”的资源 oracle，root在执行前静态发现。独立fix2要求两侧 min 计数均为64/65/4096/31，并额外冻结复用 helper 原件；候选与规模/门槛保持。准备阶段曾创建两个空结果目录，root静态checker在最后目录不存在断言处停止；独立目录清单确认无文件后，仅非递归移除这两个空目录，同一checker随即通过。全部原稿文件保留；上述过程为0 planner/profile/timing/snapshot调用。未重构或补造原始工具 transcript。
+
+执行前后核对41个冻结输入，含当前12份Git源/测试/文档、6份NetworkX、历史暖快照、原helper及准备产物。运行 source Humble + combo_bd75495 install，Python3.10.12、NetworkX2.4，6个实际核心import与4份测试字节绑定当前源码。唯一fix2完成8 SCC、66 semantic、8 profile、12000 timed，以及18 direct restore、14 pred、12 topology调用，合计12126；snapshot仅加载1次，initial_failed_calls=0。独立reader以原始文件与pstats核对4 SCC、32 semantic、9 restore、7 pred、6 topology控制，146对原始capture及KTH前后字节，完整hash顺序、距离/代价类型、异常参数、动作/source identity和custom/factory回调保持。reader没有planner、profile、snapshot或原始pickle反序列化调用。
+
+旧/候选的 builtin next total 4160/128/128/48、prefix 64/64/64/16、suffix 4096/64/64/32保持；heap push/pop、SCC min、搜索和返回节点、拓扑/恢复/pred调用保持。计时仍为每fixture固定6对交替、每侧每批200次完整kernel，包含搜索、SCC、路径恢复与Run；断言/序列化/profile在计时外，各侧保存最后完整Run与source/alias检查。四项mandatory要求candidate median不高于baseline，N1只报告，未补采样或修改门槛。
+
+| fixture | old median / candidate median（200次，ms） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| N1，仅报告 | 5.051400 / 4.975750 | -1.497605% | 3/6 |
+| N64ring | 525.6734025 / 507.547848 | -3.448064% | 3/6 |
+| N64bounded | 39.4342505 / 39.629301 | +0.494622% | 3/6 |
+| N64dense | 698.002800 / 692.571355 | -0.778141% | 2/6 |
+| KTH | 53.393550 / 55.401650 | +3.760941% | 4/6 |
+
+bounded与KTH未通过，gate=false，候选未采用。Linux runner为rc4，工具终端回执为1；保存的outer文件记录工具终端值1，并非原始PowerShell LASTEXITCODE transcript，内外退出差异原因尚未证实。完整result、progress与全部30对计时已落盘，stderr六条为既有负向控制日志，没有failure结果或运行中止记录。后续PowerShell读取把 `/tmp/...` 解析到 `D:/tmp/...` 的错误也保留为包装边界说明，未重跑探针。result 5204504 bytes，SHA256 `cb93f4f28becc835ec698d1ddd7c8dab55c4f9fc7d040d8cfa907025b53526d6`；独立readback明确记录Linux4/tool1，未改写为相同或宣称全层rc0。
+
+完整证据归档 `/tmp/ltl_dp_next_binding_publication_c8a42cb` 为 599 条目，独立核对 1197 次size/SHA，0 mismatch、0 missing originals；manifest SHA256 `d3022330a540a504d29809ca862d8f7bd547780aa10bacbd49209efa2df1fd30`。归档保留fix1/fix2原稿、全部原始测量、41个冻结输入、Native静态/独立reader与12个不可变Git输入；归档不追加任何planner/profile/snapshot调用。
+
+本轮仅追加README和本节，生产与测试字节保持。累计已采用仍为二十四项；当前四模块136项资格继续绑定2bfbd81源码，七包754个JUnit用例继续绑定bd75495历史源码，不相加或声称重跑。未新增pytest/compile/lint，没有provider、正式benchmark、DDS、仿真或实机验证，Jazzy仍未验证；不作稳定整体加速或IRL科学效果声明。
+
+
+### 11.169 重规划节点类型元组复用（2026-10-10，已采用）
+
+基线为干净 HEAD `fa9c990c5ab325133c402b4d2a77ad65f35ae9be`。原LTL为14862 bytes，SHA256
+`a0ba43e4ff046bed8d9b969e7be858f837a24d1bebb6654c12ef956b88bddd2d`；候选14916 bytes，SHA256
+`3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943`。
+仅在 `_copy_for_replanning` 中一次构造 `node_scalar_types = (str, int)`，用于原来的两处
+精确类型成员检查。节点遍历、memo、边属性、hook及最终完整deepcopy保持。适用边界为普通且
+稳定的builtins；未建立运行中重绑定类型名的兼容性结论。
+
+先只读历史profile定位。11.145采用后的候选字节与本轮基线一致；更早完整复制profile绑定
+11.145之前源码，因此只作历史定位。本轮没有重复完整复制profile、加载暖KTH快照或运行规划。
+从两份完整源码AST提取实际嵌套函数及候选闭包赋值，未把闭包改成模块全局查询。
+Native完整方法静态编译与Python3.10工厂检查确认：predicate中的BUILD_TUPLE arg2静态站点
+2→0，外层方法增加1个站点；这是静态字节码站点，不能当作实测动态分配次数。
+
+fix1/fix2未进入测量：补全了原24用例所需类定义、实际Native路径、runtime绑定、失败计数、
+profile门槛和计时外指纹检查。曾观察到fix2 runner在准备期间改写；冻结清单盘点的是最终保存
+字节，未重构未保存的早期runner字节或原始工具transcript。root以独立fix3 helper/protocol/
+manifest执行一次。root静态checker先误把外层全部tuple站点要求为1，忽略已有graph pair，
+更正为相对旧方法增加1后通过；这些准备/静态修正均为0 predicate/profile/planner调用。
+
+执行前后核对60个冻结输入，含6个core、4份测试、README/validation、历史原件及准备脚本；
+source Humble + combo_bd75495 install，Python3.10.12，6个实际核心import绑定当前源码。
+原24个hand cases两侧48 calls；嵌套16输入各侧cProfile16 calls，共32；两侧genexpr均0。
+固定平坦/嵌套各6对交替，每侧1000循环×16输入，共384000 timed calls，总384080。
+计数、断言、指纹及序列化在计时外；每侧结果与整个输入指纹保持，失败侧可独立落盘。
+两项mandatory均要求candidate median不高于old，未补采样、未放宽门槛。
+
+| 输入 | old median ms / candidate median ms（每侧16000次） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| flat tuple | 3.718400 / 2.988800 | -19.621343% | 0/6 |
+| nested tuple | 8.447800 / 6.5589995 | -22.358490% | 0/6 |
+
+两项门槛通过，精确应用候选。上述只测节点类型检查，不包含工厂/复制调用的建立成本，不能
+外推为完整deepcopy、IRL或端到端重规划加速。result为675281 bytes，SHA256
+`3acf31bb1a95701b5b18c5835ad6bf91a8e5b3c3969b8ce4e1ba608fc61f4852`；Linux runner与实际PowerShell外层退出均0，stderr为空。
+独立Native reader核对24控制、两份pstats、24计时侧、12pair、前后runtime与固定规模，未新增调用。
+完整探针归档 `/tmp/ltl_replan_type_tuple_publication_fa9c990`，150 entries、300次size/SHA
+读回，0 mismatch/0 missing originals，manifest SHA256 `e2defda11bb13e4ddb6db4024b981c6f7c7f2090c17205135d4a3504b920b240`。
+
+应用后一次四模块pytest **136 passed**，0 skip/error/failure，原136名称与四份测试字节全保留，
+含标准完整复制、custom key、scalar memo/hook顺序、可变隔离及
+`test_learning_keeps_all_twenty_margin_updates_on_one_private_product`。
+六个实际core import与十份source/test字节检查通过；只对修改的LTL运行py_compile、
+ament_flake8 --linelength99和ament_pep257，均rc0，实际PowerShell外层亦rc0。
+JUnit 17519 bytes，SHA256 `35fde24da29815d32ee164be33873e1cc558bd566ba3dbd4c0b3c5e0d992780d`。
+Native回归reader初次将/mnt/d经WSL UNC读取时遇PermissionError，改为Native盘符映射后读回通过，
+没有重跑pytest。新源码资格与该JUnit绑定；发布附加归档保存回归及最终文档/PR凭据。
+
+累计采用二十五项。V0.2接口与默认关闭的示范轨迹软任务权重β学习范围保持；七包754项JUnit
+仍绑定bd75495历史源码，未与本轮136相加。没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/
+实机验证或IRL科学效果声明。本轮类型检查探针为0 planner/whole-copy/snapshot调用，回归测试
+中的真实复制与完整20次IRL检查按原测试执行；不能将探针零调用口径用于回归。
+
+
+### 11.170 SCC builtin min 的双参数候选（2026-10-10，未采用）
+
+从干净HEAD `d5ca7d90d6718f888ade2e7a530fdc2e104dddff` 继续。生产DP为27763 bytes，SHA256
+`556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`；LTL为14916 bytes，SHA256
+`3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943`。
+只读11.168的四份old profile，并与该轮不可变归档读回一致；它们的DP与当前相同，历史profile
+用于定位，不是当前HEAD的新实测。历史SCC min调用ring/bounded/dense/KTH为64/65/4096/31。
+
+新候选仅在 `_reachable_components` 两处把 `min([lowlink[v], lowlink[w]])` 与
+`min([lowlink[v], preorder[w]])` 改为对应双参数builtin min；27759 bytes，SHA256
+`5970ee990d000d8b7ea5b6413b78e930a52a5df7766d30e38d6f72002c89c7e8`。
+保留builtin min调用、参数求值/字典访问顺序、遍历、SCC输出与完整搜索；与11.167的去掉builtin
+min并使用条件表达式候选不同。静态完整模块/AST检查确认仅上述两行不同，其他函数保持。
+两处BUILD_LIST arg2静态站点2→0，min AST参数数目[1,1]→[2,2]；不是实测动态列表分配计数。
+适用范围为固定普通builtins；未新增运行中重绑定builtin min的兼容性结论。
+
+复用11.168 qualified helper的完整函数、夹具、资源与规模/门槛；root逐字检查，最终helper只改
+OUT、当前HEAD与LTL源码SHA。fix1继承了旧LTL SHA，root在执行前发现；独立fix2更正并保留
+未执行fix1。准备/静态阶段均为0 planner/profile/snapshot调用。
+测量前后核对45个冻结输入，含当前12份Git源/测试/文档、NetworkX6、历史暖快照与qualified
+helper原件；Humble + combo_bd75495、Python3.10.12、NetworkX2.4，6个实际core import绑定源码。
+唯一fix2完成8 SCC、66 semantic、8 profile、12000 timed、18 restore、14 pred、12 topology
+calls，合计12126；暖planner快照加载1次，initial_failed_calls=0。全部32语义、4 SCC、9恢复、
+7 pred、6 topology控制通过；完整Run、代价类型、hash轨迹、回调顺序、动作/source identity、
+custom graph/factory fallback保持。Native reader另核对146对原始capture、直接控制raw bytes与
+KTH前后字节，未运行planner或反序列化原始pickle。
+
+两侧profile的SCC min仍为64/65/4096/31；next总数4160/128/128/48、suffix搜索64/1/1/2、
+返回节点4096/64/64/32保持，其他heap、prefix、拓扑、恢复和pred资源门槛通过。
+每fixture固定6对交替、每侧每批200次完整kernel，包含搜索、SCC、路径恢复和完整Run；
+断言、序列化与profile在计时外。ring/bounded/dense/KTH四项mandatory均要求candidate median
+不高于old，N1只报告；未补采样、未放宽门槛。
+
+| fixture | old median ms / candidate median ms（200次） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| N1 | 4.6130000 / 5.9415505 | +28.800141% | 4/6 |
+| N64ring | 497.5308040 / 492.4647040 | -1.018249% | 3/6 |
+| N64bounded | 38.7006965 / 38.2018970 | -1.288864% | 2/6 |
+| N64dense | 712.5483115 / 680.4306630 | -4.507435% | 0/6 |
+| KTH | 38.5790370 / 38.6197980 | +0.105656% | 4/6 |
+
+KTH未通过四项联合门槛，gate=false，因此候选未采用。N1的报告值亦更慢，不将微小KTH差异
+解释为稳定回退或稳定加速。result 5204908 bytes，SHA256
+`0a6567a3ea36dfd22b7f244141a1cfaa123e0993ba1bb09bdf7863efdf8a8e67`；Linux runner、实际PowerShell LASTEXITCODE及工具终端均4。
+结果与全部固定计时已完成落盘，无failure_fix2.json；stderr六条为既有负向控制日志。
+完整探针归档 `/tmp/ltl_dp_scc_variadic_min_publication_d5ca7d9`，597 entries、1194次size/SHA
+读回，0 mismatch/0 missing originals；manifest SHA256 `694febd23de09fe6a7a39abae9a1a1c27931e17e51d8de6e9af8c9fd2a254b1d`。
+归档保留候选、准备原稿、原始profile/timing/capture、冻结原件与12份不可变Git输入；
+没有追加planner/profile/snapshot调用。
+
+本輪仅追加README和本节，生产与四份测试字节保持。累计已采用仍为二十五项；当前源码与
+11.169四模块136项JUnit及十份source/test绑定一致，未重跑pytest、compile或lint。
+七包754项仍绑定bd75495历史源码，不相加或宣称重跑；V0.2接口与默认关闭的示范轨迹软任务
+权重β学习范围保持。没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/实机或IRL科学效果资格。
+
+
+### 11.171 后缀 Dijkstra 单元素 pending 队列候选（2026-10-10，未采用）
+
+从干净HEAD `e4c43906fe7ae1df0d23100f2cc15045ea2070f4` 继续，DP为27763 bytes、SHA256
+`556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`。
+Native inventory只读11.170的四份old profile，原件与不可变归档一致，且绑定的DP与当前相同；
+历史profile用于定位，不计作本轮实测。LTL、IRL、Product等生产字节及四份测试保持。
+
+候选仅修改 `_component_distances`：原生 `_heapq` push/pop 绑定下，将单元素tuple暂存为pending；
+遇第二个待处理元素，先把pending压入空堆，再压入新元素，随后保留普通堆排序。sequence计数仍
+在原tuple建立位置执行；hash、目标None比较、代价类型、tie、seen/equality与负权异常分支保持。
+任一heap别名为Python wrapper时，两侧保留全部原heap调用。候选28649 bytes，SHA256
+`aa537983bcb9d8ba49d766353a5abc2e1261fcc87b829d244efd33dddf24db4c`；其他16个函数AST保持。
+[CPython 3.10.12源码](https://raw.githubusercontent.com/python/cpython/v3.10.12/Modules/_heapqmodule.c)
+中的空堆push不进入元素比较、单元素pop直接返回末元素，支持该限定范围的队列替换。
+本机 `_heapq` 为built-in，没有 `__file__` 可散列；记录实际绑定metadata及
+`/usr/lib/python3.10/heapq.py`的22877 bytes、SHA256
+`0351667ed3afd3310ebd353526824d6f6f34d641ef0a785552c6893b7f95fdf3`，不伪造extension文件hash。
+
+复用11.170 qualified helper的夹具与固定门槛，仅增加4个直接heap hook控制和候选资源oracle。
+fix1的pop wrapper参数错误在执行前发现，fix2修正；fix3进一步修正历史profile来源及
+suffix_search/returned_nodes字段名称。三个候选DP字节一致，fix2/fix3测试字节一致；fix1/fix2
+没有results目录或候选执行。独立Native AST/hash审核通过；准备阶段工具引号错误亦为0运行调用。
+唯一fix3前后绑定41个冻结输入，Humble + combo_bd75495、Python3.10.12、NetworkX2.4，
+六个实际core import绑定当前源码。完成8 SCC、66 semantic、8 profile、12000 timed、18 restore、
+14 pred、12 topology、4 heap direct calls，合计12130；暖planner快照加载1次，initial_failed_calls=0。
+全部32语义、4 SCC、9恢复、7 pred、6 topology控制和4个heap hook侧通过；后者分别只替换push
+或pop，核对手算距离及每个tuple的调用顺序。Native reader核对146对原始capture、直接恢复/
+前驱控制raw字节及KTH前后字节；hook控制的输入不变由helper断言记录，没有新增raw文件。
+两份新增参数化测试仅为未执行候选草稿，不将direct控制记为pytest通过。
+
+四份old/candidate profile的push与pop总数分别为ring64 4160→64、bounded64 128→64、
+dense64 128→127、KTH 48→42；Native另从原始pstats核对prefix与suffix caller计数。
+prefix仍为64/64/64/16；suffix两侧分别4096→0、64→0、64→63、32→26。
+next总数4160/128/128/48及prefix/suffix拆分不变；suffix搜索64/1/1/2、返回节点4096/64/64/32、
+SCC min 64/65/4096/31和其他prefix、pred、拓扑、恢复、完整Run及source identity门槛保持。
+
+每fixture固定6对交替，每侧每批200次完整kernel，包含搜索、SCC、路径恢复和完整Run；
+断言、序列化和profile在计时外。四项mandatory均要求candidate median不高于old，N1只报告。
+没有补采样或放宽门槛。
+
+| fixture | old median ms / candidate median ms（200次） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| N1 | 5.5636500 / 6.7942500 | +22.118573% | 6/6 |
+| N64ring | 499.1334000 / 498.2907500 | -0.168823% | 2/6 |
+| N64bounded | 43.0562000 / 43.0263500 | -0.069328% | 3/6 |
+| N64dense | 783.5194000 / 816.3901005 | +4.195263% | 3/6 |
+| KTH | 40.1942500 / 42.7485000 | +6.354765% | 5/6 |
+
+KTH及dense未通过联合性能门槛，gate=false，候选未采用。堆调用减少在本组固定采样中没有
+带来四场景共同收益；上述样本变化不作稳定加速/回退结论。result 5208589 bytes，SHA256
+`8fbbe289f4b8264b6f6f0cca2eeb9cbffda86f7a8ccbe484b59e8f53b9e64021`；Linux runner、实际PowerShell LASTEXITCODE及工具终端均4。
+全部固定计时完成，无failure_fix3.json；stderr六条为既有负向控制日志。
+完整探针归档 `/tmp/ltl_dp_suffix_pending_publication_e4c4390`，609 entries、1218次size/SHA
+读回，0 mismatch/0 missing originals；manifest SHA256 `18801ff8e2ad8a29acb6707a755c72ad6a56b7aa04ab8c90dcab973f8f07570f`。
+原始profile/timing/capture、候选与未执行准备稿、冻结原件、Native凭据和12份Git输入均保留。
+Native审查补充归档 `root_review` 为15 entries、30 checks，manifest SHA256
+`352f714da1b6dee3c1a225a7132e5c0cfbd53f162bbd4f2c4ed05fd673dfb640`。首个文档准备脚本在补充归档复制后新增静态字节检查；
+保留其两个版本，并从已验证归档恢复原稿的原路径字节。该修正没有候选或测试运行。
+
+本轮仅追加README及本节，生产/四份测试与11.169合格source/test字节及JUnit匹配。
+累计采用仍为二十五项，四模块136项资格继续适用，未重跑pytest、compile或lint；七包754项
+继续绑定bd75495历史源码，两组计数不相加。ROS2 V0.2接口和默认关闭的示范轨迹软任务权重β
+学习范围保持。没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/实机或IRL科学效果资格。
+
+
+### 11.172 重规划复制的节点 id 局部复用候选（2026-10-10，未采用）
+
+从干净HEAD `f4cb951a215006c8e28c945d65461dcebc7ae12c` 继续。当前LTLPlanner为14916 bytes、SHA256
+`3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943`；候选为14945 bytes、SHA256
+`0b07f71dfb20b1a7c21aa05ea19005d62c59740867e101cedb862971f07b2158`。
+仅将 `_copy_for_replanning` 的 `remember_node` 首次 `id(node)` 保存到局部变量，随后memo查询与写入复用；
+完整deepcopy、memo值、精确类型和两级tuple规则保持，其他10个class method及module AST保持。
+限定普通built-in id绑定，不新增任意global id重绑兼容声明。
+
+定位只读11.171的四份历史old profile，原件与归档绑定且DP与当前相同；这些记录没有deepcopy，
+不把dense的topology_snapshot观察器耗时当作生产热点。复制范围沿用已保存的KTH暖planner快照：
+10636 bytes、SHA256 `32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`。
+使用Humble + combo_bd75495，Python3.10.12、NetworkX2.4，六个实际core import路径/hash绑定当前源码；
+stdlib `/usr/lib/python3.10/copy.py` 为8681 bytes、SHA256
+`27dcfc53a4b9d4fbc3d90c74e549eb6eca9301524d6d2fbff9a6589cf51b6fd5`。
+没有构造planner、执行新规划或调用provider。
+
+fix1/fix2仅静态准备，保留错误helper import、错误环境入口、id profile名称/范围、clone/source字节
+误约束及计时内计数问题；主代理在执行前以fix3移除clone必须等于source的约束并将计数移到计时外。
+fix3首次实际启动在copy.py哈希guard停止：常量遗漏最后一个hex位，rc3；原始failure确认快照加载0、
+wholecopy尝试0。只读环境诊断发现实际文件与此前冻结manifest一致，未更换依赖；另建fix4补全常量，
+保留fix3失败与原件。fix4静态核对35个冻结输入；前后guard一致，manifest12641 bytes、SHA256
+`cb553b868135f1e6d332469a043906428175ad05c343e6657723adb67f0e268f`。
+
+准备描述存在缺口：fix4 protocol继承 `prepared_unexecuted`、`execution_authorized=false` 和fix2 runner
+路径字段，并同时含 `clone_pickle_equal_source=true` / `clone_pickle_equals_source=false`。这些冻结字节
+原样保留，没有事后修正成一致协议；本节按已核对的runner/helper、实际rc、raw文件与result报告。
+实际执行没有clone必须等于source的断言。该描述缺口不能据此宣称协议metadata完全一致。
+
+fix4仅一次完整探针：快照加载1；语义wholecopy4（两侧各2）、profile2（各1）、固定timed2400，
+合计2406。每侧source before/after字节不变，两次clone输出与类型一致，old/candidate输出一致；
+TS/Product graph/node/adj容器隔离、product.graph['ts']内部别名、succ/pred边属性别名，以及peer clone
+可变trace隔离与恢复通过。Native reader只读核对28份raw、两份pstats、12份timing及35份冻结原件，
+没有pickle load、wholecopy或planner调用；本轮没有新增自定义key/hook对照或pytest资格。
+
+profile按built-in id的精确 `remember_node` caller统计，old/candidate调用416→308。
+两侧copy.py handler计数均为deepcopy2649、atomic638、list43、tuple74、dict352。
+该资源下降没有减少完整复制工作或改变递归handler次数。
+
+固定6对交替，每侧每批200次完整复制；断言、序列化、profile、ledger和I/O均在计时外。
+唯一性能门槛为candidate批次中位数不高于old；不补采样、不改门槛。
+
+| fixture | old median ms / candidate median ms（200次完整复制） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| KTH warm snapshot | 270.8921010 / 273.1457005 | +0.831918% | 5/6 |
+
+资源/语义检查通过但时间门槛未通过，gate=false，候选未采用；该样本差异不作稳定性能结论。
+result 19527 bytes、SHA256 `87e22ea739f08efa2b59b682b25e94bb5faff262af1ac999ca149dc2049c8c49`；
+Linux rc、实际PowerShell LASTEXITCODE及工具终端均4，固定计时完成，无fix4 failure文件。
+归档 `/tmp/ltl_replan_node_id_publication_f4cb951` 为127 entries、254次size/SHA读回，
+0 mismatch/0 missing originals；manifest SHA256 `b1d6069784e4ec6711b82fc5e7458fbb37822a3a77df29dc9f77cc0865e527b5`。
+四个准备版本、fix3失败、fix4原始结果/profile/raw/timing、冻结输入、Native凭据及12份Git基线均保留。
+主代理发现主归档未复制两份冻结历史方法/source参考，另建 `frozen_supplement`：2 entries、4 checks，
+manifest SHA256 `9c3439c6a604f9557ffb318057f95cc360d97e2d7025c204a3616cd63fbb5d8a`；主归档原字节保持，补充后35份冻结输入均有副本。
+
+本轮仅追加README及本节，十份生产/测试与11.169资格字节和JUnit匹配。
+累计采用仍为二十五项，现有四模块136项资格继续适用，未重跑pytest、compile或lint；七包754项
+仍绑定bd75495历史源码，计数不合并。ROS2 V0.2接口、默认关闭的示范轨迹软任务权重β学习范围保持。
+没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/实机或IRL科学效果资格。
+
+
+### 11.173 重规划复制的节点属性字符串 memo 候选（2026-10-10，未采用）
+
+从干净HEAD `e3154a592d787f2a77fea01f441039417f14c363` 继续。基线LTLPlanner为14916 bytes、SHA256
+`3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943`；候选15613 bytes、SHA256
+`1339dbc2f1cac6e29a9a71227936ac3b2060c0de0bab073099516481bc92b2f5`。
+仅在精确DiGraph/TSModel/ProdAut且_node为普通dict时遍历节点属性，向单次deepcopy memo预登记
+精确str键和值；自定义图、node table和属性dict保留原回退。新增两个实际图类型import，
+其他10个class method、原不可变节点判定、边标量登记和最终完整deepcopy的AST保持。
+历史11.140/11.144候选未获得候选性能结果，本轮使用当前合格基线独立评估窄字符串范围。
+
+沿用10636 bytes历史KTH暖planner快照，SHA256
+`32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`。
+Humble + combo_bd75495，Python3.10.12、NetworkX2.4，实际六个核心导入与当前文件绑定；
+copy.py为8681 bytes、SHA256 `27dcfc53a4b9d4fbc3d90c74e549eb6eca9301524d6d2fbff9a6589cf51b6fd5`。
+未构造新planner或执行新规划，也未调用provider。
+
+original/fix2/fix3均为未执行准备稿，保留未参与判定的控制字段、错误属性dict控制、
+字符串fixture重建/hash缺口、恢复后才检查隔离及观察器自身metaclass回调等静态问题；
+fix4在执行前补齐。首个Native静态reader误读manifest键名，停止于KeyError；只读修正后通过，
+原reader及事后静态说明保留，未将说明冒充原始stderr或rc。四版候选代码字节相同。
+最终26份冻结输入均核对，manifest SHA256
+`3365de04c46e539e9d5311efad99f8ce2f42e71a982e37c0b1f791fe12f723a7`。
+
+fix4仅执行一次：快照加载1，暖planner语义复制4、profile复制2、六类控制各两侧共12，
+固定暖planner计时复制2400，合计2418次完整复制。普通属性、自定义节点hook、带可变payload的
+str子类/metaclass、node table子类、实际节点属性dict子类及图子类的before/after/clone与事件
+签名逐对相同；正常hook对源属性的修改按两侧结果保留，不套用暖快照源不变门槛。
+副本共享状态及嵌套属性在仍处于修改状态时检查源隔离，并检查恢复。暖planner源before/after
+字节稳定；old/candidate全部clone输出和类型一致，TS/Product容器分离、succ/pred边属性别名、
+product.graph['ts']内部别名与peer clone隔离/恢复通过。不要求clone pickle等于source pickle。
+
+Native独立reader只读核对50份raw pickle、两份原始pstats、12份计时及26份冻结输入，
+没有加载planner快照或执行复制。profile的deepcopy2649、dict352、list43、tuple74、
+keep_alive458、reconstruct62均保持，atomic分派638→511；该变化没有减少递归复制总数。
+固定6对交替、每侧每批200次完整复制，序列化、profile、断言、ledger和I/O均在计时外；
+唯一时间门槛为candidate批次中位数不高于old，没有补采样或放宽门槛。
+
+| fixture | old median ms / candidate median ms（200次完整复制） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| KTH warm snapshot | 272.125900 / 273.004449 | +0.322847% | 3/6 |
+
+语义/资源检查通过，时间gate=false，候选未采用；样本差异不作稳定性能结论。
+result为128629 bytes、SHA256 `61a747ef4b27addce012ec87eb9451fadbab77e5e41387de3f57abf4ac442d54`。
+Linux runner及实际WSL外层rc均4，PowerShell工具包装返回1；三个实际凭据分别保留。
+固定计时全部完成，无runtime failure文件。
+归档 `/tmp/ltl_replan_node_string_publication_e3154a5_fix2` 为168 entries，manifest SHA256
+`bfe3ce81c558fb3e579195fec2105321bc90f7c9f5984541887b8d2b3d1575ae`；准备版本、冻结原件、原始结果/profile/raw/timing与Native凭据保留，
+仓库输入按上述Git基线固定，避免后续文档更新改变历史绑定。
+
+本轮仅追加README及本节；六核心/四测试的十份文件与11.169资格逐字节匹配，原JUnit
+136 passed、0 error/failure/skip及完整20次IRL更新用例核对通过。累计采用仍二十五项，
+本轮未重跑pytest、compile或lint。七包754项继续绑定bd75495历史资格，计数不合并。
+ROS2 V0.2接口及默认关闭的示范轨迹软任务权重β学习范围保持；没有新增正式benchmark、
+provider、DDS、Gazebo、Jazzy、实机或IRL科学效果资格。

@@ -6,8 +6,8 @@ from itertools import product as cartesian_product
 from networkx import DiGraph
 
 from ..boolean_formulas.parser import parse as parse_guard
-from .ltl2ba import parse_ltl
-from .promela import find_states, find_symbols
+from .ltl2ba import run_ltl2ba
+from .promela import Parser, find_states, find_symbols
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -15,9 +15,13 @@ _LOGGER = logging.getLogger(__name__)
 
 def buchi_from_ltl(formula, buchi_type):
     """Construct a Büchi automaton from an LTL formula."""
-    edges = parse_ltl(formula)
+    parser = Parser(run_ltl2ba(formula))
+    edges = parser.parse()
     symbols = find_symbols(formula)
-    states, initial_states, accepting_states = find_states(edges)
+    states, initial_states, accepting_states = find_states(
+        edges,
+        parser.states,
+    )
 
     buchi = DiGraph(
         type=buchi_type,
@@ -88,6 +92,10 @@ def duo_buchi_from_ltls(hard_spec, soft_spec):
     symbols = set(hard_buchi.graph["symbols"]).union(
         soft_buchi.graph["symbols"]
     )
+    hard_initial = frozenset(hard_buchi.graph["initial"])
+    soft_initial = frozenset(soft_buchi.graph["initial"])
+    hard_accept = frozenset(hard_buchi.graph["accept"])
+    soft_accept = frozenset(soft_buchi.graph["accept"])
 
     duo_buchi = DiGraph(
         type="safe_buchi",
@@ -120,14 +128,14 @@ def duo_buchi_from_ltls(hard_spec, soft_spec):
         )
 
         if (
-            hard_node in hard_buchi.graph["initial"]
-            and soft_node in soft_buchi.graph["initial"]
+            hard_node in hard_initial
+            and soft_node in soft_initial
             and level == 1
         ):
             initial_states.add(duo_node)
 
         if (
-            hard_node in hard_buchi.graph["accept"]
+            hard_node in hard_accept
             and level == 1
         ):
             accepting_states.add(duo_node)
@@ -135,57 +143,54 @@ def duo_buchi_from_ltls(hard_spec, soft_spec):
     duo_buchi.graph["accept"] = accepting_states
     duo_buchi.graph["initial"] = initial_states
 
+    hard_successor_table = {
+        source: tuple(
+            (
+                target,
+                hard_buchi.edges[source, target]["guard"],
+            )
+            for target in hard_buchi.successors(source)
+        )
+        for source in hard_buchi.nodes
+    }
+    soft_successor_table = {
+        source: tuple(
+            (
+                target,
+                soft_buchi.edges[source, target]["guard"],
+            )
+            for target in soft_buchi.successors(source)
+        )
+        for source in soft_buchi.nodes
+    }
+
     for source_node in duo_buchi.nodes:
-        for target_node in duo_buchi.nodes:
-            source_hard, source_soft, source_level = check_duo_attributes(
-                duo_buchi,
-                source_node,
+        source_hard, source_soft, source_level = check_duo_attributes(
+            duo_buchi,
+            source_node,
+        )
+
+        if source_level == 1:
+            target_level = (
+                2
+                if source_hard in hard_accept
+                else 1
             )
-            target_hard, target_soft, target_level = check_duo_attributes(
-                duo_buchi,
-                target_node,
-            )
-
-            if (
-                target_hard not in hard_buchi.neighbors(source_hard)
-                or target_soft not in soft_buchi.neighbors(source_soft)
-            ):
-                continue
-
-            hard_guard = hard_buchi.edges[
-                source_hard,
-                target_hard,
-            ]["guard"]
-
-            soft_guard = soft_buchi.edges[
-                source_soft,
-                target_soft,
-            ]["guard"]
-
-            valid_level_transition = (
-                (
-                    source_hard not in hard_buchi.graph["accept"]
-                    and source_level == 1
-                    and target_level == 1
-                )
-                or (
-                    source_hard in hard_buchi.graph["accept"]
-                    and source_level == 1
-                    and target_level == 2
-                )
-                or (
-                    source_soft not in soft_buchi.graph["accept"]
-                    and source_level == 2
-                    and target_level == 2
-                )
-                or (
-                    source_soft in soft_buchi.graph["accept"]
-                    and source_level == 2
-                    and target_level == 1
-                )
+        else:
+            target_level = (
+                1
+                if source_soft in soft_accept
+                else 2
             )
 
-            if valid_level_transition:
+        for target_hard, hard_guard in hard_successor_table[source_hard]:
+            for target_soft, soft_guard in soft_successor_table[source_soft]:
+                target_node = (
+                    target_hard,
+                    target_soft,
+                    target_level,
+                )
+
                 duo_buchi.add_edge(
                     source_node,
                     target_node,

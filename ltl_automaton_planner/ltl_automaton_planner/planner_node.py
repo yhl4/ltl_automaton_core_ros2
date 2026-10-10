@@ -4,8 +4,11 @@ import hashlib
 import importlib
 import subprocess
 import uuid
+from copy import copy
 from copy import deepcopy
 from dataclasses import dataclass
+from functools import partial
+from math import isfinite
 from pathlib import Path
 from threading import RLock, Thread
 from types import MappingProxyType
@@ -13,7 +16,7 @@ from typing import Mapping
 
 import rclpy
 import yaml
-from rcl_interfaces.msg import SetParametersResult
+from rcl_interfaces.msg import ParameterDescriptor, SetParametersResult
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.node import Node
 from rclpy.qos import (
@@ -48,6 +51,7 @@ from ltl_automaton_planner_core.ltl_tools.ltl_planner import (
     LTLPlanner,
 )
 from ltl_automaton_planner_core.ltl_tools.ltl2ba import LTL2BAError
+from ltl_automaton_planner_core.ltl_tools.irl import learn_beta
 from ltl_automaton_planner_core.ltl_tools.ts import TSModel
 
 from .planning_graph_snapshot import (
@@ -95,6 +99,17 @@ class PlanningGraphSerialization:
     product_node_ids: Mapping[object, int] | None
 
 
+@dataclass(frozen=True)
+class IRLPlanningRequest:
+    """Bind isolated teaching input to one committed execution step."""
+
+    planning: PlanningRequest
+    identity: tuple[str, int, int]
+    state_revision: int
+    candidate: LTLPlanner
+    possible_runs: tuple[tuple[object, ...], ...]
+
+
 def serialize_planning_graph(planner, active_ts_sha256: str):
     """Build a snapshot without allowing conversion to fail planning."""
     try:
@@ -115,6 +130,25 @@ def serialize_planning_graph(planner, active_ts_sha256: str):
             ),
             product_node_ids=None,
         )
+
+
+def _validate_candidate_run_costs(run):
+    """Reject a candidate run whose public costs are not finite."""
+    for attribute, field_name in (
+        ("precost", "prefix_cost"),
+        ("sufcost", "suffix_cost"),
+        ("totalcost", "total_cost"),
+    ):
+        try:
+            value = float(getattr(run, attribute))
+        except (TypeError, ValueError, OverflowError) as error:
+            raise ValueError(
+                f"Computed plan {field_name} must be finite."
+            ) from error
+        if not isfinite(value):
+            raise ValueError(
+                f"Computed plan {field_name} must be finite."
+            )
 
 
 def transition_state_mapping(state_message) -> dict[str, str]:
@@ -218,7 +252,10 @@ def compute_candidate_plan(request: PlanningRequest) -> PlanningOutcome:
         )
         planned = planner.optimal(style="static")
     except LTL2BAError as error:
-        if isinstance(error.__cause__, subprocess.CalledProcessError):
+        if (
+            isinstance(error.__cause__, subprocess.CalledProcessError)
+            and error.__cause__.returncode > 0
+        ):
             return PlanningOutcome(
                 PlanLTL.Result.ERROR_INVALID_GOAL,
                 str(error),
@@ -245,6 +282,14 @@ def compute_candidate_plan(request: PlanningRequest) -> PlanningOutcome:
             "No accepting LTL plan was found.",
         )
 
+    try:
+        _validate_candidate_run_costs(planner.run)
+    except ValueError as error:
+        return PlanningOutcome(
+            PlanLTL.Result.ERROR_INTERNAL,
+            str(error),
+        )
+
     planner.curr_ts_state = request.initial_state
     planning_graph = serialize_planning_graph(
         planner,
@@ -263,8 +308,57 @@ def run_candidate_worker(
     future: Future,
     request: PlanningRequest,
 ) -> None:
-    """Compute one candidate and hand its value back to the executor."""
-    future.set_result(compute_candidate_plan(request))
+    """Complete the executor-bound Future even after an unexpected failure."""
+    try:
+        outcome = compute_candidate_plan(request)
+    except Exception as error:
+        outcome = PlanningOutcome(PlanLTL.Result.ERROR_INTERNAL, str(error))
+    future.set_result(outcome)
+
+
+def compute_irl_candidate(request: IRLPlanningRequest) -> PlanningOutcome:
+    """Learn beta and replan using only a worker-owned planner copy."""
+    candidate = request.candidate
+    try:
+        learned = learn_beta(
+            candidate.product,
+            request.possible_runs,
+            candidate.beta,
+            candidate.gamma,
+        )
+        candidate.beta = learned.beta
+        planned = candidate.replan_task(
+            candidate.hard_spec,
+            candidate.soft_spec,
+            request.planning.initial_state,
+        )
+        if not planned or candidate.run is None or candidate.next_move is None:
+            return PlanningOutcome(
+                PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN,
+                "IRL replanning found no accepting executable run.",
+            )
+        _validate_candidate_run_costs(candidate.run)
+        candidate.curr_ts_state = request.planning.initial_state
+        return PlanningOutcome(
+            PlanLTL.Result.ERROR_NONE,
+            "IRL learning and replanning succeeded.",
+            transition_system=candidate.ts,
+            planner=candidate,
+            planning_graph=serialize_planning_graph(
+                candidate, request.planning.source_hash,
+            ),
+        )
+    except Exception as error:
+        return PlanningOutcome(PlanLTL.Result.ERROR_INTERNAL, str(error))
+
+
+def run_irl_worker(future: Future, request: IRLPlanningRequest) -> None:
+    """Complete the executor-bound Future even after an unexpected failure."""
+    try:
+        outcome = compute_irl_candidate(request)
+    except Exception as error:
+        outcome = PlanningOutcome(PlanLTL.Result.ERROR_INTERNAL, str(error))
+    future.set_result(outcome)
 
 
 def load_plugin_specs(config_path) -> dict:
@@ -339,6 +433,7 @@ class PlannerNode(Node):
         self.declare_parameter(
             "initial_ts_state_from_agent",
             False,
+            ParameterDescriptor(read_only=True),
         )
         self.declare_parameter(
             "replan_on_unplanned_move",
@@ -373,6 +468,8 @@ class PlannerNode(Node):
         self._planning_worker = None
         self._planner_instance_id = str(uuid.uuid4())
         self._planning_generation = 0
+        self._execution_step_seq = 0
+        self._ts_state_revision = 0
         self._active_planning_graph_snapshot = None
         self._active_product_node_ids = None
         self._shutting_down = False
@@ -641,11 +738,12 @@ class PlannerNode(Node):
         del request
 
         with self._state_lock:
-            retained_snapshot = deepcopy(
-                self._active_planning_graph_snapshot
-            )
+            retained_snapshot = self._active_planning_graph_snapshot
             active_hash = self._active_ts_sha256
 
+        # Commit replaces the privately owned snapshot instead of editing it.
+        # Copy this captured generation without holding up worker commits.
+        retained_snapshot = deepcopy(retained_snapshot)
         if retained_snapshot is None:
             message = "No active planning graph snapshot."
             response.success = False
@@ -742,6 +840,9 @@ class PlannerNode(Node):
 
         if not soft_task:
             raise ValueError("PlanLTL soft_task must be non-empty.")
+        for name, value in (("beta", goal.beta), ("gamma", goal.gamma)):
+            if not isfinite(value) or value < 0:
+                raise ValueError(f"PlanLTL {name} must be finite and nonnegative.")
 
         with self._state_lock:
             token = self._planning_token
@@ -919,14 +1020,17 @@ class PlannerNode(Node):
             self._planner_instance_id
         )
         committed_snapshot.metadata.planning_generation = new_generation
-        self._planning_generation = new_generation
-        self._active_planning_graph_snapshot = committed_snapshot
         if planning_graph.snapshot.metadata.available:
-            self._active_product_node_ids = MappingProxyType(
+            committed_product_node_ids = MappingProxyType(
                 dict(planning_graph.product_node_ids or {})
             )
         else:
-            self._active_product_node_ids = None
+            committed_product_node_ids = None
+
+        self._planning_generation = new_generation
+        self._execution_step_seq = 0
+        self._active_planning_graph_snapshot = committed_snapshot
+        self._active_product_node_ids = committed_product_node_ids
 
     def _finish_plan_ltl_failure(
         self,
@@ -934,6 +1038,7 @@ class PlannerNode(Node):
         token,
         error_code: int,
         message: str,
+        operation: str = "PlanLTL",
     ):
         """Abort an accepted goal without rolling back live execution."""
         pending_divergence = None
@@ -948,17 +1053,21 @@ class PlannerNode(Node):
                 if origin_state == PlannerStatus.ACTIVE:
                     self._set_planner_status(
                         PlannerStatus.ACTIVE,
-                        "PlanLTL failed; the previous run remains active.",
+                        f"{operation} failed; the previous run remains active.",
                     )
                 else:
                     self._set_planner_status(
                         PlannerStatus.READY,
-                        "PlanLTL failed; the transition system remains ready.",
+                        f"{operation} failed; the transition system remains ready.",
                     )
 
         result = self._plan_ltl_result(error_code, message)
 
-        if not self._shutting_down and goal_handle.is_active:
+        if (
+            not self._shutting_down
+            and goal_handle is not None
+            and goal_handle.is_active
+        ):
             goal_handle.abort()
 
         if pending_divergence is not None and not self._shutting_down:
@@ -971,6 +1080,10 @@ class PlannerNode(Node):
         goal_handle,
         request: PlanningRequest,
         outcome: PlanningOutcome,
+        *,
+        expected_identity=None,
+        expected_state_revision=None,
+        operation: str = "PlanLTL",
     ):
         """Atomically install a fresh candidate after freshness checks."""
         if (
@@ -983,13 +1096,27 @@ class PlannerNode(Node):
                 request.token,
                 PlanLTL.Result.ERROR_INTERNAL,
                 "Candidate planning returned no planner.",
+                operation,
             )
 
+        commit_error = None
         with self._state_lock:
             commit_is_current = not (
                 request.token is not self._planning_token
                 or self._planner_state != PlannerStatus.PLANNING
                 or request.source_hash != self._active_ts_sha256
+                or (
+                    expected_state_revision is not None
+                    and expected_state_revision != self._ts_state_revision
+                )
+                or (
+                    expected_identity is not None
+                    and expected_identity != (
+                        self._planner_instance_id,
+                        self._planning_generation,
+                        self._execution_step_seq,
+                    )
+                )
                 or (
                     request.origin_state == PlannerStatus.ACTIVE
                     and request.initial_state != self._canonical_ts_state
@@ -997,19 +1124,50 @@ class PlannerNode(Node):
             )
 
             if commit_is_current:
-                self._active_transition_system = outcome.transition_system
-                self.ltl_planner = outcome.planner
-                self._canonical_ts_state = request.initial_state
-                self._pending_divergence = None
-                self._waiting_for_initial_state = False
-                self._commit_planning_graph_snapshot(
-                    outcome.planning_graph
-                )
-                self._clear_planning_transaction()
-                self._set_planner_status(
-                    PlannerStatus.ACTIVE,
-                    "The PlanLTL accepted run is active.",
-                )
+                try:
+                    stamp = self.get_clock().now().to_msg()
+                    prefix_plan, suffix_plan = self._plan_messages(
+                        outcome.planner,
+                        stamp,
+                    )
+                    result = PlanLTL.Result()
+                    result.success = True
+                    result.error_code = PlanLTL.Result.ERROR_NONE
+                    result.message = "Planning succeeded."
+                    result.prefix_plan = prefix_plan
+                    result.suffix_plan = suffix_plan
+                    result.total_cost = float(outcome.planner.run.totalcost)
+                    result.planning_time = float(
+                        outcome.planner.planning_time or 0.0
+                    )
+                    self._commit_planning_graph_snapshot(
+                        outcome.planning_graph
+                    )
+                except Exception as error:
+                    commit_error = error
+                else:
+                    self._active_transition_system = outcome.transition_system
+                    self.ltl_planner = outcome.planner
+                    self._canonical_ts_state = request.initial_state
+                    self._pending_divergence = None
+                    self._waiting_for_initial_state = False
+                    self._clear_planning_transaction()
+                    self._set_planner_status(
+                        PlannerStatus.ACTIVE,
+                        f"The {operation} accepted run is active.",
+                    )
+
+        if commit_error is not None:
+            self.get_logger().error(
+                f"{operation} candidate commit failed: {commit_error}"
+            )
+            return self._finish_plan_ltl_failure(
+                goal_handle,
+                request.token,
+                PlanLTL.Result.ERROR_INTERNAL,
+                str(commit_error),
+                operation,
+            )
 
         if not commit_is_current:
             return self._finish_plan_ltl_failure(
@@ -1017,13 +1175,9 @@ class PlannerNode(Node):
                 request.token,
                 PlanLTL.Result.ERROR_NOT_READY,
                 "Execution state changed during planning.",
+                operation,
             )
 
-        stamp = self.get_clock().now().to_msg()
-        prefix_plan, suffix_plan = self._plan_messages(
-            outcome.planner,
-            stamp,
-        )
         self.prefix_plan_publisher.publish(prefix_plan)
         self.suffix_plan_publisher.publish(suffix_plan)
         self._publish_possible_states()
@@ -1031,18 +1185,111 @@ class PlannerNode(Node):
         self._publish_planning_execution_observation()
         self._initialize_plugins()
 
-        result = PlanLTL.Result()
-        result.success = True
-        result.error_code = PlanLTL.Result.ERROR_NONE
-        result.message = "Planning succeeded."
-        result.prefix_plan = prefix_plan
-        result.suffix_plan = suffix_plan
-        result.total_cost = float(outcome.planner.run.totalcost)
-        result.planning_time = float(
-            outcome.planner.planning_time or 0.0
-        )
-        goal_handle.succeed()
+        if goal_handle is not None:
+            goal_handle.succeed()
         return result
+
+    def start_irl_replan(self, possible_runs, identity) -> bool:
+        """Reserve one optional IRL transaction against teaching authority."""
+        with self._state_lock:
+            if (
+                self._shutting_down
+                or self.executor is None
+                or self._planning_token is not None
+                or self._planner_state != PlannerStatus.ACTIVE
+                or identity != (
+                    self._planner_instance_id, self._planning_generation,
+                )
+                or self.ltl_planner is None
+                or self.ltl_planner.product is None
+                or self._canonical_ts_state is None
+                or self.ltl_planner.curr_ts_state != self._canonical_ts_state
+            ):
+                self.get_logger().warning("IRL teaching authority is not ready.")
+                return False
+            try:
+                runs = tuple(tuple(run) for run in possible_runs)
+                if not runs or any(
+                    len(run) < 2 or run[-1][0] != self._canonical_ts_state
+                    for run in runs
+                ):
+                    raise ValueError("IRL requires teaching paths ending at the current state.")
+                candidate = deepcopy(self.ltl_planner)
+            except Exception as error:
+                self.get_logger().warning(f"Cannot isolate IRL teaching input: {error}")
+                return False
+            token = object()
+            planning = PlanningRequest(
+                token=token,
+                origin_state=PlannerStatus.ACTIVE,
+                transition_system_yaml=self._active_ts_yaml,
+                source_hash=self._active_ts_sha256,
+                initial_states=tuple(zip(
+                    self._planner_dimension_names(candidate), self._canonical_ts_state,
+                )),
+                initial_state=self._canonical_ts_state,
+                hard_task=candidate.hard_spec,
+                soft_task=candidate.soft_spec,
+                beta=candidate.beta,
+                gamma=candidate.gamma,
+            )
+            request = IRLPlanningRequest(
+                planning=planning,
+                identity=(
+                    self._planner_instance_id, self._planning_generation,
+                    self._execution_step_seq,
+                ),
+                state_revision=self._ts_state_revision,
+                candidate=candidate,
+                possible_runs=runs,
+            )
+            self._planning_token = token
+            self._planning_origin_state = PlannerStatus.ACTIVE
+            self._planning_source_yaml = self._active_ts_yaml
+            self._planning_source_hash = self._active_ts_sha256
+            self._pending_divergence = None
+            future = Future(executor=self.executor)
+            future.add_done_callback(partial(self._finish_irl_replan, request))
+            worker = Thread(
+                target=run_irl_worker, args=(future, request),
+                name="irl_worker", daemon=True,
+            )
+            self._planning_worker = worker
+            self._set_planner_status(PlannerStatus.PLANNING, "IRL learning is in progress.")
+        try:
+            worker.start()
+        except RuntimeError as error:
+            self._finish_plan_ltl_failure(
+                None, token, PlanLTL.Result.ERROR_INTERNAL, str(error), "IRL",
+            )
+            return False
+        return True
+
+    def _finish_irl_replan(self, request, future) -> None:
+        """Commit an IRL outcome on the executor after strict freshness checks."""
+        if self._shutting_down:
+            return
+        try:
+            outcome = future.result()
+        except Exception as error:
+            outcome = PlanningOutcome(PlanLTL.Result.ERROR_INTERNAL, str(error))
+        if outcome.error_code != PlanLTL.Result.ERROR_NONE:
+            self.get_logger().warning(f"IRL learning failed: {outcome.message}")
+            self._finish_plan_ltl_failure(
+                None, request.planning.token, outcome.error_code, outcome.message, "IRL",
+            )
+            return
+        result = self._commit_plan_ltl_candidate(
+            None, request.planning, outcome,
+            expected_identity=request.identity,
+            expected_state_revision=request.state_revision, operation="IRL",
+        )
+        if result.success:
+            self.get_logger().info(
+                f"IRL committed beta {request.planning.beta} -> {outcome.planner.beta}."
+            )
+        else:
+            self.get_logger().warning(f"IRL result rejected: {result.message}")
 
     def _initialize_plugins(self) -> None:
         """Load configured planner plugins after planning is available."""
@@ -1242,6 +1489,46 @@ class PlannerNode(Node):
                 style="static"
             )
 
+            if not success or planner.run is None:
+                self.get_logger().error(
+                    "No accepting LTL plan was found."
+                )
+                with self._state_lock:
+                    self.ltl_planner = None
+                    self._set_planner_status(
+                        PlannerStatus.READY,
+                        "No accepting plan; transition system remains ready.",
+                    )
+                return False
+
+            _validate_candidate_run_costs(planner.run)
+
+            initial_states = (
+                planner.product
+                .graph["ts"]  # type: ignore
+                .graph["initial"]
+            )
+            canonical_state = None
+
+            if initial_states:
+                canonical_state = next(iter(initial_states))
+                planner.curr_ts_state = canonical_state
+
+            snapshot = serialize_planning_graph(
+                planner,
+                self._active_ts_sha256,
+            )
+            stamp = self.get_clock().now().to_msg()
+            prefix_plan, suffix_plan = self._plan_messages(
+                planner,
+                stamp,
+            )
+
+            with self._state_lock:
+                self._commit_planning_graph_snapshot(snapshot)
+                self.ltl_planner = planner
+                self._canonical_ts_state = canonical_state
+
         except Exception as error:
             self.get_logger().error(
                 f"Planner initialization failed: {error}"
@@ -1255,38 +1542,7 @@ class PlannerNode(Node):
                 )
             return False
 
-        if not success or planner.run is None:
-            self.get_logger().error(
-                "No accepting LTL plan was found."
-            )
-            with self._state_lock:
-                self.ltl_planner = None
-                self._set_planner_status(
-                    PlannerStatus.READY,
-                    "No accepting plan; transition system remains ready.",
-                )
-            return False
-
-        initial_states = (
-            planner.product
-            .graph["ts"]  # type: ignore
-            .graph["initial"]
-        )
-        canonical_state = None
-
-        if initial_states:
-            canonical_state = next(iter(initial_states))
-            planner.curr_ts_state = canonical_state
-
-        snapshot = serialize_planning_graph(
-            planner,
-            self._active_ts_sha256,
-        )
-
         with self._state_lock:
-            self.ltl_planner = planner
-            self._canonical_ts_state = canonical_state
-            self._commit_planning_graph_snapshot(snapshot)
             self._set_planner_status(
                 PlannerStatus.ACTIVE,
                 "An accepted LTL run is active.",
@@ -1306,7 +1562,11 @@ class PlannerNode(Node):
             f"Suffix actions: {self.ltl_planner.run.suf_plan}"
         )
 
-        self._publish_plan()
+        self.prefix_plan_publisher.publish(prefix_plan)
+        self.suffix_plan_publisher.publish(suffix_plan)
+        self.get_logger().info(
+            "Published prefix and suffix plans."
+        )
         self._publish_next_move()
         self._publish_planning_execution_observation()
         return True
@@ -1332,20 +1592,24 @@ class PlannerNode(Node):
         self,
         state,
         planner=None,
+        dimension_names=None,
     ) -> TransitionSystemState:
         """Convert an internal TS node into a ROS2 state message."""
         message = TransitionSystemState()
 
         message.states = serialize_transition_state_values(state)
 
-        target_planner = (
-            self.ltl_planner
-            if planner is None
-            else planner
-        )
-        message.state_dimension_names = (
-            self._planner_dimension_names(target_planner)
-        )
+        if dimension_names is None:
+            target_planner = (
+                self.ltl_planner
+                if planner is None
+                else planner
+            )
+            message.state_dimension_names = (
+                self._planner_dimension_names(target_planner)
+            )
+        else:
+            message.state_dimension_names = list(dimension_names)
 
         return message
 
@@ -1358,18 +1622,33 @@ class PlannerNode(Node):
         prefix_message = LTLPlan()
         prefix_message.header.stamp = stamp
         prefix_message.action_sequence = list(run.pre_plan)
-        prefix_message.ts_state_sequence = [
-            self._state_to_message(state, planner=planner)
-            for state in run.line
-        ]
+        dimension_names = None
+        prefix_states = []
+        for state in run.line:
+            state_message = self._state_to_message(
+                state,
+                planner=planner,
+                dimension_names=dimension_names,
+            )
+            if dimension_names is None:
+                dimension_names = tuple(state_message.state_dimension_names)
+            prefix_states.append(state_message)
+        prefix_message.ts_state_sequence = prefix_states
 
         suffix_message = LTLPlan()
         suffix_message.header.stamp = stamp
         suffix_message.action_sequence = list(run.suf_plan)
-        suffix_message.ts_state_sequence = [
-            self._state_to_message(state, planner=planner)
-            for state in run.loop
-        ]
+        suffix_states = []
+        for state in run.loop:
+            state_message = self._state_to_message(
+                state,
+                planner=planner,
+                dimension_names=dimension_names,
+            )
+            if dimension_names is None:
+                dimension_names = tuple(state_message.state_dimension_names)
+            suffix_states.append(state_message)
+        suffix_message.ts_state_sequence = suffix_states
         return prefix_message, suffix_message
 
     def _publish_plan(self) -> None:
@@ -1402,22 +1681,21 @@ class PlannerNode(Node):
 
     def _publish_possible_states(self) -> None:
         """Publish currently possible product-automaton states."""
-        if (
-            self.ltl_planner is None
-            or self.ltl_planner.product is None
-        ):
+        planner = self.ltl_planner
+        if planner is None or planner.product is None:
             self.get_logger().warning(
                 "No product automaton is available."
             )
             return
 
         possible_states = getattr(
-            self.ltl_planner.product,
+            planner.product,
             "possible_states",
             set(),
         )
 
         ltl_state_messages: list[LTLState] = []
+        dimension_names = None
 
         for ts_state, buchi_state in sorted(
             possible_states,
@@ -1425,8 +1703,16 @@ class PlannerNode(Node):
         ):
             ltl_state_message = LTLState()
             ltl_state_message.ts_state = (
-                self._state_to_message(ts_state)
+                self._state_to_message(
+                    ts_state,
+                    planner=planner,
+                    dimension_names=dimension_names,
+                )
             )
+            if dimension_names is None:
+                dimension_names = tuple(
+                    ltl_state_message.ts_state.state_dimension_names
+                )
             ltl_state_message.buchi_state = str(
                 buchi_state
             )
@@ -1504,6 +1790,7 @@ class PlannerNode(Node):
             observation.planning_generation = (
                 snapshot.metadata.planning_generation
             )
+            observation.execution_step_seq = self._execution_step_seq
             observation.possible_product_node_ids = (
                 possible_product_node_ids
             )
@@ -1521,6 +1808,8 @@ class PlannerNode(Node):
     def _update_possible_states(
         self,
         ts_state: tuple[str, ...],
+        *,
+        enforce_accepting_boundary=True,
     ) -> bool:
         """Update and publish product states matching a TS state."""
         if self.ltl_planner is None:
@@ -1532,7 +1821,7 @@ class PlannerNode(Node):
 
         states_available = (
             self.ltl_planner.update_possible_states(
-                ts_state
+                ts_state, enforce_accepting_boundary=enforce_accepting_boundary,
             )
         )
 
@@ -1554,11 +1843,19 @@ class PlannerNode(Node):
         )
 
     def _state_from_message(self, message):
-        """Normalize a stamped state according to active TS dimensions."""
-        _, canonical_state = normalize_transition_state(
-            message.ts_state,
-            self._active_ts_yaml,
+        """Validate feedback against the already constructed active TS."""
+        transition_system = self._active_transition_system
+        if transition_system is None:
+            raise ValueError("No active transition system is loaded.")
+        mapping = transition_state_mapping(message.ts_state)
+        dimensions = flatten_state_dimension_names(
+            transition_system.graph["ts_state_format"]
         )
+        if set(mapping) != set(dimensions):
+            raise ValueError("TS state dimensions do not match the active TS.")
+        canonical_state = tuple(mapping[dimension] for dimension in dimensions)
+        if canonical_state not in transition_system:
+            raise ValueError(f"TS state {canonical_state!r} is not defined.")
         return canonical_state
 
     def _expected_next_state(self):
@@ -1631,7 +1928,8 @@ class PlannerNode(Node):
             response.success = False
             return response
 
-        current_state = self.ltl_planner.curr_ts_state
+        active_planner = self.ltl_planner
+        current_state = active_planner.curr_ts_state
 
         self._set_planner_status(
             PlannerStatus.PLANNING,
@@ -1652,11 +1950,43 @@ class PlannerNode(Node):
         )
 
         try:
-            replanned = self.ltl_planner.replan_task(
+            candidate = copy(active_planner)
+            replanned = candidate.replan_task(
                 hard_task,
                 soft_task,
                 current_state,
             )
+            if (
+                not replanned
+                or candidate.run is None
+                or candidate.next_move is None
+            ):
+                self.get_logger().error(
+                    "No accepting plan was found for the new task."
+                )
+                self._set_planner_status(
+                    PlannerStatus.ACTIVE,
+                    "Task replanning failed; the previous run remains active.",
+                )
+                response.success = False
+                return response
+
+            _validate_candidate_run_costs(candidate.run)
+            snapshot = serialize_planning_graph(
+                candidate,
+                self._active_ts_sha256,
+            )
+            stamp = self.get_clock().now().to_msg()
+            prefix_plan, suffix_plan = self._plan_messages(
+                candidate,
+                stamp,
+            )
+            candidate_ts = candidate.ts
+
+            with self._state_lock:
+                self._commit_planning_graph_snapshot(snapshot)
+                self.ltl_planner = candidate
+                self._active_transition_system = candidate_ts
         except Exception as error:
             self.get_logger().error(
                 f"Task replanning failed: {error}"
@@ -1668,35 +1998,18 @@ class PlannerNode(Node):
             response.success = False
             return response
 
-        if (
-            not replanned
-            or self.ltl_planner.run is None
-            or self.ltl_planner.next_move is None
-        ):
-            self.get_logger().error(
-                "No accepting plan was found for the new task."
-            )
-            self._set_planner_status(
-                PlannerStatus.ACTIVE,
-                "Task replanning failed; the previous run remains active.",
-            )
-            response.success = False
-            return response
-
-        snapshot = serialize_planning_graph(
-            self.ltl_planner,
-            self._active_ts_sha256,
-        )
-
         with self._state_lock:
-            self._commit_planning_graph_snapshot(snapshot)
             self._set_planner_status(
                 PlannerStatus.ACTIVE,
                 "The replanned accepted LTL run is active.",
             )
 
         self._publish_possible_states()
-        self._publish_plan()
+        self.prefix_plan_publisher.publish(prefix_plan)
+        self.suffix_plan_publisher.publish(suffix_plan)
+        self.get_logger().info(
+            "Published prefix and suffix plans."
+        )
         self._publish_next_move()
         self._publish_planning_execution_observation()
 
@@ -1715,7 +2028,11 @@ class PlannerNode(Node):
         if not self.replan_on_unplanned_move:
             self.ltl_planner.curr_ts_state = reached_state
 
-            if self._update_possible_states(reached_state):
+            # The planned cursor does not constrain an alternative observed
+            # word. Product successors still enforce its hard guards.
+            if self._update_possible_states(
+                reached_state, enforce_accepting_boundary=False,
+            ):
                 self._publish_planning_execution_observation()
                 self._run_plugins(reached_state)
                 self.get_logger().warning(
@@ -1729,14 +2046,50 @@ class PlannerNode(Node):
                 "Product states; replanning is required."
             )
 
+        active_planner = self.ltl_planner
         try:
             self._set_planner_status(
                 PlannerStatus.PLANNING,
                 "State-based replanning is in progress.",
             )
-            replanned = self.ltl_planner.replan_from_ts_state(
+            candidate = copy(active_planner)
+            replanned = candidate.replan_from_ts_state(
                 reached_state
             )
+            if (
+                not replanned
+                or candidate.run is None
+                or candidate.next_move is None
+            ):
+                self.get_logger().error(
+                    "No accepting plan was found from "
+                    f"the unexpected state {reached_state}."
+                )
+                self._set_planner_status(
+                    PlannerStatus.ACTIVE,
+                    "State-based replanning failed; "
+                    "the previous run remains active.",
+                )
+                return False
+
+            _validate_candidate_run_costs(candidate.run)
+            candidate.curr_ts_state = reached_state
+            snapshot = serialize_planning_graph(
+                candidate,
+                self._active_ts_sha256,
+            )
+            stamp = self.get_clock().now().to_msg()
+            prefix_plan, suffix_plan = self._plan_messages(
+                candidate,
+                stamp,
+            )
+            candidate_ts = candidate.ts
+
+            with self._state_lock:
+                self._commit_planning_graph_snapshot(snapshot)
+                self.ltl_planner = candidate
+                self._active_transition_system = candidate_ts
+                self._canonical_ts_state = reached_state
         except Exception as error:
             self.get_logger().error(
                 f"Replanning from {reached_state} failed: {error}"
@@ -1748,31 +2101,7 @@ class PlannerNode(Node):
             )
             return False
 
-        if (
-            not replanned
-            or self.ltl_planner.run is None
-            or self.ltl_planner.next_move is None
-        ):
-            self.get_logger().error(
-                "No accepting plan was found from "
-                f"the unexpected state {reached_state}."
-            )
-            self._set_planner_status(
-                PlannerStatus.ACTIVE,
-                "State-based replanning failed; "
-                "the previous run remains active.",
-            )
-            return False
-
-        self.ltl_planner.curr_ts_state = reached_state
-        snapshot = serialize_planning_graph(
-            self.ltl_planner,
-            self._active_ts_sha256,
-        )
-
         with self._state_lock:
-            self._canonical_ts_state = reached_state
-            self._commit_planning_graph_snapshot(snapshot)
             self._set_planner_status(
                 PlannerStatus.ACTIVE,
                 "The state-replanned accepted LTL run is active.",
@@ -1785,7 +2114,11 @@ class PlannerNode(Node):
         self.get_logger().info(
             f"Selected next move: {self.ltl_planner.next_move}"
         )
-        self._publish_plan()
+        self.prefix_plan_publisher.publish(prefix_plan)
+        self.suffix_plan_publisher.publish(suffix_plan)
+        self.get_logger().info(
+            "Published prefix and suffix plans."
+        )
         self._publish_next_move()
         self._publish_planning_execution_observation()
         self._run_plugins(reached_state)
@@ -1838,10 +2171,11 @@ class PlannerNode(Node):
 
         if (
             self.check_timestamp
-            and message_stamp == self._previous_state_stamp
+            and self._previous_state_stamp is not None
+            and message_stamp <= self._previous_state_stamp
         ):
             self.get_logger().warning(
-                "Ignoring TS state with a repeated timestamp: "
+                "Ignoring TS state with a repeated or older timestamp: "
                 f"{message_stamp}."
             )
             return
@@ -1864,6 +2198,9 @@ class PlannerNode(Node):
                 f"Ignoring repeated TS state: {reached_state}"
             )
             return
+
+        with self._state_lock:
+            self._ts_state_revision += 1
 
         active_transaction = (
             self._planner_state == PlannerStatus.PLANNING
@@ -1921,6 +2258,9 @@ class PlannerNode(Node):
                 f"Failed to advance the plan: {error}"
             )
             return
+
+        with self._state_lock:
+            self._execution_step_seq += 1
 
         self.get_logger().info(
             f"Reached expected TS state: {reached_state}"

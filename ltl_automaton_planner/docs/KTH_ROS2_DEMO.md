@@ -109,6 +109,9 @@ Planner 从 (r2, loaded) 自动重规划
 Driver 是确定性的演示节点，不是机器人执行器。它只订阅
 `/next_move_cmd`、发布 `/ts_state`，并在指定阶段调用 `/replanning`。
 
+每条生成的 Python 状态消息独立持有状态值和维度名列表。编辑一条消息
+不会改变其他消息、Driver 的维度定义或后续发布；字段值和顺序保持。
+
 ## 5. 分阶段现场演示
 
 ### 5.1 启动 Planner
@@ -211,14 +214,21 @@ Published next move: goto_r1
 | `deviation` | 第一条 `goto_r2` 改为合法分支 `r3` |
 | `full` | 正常推进、任务切换、合法偏离和恢复 |
 
-可调参数：
+以下 Driver 参数在启动时设置，运行时只读；`use_sim_time` 仍可动态修改。
+`kth_demo.launch.py` 暴露 `scenario`、`step_delay` 和 `max_steps`，
+完整六项也可通过 `ros2 run ... --ros-args -p 名称:=值` 在节点启动时覆盖。
 
 | 参数 | 默认值 | 说明 |
 |---|---:|---|
 | `scenario` | `normal` | 演示场景 |
-| `step_delay` | `1.0` | 每次状态反馈间隔，单位秒 |
+| `step_delay` | `1.0` | 每次状态反馈间隔，单位秒；须为有限正数且在 ROS 定时器范围内 |
 | `max_steps` | `8` | 最多发布的状态数 |
 | `replanning_after_steps` | `3` | 切换任务前的正常反馈数 |
+| `replanning_hard_task` | `<> r3` | 切换时请求的 hard task |
+| `replanning_soft_task` | `(r3 \|\| ! r3)` | 切换时请求的 soft task |
+
+NaN、无穷和超出定时器范围的 `step_delay` 在创建驱动通信接口前返回
+参数错误。有效延迟与场景步数保持原规则；此校验不改变规划或任务切换。
 
 ## 7. 3–5 分钟现场讲解脚本
 

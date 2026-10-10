@@ -30,6 +30,47 @@ Topics and service retain the ROS 1 names:
 - publishes transient-local `current_region`
 - serves `closest_region` using `ltl_automaton_msgs/srv/ClosestState`
 
+Input x/y coordinates and all quaternion components must be finite; a zero
+quaternion is rejected. Supply a unit quaternion following the
+[ROS 2 convention](https://github.com/ros2/ros2_documentation/blob/humble/source/Tutorials/Intermediate/Tf2/Quaternion-Fundamentals.rst);
+the monitor keeps the existing yaw formula without normalizing the input.
+Rejected feedback is logged and does not publish a region or replace the last
+valid pose used by `closest_region`. That service reports the last valid pose;
+it does not certify observation freshness.
+Programmatic model calls also report overflow in the x/y or quaternion
+finite-value check as the existing `ValueError`, retaining the original cause.
+The planar model continues to ignore the position z coordinate.
+
+Region search checks the station request before scanning the station-name list.
+For ordinary TS string names, an empty request or a requested name absent from
+the candidates skips that list check. Stations still take priority over squares, and
+candidate order, strict boundaries and hysteresis remain unchanged.
+
+## 6D joint-space monitor
+
+```bash
+ros2 launch ltl_automaton_std_transition_systems \
+  region_6d_jointspace_monitor.launch.py \
+  transition_system_path:="$(ros2 pkg prefix --share ltl_automaton_std_transition_systems)/config/example_6d_jointspace_ts.yaml"
+```
+
+`transition_system_path` is required and selects the TS YAML. The monitor subscribes to
+`feedback/joint_state` and publishes transient-local `current_region`.
+The first six joint positions must be present and finite; later positions remain
+ignored. Invalid feedback is logged without changing or publishing the last
+valid region. Region membership retains the strict distance `< radius` rule.
+Programmatic model calls report invalid first-six coordinates as `ValueError`,
+including numeric overflow during their finite-value check.
+Each model update validates the input once before searching candidate regions.
+Direct `is_in_region` calls independently apply the same validation before
+looking up a region.
+
+The monitors' `transition_system_path` and the 2D monitor's `pose_message_type`
+are startup-only, read-only parameters. Configure them through launch arguments
+or startup ROS parameters. Runtime writes are rejected because the running
+model and subscription are not reloaded. The inherited `use_sim_time` parameter
+retains ROS 2's dynamic clock behavior.
+
 ## Generator
 
 The output path is explicit so an installed package is never modified:
@@ -41,3 +82,10 @@ ros2 run ltl_automaton_std_transition_systems \
 
 Generated actions include planner guards and the initial grid cell is derived
 from the entered initial position.
+Place the initial x/y position strictly inside one grid cell. Shared cell edges,
+outer edges and corners are rejected, matching the monitor's initial membership
+rule. Positive hysteresis still retains an occupied region near its boundary
+during movement.
+Cell side length must be positive. Grid/station geometry, the initial x/y
+position and derived cell centers must be finite. Violations of these geometry
+checks raise `ValueError` before a TS file is written.

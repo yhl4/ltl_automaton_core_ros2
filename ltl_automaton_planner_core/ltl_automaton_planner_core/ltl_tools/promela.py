@@ -16,13 +16,17 @@ class Parser:
 
     # Expressions describing the input language.
     vertex_regex = re.compile(r"(?P<name>\w+_\w+):\s*")
-    never_regex = re.compile(r"never \{ /\*(?P<formula>.+)\*/")
+    never_regex = re.compile(
+        r"never\s*\{\s*/\*(?P<formula>.*?)\*/",
+        re.DOTALL,
+    )
     if_regex = re.compile(r"if")
     edge_regex = re.compile(
         r":: (?P<cond>\(.*\)) -> goto (?P<dest>\w+_\w+)"
     )
     fi_regex = re.compile(r"fi;")
     skip_regex = re.compile(r"skip")
+    false_regex = re.compile(r"false;")
     end_regex = re.compile(r"\}")
 
     def __init__(self, instring):
@@ -30,6 +34,7 @@ class Parser:
         self.instring = instring
         self.pos = 0
         self.formula = None
+        self.states = set()
 
     def eat_whitespace(self):
         """Consume whitespace from the current parser position."""
@@ -57,35 +62,61 @@ class Parser:
         edges = {}
 
         never_claim = self.accept(self.never_regex)
+        if never_claim is None:
+            raise ParseException("Expected a never claim header.")
         self.formula = never_claim["formula"]
 
         vertex = self.accept(self.vertex_regex)
 
         while vertex is not None:
             vertex_name = vertex["name"]
+            if vertex_name in self.states:
+                raise ParseException(
+                    f"Duplicate state declaration: {vertex_name}"
+                )
+            self.states.add(vertex_name)
 
             if self.accept(self.if_regex) is not None:
                 edge = self.accept(self.edge_regex)
+                edge_count = 0
 
                 while edge is not None:
-                    edges[(vertex_name, edge["dest"])] = edge["cond"]
+                    edge_key = (vertex_name, edge["dest"])
+                    if edge_key in edges:
+                        edges[edge_key].append(edge["cond"])
+                    else:
+                        edges[edge_key] = [edge["cond"]]
+                    edge_count += 1
                     edge = self.accept(self.edge_regex)
 
-                self.accept(self.fi_regex)
+                if edge_count == 0:
+                    raise ParseException(
+                        f"State {vertex_name} has an empty if block."
+                    )
+                if self.accept(self.fi_regex) is None:
+                    raise ParseException(
+                        f"State {vertex_name} is missing 'fi;'."
+                    )
 
             elif self.accept(self.skip_regex) is not None:
                 # A skip statement represents a self-loop.
-                edges[(vertex_name, vertex_name)] = "1"
+                edges[(vertex_name, vertex_name)] = ["1"]
+
+            elif self.accept(self.false_regex) is not None:
+                # A false statement declares an isolated blocking state.
+                pass
 
             else:
                 remainder = self.instring[self.pos:]
                 raise ParseException(
-                    f"Expected 'if' or 'skip', but got: {remainder}"
+                    "Expected 'if', 'skip', or 'false', "
+                    f"but got: {remainder}"
                 )
 
             vertex = self.accept(self.vertex_regex)
 
-        self.accept(self.end_regex)
+        if self.accept(self.end_regex) is None:
+            raise ParseException("Expected closing '}'.")
         self.eat_whitespace()
 
         if self.pos != len(self.instring):
@@ -94,7 +125,26 @@ class Parser:
                 f"Input not fully parsed. Remainder: {remainder}"
             )
 
-        return edges
+        if not self.states:
+            raise ParseException("The never claim declares no states.")
+
+        undeclared_targets = {
+            target
+            for _, target in edges
+            if target not in self.states
+        }
+        if undeclared_targets:
+            raise ParseException(
+                "Edges target undeclared states: "
+                + ", ".join(sorted(undeclared_targets))
+            )
+
+        return {
+            edge_key: conditions[0]
+            if len(conditions) == 1
+            else " || ".join(f"({condition})" for condition in conditions)
+            for edge_key, conditions in edges.items()
+        }
 
 
 def parse(promela):
@@ -103,9 +153,9 @@ def parse(promela):
     return parser.parse()
 
 
-def find_states(edges):
+def find_states(edges, declared_states=()):
     """Return all, initial, and accepting Büchi states."""
-    states = set()
+    states = set(declared_states)
     initial_states = set()
     accepting_states = set()
 
@@ -129,7 +179,7 @@ def find_states(edges):
 
 def find_symbols(formula):
     """Return the sorted atomic propositions found in a formula."""
-    symbol_regex = re.compile(r"[a-z]+[a-z0-9]*")
-    symbols = set(symbol_regex.findall(formula))
+    symbol_regex = re.compile(r"[a-z][a-zA-Z0-9_]*")
+    symbols = set(symbol_regex.findall(formula)) - {"true", "false"}
 
     return sorted(symbols)

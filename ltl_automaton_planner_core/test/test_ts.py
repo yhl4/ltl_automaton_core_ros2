@@ -1,5 +1,10 @@
-from networkx import DiGraph
+from copy import deepcopy
 
+from networkx import DiGraph
+from networkx import NetworkXError
+import pytest
+
+from ltl_automaton_planner_core.configuration.transition_system import state_models_from_ts
 from ltl_automaton_planner_core.ltl_tools.ts import TSModel
 
 
@@ -41,6 +46,96 @@ def make_load_model() -> DiGraph:
     )
 
     return model
+
+
+def make_ownership_ts(dimensions):
+    """Build a small configuration accepted by state_models_from_ts."""
+    state_models = {
+        "region": {
+            "initial": "r1",
+            "nodes": {
+                "r1": {"connected_to": {"r2": "move"}},
+                "r2": {"connected_to": {}},
+            },
+        },
+    }
+    actions = {"move": {"guard": "1", "weight": 1.0}}
+    if len(dimensions) == 2:
+        state_models["load"] = {
+            "initial": "empty",
+            "nodes": {
+                "empty": {"connected_to": {"loaded": "move"}},
+                "loaded": {"connected_to": {}},
+            },
+        }
+    return {
+        "state_dim": list(dimensions),
+        "state_models": state_models,
+        "actions": actions,
+    }
+
+
+def _graph_semantics(graph):
+    return (
+        tuple(graph.nodes),
+        tuple(
+            (source, target, dict(data))
+            for source, target, data in graph.edges(data=True)
+        ),
+        frozenset(graph.graph["initial"]),
+    )
+
+
+@pytest.mark.parametrize(
+    "dimensions", [("region",), ("region", "load")],
+    ids=["one_dimension", "two_dimensions"],
+)
+def test_ts_state_format_isolated_across_models_and_rebuilds(dimensions):
+    """Keep configured dimension metadata independent across TSModel builds."""
+    factors = state_models_from_ts(make_ownership_ts(dimensions))
+    model = TSModel(factors)
+    sibling = TSModel(factors)
+    model.build_full()
+    sibling.build_full()
+
+    expected_format = deepcopy(model.graph["ts_state_format"])
+    factor_formats = [list(factor.graph["ts_state_format"]) for factor in factors]
+    model_semantics = _graph_semantics(model)
+    sibling_semantics = _graph_semantics(sibling)
+    factor_semantics = [_graph_semantics(factor) for factor in factors]
+
+    if len(dimensions) == 1:
+        model.graph["ts_state_format"][0] = "model_only"
+    else:
+        model.graph["ts_state_format"][0][0] = "model_only"
+
+    assert factors[0].graph["ts_state_format"] == factor_formats[0]
+    assert sibling.graph["ts_state_format"] == expected_format
+    assert _graph_semantics(model) == model_semantics
+    assert _graph_semantics(sibling) == sibling_semantics
+    assert [_graph_semantics(factor) for factor in factors] == factor_semantics
+
+    changed_format = deepcopy(model.graph["ts_state_format"])
+    factors[0].graph["ts_state_format"][0] = "source_only"
+    assert model.graph["ts_state_format"] == changed_format
+    assert sibling.graph["ts_state_format"] == expected_format
+
+    model.build_full()
+    expected_rebuilt_format = (
+        factors[0].graph["ts_state_format"]
+        if len(dimensions) == 1
+        else [
+            factors[0].graph["ts_state_format"],
+            factors[1].graph["ts_state_format"],
+        ]
+    )
+    assert model.graph["ts_state_format"] == expected_rebuilt_format
+    if len(dimensions) == 1:
+        model.graph["ts_state_format"][0] = "rebuilt_model_only"
+    else:
+        model.graph["ts_state_format"][0][0] = "rebuilt_model_only"
+    assert factors[0].graph["ts_state_format"][0] == "source_only"
+    assert _graph_semantics(model) == model_semantics
 
 
 def test_build_full_composes_nodes_and_initial_state() -> None:
@@ -98,3 +193,377 @@ def test_set_initial_state() -> None:
     assert model.set_initial(("r2", "loaded")) is True
     assert model.graph["initial"] == {("r2", "loaded")}
     assert model.set_initial(("unknown", "state")) is False
+
+
+@pytest.mark.parametrize(
+    "initial_factory", [lambda: {("r1",)}, lambda: [("r1",)]],
+    ids=["set", "list"],
+)
+def test_single_dimension_initial_ownership_and_rebuild(initial_factory):
+    """Keep single-dimension initial containers independent across builds."""
+    factor = make_region_model()
+    factor.graph["initial"] = initial_factory()
+    model = TSModel([factor])
+    sibling = TSModel([factor])
+    model.build_full()
+    sibling.build_full()
+
+    expected_initial = initial_factory()
+    model.graph["initial"].clear()
+    assert factor.graph["initial"] == expected_initial
+    assert sibling.graph["initial"] == expected_initial
+
+    _append_initial(factor.graph["initial"], ("r2",))
+    expected_empty = [] if isinstance(model.graph["initial"], list) else set()
+    assert model.graph["initial"] == expected_empty
+    assert sibling.graph["initial"] == expected_initial
+    assert model.edges[("r1",), ("r2",)] == factor.edges[("r1",), ("r2",)]
+    assert model.set_initial(("r2",)) is True
+    assert model.graph["initial"] == {("r2",)}
+    assert model.set_initial(("unknown",)) is False
+    assert model.graph["initial"] == {("r2",)}
+
+    model.build_full()
+    rebuilt_initial = initial_factory()
+    _append_initial(rebuilt_initial, ("r2",))
+    assert model.graph["initial"] == rebuilt_initial
+    model.graph["initial"].clear()
+    assert factor.graph["initial"] == rebuilt_initial
+
+
+def _append_initial(initial, state):
+    if isinstance(initial, list):
+        initial.append(state)
+    else:
+        initial.add(state)
+
+
+def test_single_dimension_guard_is_enforced():
+    """Apply the same source-label guard rule to one-dimensional systems."""
+    region = make_region_model()
+    for state in region:
+        region.nodes[state]["label"] = {state[0]}
+    region[("r1",)][("r2",)]["guard"] = "r2"
+    model = TSModel([region])
+    model.build_full()
+    assert not model.has_edge(("r1",), ("r2",))
+
+
+@pytest.mark.parametrize("explicit_label", [False, True], ids=["fallback", "explicit"])
+def test_single_factor_reuses_guards_per_source_and_refreshes(explicit_label, monkeypatch):
+    """Reuse each source guard result without sharing truth across labels."""
+    factor = DiGraph(initial={("r1",)}, ts_state_format="region")
+    for name in ("r1", "r2", "t1", "t2", "t3", "t4"):
+        node = (name,)
+        if explicit_label or name not in {"r1", "r2"}:
+            factor.add_node(node, label={name})
+        else:
+            factor.add_node(node)
+
+    for source in ("r1", "r2"):
+        for index, target in enumerate(("t1", "t2", "t3", "t4")):
+            factor.add_edge(
+                (source,),
+                (target,),
+                action=f"{source}_{target}",
+                guard="r1" if index < 3 else "1",
+                weight=float(index + 1),
+            )
+
+    model = TSModel([factor])
+    checks = _record_guard_checks(monkeypatch, model)
+    model.build_full()
+    labels = (("r1",), ("r2",))
+    expected_checks = [
+        ("r1", labels[0]), ("1", labels[0]),
+        ("r1", labels[1]), ("1", labels[1]),
+    ]
+    assert checks == expected_checks
+    expected_edges = [
+        (("r1",), ("t1",), "r1_t1", "r1", 1.0),
+        (("r1",), ("t2",), "r1_t2", "r1", 2.0),
+        (("r1",), ("t3",), "r1_t3", "r1", 3.0),
+        (("r1",), ("t4",), "r1_t4", "1", 4.0),
+        (("r2",), ("t4",), "r2_t4", "1", 4.0),
+    ]
+    assert list(model.edges) == [
+        (source, target) for source, target, *_ in expected_edges
+    ]
+    for source, target, action, guard, weight in expected_edges:
+        assert model.edges[source, target] == dict(
+            action=action,
+            guard=guard,
+            weight=weight,
+        )
+
+    model.build_full()
+    assert checks == expected_checks * 2
+
+    for source in ("r1", "r2"):
+        for target in ("t1", "t2", "t3"):
+            factor.edges[(source,), (target,)]["guard"] = "r2"
+    checks.clear()
+    model.build_full()
+    assert checks == [
+        ("r2", labels[0]), ("1", labels[0]),
+        ("r2", labels[1]), ("1", labels[1]),
+    ]
+    assert list(model.edges) == [
+        (("r1",), ("t4",)),
+        (("r2",), ("t1",)),
+        (("r2",), ("t2",)),
+        (("r2",), ("t3",)),
+        (("r2",), ("t4",)),
+    ]
+    assert model.is_action_allowed("r2", labels[0]) is False
+    assert model.is_action_allowed("r2", labels[1]) is True
+
+    if explicit_label:
+        factor.nodes[("r1",)]["label"] = {"r2"}
+        factor.nodes[("r2",)]["label"] = {"r1"}
+        checks.clear()
+        model.build_full()
+        assert checks == [
+            ("r2", labels[1]), ("1", labels[1]),
+            ("r2", labels[0]), ("1", labels[0]),
+        ]
+        assert list(model.edges) == [
+            (source, target) for source, target, *_ in expected_edges
+        ]
+
+
+def make_factor_model(states, initial):
+    """Create an edgeless factor for Cartesian composition checks."""
+    graph = DiGraph(initial=set(initial))
+    graph.graph["ts_state_format"] = "factor"
+    for state in states:
+        graph.add_node(state)
+    return graph
+
+
+def test_three_factor_composition_preserves_order_and_node_metadata():
+    """Compose factors lazily while preserving tuple order and metadata."""
+    factors = [
+        make_factor_model([("a",), ("b",)], {("a",)}),
+        make_factor_model([("x",), ("y",)], {("x",)}),
+        make_factor_model([("0",), ("1",)], {("0",)}),
+    ]
+    model = TSModel(factors)
+    model.compose_nodes(factors)
+
+    assert list(model.nodes) == [
+        ("a", "x", "0"),
+        ("a", "x", "1"),
+        ("a", "y", "0"),
+        ("a", "y", "1"),
+        ("b", "x", "0"),
+        ("b", "x", "1"),
+        ("b", "y", "0"),
+        ("b", "y", "1"),
+    ]
+    assert model.nodes[("a", "x", "0")]["label"] == (
+        "a", "x", "0"
+    )
+    assert model.nodes[("a", "x", "0")]["marker"] == "unvisited"
+
+
+def test_composed_initial_states_use_all_factor_initials():
+    """Update initial states from the Cartesian product of factor initials."""
+    factors = [
+        make_factor_model([("a",), ("b",)], {("a",), ("b",)}),
+        make_factor_model([("x",), ("y",)], {("x",), ("y",)}),
+    ]
+    model = TSModel(factors)
+    model.compose_initial(factors)
+
+    assert model.graph["initial"] == {
+        ("a", "x"),
+        ("a", "y"),
+        ("b", "x"),
+        ("b", "y"),
+    }
+
+
+def test_node_product_public_list_contract_including_empty_factors():
+    """Keep the public list helper behavior for zero and empty inputs."""
+    assert TSModel.node_product() == [()]
+    assert TSModel.node_product([("a",)], []) == []
+    assert TSModel.node_product(
+        [("a",), ("b",)],
+        [("x",), ("y",)],
+    ) == [
+        ("a", "x"),
+        ("a", "y"),
+        ("b", "x"),
+        ("b", "y"),
+    ]
+
+
+def _branching_factors():
+    region, load = make_region_model(), make_load_model()
+    region.add_edge(("r1",), ("r1",), action="stay_region", guard="1", weight=3.0)
+    region.add_edge(("r2",), ("r2",), action="stay_r2", guard="empty", weight=4.0)
+    load.add_edge(("empty",), ("empty",), action="wait", guard="1", weight=5.0)
+    load.add_edge(("loaded",), ("loaded",), action="hold", guard="r2", weight=6.0)
+    return [region, load]
+
+
+def test_factor_successors_preserve_order_cross_dimension_guards_and_overwrites():
+    """Match hand-specified edges with source-label guards and self-loop collisions."""
+    factors = _branching_factors()
+    model = TSModel(factors)
+    model.build_full()
+    assert list(model) == [
+        ("r1", "empty"), ("r1", "loaded"), ("r2", "empty"), ("r2", "loaded"),
+    ]
+    expected = [
+        (("r1", "empty"), ("r2", "empty"), "goto_r2", "1", 2.0),
+        (("r1", "empty"), ("r1", "empty"), "wait", "1", 5.0),
+        (("r1", "loaded"), ("r2", "loaded"), "goto_r2", "1", 2.0),
+        (("r1", "loaded"), ("r1", "loaded"), "stay_region", "1", 3.0),
+        (("r2", "empty"), ("r2", "empty"), "wait", "1", 5.0),
+        (("r2", "empty"), ("r2", "loaded"), "load", "r2", 1.0),
+        (("r2", "loaded"), ("r2", "loaded"), "hold", "r2", 6.0),
+    ]
+    assert list(model.edges) == [(source, target) for source, target, *_ in expected]
+    for source, target, action, guard, weight in expected:
+        assert model.edges[source, target] == dict(
+            action=action, guard=guard, weight=weight, marker="visited",
+        )
+    assert model.graph["initial"] == {("r1", "empty")}
+    assert model.graph["ts_state_format"] == ["region", "load"]
+    assert model.state_models is factors
+    for node, attributes in model.nodes(data=True):
+        assert attributes == dict(label=node, marker="unvisited")
+
+
+def test_factor_successors_rebuild_reads_new_guards_edges_actions_costs_and_initials():
+    """Read changed factors again and discard earlier composed transitions."""
+    factors = _branching_factors()
+    model = TSModel(factors)
+    model.build_full()
+    region, load = factors
+    region.edges[("r1",), ("r2",)].update(weight=2.5, action="updated_go")
+    region.remove_edge(("r1",), ("r1",))
+    region.add_edge(("r2",), ("r1",), action="return", guard="loaded", weight=7.0)
+    load.edges[("empty",), ("loaded",)].update(guard="r1", action="new_load", weight=9.5)
+    region.graph["initial"] = {("r2",)}
+    load.graph["initial"] = {("loaded",)}
+    model.build_full()
+    assert model.graph["initial"] == {("r2", "loaded")}
+    assert not model.has_edge(("r1", "loaded"), ("r1", "loaded"))
+    assert not model.has_edge(("r2", "empty"), ("r2", "loaded"))
+    assert not model.has_edge(("r2", "empty"), ("r1", "empty"))
+    for source, target, action, guard, weight in (
+        (("r1", "empty"), ("r1", "loaded"), "new_load", "r1", 9.5),
+        (("r1", "loaded"), ("r2", "loaded"), "updated_go", "1", 2.5),
+        (("r2", "loaded"), ("r1", "loaded"), "return", "loaded", 7.0),
+    ):
+        assert model.edges[source, target] == dict(
+            action=action, guard=guard, weight=weight, marker="visited",
+        )
+
+
+def test_factor_successors_empty_composition_keeps_empty_graph():
+    """An empty factor yields no composed states, edges, or initial states."""
+    empty = DiGraph(initial=set(), ts_state_format="empty")
+    model = TSModel([make_region_model(), empty])
+    model.build_full()
+    assert list(model) == []
+    assert list(model.edges) == []
+    assert model.graph["initial"] == set()
+    assert model._guard_cache == {}
+
+
+def test_factor_successors_missing_factor_state_keeps_networkx_error():
+    """Retain the original graph error for a malformed composed source."""
+    factors = _branching_factors()
+    model = TSModel(factors)
+    model.add_node(("missing", "empty"), label=("missing", "empty"))
+    with pytest.raises(NetworkXError, match="missing"):
+        model.compose_edges(factors)
+
+
+def _shared_guard_factors():
+    region, load = make_region_model(), make_load_model()
+    for graph, prefix, weight in ((region, "region", 10), (load, "load", 20)):
+        for source in graph:
+            for target in graph:
+                graph.add_edge(
+                    source, target, action=f"{prefix}_{target[0]}",
+                    guard="r2 || empty", weight=weight,
+                )
+    return [region, load]
+
+
+def _record_guard_checks(monkeypatch, model):
+    checks = []
+    original = model.is_action_allowed
+
+    def checked(guard, label):
+        checks.append((guard, tuple(label)))
+        return original(guard, label)
+
+    monkeypatch.setattr(model, "is_action_allowed", checked)
+    return checks
+
+
+def test_shared_guard_keeps_source_truth_edge_order_and_dimension_overwrite(monkeypatch):
+    """Reuse a shared true or false guard while retaining hand-specified edges."""
+    model = TSModel(_shared_guard_factors())
+    checks = _record_guard_checks(monkeypatch, model)
+    model.build_full()
+    assert checks == [
+        ("r2 || empty", ("r1", "empty")),
+        ("r2 || empty", ("r1", "loaded")),
+        ("r2 || empty", ("r2", "empty")),
+        ("r2 || empty", ("r2", "loaded")),
+    ]
+    expected = [
+        (("r1", "empty"), ("r2", "empty"), "region_r2", 10),
+        (("r1", "empty"), ("r1", "empty"), "load_empty", 20),
+        (("r1", "empty"), ("r1", "loaded"), "load_loaded", 20),
+        (("r2", "empty"), ("r1", "empty"), "region_r1", 10),
+        (("r2", "empty"), ("r2", "empty"), "load_empty", 20),
+        (("r2", "empty"), ("r2", "loaded"), "load_loaded", 20),
+        (("r2", "loaded"), ("r1", "loaded"), "region_r1", 10),
+        (("r2", "loaded"), ("r2", "loaded"), "load_loaded", 20),
+        (("r2", "loaded"), ("r2", "empty"), "load_empty", 20),
+    ]
+    assert list(model.edges) == [(source, target) for source, target, *_ in expected]
+    for source, target, action, weight in expected:
+        assert model.edges[source, target] == dict(
+            action=action, guard="r2 || empty", weight=weight, marker="visited",
+        )
+
+
+def test_source_guard_reuse_is_fresh_for_each_composition_and_public_check(monkeypatch):
+    """Read source labels again on each call and keep the public checker uncached."""
+    factors = _shared_guard_factors()
+    model = TSModel(factors)
+    checks = _record_guard_checks(monkeypatch, model)
+    model.build_full()
+    initial_checks = list(checks)
+    model.build_full()
+    assert checks == initial_checks * 2
+    assert len(initial_checks) == 4
+
+    for graph in factors:
+        for _source, _target, data in graph.edges(data=True):
+            data["guard"] = "!r2 && loaded"
+    checks.clear()
+    model.build_full()
+    assert checks == [
+        ("!r2 && loaded", label) for _guard, label in initial_checks
+    ]
+    assert list(model.edges) == [
+        (("r1", "loaded"), ("r2", "loaded")),
+        (("r1", "loaded"), ("r1", "loaded")),
+        (("r1", "loaded"), ("r1", "empty")),
+    ]
+    assert model.is_action_allowed("!r2 && loaded", ("r1", "loaded"))
+    assert not model.is_action_allowed("!r2 && loaded", ("r2", "loaded"))
+    assert checks[-2:] == [
+        ("!r2 && loaded", ("r1", "loaded")),
+        ("!r2 && loaded", ("r2", "loaded")),
+    ]

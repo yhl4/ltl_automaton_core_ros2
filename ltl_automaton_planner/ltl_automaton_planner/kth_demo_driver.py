@@ -1,6 +1,9 @@
 """Drive the KTH ROS2 planner demo with deterministic TS feedback."""
 
+import math
+
 import rclpy
+from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import (
     DurabilityPolicy,
@@ -11,6 +14,7 @@ from std_msgs.msg import String
 
 from ltl_automaton_msgs.msg import TransitionSystemStateStamped
 from ltl_automaton_msgs.srv import TaskPlanning
+from rcl_interfaces.msg import ParameterDescriptor
 
 
 STATE_DIMENSIONS = [
@@ -57,14 +61,35 @@ class KthDemoDriver(Node):
         """Initialize demo parameters and ROS interfaces."""
         super().__init__("kth_demo_driver")
 
-        self.declare_parameter("scenario", "normal")
-        self.declare_parameter("step_delay", 1.0)
-        self.declare_parameter("max_steps", 8)
-        self.declare_parameter("replanning_after_steps", 3)
-        self.declare_parameter("replanning_hard_task", "<> r3")
+        self.declare_parameter(
+            "scenario",
+            "normal",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "step_delay",
+            1.0,
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "max_steps",
+            8,
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "replanning_after_steps",
+            3,
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "replanning_hard_task",
+            "<> r3",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
         self.declare_parameter(
             "replanning_soft_task",
             "(r3 || ! r3)",
+            descriptor=ParameterDescriptor(read_only=True),
         )
 
         self.scenario = str(
@@ -97,6 +122,16 @@ class KthDemoDriver(Node):
 
         if self.max_steps <= 0:
             raise ValueError("Parameter 'max_steps' must be positive.")
+
+        if not math.isfinite(self.step_delay):
+            raise ValueError("step_delay must be finite.")
+
+        try:
+            Duration(seconds=self.step_delay)
+        except OverflowError as error:
+            raise ValueError(
+                "step_delay is outside the ROS timer range."
+            ) from error
 
         state_qos = QoSProfile(
             depth=10,
@@ -286,7 +321,7 @@ class KthDemoDriver(Node):
         message = TransitionSystemStateStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.ts_state.states = list(state)
-        message.ts_state.state_dimension_names = STATE_DIMENSIONS
+        message.ts_state.state_dimension_names = list(STATE_DIMENSIONS)
 
         self.state_publisher.publish(message)
         self.get_logger().info(f"Published TS state: {state}.")

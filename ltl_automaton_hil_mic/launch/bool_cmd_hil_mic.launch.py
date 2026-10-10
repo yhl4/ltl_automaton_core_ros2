@@ -5,6 +5,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -22,6 +23,7 @@ def generate_launch_description():
                 "state_dimension_name", default_value="load"
             ),
             DeclareLaunchArgument("monitored_action", default_value="pick"),
+            DeclareLaunchArgument("safety_check_timeout", default_value="1.0"),
             Node(
                 package="ltl_automaton_hil_mic",
                 executable="bool_cmd_hil_mic",
@@ -35,6 +37,10 @@ def generate_launch_description():
                         ),
                         "monitored_action": LaunchConfiguration(
                             "monitored_action"
+                        ),
+                        "safety_check_timeout": ParameterValue(
+                            LaunchConfiguration("safety_check_timeout"),
+                            value_type=float,
                         ),
                     }
                 ],
