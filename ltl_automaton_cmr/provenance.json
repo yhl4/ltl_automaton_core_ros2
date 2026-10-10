@@ -1,0 +1,117 @@
+{
+  "schema": "cmr-frozen-source-v1",
+  "repository": "https://github.com/yhl4/CMR-LTL",
+  "commit": "dad230c2f54d9d5eb85d5e8dfd01e2d6c229afbc",
+  "license": "MIT",
+  "copyright": "Copyright (c) 2026 yhl4",
+  "files": [
+    {
+      "upstream_path": "reproducibility/paper_20261005_r2/core/qualified_p1/ecc_p1_formal_kernel/ecc_p1/__init__.py",
+      "local_path": "ltl_automaton_cmr/vendor/ecc_p1/__init__.py",
+      "git_blob": "f4e5ac64398903cd082cd4ba63621c45a69bd554",
+      "sha256": "66ad5e140d01d5223d0209a443d20ce83047d8540939f8ddbf85fb33ada0d91b",
+      "bytes": 1264
+    },
+    {
+      "upstream_path": "reproducibility/paper_20261005_r2/core/qualified_p1/ecc_p1_formal_kernel/ecc_p1/abstraction.py",
+      "local_path": "ltl_automaton_cmr/vendor/ecc_p1/abstraction.py",
+      "git_blob": "6b89ce2423b449d7eb512d2da8faf9521841354b",
+      "sha256": "13089b8ea6c61a2bd6b6d5d77b4f6c40b43fc15074f6feb4fbcb394166795907",
+      "bytes": 7736
+    },
+    {
+      "upstream_path": "reproducibility/paper_20261005_r2/core/qualified_p1/ecc_p1_formal_kernel/ecc_p1/certificate.py",
+      "local_path": "ltl_automaton_cmr/vendor/ecc_p1/certificate.py",
+      "git_blob": "61701e68771830c2c42c60132ea7344f03352fca",
+      "sha256": "608a606dd4f24b46b72c9d32ef2fcf6aa3cd2c20f3e450f2a84abf995fa5145d",
+      "bytes": 848
+    },
+    {
+      "upstream_path": "reproducibility/paper_20261005_r2/core/qualified_p1/ecc_p1_formal_kernel/ecc_p1/concretization.py",
+      "local_path": "ltl_automaton_cmr/vendor/ecc_p1/concretization.py",
+      "git_blob": "01c16f783dcf3bc71105e8a429f75dc9e498cb69",
+      "sha256": "10975a2e98ff318607098c508853e3e65d4074ffd945f417bfbdd6ef52e5a617",
+      "bytes": 9972
+    },
+    {
+      "upstream_path": "reproducibility/paper_20261005_r2/core/qualified_p1/ecc_p1_formal_kernel/ecc_p1/model.py",
+      "local_path": "ltl_automaton_cmr/vendor/ecc_p1/model.py",
+      "git_blob": "24b2e6c005626efa6bb020316ae2a1c06cab7098",
+      "sha256": "3b2c4ebf6c5fdaea9798048835cc11795020a012e7a294733717dd0b35b6a206",
+      "bytes": 6127
+    },
+    {
+      "upstream_path": "reproducibility/paper_20261005_r2/core/qualified_p1/ecc_p1_formal_kernel/ecc_p1/orchestrator.py",
+      "local_path": "ltl_automaton_cmr/vendor/ecc_p1/orchestrator.py",
+      "git_blob": "3c0b3e4ac35b0718ed59e594be325f917290305b",
+      "sha256": "8ce45688f04404d55b47bfeab4dd693dbb6e1afd2f822197d529659a9d070293",
+      "bytes": 4084
+    },
+    {
+      "upstream_path": "reproducibility/paper_20261005_r2/core/qualified_p1/ecc_p1_formal_kernel/ecc_p1/refinement.py",
+      "local_path": "ltl_automaton_cmr/vendor/ecc_p1/refinement.py",
+      "git_blob": "ef76a406a5f0fed5ac9a5f8e261ff9fa073d89b2",
+      "sha256": "c0918a90913b7f2db0747ba4f0dc4c11302f2386929fe1fbd6c2e96b4ee534f3",
+      "bytes": 2154
+    },
+    {
+      "upstream_path": "reproducibility/paper_20261005_r2/core/qualified_p1/ecc_p1_formal_kernel/ecc_p1/solver.py",
+      "local_path": "ltl_automaton_cmr/vendor/ecc_p1/solver.py",
+      "git_blob": "485387b4ec4a9141e1e949de0cb7807ff1087170",
+      "sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+      "bytes": 13986
+    },
+    {
+      "upstream_path": "LICENSE",
+      "local_path": "LICENSE",
+      "git_blob": "506c389080e6424a7a450914ab24aa913ecf4f86",
+      "sha256": "c3693a60582006edec86667160a8b1e41572980aa7378277688bf98d651e40e3",
+      "bytes": 1061
+    },
+    {
+      "upstream_path": "cmr_repro/oct6/office_v4/code_v4/sources/monitor_dsl.py",
+      "local_path": "ltl_automaton_cmr/vendor/office_monitor_dsl.py",
+      "git_blob": "b400b635c5c2773f68f68d9080375ee22039e552",
+      "sha256": "2025d63042d96b381350665bbf8cd8a6a284f6f2af16292f2a2dbf5edab6942b",
+      "bytes": 7782
+    },
+    {
+      "upstream_path": "cmr_repro/oct6/office_v4/code_v4/input/model.json",
+      "local_path": "ltl_automaton_cmr/assets/office_model.json",
+      "git_blob": "3f89b2fb4da47bdd91719fb7c89d83302098ef58",
+      "sha256": "8721d884aef3f24cb3e4969c2ea04aa089661578426c20b1732971cb87a5611e",
+      "bytes": 26882
+    },
+    {
+      "upstream_path": "cmr_repro/oct6/office_v4/code_v4/input/task_manifest.json",
+      "local_path": "ltl_automaton_cmr/assets/office_task_manifest.json",
+      "git_blob": "29dc685f1b35f86bdc166e095c12b0b891f64594",
+      "sha256": "2d60b53e54e939c92bbd68317aeed2eb9ca2fb83e0ff2223f28e6d2d180a673c",
+      "bytes": 10394
+    }
+  ],
+  "ros2_base": {
+    "repository": "https://github.com/yhl4/ltl_automaton_core_ros2",
+    "main": "2624458c15799aa7784d3ca6ee75da02ca785204",
+    "pr": 10,
+    "pr_state": "open/unmerged",
+    "head": "989bb8effc41226b4d3e478a0e760f2f5998eb0d",
+    "basis": "authorized fixed PR10 snapshot"
+  },
+  "office_prior_source": "cmr_repro/oct6/office_v4/code_v4/design_new_local.py",
+  "office_prior": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "office_queries": "D1-D8 original queries; ten dimensions; b=temporary badge",
+  "final_remote_observation": {
+    "pr": 10,
+    "state": "open",
+    "merged": false,
+    "head": "ab45b9b7333ead2e371211a3ccb932dfb254fdad",
+    "main": "2624458c15799aa7784d3ca6ee75da02ca785204",
+    "later_head_included": false
+  }
+}

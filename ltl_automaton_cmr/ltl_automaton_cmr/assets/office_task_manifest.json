@@ -1,0 +1,504 @@
+{
+  "schema": "office10-tasks-DSL-v1",
+  "tasks": [
+    {
+      "id": "D1",
+      "formula": "F(p=W)",
+      "meaning": "deliver to west",
+      "formula_ast": [
+        "F",
+        "p=W"
+      ],
+      "atomic_propositions": [
+        "p=W"
+      ],
+      "AP_S": [
+        1
+      ],
+      "group": "stable_sparse_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "D2",
+      "formula": "F(p=E)",
+      "meaning": "deliver to east through the badge-controlled door",
+      "formula_ast": [
+        "F",
+        "p=E"
+      ],
+      "atomic_propositions": [
+        "p=E"
+      ],
+      "AP_S": [
+        1
+      ],
+      "group": "stable_sparse_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "D3",
+      "formula": "F(p=E and r=R)",
+      "meaning": "deliver east and return to reception",
+      "formula_ast": [
+        "F",
+        [
+          "and",
+          "p=E",
+          "r=R"
+        ]
+      ],
+      "atomic_propositions": [
+        "p=E",
+        "r=R"
+      ],
+      "AP_S": [
+        0,
+        1
+      ],
+      "group": "stable_sparse_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "D4",
+      "formula": "F(p=E and r=R and d=closed and b=desk)",
+      "meaning": "deliver east and restore the public-area handover state",
+      "formula_ast": [
+        "F",
+        [
+          "and",
+          "p=E",
+          "r=R",
+          "d=closed",
+          "b=desk"
+        ]
+      ],
+      "atomic_propositions": [
+        "b=desk",
+        "d=closed",
+        "p=E",
+        "r=R"
+      ],
+      "AP_S": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "group": "stable_sparse_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "D5",
+      "formula": "G(p notin {H,U,P}) and F(p=E and r=R)",
+      "meaning": "no staging in hub or service wing; deliver east and return",
+      "formula_ast": [
+        "and",
+        [
+          "G",
+          [
+            "and",
+            [
+              "not",
+              "p=H"
+            ],
+            [
+              "not",
+              "p=U"
+            ],
+            [
+              "not",
+              "p=P"
+            ]
+          ]
+        ],
+        [
+          "F",
+          [
+            "and",
+            "p=E",
+            "r=R"
+          ]
+        ]
+      ],
+      "atomic_propositions": [
+        "p=E",
+        "p=H",
+        "p=P",
+        "p=U",
+        "r=R"
+      ],
+      "AP_S": [
+        0,
+        1
+      ],
+      "group": "stable_sparse_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "D6",
+      "formula": "F(r=M and p=carried and F(r=R and p=carried and F(p=E and r=R)))",
+      "meaning": "collect, visit reception with the parcel, then deliver east and return",
+      "formula_ast": [
+        "F",
+        [
+          "and",
+          "r=M",
+          "p=carried",
+          [
+            "F",
+            [
+              "and",
+              "r=R",
+              "p=carried",
+              [
+                "F",
+                [
+                  "and",
+                  "p=E",
+                  "r=R"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      "atomic_propositions": [
+        "p=E",
+        "p=carried",
+        "r=M",
+        "r=R"
+      ],
+      "AP_S": [
+        0,
+        1
+      ],
+      "group": "stable_sparse_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "D7",
+      "formula": "G(p!=P) and F(p=W and F(p=E))",
+      "meaning": "west handoff followed by east handoff; never stage at the printer",
+      "formula_ast": [
+        "and",
+        [
+          "G",
+          [
+            "not",
+            "p=P"
+          ]
+        ],
+        [
+          "F",
+          [
+            "and",
+            "p=W",
+            [
+              "F",
+              "p=E"
+            ]
+          ]
+        ]
+      ],
+      "atomic_propositions": [
+        "p=E",
+        "p=P",
+        "p=W"
+      ],
+      "AP_S": [
+        1
+      ],
+      "group": "stable_sparse_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "D8",
+      "formula": "G F(p=M) and G F(p=E)",
+      "meaning": "recurring mailroom-east shuttle; report separately from absorbing delivery goals",
+      "formula_ast": [
+        "and",
+        [
+          "G",
+          [
+            "F",
+            "p=M"
+          ]
+        ],
+        [
+          "G",
+          [
+            "F",
+            "p=E"
+          ]
+        ]
+      ],
+      "atomic_propositions": [
+        "p=E",
+        "p=M"
+      ],
+      "AP_S": [
+        1
+      ],
+      "group": "stable_sparse_tasks",
+      "objective_stratum": "recurrence"
+    },
+    {
+      "id": "X1",
+      "formula": "F(p=E and j=ready and r=R)",
+      "meaning": "east delivery plus a print job ready for pickup",
+      "formula_ast": [
+        "F",
+        [
+          "and",
+          "p=E",
+          "j=ready",
+          "r=R"
+        ]
+      ],
+      "atomic_propositions": [
+        "j=ready",
+        "p=E",
+        "r=R"
+      ],
+      "AP_S": [
+        0,
+        1,
+        8
+      ],
+      "group": "rare_cross_subsystem_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "X2",
+      "formula": "F(p=W and f=clean and c=off and l=off and r=R)",
+      "meaning": "west delivery plus completed studio cleaning and shutdown",
+      "formula_ast": [
+        "F",
+        [
+          "and",
+          "p=W",
+          "f=clean",
+          "c=off",
+          "l=off",
+          "r=R"
+        ]
+      ],
+      "atomic_propositions": [
+        "c=off",
+        "f=clean",
+        "l=off",
+        "p=W",
+        "r=R"
+      ],
+      "AP_S": [
+        0,
+        1,
+        4,
+        5,
+        6
+      ],
+      "group": "rare_cross_subsystem_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "Z1",
+      "formula": "F(p=E and j=ready and f=clean and c=comfort and r=R)",
+      "meaning": "delivery plus printing plus cleaned, occupied-mode studio; all ten factors have a declared role",
+      "formula_ast": [
+        "F",
+        [
+          "and",
+          "p=E",
+          "j=ready",
+          "f=clean",
+          "c=comfort",
+          "r=R"
+        ]
+      ],
+      "atomic_propositions": [
+        "c=comfort",
+        "f=clean",
+        "j=ready",
+        "p=E",
+        "r=R"
+      ],
+      "AP_S": [
+        0,
+        1,
+        4,
+        6,
+        8
+      ],
+      "group": "dense_tasks",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "CLEAN",
+      "formula": "F(f=clean and c=off and l=off and r=R)",
+      "required_mechanisms": [
+        "lighting",
+        "water refill/consumption",
+        "HVAC-assisted drying",
+        "badge-authorized HVAC control",
+        "empty manipulator"
+      ],
+      "formula_ast": [
+        "F",
+        [
+          "and",
+          "f=clean",
+          "c=off",
+          "l=off",
+          "r=R"
+        ]
+      ],
+      "atomic_propositions": [
+        "c=off",
+        "f=clean",
+        "l=off",
+        "r=R"
+      ],
+      "AP_S": [
+        0,
+        4,
+        5,
+        6
+      ],
+      "group": "alternative_service_families",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "PRINT",
+      "formula": "F(j=ready)",
+      "required_mechanisms": [
+        "paper tray",
+        "lighting for paper handling",
+        "shared robot and manipulator",
+        "wet-floor handling restriction"
+      ],
+      "formula_ast": [
+        "F",
+        "j=ready"
+      ],
+      "atomic_propositions": [
+        "j=ready"
+      ],
+      "AP_S": [
+        8
+      ],
+      "group": "alternative_service_families",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "COMFORT",
+      "formula": "F(c=comfort and l=on)",
+      "required_mechanisms": [
+        "separate utility and studio visits",
+        "badge-authorized control",
+        "lighting and HVAC are separately observable service goals"
+      ],
+      "formula_ast": [
+        "F",
+        [
+          "and",
+          "c=comfort",
+          "l=on"
+        ]
+      ],
+      "atomic_propositions": [
+        "c=comfort",
+        "l=on"
+      ],
+      "AP_S": [
+        5,
+        6
+      ],
+      "group": "alternative_service_families",
+      "objective_stratum": "eventuality"
+    },
+    {
+      "id": "PRINT_CYCLE",
+      "formula": "G F(j=ready) and G F(j=idle)",
+      "required_mechanisms": [
+        "submit/print/clear lifecycle",
+        "replenish consumed paper",
+        "nontrivial accepting cycle"
+      ],
+      "formula_ast": [
+        "and",
+        [
+          "G",
+          [
+            "F",
+            "j=ready"
+          ]
+        ],
+        [
+          "G",
+          [
+            "F",
+            "j=idle"
+          ]
+        ]
+      ],
+      "atomic_propositions": [
+        "j=idle",
+        "j=ready"
+      ],
+      "AP_S": [
+        8
+      ],
+      "group": "alternative_service_families",
+      "objective_stratum": "recurrence"
+    }
+  ],
+  "batches": {
+    "freeze_status": "Proposed design fixed here before outcomes; no tasks executed. Execution budgets and parser coverage remain approval-time prerequisites, not evidence of feasibility.",
+    "stable_delivery_order": [
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "D6",
+      "D7",
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "D6",
+      "D7"
+    ],
+    "mixed_order": [
+      "D1",
+      "CLEAN",
+      "D2",
+      "D3",
+      "PRINT",
+      "D4",
+      "X1",
+      "D5",
+      "D6",
+      "COMFORT",
+      "D7",
+      "D1",
+      "D2",
+      "D3",
+      "PRINT_CYCLE",
+      "D4",
+      "X2",
+      "D5",
+      "D6",
+      "D7"
+    ],
+    "mixed_composition": "20 tasks: 14 ordinary delivery (70%), 4 alternate service (20%), 2 cross-subsystem (10%). This is fixed-B mismatch/fallback pressure, not cumulative B saturation. PRINT_CYCLE is recurring and must be labeled separately in objective-stratified summaries.",
+    "separate_recurrent_control": [
+      "D8"
+    ],
+    "separate_dense_control": [
+      "Z1"
+    ],
+    "rule": "Use the literal published orders, identical across arms. Do not select or reorder tasks using observed performance. Both direct and shared methods get exact-S caching; repeated tasks deliberately test the possible absence of further shared-source benefit."
+  }
+}
