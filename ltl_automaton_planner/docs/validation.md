@@ -7688,3 +7688,59 @@ manifest SHA256 `9c3439c6a604f9557ffb318057f95cc360d97e2d7025c204a3616cd63fbb5d8
 累计采用仍为二十五项，现有四模块136项资格继续适用，未重跑pytest、compile或lint；七包754项
 仍绑定bd75495历史源码，计数不合并。ROS2 V0.2接口、默认关闭的示范轨迹软任务权重β学习范围保持。
 没有新增正式benchmark/provider/DDS/Gazebo/Jazzy/实机或IRL科学效果资格。
+
+
+### 11.173 重规划复制的节点属性字符串 memo 候选（2026-10-10，未采用）
+
+从干净HEAD `e3154a592d787f2a77fea01f441039417f14c363` 继续。基线LTLPlanner为14916 bytes、SHA256
+`3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943`；候选15613 bytes、SHA256
+`1339dbc2f1cac6e29a9a71227936ac3b2060c0de0bab073099516481bc92b2f5`。
+仅在精确DiGraph/TSModel/ProdAut且_node为普通dict时遍历节点属性，向单次deepcopy memo预登记
+精确str键和值；自定义图、node table和属性dict保留原回退。新增两个实际图类型import，
+其他10个class method、原不可变节点判定、边标量登记和最终完整deepcopy的AST保持。
+历史11.140/11.144候选未获得候选性能结果，本轮使用当前合格基线独立评估窄字符串范围。
+
+沿用10636 bytes历史KTH暖planner快照，SHA256
+`32e02f42ad15d01fb770fa3eb37a359abc0c7d8ee288e97664df441deeda5554`。
+Humble + combo_bd75495，Python3.10.12、NetworkX2.4，实际六个核心导入与当前文件绑定；
+copy.py为8681 bytes、SHA256 `27dcfc53a4b9d4fbc3d90c74e549eb6eca9301524d6d2fbff9a6589cf51b6fd5`。
+未构造新planner或执行新规划，也未调用provider。
+
+original/fix2/fix3均为未执行准备稿，保留未参与判定的控制字段、错误属性dict控制、
+字符串fixture重建/hash缺口、恢复后才检查隔离及观察器自身metaclass回调等静态问题；
+fix4在执行前补齐。首个Native静态reader误读manifest键名，停止于KeyError；只读修正后通过，
+原reader及事后静态说明保留，未将说明冒充原始stderr或rc。四版候选代码字节相同。
+最终26份冻结输入均核对，manifest SHA256
+`3365de04c46e539e9d5311efad99f8ce2f42e71a982e37c0b1f791fe12f723a7`。
+
+fix4仅执行一次：快照加载1，暖planner语义复制4、profile复制2、六类控制各两侧共12，
+固定暖planner计时复制2400，合计2418次完整复制。普通属性、自定义节点hook、带可变payload的
+str子类/metaclass、node table子类、实际节点属性dict子类及图子类的before/after/clone与事件
+签名逐对相同；正常hook对源属性的修改按两侧结果保留，不套用暖快照源不变门槛。
+副本共享状态及嵌套属性在仍处于修改状态时检查源隔离，并检查恢复。暖planner源before/after
+字节稳定；old/candidate全部clone输出和类型一致，TS/Product容器分离、succ/pred边属性别名、
+product.graph['ts']内部别名与peer clone隔离/恢复通过。不要求clone pickle等于source pickle。
+
+Native独立reader只读核对50份raw pickle、两份原始pstats、12份计时及26份冻结输入，
+没有加载planner快照或执行复制。profile的deepcopy2649、dict352、list43、tuple74、
+keep_alive458、reconstruct62均保持，atomic分派638→511；该变化没有减少递归复制总数。
+固定6对交替、每侧每批200次完整复制，序列化、profile、断言、ledger和I/O均在计时外；
+唯一时间门槛为candidate批次中位数不高于old，没有补采样或放宽门槛。
+
+| fixture | old median ms / candidate median ms（200次完整复制） | candidate变化 | 更慢配对 |
+|---|---:|---:|---:|
+| KTH warm snapshot | 272.125900 / 273.004449 | +0.322847% | 3/6 |
+
+语义/资源检查通过，时间gate=false，候选未采用；样本差异不作稳定性能结论。
+result为128629 bytes、SHA256 `61a747ef4b27addce012ec87eb9451fadbab77e5e41387de3f57abf4ac442d54`。
+Linux runner及实际WSL外层rc均4，PowerShell工具包装返回1；三个实际凭据分别保留。
+固定计时全部完成，无runtime failure文件。
+归档 `/tmp/ltl_replan_node_string_publication_e3154a5_fix2` 为168 entries，manifest SHA256
+`bfe3ce81c558fb3e579195fec2105321bc90f7c9f5984541887b8d2b3d1575ae`；准备版本、冻结原件、原始结果/profile/raw/timing与Native凭据保留，
+仓库输入按上述Git基线固定，避免后续文档更新改变历史绑定。
+
+本轮仅追加README及本节；六核心/四测试的十份文件与11.169资格逐字节匹配，原JUnit
+136 passed、0 error/failure/skip及完整20次IRL更新用例核对通过。累计采用仍二十五项，
+本轮未重跑pytest、compile或lint。七包754项继续绑定bd75495历史资格，计数不合并。
+ROS2 V0.2接口及默认关闭的示范轨迹软任务权重β学习范围保持；没有新增正式benchmark、
+provider、DDS、Gazebo、Jazzy、实机或IRL科学效果资格。
