@@ -25,7 +25,18 @@
 
 导航：[构建](#5-构建) · [运行 Planner](#6-运行-planner) ·
 [V0.2 Planning API](ltl_automaton_planner/docs/planning_api.md) ·
-[可选 IRL](#91-可选-irl-示范学习) · [验证记录](ltl_automaton_planner/docs/validation.md)
+[可选 IRL](#91-可选-irl-示范学习) ·
+[CMR 接入 smoke](experiments/cmr_ros2_smoke/README.md) ·
+[验证记录](ltl_automaton_planner/docs/validation.md)
+
+面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
+保留 CMR 的 `INITIAL_LABEL_V1`、精确 Fraction 代价和 `prefix + 10 × suffix` 目标。
+FULL/AP-D/DEP-D 的 12 个合成场景通过原求解器对照，另有 3 类非法代价拒绝检查；
+20 份 CMR 源码及实际导入均与冻结绑定匹配。当前验证覆盖核心接受环搜索，
+完整 refinement、统计/超时协议和 ROS2 DDS 接入仍未验证；这些结果不属于正式 Core 实验。
+运行方式见上述 smoke 文档，原始失败、修正后结果及独立读回见
+[接入证据](experiments/cmr_ros2_smoke/evidence/20261011/index.json) 和
+[validation.md 11.174](ltl_automaton_planner/docs/validation.md)。
 
 ---
 

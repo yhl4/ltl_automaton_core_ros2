@@ -7744,3 +7744,61 @@ Linux runner及实际WSL外层rc均4，PowerShell工具包装返回1；三个实
 本轮未重跑pytest、compile或lint。七包754项继续绑定bd75495历史资格，计数不合并。
 ROS2 V0.2接口及默认关闭的示范轨迹软任务权重β学习范围保持；没有新增正式benchmark、
 provider、DDS、Gazebo、Jazzy、实机或IRL科学效果资格。
+
+### 11.174 CMR Experiment A 隔离 ROS2 核心接入 smoke（2026-10-11）
+
+按用户选择，范围限定为当前 Experiment A 的隔离接入 smoke；不执行正式 170×3
+Core 单元。新增 `experiments/cmr_ros2_smoke/{backend.py,smoke.py,README.md}`，
+ROS2 生产核心、CMR 冻结源码与原始实验结果均不修改。ROS2 基线为
+`1228773e50e2920dd0811b92d4d64890799e8b47`；CMR 读取当前 final_campaign_receipt
+及其 SHA 绑定的 execution_binding，严格核对 `Core170`、170、FULL/AP-D/DEP-D、
+`CMR_CORE_R2_EXECUTION_BINDING_V1` 及 20 份科学源码。receipt 的 population 为 `Core`。
+
+默认 ROS2 Product 的 source-label 和接受节点入口搜索不能直接替换 CMR 的
+`INITIAL_LABEL_V1` 与任意可达入口语义。本原型从绑定 grouped abstraction 的 Product
+开始，调用当前 ROS2 `_prefix_distances`、`_component_distances`、`_restore_tight_path`；
+每个原始 transition 使用独立 edge node，并通过两层 seen_accept 图搜索非空接受闭环。
+返回原 CMR `AbstractLassoResult`，保留原 transition/witness 对象及并行动作，所有代价
+使用精确 Fraction，目标固定为 prefix_cost + 10×suffix_cost。默认 Planner 接口及算法不变。
+
+在读取结果前固定两因素合成夹具：goal 支持因素0，go 代价依赖因素1，return 代价2/3；
+a_go/b_go 并行，noise 代价5。AP-D 精度{0}，FULL 与依赖闭包 DEP-D 精度{0,1}。
+四种变体各运行三种方法，与绑定的原精确求解器对照：
+
+| 合成变体 | 方法 | 手算目标 | 实际结果 |
+| --- | --- | ---: | --- |
+| base | FULL / AP-D / DEP-D | 10 | reference/new 均为10；入口为非接受 q_wait |
+| initial_goal | FULL / AP-D / DEP-D | 10 | reference/new 均为10；初始标签进入 q_accept |
+| zero_cost | FULL / AP-D / DEP-D | 0 | reference/new 均为0；非空接受闭环 |
+| no_accept | FULL / AP-D / DEP-D | 无可行接受环 | reference/new 均返回 None |
+
+Humble + combo_bd75495 overlay，Python3.10.12、NetworkX2.4。实际七个模块导入的路径及
+SHA 匹配，ROS2 discrete_plan 为27763 bytes、SHA256
+`556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b`。
+两份来源映射共40行检查通过，代表同一20份源码；13份输入（六核心、四既有测试、三新增文件）
+运行前后逐字节一致。9个可行场景通过闭环/接受性、精确代价、原 transition 身份、并行动作
+及 concretization/certificate 检查，局部 certificate 均 OPTIMALITY_CERTIFIED 且 LB=UB；
+另3个无接受状态场景返回 None。bool/float/负代价分别拒绝为 TypeError/TypeError/ValueError。
+
+首轮在规划前因脚本误将 binding.population 写为 `Core` 而失败，smoke.rc=1；原目录与
+失败 traceback 保留。仅修正为冻结值 `Core170` 并增加 schema 字面值检查后，在新 fix1
+目录运行一次，12行全部完成，smoke.rc/source_after.rc 均为0，stdout/stderr 均为空。
+未放宽分母、来源、方法或接受条件。Native 独立 reader 仅解析 JSON 和精确算术，未导入
+任一 planner，重新核对完整12行、9个局部证书、3类负输入、40行来源、7个导入及13份输入。
+本轮未作性能测量或补采样。
+
+原始记录已按字节保存至仓库
+[`experiments/cmr_ros2_smoke/evidence/20261011`](../../experiments/cmr_ros2_smoke/evidence/20261011/index.json)，
+包含 initial/fix1 的输入清单、结果、日志、退出码、runner 及独立读回；index 记录每份文件的
+大小和 SHA256。修正后 result 为74153 bytes、SHA256
+`6dae301551334b81c9e5d80cda7affc8cda6dd82eaaeee4db3411df464a4229c`；
+首次失败 result 为1436 bytes、SHA256
+`c311f86cd95aaf5a71425d3a7a8bfb1abe3b5fcb7798c2937bd1d5da39eeea6d`。
+所有行标为 `SYNTHETIC_SMOKE`，不纳入正式 Core/Controls/Office/Pilot 结果或论文结论。
+
+当前仅完成核心 lasso 接入原型。完整 refinement、SearchStats、watchdog/右删失、正式
+结果 schema 及 ROS2 DDS 尚未接入，tie/witness 选择也未要求与原求解器一致，因此不能
+直接替换正式 campaign solver。没有调用 provider、Gazebo、Jazzy 或实机；IRL范围仍为
+默认关闭的β示范学习，没有新增科学效果结论。累计仍为25项已采用优化，六核心/四测试与
+11.169 的136项既有资格匹配，本轮未重跑该测试集；七包754项继续绑定bd75495，计数不合并。
+此前整数环优化候选保持未执行、未采用；依用户要求，本次接入 smoke 与发布完成后结束目标。

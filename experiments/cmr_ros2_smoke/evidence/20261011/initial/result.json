@@ -1,0 +1,26 @@
+{
+  "schema": "cmr-ros2-integration-smoke-v1",
+  "population": "SYNTHETIC_SMOKE",
+  "status": "FAILED",
+  "manifest_preflight": null,
+  "negative_input_checks": [],
+  "rows": [],
+  "methods": [
+    "FULL",
+    "AP-D",
+    "DEP-D"
+  ],
+  "variants": [
+    "base",
+    "initial_goal",
+    "zero_cost",
+    "no_accept"
+  ],
+  "discrete_plan_helpers": [
+    "_prefix_distances",
+    "_component_distances",
+    "_restore_tight_path"
+  ],
+  "error": "ValueError('binding population must be Core with population_count 170')",
+  "traceback": "Traceback (most recent call last):\n  File \"/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py\", line 495, in main\n    run_smoke(args, artifact)\n  File \"/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py\", line 458, in run_smoke\n    manifest, binding, model, solver, grouped, concretization, certificate = preflight(\n  File \"/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py\", line 163, in preflight\n    receipt_path, binding_path, binding, source_checks = _load_binding(binding_arg)\n  File \"/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py\", line 122, in _load_binding\n    raise ValueError(\"binding population must be Core with population_count 170\")\nValueError: binding population must be Core with population_count 170\n"
+}

@@ -1,0 +1,85 @@
+{
+  "head": "1228773e50e2920dd0811b92d4d64890799e8b47",
+  "python": "3.10.12 (main, Mar  3 2026, 11:56:32) [GCC 11.4.0]",
+  "networkx": "2.4",
+  "rows": [
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/buchi.py",
+      "role": "unchanged_core_or_test",
+      "size": 6180,
+      "sha256": "7c83483cc119beca2b982831003a3889864982661de3e04ce740767727039b72"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py",
+      "role": "unchanged_core_or_test",
+      "size": 27763,
+      "sha256": "556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/irl.py",
+      "role": "unchanged_core_or_test",
+      "size": 4660,
+      "sha256": "d53a06d1eced93a76f4437ba003f17e8e1ceca5a9a4a2c55fea3f33b1329e2c8"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ltl_planner.py",
+      "role": "unchanged_core_or_test",
+      "size": 14916,
+      "sha256": "3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/product.py",
+      "role": "unchanged_core_or_test",
+      "size": 17058,
+      "sha256": "74fc26ec60964c3a8fe313c7b7247aa28efe37c3be29155b659f28cc74c2d103"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ts.py",
+      "role": "unchanged_core_or_test",
+      "size": 6791,
+      "sha256": "08ae086ebb8212f6eeb24110c63a73c3832bef95be0601ad8a40fa2a42792d0d"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_discrete_plan.py",
+      "role": "unchanged_core_or_test",
+      "size": 49514,
+      "sha256": "e9324bf03654dc97fb2225c5173b02c664950ff45998e3d22043994babe77536"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_irl.py",
+      "role": "unchanged_core_or_test",
+      "size": 17340,
+      "sha256": "60e40979ecbb42b88330b166afaf222e346d2691b083e9eb34939fdd46dbc037"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_ltl_planner.py",
+      "role": "unchanged_core_or_test",
+      "size": 23630,
+      "sha256": "9d38b1440e8a1210326c9cadae6b079e7f559af3232e20518e124352339b6dbb"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_product.py",
+      "role": "unchanged_core_or_test",
+      "size": 30347,
+      "sha256": "0e890bcd00826696ee1613f1a6923ec51bdc0113ae10a1315708d4efc89363b6"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/backend.py",
+      "role": "new_experiment_source",
+      "size": 9102,
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py",
+      "role": "new_experiment_source",
+      "size": 23223,
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060"
+    },
+    {
+      "path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/README.md",
+      "role": "new_experiment_source",
+      "size": 2712,
+      "sha256": "65e7773fe279d4392a570e7925a8cf185976bfed81b5d41f7d5e54776211d8e4"
+    }
+  ]
+}
