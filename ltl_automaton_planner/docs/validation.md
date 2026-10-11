@@ -7802,3 +7802,57 @@ SHA 匹配，ROS2 discrete_plan 为27763 bytes、SHA256
 默认关闭的β示范学习，没有新增科学效果结论。累计仍为25项已采用优化，六核心/四测试与
 11.169 的136项既有资格匹配，本轮未重跑该测试集；七包754项继续绑定bd75495，计数不合并。
 此前整数环优化候选保持未执行、未采用；依用户要求，本次接入 smoke 与发布完成后结束目标。
+
+### 11.175 CMR 完整 refinement、超时统计与实际 DDS 隔离验证（2026-10-11）
+
+按后续授权新增 `experiments/cmr_ros2_integration/{runtime.py,verify_smoke.py,dds_smoke.py,README.md}`。
+基线 `33244a5bc5ed9c63184f1ae9c7c5ad5b52334bfa`，复用11.174的 ROS2 helper adapter，
+绑定原 grouped abstraction、concretization、certificate 与 deterministic_refinement。
+循环每轮重建精度、求解、具体化、核对 LB=UB；未获证候选严格增加精度，
+没有人为轮数上限。精确空图、认证、全精度证书缺口、错误或截止时间终止。
+INITIAL_LABEL_V1、Fraction、任意可达入口及 prefix+10×suffix 保持。
+
+固定两因素夹具，三种方法各与原精确求解器对照，共6组：
+
+| 夹具 | AP-D 首轮 | FULL / DEP-D | AP-D 终止 |
+| --- | --- | --- | --- |
+| cost_gap | LB=10、周期具体化UB=30；加入因素1 | 一轮，目标30认证 | 两轮、一次细化，目标30认证 |
+| spurious | LB=10、无周期具体化；加入因素1 | 一轮，精确空图 | 两轮、一次细化，精确空图 |
+
+记录每轮精度、阶段区间、LB/UB、证书、细化原因、原 Product/TS 图规模与辅助
+edge-node/seen_accept 搜索工作；完成的距离调用以返回字典大小记录 settled events。
+heap push/pop 未插桩，明确为 unknown，不能与原 SCC SearchStats 混作相同计数。
+方法计时包含 worker 启动、来源核对、初始化、全部轮次、认证及父进程结果落盘。
+端到端 DDS/执行时间不并入该方法计时；通信窗口单独管理。本轮不作性能结论。
+
+四项实测延迟注入覆盖 search、certification、成功/不可行结果 logging，预算0.1秒、
+注入0.15秒；实际右删失耗时为0.156–0.164秒。晚到认证与logging尝试原件保留，
+终端目标、具体lasso、不可行证明及证书效力均清除。另以确定性时间戳检查截止时间
+等号边界，单列为合成契约检查。首次2秒 watchdog 在约4.5秒的来源核对前触发，
+没有进入搜索，按失败保留。仅将故障窗口改为outer7秒、search延迟5秒，方法预算仍10秒；
+续验实际7.004915329秒中断search，worker exitcode=-15且已清理，未知工作不补零。
+
+DDS 使用 Humble / rmw_fastrtps_cpp、ROS_LOCALHOST_ONLY=1、domain216/217/218，
+独立 server/driver/worker；真实请求到达后才调用CMR求解器，使用既有快照服务与
+ExecutionManagerNode。cost_gap/AP-D目标30，空前缀与一轮四步后缀完整执行：
+a_go、c_return、a_go、c_return；dispatch/completion/observer/abstraction/TS均4次。
+spurious/AP-D不可行及base/FULL零预算TIMEOUT均无派发；超时后的单条注入TS被忽略。
+首次DDS验证因测试端过早注入generation0而快照身份不匹配，按失败保留；仅将注入
+移至首次真实dispatch之后，确认generation1已接受，再验证旧generation不造成额外派发。
+三场景续验均通过，server/driver rc均0、worker均退出，全部PID退出检查通过。
+快照float64仅用于执行/显示，权威代价保留JSON Fraction；快照仅含选定lasso。
+
+两次续验仅运行尚未通过的范围，没有重复或合并已通过矩阵。40份冻结输入在各自
+运行前后逐字节一致，包含原六核心/四测试、既有smoke、执行模块、消息及绑定；
+20份CMR来源的40行映射、8个实际CMR/ROS导入及3个执行导入匹配。
+Native独立reader不导入planner，核对JSON、具体转移、闭环、精确目标、精度细化、
+右删失、来源字节及进程身份通过。所有三次尝试、日志、退出码、reader和runner按字节
+归档至[`refinement / DDS证据`](../../experiments/cmr_ros2_integration/evidence/20261011/index.json)，
+共176项；raw_attempts.zip为486785 bytes、SHA256
+`48f91be9fec76db62ce24b0cf56a2a2461767c290ae63efcd7d89f41f0b12976`。
+修正前源码以输入hash识别，未收录其源码副本；最终源码随仓库提交。
+
+本轮为SYNTHETIC_SMOKE，未运行正式170×3 Core、provider、Gazebo、Jazzy或实机。
+未绑定正式campaign结果schema、独立campaign证书验证器、外部内存采样或生产Action取消。
+生产模块与冻结CMR源码/结果未改；IRL仍默认关闭、仅学习β。累计25项优化与此前
+136项/754项资格保持各自历史边界，本轮未重跑既有测试集。本次有限接入验证后结束。

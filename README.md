@@ -27,16 +27,28 @@
 [V0.2 Planning API](ltl_automaton_planner/docs/planning_api.md) ·
 [可选 IRL](#91-可选-irl-示范学习) ·
 [CMR 接入 smoke](experiments/cmr_ros2_smoke/README.md) ·
+[CMR refinement / 超时 / DDS](experiments/cmr_ros2_integration/README.md) ·
 [验证记录](ltl_automaton_planner/docs/validation.md)
 
 面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
 保留 CMR 的 `INITIAL_LABEL_V1`、精确 Fraction 代价和 `prefix + 10 × suffix` 目标。
 FULL/AP-D/DEP-D 的 12 个合成场景通过原求解器对照，另有 3 类非法代价拒绝检查；
-20 份 CMR 源码及实际导入均与冻结绑定匹配。当前验证覆盖核心接受环搜索，
-完整 refinement、统计/超时协议和 ROS2 DDS 接入仍未验证；这些结果不属于正式 Core 实验。
-运行方式见上述 smoke 文档，原始失败、修正后结果及独立读回见
-[接入证据](experiments/cmr_ros2_smoke/evidence/20261011/index.json) 和
-[validation.md 11.174](ltl_automaton_planner/docs/validation.md)。
+20 份 CMR 源码及实际导入均与冻结绑定匹配。
+
+后续原型已接入完整确定性 refinement、阶段/搜索统计、方法截止时间、独立 worker
+watchdog 与右删失处理。两种固定合成夹具 × 三种方法共 6 组 reference/adapted 对照通过：
+AP-D 经一次精度细化分别得到精确目标30与不可行证书。四个阶段延迟检查、截止时间
+等号边界和阻塞搜索 watchdog 通过；晚到结果清除证书效力、目标与可执行 lasso。
+三个 localhost DDS 请求完成成功、不可行、超时链路验证；成功场景的空前缀和四步闭合
+后缀完整执行，真实派发、动作完成、独立 observer/abstraction 与 TS 反馈均逐步核对。
+统计保留原 Product 和辅助搜索图的区别，未测量的 heap 操作数为 unknown。
+
+运行与适用范围见上述两份 CMR 文档；原始失败及修正后证据分别见
+[核心接入](experiments/cmr_ros2_smoke/evidence/20261011/index.json)、
+[refinement / DDS](experiments/cmr_ros2_integration/evidence/20261011/index.json) 和
+[validation.md 11.174–11.175](ltl_automaton_planner/docs/validation.md)。
+全部新记录为 `SYNTHETIC_SMOKE`，默认 Planner 与冻结 CMR 结果保持；
+未启动正式批量实验，尚不能替换正式 campaign solver。
 
 ---
 

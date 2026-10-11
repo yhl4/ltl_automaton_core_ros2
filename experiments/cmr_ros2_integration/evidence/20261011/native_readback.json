@@ -1,0 +1,111 @@
+{
+  "schema": "cmr-ros2-native-readback-v1",
+  "status": "PASSED",
+  "planner_imported": false,
+  "frozen_inputs": 40,
+  "source_maps": 40,
+  "unique_scientific_sources": 20,
+  "actual_cmr_ros_imports": 8,
+  "matrix": [
+    {
+      "variant": "cost_gap",
+      "method": "FULL",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "30",
+      "rounds": 1,
+      "T_total": 4.601466513
+    },
+    {
+      "variant": "cost_gap",
+      "method": "AP-D",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "30",
+      "rounds": 2,
+      "T_total": 4.703823367
+    },
+    {
+      "variant": "cost_gap",
+      "method": "DEP-D",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "30",
+      "rounds": 1,
+      "T_total": 4.586784701
+    },
+    {
+      "variant": "spurious",
+      "method": "FULL",
+      "status": "INFEASIBLE_CERTIFIED",
+      "objective": null,
+      "rounds": 1,
+      "T_total": 4.690287949
+    },
+    {
+      "variant": "spurious",
+      "method": "AP-D",
+      "status": "INFEASIBLE_CERTIFIED",
+      "objective": null,
+      "rounds": 2,
+      "T_total": 4.529565365
+    },
+    {
+      "variant": "spurious",
+      "method": "DEP-D",
+      "status": "INFEASIBLE_CERTIFIED",
+      "objective": null,
+      "rounds": 1,
+      "T_total": 4.427725258
+    }
+  ],
+  "injected_timeouts": [
+    {
+      "stage": "search",
+      "variant": "cost_gap",
+      "T_total": 0.156116194
+    },
+    {
+      "stage": "certification",
+      "variant": "cost_gap",
+      "T_total": 0.162099894
+    },
+    {
+      "stage": "logging",
+      "variant": "cost_gap",
+      "T_total": 0.163844494
+    },
+    {
+      "stage": "logging",
+      "variant": "spurious",
+      "T_total": 0.157124395
+    }
+  ],
+  "watchdog_seconds": 7.004915329,
+  "watchdog_worker_exitcode": -15,
+  "dds": [
+    {
+      "request_id": "cmr-cost-gap-apd",
+      "domain": 216,
+      "status": "OPTIMALITY_CERTIFIED",
+      "actions": [
+        "a_go",
+        "c_return",
+        "a_go",
+        "c_return"
+      ],
+      "T_total": 4.726258596
+    },
+    {
+      "request_id": "cmr-spurious-apd",
+      "domain": 217,
+      "status": "INFEASIBLE_CERTIFIED",
+      "actions": [],
+      "T_total": 3.886509791
+    },
+    {
+      "request_id": "cmr-base-full-timeout",
+      "domain": 218,
+      "status": "TIMEOUT",
+      "actions": [],
+      "T_total": 0.730033198
+    }
+  ]
+}
