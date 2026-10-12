@@ -28,6 +28,7 @@
 [可选 IRL](#91-可选-irl-示范学习) ·
 [CMR 接入 smoke](experiments/cmr_ros2_smoke/README.md) ·
 [CMR refinement / 超时 / DDS](experiments/cmr_ros2_integration/README.md) ·
+[CMR 真实实例接入](experiments/cmr_ros2_real/README.md) ·
 [验证记录](ltl_automaton_planner/docs/validation.md)
 
 面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
@@ -47,8 +48,21 @@ AP-D 经一次精度细化分别得到精确目标30与不可行证书。四个�
 [核心接入](experiments/cmr_ros2_smoke/evidence/20261011/index.json)、
 [refinement / DDS](experiments/cmr_ros2_integration/evidence/20261011/index.json) 和
 [validation.md 11.174–11.175](ltl_automaton_planner/docs/validation.md)。
-全部新记录为 `SYNTHETIC_SMOKE`，默认 Planner 与冻结 CMR 结果保持；
-未启动正式批量实验，尚不能替换正式 campaign solver。
+上述合成记录为 `SYNTHETIC_SMOKE`。后续已从当前 Experiment A 冻结清单中，按静态规模
+预选 B-D-BRANCH-S1、C1-T1、D3-1 三个真实实例，复用原 P2f 单实例 runner、模型加载、
+refinement、P2e 证书路径绑定和独立 INITIAL_LABEL_V1 验证器。FULL/AP-D/DEP-D 共9组
+reference/ROS2对照通过，精确目标分别15、13、20；18份对照证书及额外DDS运行的1份
+证书验证通过，两项重新计算hash的语义篡改负例被拒绝。C1-T1/AP-D真实DDS请求完成
+三步前缀和一步闭合后缀，完整核对派发、动作完成及独立状态反馈。
+
+真实结果保留 P2c 字段词汇；原 schema 固定了 ECC 后端 SHA，ROS2 使用显式版本化的
+后端绑定，只更换该 SHA 常量和 schema ID，终止、代价、证书、witness与计时规则不变。
+新记录标为 `CORE_SUBSET_QUALIFICATION`，原始失败与修正证据见
+[真实实例读回与归档](experiments/cmr_ros2_real/evidence/20261012/index.json)。
+入口目前限定上述三个实例，并依赖本地匹配的 CMR 冻结源码和数据。
+本轮 B/FULL 的 ROS2 资格计时为98.31秒，reference为1.25秒，包含插桩与tracemalloc；
+接入通过不代表性能达标。默认 Planner 与冻结 CMR 结果保持，未启动正式批量实验，
+尚不能替换正式 campaign solver。
 
 ---
 

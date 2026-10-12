@@ -1,0 +1,64 @@
+{
+  "schema": "cmr-ros2-real-evidence-index-v1",
+  "scope": "CORE_SUBSET_QUALIFICATION",
+  "status": "PASSED",
+  "source_head": "6778dcb5390203fb90651fe8b725293a5f7de363",
+  "qualification_id": "CMR_ROS2_REAL_INSTANCE_QUALIFICATION_20261012",
+  "selection_rule": "minimum declared Cartesian state count then instance ID within each of B,C,D; no historical outcomes used",
+  "instances": [
+    "B-D-BRANCH-S1",
+    "C1-T1",
+    "D3-1"
+  ],
+  "methods": [
+    "FULL",
+    "AP-D",
+    "DEP-D"
+  ],
+  "comparison_pairs": 9,
+  "qualified_method_runs": 18,
+  "additional_dds_method_runs": 1,
+  "qualified_persisted_certificates": 19,
+  "semantic_negative_rejections": 2,
+  "formal_campaign": false,
+  "provider_calls": 0,
+  "attempts": [
+    {
+      "name": "initial",
+      "status": "FAILED",
+      "rc": 1,
+      "completed_methods": 2,
+      "cause": "ROS2 independently certified objective15; frozen P2c backend_sha256 constant rejected its new backend identity"
+    },
+    {
+      "name": "fix1",
+      "status": "PASSED",
+      "rc": 0,
+      "completed_methods": 19,
+      "change": "versioned ROS2 backend SHA binding; same original terminal/witness/proof/timing constraints"
+    }
+  ],
+  "notes": [
+    "Both attempts, frozen adapter source copies, schemas, certificates, original runner rows, delivery rows, logs and actual exit codes are archived without replacement.",
+    "Initial execution identity and final execution identity differ because the source closure includes the metadata-validator change.",
+    "Rows use the original P2c vocabulary; reference uses its unchanged frozen schemas. ROS2 changes only the backend SHA constant and schema ID under an explicit versioned binding.",
+    "Timings include instrumentation and original runner tracemalloc. B/FULL ROS2 was98.306749923s versus reference1.245052295s in one qualified run; no performance campaign or speed claim.",
+    "The current caller intentionally restricts execution to the selected three-instance qualification subset.",
+    "Default production modules, frozen CMR scientific sources/results and formal campaign ledgers are unchanged."
+  ],
+  "archive_members": 283,
+  "files": {
+    "raw_attempts.zip": {
+      "size": 854882,
+      "sha256": "3a5788a3abaaceddf547c9cb09f375e58fe30cf7f45148cbd2ec790ccd86ca9d"
+    },
+    "archive_manifest.json": {
+      "size": 47518,
+      "sha256": "925e7ecb0f51f67eb97cb0d8355716752d9ae5a20f4707aeeeda9c9372ef1cd0"
+    },
+    "native_readback.json": {
+      "size": 2904,
+      "sha256": "e0ec16c789868cf520ef4e81635f85e433c0d04976370173bcfabc706b570b44"
+    }
+  }
+}

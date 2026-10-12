@@ -1,0 +1,203 @@
+{
+  "schema": "cmr-ros2-real-selection-v1",
+  "scope": "CORE_SUBSET_QUALIFICATION",
+  "qualification_id": "CMR_ROS2_REAL_INSTANCE_QUALIFICATION_20261012",
+  "source_head": "6778dcb5390203fb90651fe8b725293a5f7de363",
+  "selection_rule": "For each cohort B,C,D, choose minimum (nominal_cartesian_state_count, instance_id). No historical outcomes read.",
+  "receipt_sha256": "1d1f0d5fc2bbbcbffd3b448fcf2b39e066946198af003667bb4e17d150cdaa57",
+  "binding_sha256": "9c82640d06ee2388e5a809ab3a20c6a92c532036a1df3e43bc1acdb372f3f044",
+  "manifest_sha256": "34baf18783170ddb7762b4ef4b01941e8de76c4a27d36d91f73f7b597648c358",
+  "source_population": "Core170",
+  "source_count": 170,
+  "methods": [
+    "FULL",
+    "AP-D",
+    "DEP-D"
+  ],
+  "planner_budget_seconds": 180,
+  "outer_watchdog_seconds": 195,
+  "records": [
+    {
+      "AP_count": 3,
+      "N": 6,
+      "action_count": 7,
+      "cohort": "B",
+      "dataset_revision": "RACMR-Bench-v1-r1",
+      "dependency_mechanism": "GUARD_CAUSAL",
+      "domain_cardinalities": [
+        2,
+        2,
+        2,
+        2,
+        8,
+        2
+      ],
+      "external_provenance": null,
+      "feasibility_class": "FEASIBLE",
+      "formula": "G (F (g))",
+      "formula_sha256": "5f0eb243bd744979b23c2da82e6a7a5bf51172bc6f139b562a4073d6d3d4194a",
+      "instance_id": "B-D-BRANCH-S1",
+      "instance_sha256": "e401f102dc90544e5df8a9e202dca8e8741fb4b0899362f7697e4b3012085f1d",
+      "model_sha256": "d34ec03d9faf0154a3c728cd9d62802297a612631637266dbbd86f231298141e",
+      "nominal_cartesian_state_count": 256,
+      "parent_instance_sha256": "e401f102dc90544e5df8a9e202dca8e8741fb4b0899362f7697e4b3012085f1d",
+      "path": "instances/B-D-BRANCH-S1.json",
+      "scale_class": "S1",
+      "source": "CORE",
+      "structural_profile": "B-D",
+      "temporal_family": "T4",
+      "topology": "BRANCH",
+      "|S_phi|": 1
+    },
+    {
+      "AP_count": 7,
+      "N": 6,
+      "action_count": 7,
+      "cohort": "C",
+      "dataset_revision": "RACMR-Bench-v1-r1",
+      "dependency_mechanism": "GUARD_CAUSAL",
+      "domain_cardinalities": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "external_provenance": null,
+      "feasibility_class": "FEASIBLE",
+      "formula": "F (object_location_delivery_tray)",
+      "formula_sha256": "a3138c14d09b102d358c6d81b146a129a0ad787479d27441c7029e7645491119",
+      "instance_id": "C1-T1",
+      "instance_sha256": "826111129978ea43e3e8a6a20b9723ce2e675b1a45bac0afd645642e1e900312",
+      "model_sha256": "af941765e5325e6e973b131040f611348a5fd523d8665a5210009b15e533db22",
+      "nominal_cartesian_state_count": 64,
+      "parent_instance_sha256": "826111129978ea43e3e8a6a20b9723ce2e675b1a45bac0afd645642e1e900312",
+      "path": "instances/C1-T1.json",
+      "scale_class": "mobile_manipulation",
+      "source": "CORE",
+      "temporal_family": "T1",
+      "topology": "WORLD",
+      "world": "mobile_manipulation",
+      "|S_phi|": 1
+    },
+    {
+      "AP_count": 1,
+      "N": 1,
+      "action_count": 3,
+      "cohort": "D",
+      "dataset_revision": "RACMR-Bench-v1-r1",
+      "dependency_mechanism": "CERTIFICATION",
+      "domain_cardinalities": [
+        2
+      ],
+      "external_provenance": null,
+      "feasibility_class": "FEASIBLE",
+      "formula": "G (F (g))",
+      "formula_sha256": "5f0eb243bd744979b23c2da82e6a7a5bf51172bc6f139b562a4073d6d3d4194a",
+      "instance_id": "D3-1",
+      "instance_sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e",
+      "model_sha256": "5c61865a5baa697c82b4bd42c5b480237621beb1ca2d88b48e3705b679971cfd",
+      "nominal_cartesian_state_count": 2,
+      "parent_instance_sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e",
+      "path": "instances/D3-1.json",
+      "scale_class": "TINY",
+      "source": "CORE",
+      "temporal_family": "T4",
+      "topology": "EDGE",
+      "|S_phi|": 1
+    }
+  ],
+  "cells": [
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "FULL",
+      "canonical_instance_index": 95,
+      "execution_index": 285,
+      "method_order_position": 0,
+      "cell_id": "833aa50d065f3a35bb660055dedac1c2c78ce7d4693e77646e48375e0817766b"
+    },
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "AP-D",
+      "canonical_instance_index": 95,
+      "execution_index": 286,
+      "method_order_position": 1,
+      "cell_id": "d7caa8989ff9910f1e5c96125e0867d6480e4afd25651052d9c546de6b74dbad"
+    },
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "DEP-D",
+      "canonical_instance_index": 95,
+      "execution_index": 287,
+      "method_order_position": 2,
+      "cell_id": "6f5596a2f363ac8d9765c9473559428d16fed6d3d72fcbe4a2d2e3c16a0bd702"
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "FULL",
+      "canonical_instance_index": 110,
+      "execution_index": 330,
+      "method_order_position": 0,
+      "cell_id": "6e1a23d618fb0d7d17bddae5759e290b893405e0b72101d18b6fbe7e26266f65"
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "AP-D",
+      "canonical_instance_index": 110,
+      "execution_index": 331,
+      "method_order_position": 1,
+      "cell_id": "2c316cf8ca1381f9ef60ad57ddbb7108aea9962b8d9faaf8320e8d167f2aa453"
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "DEP-D",
+      "canonical_instance_index": 110,
+      "execution_index": 332,
+      "method_order_position": 2,
+      "cell_id": "49dc8756a04f27b819ff2d3c8987d38be1e0e0c97468b535515e22a069b5135f"
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "FULL",
+      "canonical_instance_index": 142,
+      "execution_index": 426,
+      "method_order_position": 0,
+      "cell_id": "9d0f8cb1e8fd6cd77f9588228bdc6dffebfd05d2f9049dcec8bbeac117e47f4d"
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "AP-D",
+      "canonical_instance_index": 142,
+      "execution_index": 427,
+      "method_order_position": 1,
+      "cell_id": "be130fb5dc7da6529ac0ccbaf0f0357a08b45a9f5b1385883f7cc1082141b76f"
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "DEP-D",
+      "canonical_instance_index": 142,
+      "execution_index": 428,
+      "method_order_position": 2,
+      "cell_id": "4fe248025b5a21913e052073b7f999095b81d5bcc10e1c7cd7e0e11a15219963"
+    }
+  ],
+  "expected_comparison_pairs": 9,
+  "expected_method_runs": 18,
+  "dds_plan": {
+    "instance_id": "C1-T1",
+    "method": "AP-D",
+    "periods": 1
+  },
+  "formal_campaign": false,
+  "provider_calls": 0,
+  "expected_dds_method_runs": 1,
+  "adapter_source_sha256": {
+    "bound_runner.py": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+    "dds_real.py": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+    "runner.py": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+    "verifier_checks.py": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+    "verify_small.py": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e"
+  },
+  "execution_identity": "6778dcb5390203fb90651fe8b725293a5f7de363+cmr-real-37d4df8af7ad7491"
+}

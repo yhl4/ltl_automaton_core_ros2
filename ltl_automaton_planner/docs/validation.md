@@ -7856,3 +7856,71 @@ Native独立reader不导入planner，核对JSON、具体转移、闭环、精确
 未绑定正式campaign结果schema、独立campaign证书验证器、外部内存采样或生产Action取消。
 生产模块与冻结CMR源码/结果未改；IRL仍默认关闭、仅学习β。累计25项优化与此前
 136项/754项资格保持各自历史边界，本轮未重跑既有测试集。本次有限接入验证后结束。
+
+### 11.176 当前 Experiment A 三个真实实例的 ROS2 隔离对照（2026-10-12）
+
+按用户授权新增 `experiments/cmr_ros2_real`，基线
+`6778dcb5390203fb90651fe8b725293a5f7de363`。receipt/binding分别仍为SHA256
+`1d1f0d5fc2bbbcbffd3b448fcf2b39e066946198af003667bb4e17d150cdaa57` /
+`9c82640d06ee2388e5a809ab3a20c6a92c532036a1df3e43bc1acdb372f3f044`；
+绑定的170条runtime_benchmark manifest为
+`34baf18783170ddb7762b4ef4b01941e8de76c4a27d36d91f73f7b597648c358`。
+读取B/C/D cohort的静态规模，在各cohort按
+`(nominal_cartesian_state_count, instance_id)`取最小；不参考历史运行结果。
+`selection.json`在首次求解前固定三个实例、三种方法、原180/195秒预算及DDS计划。
+每个方法使用独立reference/ROS2 worker，共9组对照、18次方法运行，额外1次真实DDS求解。
+范围为 `CORE_SUBSET_QUALIFICATION`，不是正式510格campaign或原Core结果补采。
+
+| 真实清单实例 | 因素 / 静态笛卡尔规模 | 三方法双方精确目标 | reference / ROS2轮数，FULL/AP-D/DEP-D |
+| --- | --- | ---: | --- |
+| B-D-BRANCH-S1 | 6 / 256 | 15 | 1/1、4/4、1/1 |
+| C1-T1 | 6 / 64 | 13 | 1/1、6/6、4/4 |
+| D3-1 | 1 / 2 | 20 | 1/1、1/1、1/1 |
+
+复用冻结 `formal_runner_p2f.run_one`、legacy JSON model loader、初始精度、grouped
+abstraction、具体化、认证、确定性refinement及原证书写入。WSL仅对runner的ROOT与
+_P2D_LOADER_PATH两处Path常量做内存AST路径转换，逐项记录原/新值与原件SHA；反向
+恢复后AST逐节点相等。ROS2臂以原函数的同一code对象克隆globals，只替换求解器；
+原runner全局solver identity预检仍成立。所有冻结源码保持字节原样。
+
+首轮B/FULL reference与ROS2科学求解均得到15、独立证书PASS，但ROS2 worker在
+后置P2c schema校验失败：该schema把backend_sha256固定为ECC求解器SHA。原失败、
+104秒左右的完整ROS2尝试、证书、raw runner结果及源码副本均保留。仅新增
+`CMR_ROS2_REAL_P2C_BACKEND_BINDING_V1`，对原result/round schema更换明确的ROS2
+后端SHA常量及schema ID；其余字段类型、方法、终端、witness、proof、计时约束完全相同。
+reference仍使用原schema，原文件不修改。修正候选在新目录完整运行固定子集通过。
+适配器执行身份绑定基线SHA及五份新Python源闭包；修正前后身份分别以
+`cmr-real-5200aea49108f149`与`cmr-real-37d4df8af7ad7491`结尾，不将基线提交冒称完整新代码。
+
+所有9组verdict和Fraction目标一致，初始精度匹配binding，逐轮精度严格增长；18份
+对照证书及额外DDS证书均由原P2e绑定完整物理路径、实例/公式元数据和bytes SHA后，
+调用独立verifier重放TS转移、精确代价、Büchi接受性与AST word oracle。它不重新搜索
+最优解。对C1/AP-D证书分别改objective+1和首条action，并重新计算文件hash，实际拒绝
+理由为重算目标不一致和非权威full-model transition。没有放宽科学验收或替换实例。
+
+结果保留原P2c词汇，另存原runner行、worker行及父进程交付行；最终hash重算，T_total
+与实际terminal_completion_ns一致。方法时间沿用原runner起点，worker启动单独记录。
+ROS2辅助图的真实distance/heap计数单列basis，不与SCC统计混同；无SCC/lower-bound/pruning
+执行阶段的计数为0，未知中断工作不虚构。B/FULL实测reference1.245052295秒、ROS2
+98.306749923秒，均含原runner tracemalloc及适配插桩；这项接入仍有明显搜索性能限制，
+没有正式性能campaign或通用加速结论。
+
+C1-T1/AP-D在localhost domain219通过真实DDS请求后启动独立ROS2 worker，目标13。
+既有ExecutionManager执行change_robot_location、change_gripper_state、change_object_location、
+wait：三步前缀、一轮一步闭合后缀。dispatch/completion/observer/abstraction/TS各4次；
+快照来自已独立认证的full-model lasso，旧generation未造成额外动作。server/driver rc均0，
+19个方法worker与两个DDS节点的21个进程退出检查通过。它仍是FakePlant符号执行。
+
+55份输入在各次运行前后逐字节一致；20份CMR科学源的40行映射、8个基础实际导入及
+6个runner/verifier/loader/schema实际导入匹配，DDS执行模块实际路径/SHA匹配。
+Native独立reader不导入planner，核对所有9组、精确目标/闭环、结果hash、证书bytes、
+源闭包、仅backend-binding schema差异及DDS权威行通过。原始两轮及预检、完整冻结
+适配源、实例选择、schema、证书、日志、退出码和reader均按字节归档至
+[`真实实例接入证据`](../../experiments/cmr_ros2_real/evidence/20261012/index.json)，共283项；
+raw_attempts.zip为854882 bytes、SHA256
+`3a5788a3abaaceddf547c9cb09f375e58fe30cf7f45148cbd2ec790ccd86ca9d`。
+
+未修改生产核心、原CMR数据/结果或formal campaign ledger，未运行其余167实例、provider、
+Gazebo、Jazzy、实机或新增IRL科学效果验证。入口有意限定三个已选择实例，并需要本地
+匹配的冻结CMR源码/数据；默认PlannerNode仍保留原语义。不是正式campaign solver替换
+资格。此前136/754项资格及25项优化保留历史范围，本轮未重跑该测试集。
