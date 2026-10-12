@@ -1,5 +1,8 @@
 """ROS 2 planner plugin providing connected trap-state checks."""
 
+from collections import deque
+
+from networkx import DiGraph
 from networkx import has_path
 
 from ltl_automaton_msgs.srv import TrapCheck
@@ -40,9 +43,14 @@ class TrapDetectionPlugin:
 
     def __init__(self, ltl_planner, args=None):
         del args
-        self.ltl_planner = ltl_planner
+        self._initial_planner = ltl_planner
         self.node = None
         self.service = None
+
+    @property
+    def ltl_planner(self):
+        """Read committed host authority after transactional plan replacement."""
+        return getattr(self.node, "ltl_planner", self._initial_planner)
 
     def set_node(self, node):
         """Attach the ROS 2 planner node hosting this plugin."""
@@ -67,7 +75,11 @@ class TrapDetectionPlugin:
 
     def trap_check_callback(self, request, response):
         """Populate connectivity and trap classification for a request."""
-        product = self.ltl_planner.product
+        product = getattr(self.ltl_planner, "product", None)
+        if product is None:
+            response.is_connected = False
+            response.is_trap = False
+            return response
         expected_dimensions = product.graph["ts"].graph["ts_state_format"]
         try:
             ts_state = state_tuple_from_message(
@@ -83,13 +95,35 @@ class TrapDetectionPlugin:
         possible_states = product.get_possible_states(ts_state)
         response.is_connected = bool(possible_states)
         response.is_trap = bool(possible_states) and self._all_are_traps(
-            possible_states
+            possible_states, product,
         )
         return response
 
-    def _all_are_traps(self, possible_states):
-        product = self.ltl_planner.product
+    def _all_are_traps(self, possible_states, product):
         accepting_cycles = product.graph["accept_with_cycle"]
+        if (
+            isinstance(possible_states, (set, frozenset))
+            and isinstance(accepting_cycles, (set, frozenset))
+            and isinstance(product, DiGraph)
+            and all(state in product for state in possible_states)
+            and all(state in product for state in accepting_cycles)
+        ):
+            if not possible_states:
+                return True
+            visited = set(accepting_cycles)
+            if not possible_states.isdisjoint(visited):
+                return False
+            pending = deque(accepting_cycles)
+            while pending:
+                target = pending.popleft()
+                for predecessor in product.predecessors(target):
+                    if predecessor in visited:
+                        continue
+                    if predecessor in possible_states:
+                        return False
+                    visited.add(predecessor)
+                    pending.append(predecessor)
+            return True
         for state in possible_states:
             if any(
                 has_path(product, state, accepting_state)

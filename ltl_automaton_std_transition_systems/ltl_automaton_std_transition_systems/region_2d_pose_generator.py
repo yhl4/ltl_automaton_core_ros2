@@ -35,6 +35,22 @@ def _connect(nodes, source, target):
 def generate_regions_and_actions(definition):
     """Create a planner-compatible TS dictionary from a grid definition."""
     grid = definition["grid"]
+    geometry = [
+        grid["origin"]["x"], grid["origin"]["y"],
+        grid["cell_side_length"], grid["cell_hysteresis"],
+        *definition["initial_position"][:2],
+    ]
+    for station in definition.get("stations", []):
+        geometry.extend([
+            station["origin"]["x"], station["origin"]["y"],
+            station["origin"]["yaw"], station["radius"],
+            station["angle_threshold"], station["dist_hysteresis"],
+            station["angle_hysteresis"],
+        ])
+    if not all(math.isfinite(value) for value in geometry):
+        raise ValueError("Grid, station and initial-position geometry must be finite.")
+    if grid["cell_side_length"] <= 0.0:
+        raise ValueError("Cell side length must be positive.")
     nodes = {}
     actions = {}
 
@@ -70,6 +86,8 @@ def generate_regions_and_actions(definition):
             name = f"r{cell_index}"
             x = grid["origin"]["x"] + (column + 0.5) * grid["cell_side_length"]
             y = grid["origin"]["y"] + (row + 0.5) * grid["cell_side_length"]
+            if not math.isfinite(x) or not math.isfinite(y):
+                raise ValueError("Generated cell centers must be finite.")
             nodes[name] = {
                 "attr": {
                     "type": "square",
@@ -115,8 +133,8 @@ def generate_regions_and_actions(definition):
         center = centers[cell_name]
         half = grid["cell_side_length"] / 2.0
         if (
-            abs(initial_position[0] - center[0]) <= half
-            and abs(initial_position[1] - center[1]) <= half
+            abs(initial_position[0] - center[0]) < half
+            and abs(initial_position[1] - center[1]) < half
         ):
             initial = cell_name
             break

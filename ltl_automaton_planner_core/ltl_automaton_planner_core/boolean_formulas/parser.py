@@ -1,5 +1,7 @@
-from .lexer import get_lexer
 import itertools
+from collections import deque
+
+from .lexer import get_lexer
 
 
 class Expression(object):
@@ -111,7 +113,15 @@ class NotExpression(Expression):
         return not self.inner.check(label)
 
     def nnf(self):
-        if isinstance(self.inner, SymbolExpression):
+        if isinstance(self.inner, FalseExpression):
+            return TrueExpression()
+        elif isinstance(self.inner, TrueExpression):
+            return FalseExpression()
+        elif isinstance(self.inner, NotExpression):
+            return self.inner.inner.nnf()
+        elif isinstance(self.inner, NotSymbolExpression):
+            return SymbolExpression(self.inner.symbol)
+        elif isinstance(self.inner, SymbolExpression):
             s = NotSymbolExpression(self.inner.name)
             return s
         elif isinstance(self.inner, ORExpression):
@@ -124,7 +134,22 @@ class NotExpression(Expression):
             right = NotExpression(self.inner.right).nnf()
             s = ORExpression(left, right)
             return s
-        raise Exception("Unexpected child of NotExpression")
+        raise ValueError("Unexpected child of NotExpression")
+
+
+class FalseExpression(TrueExpression):
+    """Represent an unsatisfiable Boolean constant in negation normal form."""
+
+    name = "FALSE"
+
+    def __repr__(self):
+        return "FalseExpression()"
+
+    def check(self, label):
+        return False
+
+    def distance(self, label):
+        return float("inf")
 
 
 class BinExpression(Expression):
@@ -156,8 +181,11 @@ class ORExpression(BinExpression):
 
     def distance(self, label):
         ldist = self.left.distance(label)
+        # NNF distances are non-negative, so zero is the smallest OR result.
+        if ldist == 0:
+            return 0
         rdist = self.right.distance(label)
-        return min([ldist, rdist])
+        return min(ldist, rdist)
 
 
 class ANDExpression(BinExpression):
@@ -173,12 +201,27 @@ class ANDExpression(BinExpression):
         return self.left.distance(label) + self.right.distance(label)
 
 
+def _balanced_expression(operands, expression_type):
+    """Combine operands in adjacent pairs until one expression remains."""
+    while len(operands) > 1:
+        paired = [
+            expression_type(left, right)
+            for left, right in zip(operands[0::2], operands[1::2])
+        ]
+        if len(operands) % 2:
+            paired.append(operands[-1])
+        operands = paired
+    return operands[0]
+
+
 class Parser(object):
     def __init__(self, formula):
+        if not isinstance(formula, str) or not formula.strip():
+            raise ValueError("A guard must be a non-empty string.")
         lexer = get_lexer()
         lexer.input(formula)
         self.formula = formula
-        self.tokens = list(lexer)
+        self.tokens = deque(lexer)
 
     def symbols(self):
         syms = list()
@@ -189,64 +232,62 @@ class Parser(object):
 
     def parse(self):
         expr = self.orx()
+        if self.tokens:
+            raise ValueError("Unexpected trailing guard token: %s" % self.tokens[0])
         expr = expr.nnf()
         expr.formula = self.formula
         return expr
 
     def orx(self):
-        lhs = self.andx()
+        operands = [self.andx()]
         if len(self.tokens) == 0 or self.tokens[0].type == "RPAREN":
-            return lhs
+            return operands[0]
         elif self.tokens[0].type == "OR":
-            self.tokens.pop(0)
-            rhs = self.andx()
-            lhs = ORExpression(lhs, rhs)
             while len(self.tokens) > 0 and self.tokens[0].type == "OR":
-                self.tokens.pop(0)
-                rhs = self.andx()
-                lhs = ORExpression(lhs, rhs)
-            return lhs
+                self.tokens.popleft()
+                operands.append(self.andx())
+            return _balanced_expression(operands, ORExpression)
         else:
-            raise Exception("Expected OR, RPAREN or nothing but got %s" % self.tokens[0])
+            raise ValueError("Expected OR, RPAREN or nothing but got %s" % self.tokens[0])
 
     def andx(self):
-        lhs = self.notx()
+        operands = [self.notx()]
         if len(self.tokens) == 0 or self.tokens[0].type in ["OR", "RPAREN"]:
-            return lhs
+            return operands[0]
         elif self.tokens[0].type == "AND":
-            self.tokens.pop(0)
-            rhs = self.notx()
-            lhs = ANDExpression(lhs, rhs)
             while len(self.tokens) > 0 and self.tokens[0].type == "AND":
-                self.tokens.pop(0)
-                rhs = self.notx()
-                lhs = ANDExpression(lhs, rhs)
-            return lhs
+                self.tokens.popleft()
+                operands.append(self.notx())
+            return _balanced_expression(operands, ANDExpression)
         else:
-            raise Exception("Expected OR, AND or nothing but got %s" % self.tokens[0])
+            raise ValueError("Expected OR, AND or nothing but got %s" % self.tokens[0])
 
     def notx(self):
+        if not self.tokens:
+            raise ValueError("Expected a guard operand.")
         if self.tokens[0].type == "NOT":
-            self.tokens.pop(0)
-            return NotExpression(self.parx())
+            self.tokens.popleft()
+            return NotExpression(self.notx())
         else:
             return self.parx()
 
     def parx(self):
+        if not self.tokens:
+            raise ValueError("Expected a guard operand.")
         if self.tokens[0].type == "LPAREN":
-            self.tokens.pop(0)
+            self.tokens.popleft()
             expr = self.orx()
-            if self.tokens[0].type != "RPAREN":
-                raise Exception("Expected RPAREN but got %s" % self.tokens[0])
-            self.tokens.pop(0)
+            if not self.tokens or self.tokens[0].type != "RPAREN":
+                raise ValueError("Expected a closing guard parenthesis.")
+            self.tokens.popleft()
         elif self.tokens[0].type == "SYMBOL":
             expr = SymbolExpression(self.tokens[0].value)
-            self.tokens.pop(0)
+            self.tokens.popleft()
         elif self.tokens[0].type == "TRUE":
             expr = TrueExpression()
-            self.tokens.pop(0)
+            self.tokens.popleft()
         else:
-            raise Exception("Expected LPAREN or SYMBOL but got %s" % self.tokens[0])
+            raise ValueError("Expected LPAREN or SYMBOL but got %s" % self.tokens[0])
         return expr
 
 

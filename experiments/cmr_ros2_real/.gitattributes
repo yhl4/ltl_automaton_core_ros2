@@ -1,0 +1,6 @@
+# Preserve the exact source and selection bytes used by qualification.
+*.py -text whitespace=cr-at-eol
+selection.json -text whitespace=cr-at-eol
+# These qualified source copies retain their recorded EOF blank lines.
+bound_runner.py whitespace=cr-at-eol,-blank-at-eof
+verifier_checks.py whitespace=cr-at-eol,-blank-at-eof

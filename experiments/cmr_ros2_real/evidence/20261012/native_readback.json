@@ -1,0 +1,110 @@
+{
+  "schema": "cmr-ros2-real-native-readback-v1",
+  "status": "PASSED",
+  "planner_imported": false,
+  "scope": "CORE_SUBSET_QUALIFICATION",
+  "frozen_inputs": 55,
+  "pairs": [
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "FULL",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "15",
+      "reference_seconds": 1.245052295,
+      "ros2_seconds": 98.306749923,
+      "reference_rounds": 1,
+      "ros2_rounds": 1
+    },
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "AP-D",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "15",
+      "reference_seconds": 1.074672996,
+      "ros2_seconds": 7.840071408,
+      "reference_rounds": 4,
+      "ros2_rounds": 4
+    },
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "DEP-D",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "15",
+      "reference_seconds": 1.039675802,
+      "ros2_seconds": 6.623649817,
+      "reference_rounds": 1,
+      "ros2_rounds": 1
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "FULL",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "13",
+      "reference_seconds": 0.753377902,
+      "ros2_seconds": 2.73479191,
+      "reference_rounds": 1,
+      "ros2_rounds": 1
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "AP-D",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "13",
+      "reference_seconds": 0.933294504,
+      "ros2_seconds": 3.492619914,
+      "reference_rounds": 6,
+      "ros2_rounds": 6
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "DEP-D",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "13",
+      "reference_seconds": 0.898340204,
+      "ros2_seconds": 3.631493417,
+      "reference_rounds": 4,
+      "ros2_rounds": 4
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "FULL",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "20",
+      "reference_seconds": 0.644511707,
+      "ros2_seconds": 0.721020145,
+      "reference_rounds": 1,
+      "ros2_rounds": 1
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "AP-D",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "20",
+      "reference_seconds": 0.633074313,
+      "ros2_seconds": 0.679712007,
+      "reference_rounds": 1,
+      "ros2_rounds": 1
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "DEP-D",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "20",
+      "reference_seconds": 0.691891391,
+      "ros2_seconds": 0.696294897,
+      "reference_rounds": 1,
+      "ros2_rounds": 1
+    }
+  ],
+  "independent_certificates": 18,
+  "independent_dds_certificates": 1,
+  "negative_rejections": 2,
+  "dds": {
+    "status": "PASSED",
+    "instance_id": "C1-T1",
+    "method": "AP-D",
+    "prefix_steps": 3,
+    "suffix_steps": 1,
+    "objective": "13"
+  }
+}

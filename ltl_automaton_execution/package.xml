@@ -7,6 +7,9 @@
   <maintainer email="1209634202@qq.com">yuhling</maintainer>
   <license>BSD-3-Clause</license>
 
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>rcl_interfaces</exec_depend>
   <depend>rclpy</depend>
   <depend>ltl_automaton_msgs</depend>
   <exec_depend>launch</exec_depend>
@@ -15,6 +18,8 @@
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
+  <test_depend>action_msgs</test_depend>
+  <test_depend>ltl_automaton_planner</test_depend>
   <test_depend>python3-pytest</test_depend>
 
   <export>

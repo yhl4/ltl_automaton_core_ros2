@@ -1,0 +1,29 @@
+{
+  "status": "PASSED",
+  "reader_scope": "JSON and exact arithmetic only; no planner import",
+  "raw_artifact": {
+    "path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\ltl_cmr_ros2_smoke_1228773_20261011_fix1\\result.json",
+    "size": 74153,
+    "sha256": "6dae301551334b81c9e5d80cda7affc8cda6dd82eaaeee4db3411df464a4229c"
+  },
+  "matrix_rows": 12,
+  "certified_synthetic_rows": 9,
+  "no_accept_rows": 3,
+  "negative_input_checks": 3,
+  "source_hash_checks": 40,
+  "actual_import_checks": 7,
+  "frozen_input_checks": 13,
+  "precision": {
+    "FULL": [
+      0,
+      1
+    ],
+    "AP-D": [
+      0
+    ],
+    "DEP-D": [
+      0,
+      1
+    ]
+  }
+}

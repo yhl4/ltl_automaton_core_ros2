@@ -1,6 +1,7 @@
 """Deterministically serialize one accepted planner graph snapshot."""
 
 from dataclasses import dataclass
+from itertools import islice
 from types import MappingProxyType
 from typing import Mapping
 
@@ -42,7 +43,7 @@ def _membership(graph, key: str) -> set:
     except TypeError:
         pass
 
-    if isinstance(value, (set, list, tuple)):
+    if isinstance(value, (set, frozenset, list, tuple)):
         return set(value)
 
     raise ValueError(f"Buchi/Product graph {key!r} is not a membership set.")
@@ -107,9 +108,13 @@ def _serialize_buchi(buchi):
     graph_type = _buchi_type(buchi)
     initial = _membership(buchi, "initial")
     accepting = _membership(buchi, "accept")
+    identities = {
+        node: _buchi_identity(buchi, node)
+        for node in buchi.nodes
+    }
     ordered_nodes = sorted(
         buchi.nodes,
-        key=lambda node: _buchi_identity(buchi, node),
+        key=identities.__getitem__,
     )
     node_ids = {
         node: identifier
@@ -118,7 +123,7 @@ def _serialize_buchi(buchi):
     messages = []
 
     for node in ordered_nodes:
-        identity = _buchi_identity(buchi, node)
+        identity = identities[node]
         message = BuchiGraphNode()
         message.id = node_ids[node]
         message.initial = node in initial
@@ -189,14 +194,30 @@ def _serialize_product(product, buchi, buchi_ids):
     )
     initial = _membership(product, "initial")
     accepting = _membership(product, "accept")
+    # Product attributes retain the referenced objects throughout this build.
+    # Cache immutable conversion values locally, never across graph generations.
+    ts_values_cache = {}
+    buchi_identity_cache = {}
+
+    def cached_ts_values(ts_node):
+        key = id(ts_node)
+        if key not in ts_values_cache:
+            ts_values_cache[key] = tuple(
+                serialize_transition_state_values(ts_node)
+            )
+        return ts_values_cache[key]
+
+    def cached_buchi_identity(buchi_node):
+        key = id(buchi_node)
+        if key not in buchi_identity_cache:
+            buchi_identity_cache[key] = _buchi_identity(buchi, buchi_node)
+        return buchi_identity_cache[key]
 
     def product_identity(node):
         attributes = product.nodes[node]
-        ts_node = attributes["ts"]
-        buchi_node = attributes["buchi"]
         return (
-            tuple(serialize_transition_state_values(ts_node)),
-            _buchi_identity(buchi, buchi_node),
+            cached_ts_values(attributes["ts"]),
+            cached_buchi_identity(attributes["buchi"]),
         )
 
     ordered_nodes = sorted(product.nodes, key=product_identity)
@@ -208,7 +229,7 @@ def _serialize_product(product, buchi, buchi_ids):
 
     for node in ordered_nodes:
         attributes = product.nodes[node]
-        ts_values = serialize_transition_state_values(attributes["ts"])
+        ts_values = list(cached_ts_values(attributes["ts"]))
 
         if len(ts_values) != len(dimension_names):
             raise ValueError(
@@ -217,7 +238,7 @@ def _serialize_product(product, buchi, buchi_ids):
 
         state = TransitionSystemState()
         state.states = ts_values
-        state.state_dimension_names = dimension_names
+        state.state_dimension_names = list(dimension_names)
         message = ProductGraphNode()
         message.id = node_ids[node]
         message.ts_state = state
@@ -227,15 +248,15 @@ def _serialize_product(product, buchi, buchi_ids):
         messages.append(message)
 
     edge_messages = []
+    required_edge_fields = {
+        "action",
+        "transition_cost",
+        "soft_task_dist",
+        "weight",
+    }
 
     for source, target, attributes in product.edges(data=True):
-        required = {
-            "action",
-            "transition_cost",
-            "soft_task_dist",
-            "weight",
-        }
-        missing = required.difference(attributes)
+        missing = required_edge_fields.difference(attributes)
 
         if missing:
             fields = ", ".join(sorted(missing))
@@ -289,6 +310,24 @@ def _serialize_run(planner, product, product_ids):
     if not product.has_edge(run.suffix[-1], run.suffix[0]):
         raise ValueError("The accepted suffix does not close in the Product graph.")
 
+    if not run.prefix:
+        raise ValueError("The accepted run has no prefix nodes.")
+    if run.prefix[-1] != run.suffix[0]:
+        raise ValueError(
+            "The accepted prefix and suffix do not share their boundary node."
+        )
+    for segment, nodes in (
+        ("prefix", run.prefix),
+        ("suffix", run.suffix),
+    ):
+        if any(
+            not product.has_edge(source, target)
+            for source, target in zip(nodes, islice(nodes, 1, None))
+        ):
+            raise ValueError(
+                f"The accepted {segment} references a missing Product edge."
+            )
+
     message = AcceptedRunSnapshot()
     message.prefix_product_node_ids = prefix_ids
     message.suffix_product_node_ids = suffix_ids
@@ -341,7 +380,8 @@ def build_planning_graph_snapshot(
     snapshot.accepted_run = accepted_run
     return PlanningGraphSnapshotBuild(
         snapshot=snapshot,
-        product_node_ids=MappingProxyType(dict(product_ids)),
+        # This private per-build table is delivered directly as a read-only view.
+        product_node_ids=MappingProxyType(product_ids),
     )
 
 

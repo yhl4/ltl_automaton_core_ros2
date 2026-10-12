@@ -1,0 +1,286 @@
+"""ROS2 launch integration tests for the optional IRL plugin."""
+
+from pathlib import Path
+import tempfile
+import time
+import unittest
+
+from action_msgs.msg import GoalStatus
+from launch import LaunchDescription
+from launch_ros.actions import Node
+import launch_testing
+import launch_testing.actions
+from ltl_automaton_msgs.action import PlanLTL
+from ltl_automaton_msgs.msg import (
+    LTLStateRuns,
+    PlannerStatus,
+    PlanningExecutionObservation,
+    TransitionSystemState,
+    TransitionSystemStateStamped,
+)
+from ltl_automaton_msgs.srv import (
+    GetPlanningGraphSnapshot,
+)
+import pytest
+import rclpy
+from rcl_interfaces.srv import GetParameters
+from rclpy.action import ActionClient
+from rclpy.qos import (
+    DurabilityPolicy,
+    QoSProfile,
+    ReliabilityPolicy,
+)
+from std_msgs.msg import Bool
+
+
+PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+HUB_TS_PATH = Path(tempfile.gettempdir()) / "ltl_irl_hub_ts.yaml"
+HUB_TS_PATH.write_text(
+    """state_dim:
+  - region
+state_models:
+  region:
+    initial: hub
+    nodes:
+      hub:
+        connected_to:
+          hub: wait
+actions:
+  wait:
+    guard: "1"
+    weight: 1.0
+""",
+    encoding="utf-8",
+)
+
+
+@pytest.mark.launch_test
+def generate_test_description():
+    """Launch a planner with an explicit optional IRL plugin config."""
+    planner = Node(
+        package="ltl_automaton_planner",
+        executable="planner_node",
+        name="irl_plugin_test_planner",
+        output="screen",
+        parameters=[
+            {
+                "transition_system_path": str(HUB_TS_PATH),
+                "hard_task": "[]<> hub",
+                "soft_task": "(hub || ! hub)",
+                "beta": 2.0,
+                "gamma": 1.0,
+                "plugin_config_path": str(
+                    PACKAGE_ROOT / "config" / "irl_plugin.yaml"
+                ),
+            }
+        ],
+    )
+    return (
+        LaunchDescription([planner, launch_testing.actions.ReadyToTest()]),
+        {"planner": planner},
+    )
+
+
+class TestIRLPluginDDS(unittest.TestCase):
+    """Exercise plugin recording and transactional commit over ROS2 DDS."""
+
+    @classmethod
+    def setUpClass(cls):
+        rclpy.init()
+        cls.node = rclpy.create_node("irl_plugin_test_client")
+        cls.qos = QoSProfile(
+            depth=10,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+        )
+        cls.statuses = []
+        cls.observations = []
+        cls.run_messages = []
+        cls.status_subscription = cls.node.create_subscription(
+            PlannerStatus,
+            "/planner_status",
+            cls.statuses.append,
+            cls.qos,
+        )
+        cls.observation_subscription = cls.node.create_subscription(
+            PlanningExecutionObservation,
+            "/planning_execution_observation",
+            cls.observations.append,
+            cls.qos,
+        )
+        cls.run_subscription = cls.node.create_subscription(
+            LTLStateRuns,
+            "/possible_runs",
+            cls.run_messages.append,
+            cls.qos,
+        )
+        cls.trigger_publisher = cls.node.create_publisher(
+            Bool,
+            "/irl_trigger",
+            cls.qos,
+        )
+        cls.state_publisher = cls.node.create_publisher(
+            TransitionSystemStateStamped,
+            "/ts_state",
+            10,
+        )
+        cls.action_client = ActionClient(cls.node, PlanLTL, "/plan_ltl")
+        cls.snapshot_client = cls.node.create_client(
+            GetPlanningGraphSnapshot,
+            "/get_planning_graph_snapshot",
+        )
+        cls.parameters_client = cls.node.create_client(
+            GetParameters,
+            "/irl_plugin_test_planner/get_parameters",
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.action_client.destroy()
+        cls.node.destroy_node()
+        rclpy.shutdown()
+
+    def _spin_until(self, predicate, timeout=20.0):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            if predicate():
+                return True
+            rclpy.spin_once(self.node, timeout_sec=0.1)
+        return predicate()
+
+    def _plan_with_real_action(self):
+        self.assertTrue(self.action_client.wait_for_server(timeout_sec=5.0))
+        goal = PlanLTL.Goal(
+            hard_task="[]<> hub",
+            soft_task="(hub || ! hub)",
+            initial_state=TransitionSystemState(
+                states=["hub"],
+                state_dimension_names=["region"],
+            ),
+            beta=2.0,
+            gamma=1.0,
+        )
+        goal_future = self.action_client.send_goal_async(goal)
+        self.assertTrue(self._spin_until(goal_future.done))
+        goal_handle = goal_future.result()
+        self.assertTrue(goal_handle.accepted)
+        result_future = goal_handle.get_result_async()
+        self.assertTrue(self._spin_until(result_future.done))
+        result = result_future.result()
+        self.assertEqual(result.status, GoalStatus.STATUS_SUCCEEDED)
+        self.assertTrue(result.result.success)
+
+    def _snapshot(self):
+        self.assertTrue(self.snapshot_client.wait_for_service(timeout_sec=5.0))
+        future = self.snapshot_client.call_async(
+            GetPlanningGraphSnapshot.Request()
+        )
+        self.assertTrue(self._spin_until(future.done))
+        response = future.result()
+        self.assertTrue(response.success, response.message)
+        return response.snapshot
+
+    def test_real_action_and_irl_commit_contract(self):
+        """Record a hub self-loop and commit the next generation."""
+        self.assertTrue(
+            self._spin_until(
+                lambda: any(
+                    status.state == PlannerStatus.ACTIVE
+                    for status in self.statuses
+                )
+            )
+        )
+        self._plan_with_real_action()
+        self.assertTrue(
+            self._spin_until(
+                lambda: self.observations
+                and self.observations[-1].planning_generation >= 2
+            )
+        )
+        initial_generation = self.observations[-1].planning_generation
+        initial_instance = self.observations[-1].planner_instance_id
+
+        self.assertTrue(
+            self._spin_until(
+                lambda: self.trigger_publisher.get_subscription_count() > 0
+            )
+        )
+        self.trigger_publisher.publish(Bool(data=True))
+        for _ in range(3):
+            rclpy.spin_once(self.node, timeout_sec=0.05)
+
+        self.assertTrue(
+            self._spin_until(
+                lambda: self.state_publisher.get_subscription_count() > 0
+            )
+        )
+        feedback = TransitionSystemStateStamped()
+        feedback.header.stamp = self.node.get_clock().now().to_msg()
+        feedback.ts_state = TransitionSystemState(
+            states=["hub"],
+            state_dimension_names=["region"],
+        )
+        self.state_publisher.publish(feedback)
+        self.assertTrue(
+            self._spin_until(
+                lambda: any(
+                    len(run.ltl_states) >= 2
+                    for message in self.run_messages
+                    for run in message.runs
+                )
+            )
+        )
+        teaching_message = next(
+            message
+            for message in reversed(self.run_messages)
+            if any(len(run.ltl_states) >= 2 for run in message.runs)
+        )
+        teaching_run = next(
+            run for run in teaching_message.runs if len(run.ltl_states) >= 2
+        )
+        self.assertTrue(
+            all(
+                list(state.ts_state.state_dimension_names) == ["region"]
+                for state in teaching_run.ltl_states
+            )
+        )
+
+        self.trigger_publisher.publish(Bool(data=False))
+        self.assertTrue(
+            self._spin_until(
+                lambda: any(
+                    observation.planning_generation > initial_generation
+                    for observation in self.observations
+                )
+            )
+        )
+        committed_observation = next(
+            observation
+            for observation in reversed(self.observations)
+            if observation.planning_generation > initial_generation
+        )
+        self.assertEqual(
+            committed_observation.planner_instance_id,
+            initial_instance,
+        )
+        self.assertEqual(committed_observation.execution_step_seq, 0)
+
+        snapshot = self._snapshot()
+        self.assertTrue(snapshot.metadata.available)
+        self.assertEqual(snapshot.metadata.hard_task, "[]<> hub")
+        self.assertEqual(snapshot.metadata.soft_task, "(hub || ! hub)")
+        self.assertEqual(
+            snapshot.metadata.planning_generation,
+            committed_observation.planning_generation,
+        )
+
+        self.assertTrue(
+            self.parameters_client.wait_for_service(timeout_sec=5.0)
+        )
+        parameter_future = self.parameters_client.call_async(
+            GetParameters.Request(names=["beta", "gamma"])
+        )
+        self.assertTrue(self._spin_until(parameter_future.done))
+        values = parameter_future.result().values
+        self.assertEqual(values[0].double_value, 2.0)
+        self.assertEqual(values[1].double_value, 1.0)

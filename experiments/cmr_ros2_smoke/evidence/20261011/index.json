@@ -1,0 +1,123 @@
+{
+  "schema": "cmr-ros2-smoke-evidence-index-v1",
+  "population": "SYNTHETIC_SMOKE",
+  "qualification_head": "1228773e50e2920dd0811b92d4d64890799e8b47",
+  "scope": "CMR Experiment A bound sources; isolated ROS2 distance-helper integration only",
+  "attempts": {
+    "initial": {
+      "status": "FAILED",
+      "completed_rows": 0,
+      "smoke_rc": 1,
+      "cause": "preflight binding population literal was Core instead of Core170"
+    },
+    "fix1": {
+      "status": "PASSED",
+      "completed_rows": 12,
+      "smoke_rc": 0,
+      "outer_wsl_rc_file_saved": false
+    }
+  },
+  "independent_readback": "fix1/readback.json",
+  "notes": [
+    "Raw files are copied byte-for-byte; source paths refer to the qualification host.",
+    "Initial source hashes identify the pre-fix inputs; initial source copies are not included.",
+    "No formal Core cells, performance campaign, provider calls or DDS run belong to this smoke."
+  ],
+  "files": [
+    {
+      "path": "fix1/frozen_inputs.json",
+      "size": 3861,
+      "sha256": "dbc9f3f3cd1ffc1e87d4846ebd6e42339ab47bca61b5834037971a2b0f7970c9"
+    },
+    {
+      "path": "fix1/readback.json",
+      "size": 679,
+      "sha256": "8bbe718b71d16c2d3defefb28ca092a3c635ac834bc7966589ca62ff90d395cf"
+    },
+    {
+      "path": "fix1/readback.py",
+      "size": 4837,
+      "sha256": "75b43c74684e07526a765b3f8f1a73aa4890075a0713718db1f771bdbb251518"
+    },
+    {
+      "path": "fix1/result.json",
+      "size": 74153,
+      "sha256": "6dae301551334b81c9e5d80cda7affc8cda6dd82eaaeee4db3411df464a4229c"
+    },
+    {
+      "path": "fix1/run.sh",
+      "size": 2456,
+      "sha256": "b938a90344c594dc4ee570aa2b77bacfc24349907a6487b0054588880365d61f"
+    },
+    {
+      "path": "fix1/smoke.rc",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "fix1/source_after.json",
+      "size": 39,
+      "sha256": "72f3e61da6b537dd3d2be58fce92674d0434ad693bf3559e3604dde78f02faa9"
+    },
+    {
+      "path": "fix1/source_after.rc",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "fix1/stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fix1/stdout.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "initial/frozen_inputs.json",
+      "size": 3861,
+      "sha256": "c693fb66b691b4520d6153e4928d79f1b8cfc30d8c888faf56b0178406670a6d"
+    },
+    {
+      "path": "initial/result.json",
+      "size": 1436,
+      "sha256": "c311f86cd95aaf5a71425d3a7a8bfb1abe3b5fcb7798c2937bd1d5da39eeea6d"
+    },
+    {
+      "path": "initial/run.sh",
+      "size": 2451,
+      "sha256": "b36b3a22b0c8a2e449babe4e5322f7c6e4a3bc26567ddaf13bbcb0a324751daa"
+    },
+    {
+      "path": "initial/smoke.rc",
+      "size": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "initial/source_after.json",
+      "size": 39,
+      "sha256": "72f3e61da6b537dd3d2be58fce92674d0434ad693bf3559e3604dde78f02faa9"
+    },
+    {
+      "path": "initial/source_after.rc",
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "initial/stderr.txt",
+      "size": 876,
+      "sha256": "dc2e9b1ce08b79681037fd922d267f1a6ded31e0f781dc287946c94eb4ba6774"
+    },
+    {
+      "path": "initial/stdout.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "initial/wsl.rc",
+      "size": 1,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    }
+  ]
+}

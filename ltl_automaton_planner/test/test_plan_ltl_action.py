@@ -1,6 +1,8 @@
 """Integration tests for the transactional PlanLTL action wrapper."""
 
 import hashlib
+from math import isfinite
+import os
 from threading import Event
 import time
 from types import SimpleNamespace
@@ -16,6 +18,7 @@ from rclpy.qos import (
     QoSProfile,
     ReliabilityPolicy,
 )
+from rclpy.task import Future
 from std_msgs.msg import String
 
 from ltl_automaton_msgs.action import PlanLTL
@@ -33,6 +36,8 @@ from ltl_automaton_msgs.srv import (
 )
 import ltl_automaton_planner.planner_node as planner_module
 from ltl_automaton_planner.planner_node import PlannerNode
+import ltl_automaton_planner_core.ltl_tools.buchi as buchi_module
+import ltl_automaton_planner_core.ltl_tools.ltl2ba as ltl2ba_module
 
 
 VALID_TS = """
@@ -278,6 +283,7 @@ def publish_state(runtime, state):
     message.ts_state.states = [state]
     message.ts_state.state_dimension_names = ["region"]
     runtime.state_publisher.publish(message)
+    return message
 
 
 def activate(runtime, yaml_content=VALID_TS, goal=None):
@@ -332,6 +338,581 @@ def test_ready_action_success_returns_plan_and_activates(action_runtime):
     assert result.total_cost > 0.0
     assert result.planning_time >= 0.0
     assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+
+
+@pytest.mark.parametrize("error_type", [RuntimeError, ValueError])
+def test_worker_exception_completes_future_with_internal_failure(monkeypatch, error_type):
+    """Complete the real executor Future when candidate computation escapes."""
+    future = Future()
+    request = object()
+
+    def failed_compute(received):
+        assert received is request
+        raise error_type("Controlled late worker failure.")
+
+    monkeypatch.setattr(planner_module, "compute_candidate_plan", failed_compute)
+    planner_module.run_candidate_worker(future, request)
+
+    assert future.done()
+    outcome = future.result()
+    assert outcome.error_code == PlanLTL.Result.ERROR_INTERNAL
+    assert outcome.message == "Controlled late worker failure."
+    assert outcome.planner is outcome.transition_system is outcome.planning_graph is None
+
+
+@pytest.mark.parametrize("active", [False, True], ids=["ready", "active"])
+def test_post_search_worker_failure_releases_transaction_and_preserves_authority(
+    action_runtime, monkeypatch, active,
+):
+    """Finish a late failed Action and allow the next valid request to commit."""
+    if active:
+        activate(action_runtime)
+    else:
+        assert load_transition_system(action_runtime, VALID_TS).success
+    node = action_runtime.planner
+    old = node.ltl_planner
+    generation = node._planning_generation
+    sequence = node._execution_step_seq
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    original_worker = planner_module.run_candidate_worker
+    original_serialize = planner_module.serialize_planning_graph
+    pending = []
+
+    def record_future(future, request):
+        pending.append(future)
+        return original_worker(future, request)
+
+    def failed_serialization(*_args):
+        raise RuntimeError("Controlled candidate serialization failure.")
+
+    monkeypatch.setattr(planner_module, "run_candidate_worker", record_future)
+    monkeypatch.setattr(planner_module, "serialize_planning_graph", failed_serialization)
+    handle = send_goal(action_runtime, make_goal())
+    assert handle.accepted
+    result_future = handle.get_result_async()
+    try:
+        assert spin_until(action_runtime, result_future.done, timeout=2.0)
+        response = result_future.result()
+        assert response.status == GoalStatus.STATUS_ABORTED
+        assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
+        assert not response.result.success
+        assert response.result.message == "Controlled candidate serialization failure."
+        assert node._planning_token is None
+        assert node.ltl_planner is old
+        assert node._planning_generation == generation
+        assert node._execution_step_seq == sequence
+        assert node._planner_state == (PlannerStatus.ACTIVE if active else PlannerStatus.READY)
+        assert get_planning_graph_snapshot(action_runtime).snapshot == before
+    finally:
+        # Let the old, failing baseline tear down after its unresolved-Future assertion.
+        if pending and not pending[0].done():
+            pending[0].set_result(planner_module.PlanningOutcome(
+                PlanLTL.Result.ERROR_INTERNAL, "Controlled unresolved-Future cleanup.",
+            ))
+            spin_until(action_runtime, result_future.done, timeout=2.0)
+        monkeypatch.setattr(planner_module, "serialize_planning_graph", original_serialize)
+
+    accepted = action_result(action_runtime, send_goal(action_runtime, make_goal()))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED and accepted.result.success
+    assert node._planning_generation == generation + 1
+    assert node._planner_state == PlannerStatus.ACTIVE
+
+
+def _fail_snapshot_commit_preparation(patch, stage):
+    message = f"Controlled snapshot {stage} preparation failure."
+    if stage == "copy":
+        original_copy = planner_module.deepcopy
+
+        def failed_copy(value):
+            if isinstance(value, planner_module.PlanningGraphSnapshot):
+                raise RuntimeError(message)
+            return original_copy(value)
+
+        patch.setattr(planner_module, "deepcopy", failed_copy)
+    else:
+        def failed_ids(_value):
+            raise RuntimeError(message)
+
+        patch.setattr(planner_module, "MappingProxyType", failed_ids)
+    return message
+
+
+def _fail_plan_payload_preparation(patch, node, stage):
+    """Inject a failure while preparing a candidate's public payload."""
+    message = f"Controlled plan {stage} preparation failure."
+    if stage == "plans":
+        def failed_plan_messages(*_args):
+            raise RuntimeError(message)
+
+        patch.setattr(node, "_plan_messages", failed_plan_messages)
+        return message
+
+    descriptor = PlanLTL.Result.planning_time
+    assert isinstance(descriptor, property)
+
+    def failed_planning_time_setter(instance, value):
+        if value != 0.0:
+            raise RuntimeError(message)
+        descriptor.fset(instance, value)
+
+    patch.setattr(
+        PlanLTL.Result,
+        "planning_time",
+        property(
+            descriptor.fget,
+            failed_planning_time_setter,
+            descriptor.fdel,
+            descriptor.__doc__,
+        ),
+    )
+    return message
+
+
+def _capture_plan_authority(runtime):
+    """Capture references and values that a failed candidate must preserve."""
+    node = runtime.planner
+    planner = node.ltl_planner
+    weights = None
+    if planner is not None and planner.product is not None:
+        weights = {
+            (source, target): edge["weight"]
+            for source, target, edge in planner.product.edges(data=True)
+        }
+    return SimpleNamespace(
+        planner=planner,
+        run=None if planner is None else planner.run,
+        product=None if planner is None else planner.product,
+        beta=None if planner is None else planner.beta,
+        active_ts=node._active_transition_system,
+        yaml=node._active_ts_yaml,
+        source_hash=node._active_ts_sha256,
+        snapshot=node._active_planning_graph_snapshot,
+        product_ids=node._active_product_node_ids,
+        instance=node._planner_instance_id,
+        generation=node._planning_generation,
+        sequence=node._execution_step_seq,
+        canonical=node._canonical_ts_state,
+        waiting=node._waiting_for_initial_state,
+        status=node._planner_state,
+        origin=node._planning_origin_state,
+        planning_yaml=node._planning_source_yaml,
+        planning_hash=node._planning_source_hash,
+        pending_divergence=node._pending_divergence,
+        weights=weights,
+        service_snapshot=get_planning_graph_snapshot(runtime).snapshot,
+    )
+
+
+def _assert_plan_authority_preserved(runtime, before):
+    """Assert candidate preparation did not replace live execution authority."""
+    node = runtime.planner
+    current = node.ltl_planner
+    assert current is before.planner
+    assert (None if current is None else current.run) is before.run
+    assert (None if current is None else current.product) is before.product
+    assert (None if current is None else current.beta) == before.beta
+    assert node._active_transition_system is before.active_ts
+    assert node._active_ts_yaml == before.yaml
+    assert node._active_ts_sha256 == before.source_hash
+    assert node._active_planning_graph_snapshot is before.snapshot
+    assert node._active_product_node_ids is before.product_ids
+    assert node._planner_instance_id == before.instance
+    assert node._planning_generation == before.generation
+    assert node._execution_step_seq == before.sequence
+    assert node._canonical_ts_state == before.canonical
+    assert node._waiting_for_initial_state == before.waiting
+    assert node._planner_state == before.status
+    assert node._planning_origin_state == before.origin
+    assert node._planning_source_yaml == before.planning_yaml
+    assert node._planning_source_hash == before.planning_hash
+    assert node._pending_divergence == before.pending_divergence
+    assert node._planning_token is node._planning_worker is None
+    if before.weights is not None:
+        weights = {
+            (source, target): edge["weight"]
+            for source, target, edge in current.product.edges(data=True)
+        }
+        assert weights == before.weights
+    assert get_planning_graph_snapshot(runtime).snapshot == before.service_snapshot
+
+
+def _wait_for_action_result_without_leaking_executor_error(runtime, handle):
+    """Capture executor callback errors so the regression fails at an assertion."""
+    future = handle.get_result_async()
+    callback_error = None
+    try:
+        assert spin_until(runtime, future.done, timeout=8.0)
+    except Exception as error:
+        callback_error = error
+    return future, callback_error
+
+
+@pytest.mark.parametrize(
+    "operation",
+    ["action_ready", "action_active", "irl"],
+    ids=["action_ready", "action_active", "irl"],
+)
+@pytest.mark.parametrize("stage", ["plans", "result"], ids=["plans", "result"])
+def test_candidate_payload_preparation_failure_preserves_authority_and_recovers(
+    action_runtime, monkeypatch, operation, stage,
+):
+    """Catch plan-message/result preparation failures before candidate commit."""
+    if operation == "action_ready":
+        assert load_transition_system(action_runtime, VALID_TS).success
+    elif operation == "action_active":
+        _activate_at_self_loop(action_runtime)
+    else:
+        old_for_setup = _activate_at_self_loop(action_runtime)
+        beta = old_for_setup.beta
+        monkeypatch.setattr(
+            planner_module,
+            "learn_beta",
+            lambda *_args: SimpleNamespace(beta=beta + 7),
+        )
+
+    node = action_runtime.planner
+    before = _capture_plan_authority(action_runtime)
+    identity = (before.instance, before.generation)
+    goal_state = (
+        before.canonical[0]
+        if before.canonical is not None
+        else "r1"
+    )
+    teaching_runs = (
+        _current_teaching_loop(before.planner)
+        if operation == "irl"
+        else None
+    )
+
+    with monkeypatch.context() as patch:
+        message = _fail_plan_payload_preparation(patch, node, stage)
+        if operation == "irl":
+            assert node.start_irl_replan(teaching_runs, identity)
+            callback_error = None
+            try:
+                assert spin_until(
+                    action_runtime,
+                    lambda: node._planning_token is None,
+                    timeout=8.0,
+                )
+            except Exception as error:
+                callback_error = error
+            assert callback_error is None, repr(callback_error)
+        else:
+            handle = send_goal(action_runtime, make_goal(state=goal_state))
+            assert handle.accepted
+            result_future, callback_error = (
+                _wait_for_action_result_without_leaking_executor_error(
+                    action_runtime, handle,
+                )
+            )
+            assert callback_error is None, repr(callback_error)
+            assert result_future.done()
+            response = result_future.result()
+            assert response.status == GoalStatus.STATUS_ABORTED
+            assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
+            assert not response.result.success
+            assert response.result.message == message
+
+    _assert_plan_authority_preserved(action_runtime, before)
+
+    if operation == "irl":
+        assert node.start_irl_replan(teaching_runs, identity)
+        assert spin_until(
+            action_runtime,
+            lambda: node._planning_token is None,
+            timeout=8.0,
+        )
+        assert node.ltl_planner is not before.planner
+        assert node.ltl_planner.beta == before.planner.beta + 7
+    else:
+        accepted = action_result(
+            action_runtime,
+            send_goal(action_runtime, make_goal(state=goal_state)),
+        )
+        assert accepted.status == GoalStatus.STATUS_SUCCEEDED
+        assert accepted.result.success
+
+    assert node._planning_generation == before.generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
+
+
+@pytest.mark.parametrize("stage", ["copy", "ids"])
+@pytest.mark.parametrize("active", [False, True], ids=["ready", "active"])
+def test_snapshot_commit_preparation_failure_preserves_transaction_authority(
+    action_runtime, monkeypatch, active, stage,
+):
+    """Keep all authority when retaining the candidate snapshot fails."""
+    if active:
+        activate(action_runtime)
+    else:
+        assert load_transition_system(action_runtime, VALID_TS).success
+    node = action_runtime.planner
+    old = node.ltl_planner
+    old_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    canonical = node._canonical_ts_state
+    waiting = node._waiting_for_initial_state
+    generation, sequence = node._planning_generation, node._execution_step_seq
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+
+    with monkeypatch.context() as patch:
+        message = _fail_snapshot_commit_preparation(patch, stage)
+        response = action_result(action_runtime, send_goal(action_runtime, make_goal()))
+
+    assert node.ltl_planner is old
+    assert node._active_transition_system is old_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._canonical_ts_state == canonical
+    assert node._waiting_for_initial_state == waiting
+    assert node._planning_generation == generation
+    assert node._execution_step_seq == sequence
+    assert node._planning_token is node._planning_worker is None
+    assert node._planner_state == (PlannerStatus.ACTIVE if active else PlannerStatus.READY)
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
+    assert not response.result.success
+    assert response.result.message == message
+
+    accepted = action_result(action_runtime, send_goal(action_runtime, make_goal()))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED and accepted.result.success
+    assert node._planning_generation == generation + 1
+    assert node._planner_state == PlannerStatus.ACTIVE
+
+
+@pytest.mark.parametrize("stage", ["copy", "ids"])
+def test_task_replanning_commit_failure_preserves_transaction_authority(
+    action_runtime, monkeypatch, stage,
+):
+    """Keep the old run authoritative when legacy replan commit preparation fails."""
+    activate(action_runtime)
+    node = action_runtime.planner
+    old_planner = node.ltl_planner
+    old_run = old_planner.run
+    old_product = old_planner.product
+    old_ts = old_product.graph["ts"]
+    old_active_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    old_canonical = node._canonical_ts_state
+    old_waiting = node._waiting_for_initial_state
+    old_generation = node._planning_generation
+    old_sequence = node._execution_step_seq
+    old_status = node._planner_state
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+
+    request = TaskPlanning.Request()
+    request.hard_task = "[]<> r2"
+    request.soft_task = "(r2 || ! r2)"
+
+    with monkeypatch.context() as patch:
+        _fail_snapshot_commit_preparation(patch, stage)
+        leaked = None
+        callback_response = None
+        try:
+            callback_response = node._task_replanning_callback(
+                request,
+                TaskPlanning.Response(),
+            )
+        except RuntimeError as error:
+            leaked = error
+
+        assert leaked is None, f"Replanning leaked controlled error: {leaked}"
+
+    assert callback_response is not None
+    assert not callback_response.success
+    assert old_planner is node.ltl_planner
+    assert old_run is node.ltl_planner.run
+    assert old_product is node.ltl_planner.product
+    assert old_ts is old_product.graph["ts"]
+    assert old_active_ts is node._active_transition_system
+    assert old_snapshot is node._active_planning_graph_snapshot
+    assert old_ids is node._active_product_node_ids
+    assert node._canonical_ts_state == old_canonical
+    assert node._waiting_for_initial_state == old_waiting
+    assert node._planning_generation == old_generation
+    assert node._execution_step_seq == old_sequence
+    assert node._planner_state == old_status == PlannerStatus.ACTIVE
+    assert node._planning_token is None
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+    client = action_runtime.client_node.create_client(
+        TaskPlanning,
+        "replanning",
+    )
+    try:
+        assert client.wait_for_service(timeout_sec=2.0)
+        future = client.call_async(request)
+        assert spin_until(action_runtime, future.done, timeout=8.0)
+        retry = future.result()
+        assert retry.success
+    finally:
+        action_runtime.client_node.destroy_client(client)
+
+    assert node._planning_generation == old_generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
+    committed = get_planning_graph_snapshot(action_runtime).snapshot
+    assert committed.metadata.hard_task == request.hard_task
+
+
+def test_task_replanning_cost_overflow_preserves_transaction_authority(
+    action_runtime,
+):
+    """Keep the active run when legacy replan produces a non-finite cost."""
+    overflow_goal = make_goal()
+    overflow_goal.beta = 1e308
+    overflow_goal.gamma = 1.0
+    activate(action_runtime, goal=overflow_goal)
+    node = action_runtime.planner
+    old_planner = node.ltl_planner
+    old_run = old_planner.run
+    old_product = old_planner.product
+    old_ts = old_product.graph["ts"]
+    old_active_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    old_canonical = node._canonical_ts_state
+    old_waiting = node._waiting_for_initial_state
+    old_generation = node._planning_generation
+    old_sequence = node._execution_step_seq
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    assert isfinite(old_run.totalcost)
+
+    request = TaskPlanning.Request()
+    request.hard_task = "[]<> r2"
+    request.soft_task = "(missing1 && missing2)"
+    leaked = None
+    response = None
+    try:
+        response = node._task_replanning_callback(
+            request,
+            TaskPlanning.Response(),
+        )
+    except (RuntimeError, ValueError) as error:
+        leaked = error
+
+    assert leaked is None, f"Replanning leaked controlled error: {leaked}"
+    assert response is not None
+    assert not response.success
+    assert node.ltl_planner is old_planner
+    assert old_planner.run is old_run
+    assert old_planner.product is old_product
+    assert old_ts is old_product.graph["ts"]
+    assert node._active_transition_system is old_active_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._canonical_ts_state == old_canonical
+    assert node._waiting_for_initial_state == old_waiting
+    assert node._planning_generation == old_generation
+    assert node._execution_step_seq == old_sequence
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._planning_token is None
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+    request.soft_task = "(r2 || ! r2)"
+    client = action_runtime.client_node.create_client(
+        TaskPlanning,
+        "replanning",
+    )
+    try:
+        assert client.wait_for_service(timeout_sec=2.0)
+        future = client.call_async(request)
+        assert spin_until(action_runtime, future.done, timeout=8.0)
+        retry = future.result()
+        assert retry.success
+    finally:
+        action_runtime.client_node.destroy_client(client)
+
+    assert node._planning_generation == old_generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
+    committed = get_planning_graph_snapshot(action_runtime).snapshot
+    assert committed.metadata.hard_task == request.hard_task
+
+
+@pytest.mark.parametrize(
+    "weight_name, soft_task, cost_field",
+    [
+        ("gamma", "(r2 || ! r2)", "total_cost"),
+        ("beta", "(missing1 && missing2)", "prefix_cost"),
+    ],
+)
+def test_computed_cost_overflow_aborts_and_preserves_active_plan(
+    action_runtime, weight_name, soft_task, cost_field,
+):
+    """Reject non-finite computed costs while accepting large finite results."""
+    activate(action_runtime)
+    node = action_runtime.planner
+    old = node.ltl_planner
+    generation = node._planning_generation
+    sequence = node._execution_step_seq
+    snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    goal = make_goal(soft_task=soft_task)
+    setattr(goal, weight_name, 1e308)
+    if weight_name == "beta":
+        goal.gamma = 0.0
+    handle = send_goal(action_runtime, goal)
+    assert handle.accepted
+    response = action_result(action_runtime, handle)
+
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert not response.result.success
+    assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
+    assert response.result.message == f"Computed plan {cost_field} must be finite."
+    assert node.ltl_planner is old
+    assert node._planning_generation == generation
+    assert node._execution_step_seq == sequence
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert get_planning_graph_snapshot(action_runtime).snapshot == snapshot
+
+    setattr(goal, weight_name, 1e307)
+    accepted = action_result(action_runtime, send_goal(action_runtime, goal))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED
+    assert accepted.result.success and isfinite(accepted.result.total_cost)
+    assert accepted.result.total_cost >= 1e307
+    assert node._planning_generation == generation + 1
+    assert get_planning_graph_snapshot(action_runtime).snapshot.metadata.available
+
+
+def test_mixed_case_native_action_keeps_names_cost_and_case_sensitive_authority(action_runtime):
+    """Plan for an exact native identifier and reject its absent lowercase variant."""
+    yaml_content = VALID_TS.replace("r2", "cargoReady1")
+    assert load_transition_system(action_runtime, yaml_content).success
+    goal = make_goal(hard_task="<> cargoReady1", soft_task="[] !dangerZone2")
+    handle = send_goal(action_runtime, goal)
+    assert handle.accepted
+    response = action_result(action_runtime, handle)
+    result = response.result
+    assert response.status == GoalStatus.STATUS_SUCCEEDED
+    assert result.success
+    assert result.error_code == PlanLTL.Result.ERROR_NONE
+    assert result.total_cost == 23.0
+    assert list(result.prefix_plan.action_sequence) == ["goto_cargoReady1", "stay_cargoReady1"]
+    assert list(result.suffix_plan.action_sequence) == ["stay_cargoReady1", "stay_cargoReady1"]
+    assert list(result.prefix_plan.ts_state_sequence[-1].states) == ["cargoReady1"]
+    node = action_runtime.planner
+    active = node.ltl_planner
+    generation = node._planning_generation
+    snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    assert snapshot.metadata.available
+    assert set(active.product.graph["buchi"].graph["symbols"]) == {
+        "cargoReady1", "dangerZone2",
+    }
+
+    other_case = make_goal(hard_task="<> cargoready1", soft_task="[] !dangerZone2")
+    rejected = action_result(action_runtime, send_goal(action_runtime, other_case))
+    assert rejected.status == GoalStatus.STATUS_ABORTED
+    assert not rejected.result.success
+    assert rejected.result.error_code == PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN
+    assert node.ltl_planner is active
+    assert node._planning_generation == generation
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert get_planning_graph_snapshot(action_runtime).snapshot == snapshot
 
 
 def test_multidimensional_initial_state_keeps_plan_payload_order(
@@ -515,6 +1096,23 @@ def test_uninitialized_goal_is_rejected_at_transport(action_runtime):
     assert not goal_handle.accepted
 
 
+@pytest.mark.parametrize("name,value", [("beta", -1.0), ("gamma", float("nan"))])
+def test_invalid_objective_weights_abort_before_worker(action_runtime, monkeypatch, name, value):
+    """Preserve READY authority and avoid translation for invalid weights."""
+    assert load_transition_system(action_runtime, VALID_TS).success
+
+    def unexpected_compute(request):
+        raise AssertionError("Candidate worker must not run for invalid weights.")
+
+    monkeypatch.setattr(planner_module, "compute_candidate_plan", unexpected_compute)
+    goal = make_goal()
+    setattr(goal, name, value)
+    response = action_result(action_runtime, send_goal(action_runtime, goal))
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert response.result.error_code == PlanLTL.Result.ERROR_INVALID_GOAL
+    assert action_runtime.planner._planner_state == PlannerStatus.READY
+
+
 def test_no_accepting_plan_aborts_with_specific_error(action_runtime):
     """Map a normal empty search result to ERROR_NO_ACCEPTING_PLAN."""
     assert load_transition_system(action_runtime, VALID_TS).success
@@ -530,6 +1128,110 @@ def test_no_accepting_plan_aborts_with_specific_error(action_runtime):
         PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN
     )
     assert action_runtime.planner._planner_state == PlannerStatus.READY
+
+
+def test_native_false_task_returns_no_plan_and_preserves_authority(action_runtime):
+    """Treat a native blocking automaton as infeasible in READY and ACTIVE."""
+    assert load_transition_system(action_runtime, VALID_TS).success
+    ready_result = action_result(
+        action_runtime, send_goal(action_runtime, make_goal(hard_task="false")),
+    )
+    assert ready_result.status == GoalStatus.STATUS_ABORTED
+    assert not ready_result.result.success
+    assert ready_result.result.error_code == PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN
+    assert action_runtime.planner._planner_state == PlannerStatus.READY
+    assert action_runtime.planner._planning_generation == 0
+
+    accepted = action_result(action_runtime, send_goal(action_runtime, make_goal()))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED
+    assert accepted.result.success
+    active_planner = action_runtime.planner.ltl_planner
+    active_run = active_planner.run
+    active_snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    active_seq = action_runtime.planner._execution_step_seq
+
+    failed = action_result(
+        action_runtime, send_goal(action_runtime, make_goal(hard_task="false")),
+    )
+    assert failed.status == GoalStatus.STATUS_ABORTED
+    assert not failed.result.success
+    assert failed.result.error_code == PlanLTL.Result.ERROR_NO_ACCEPTING_PLAN
+    assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+    assert action_runtime.planner.ltl_planner is active_planner
+    assert action_runtime.planner.ltl_planner.run is active_run
+    assert action_runtime.planner._execution_step_seq == active_seq
+    assert get_planning_graph_snapshot(action_runtime).snapshot == active_snapshot
+
+
+@pytest.mark.skipif(os.name != "posix", reason="Uses a POSIX process failure fixture.")
+@pytest.mark.parametrize(
+    "body, error_code",
+    [
+        (
+            "printf 'controlled translator error' >&2\nexit 1\n",
+            PlanLTL.Result.ERROR_INVALID_GOAL,
+        ),
+        ("kill -9 $$\n", PlanLTL.Result.ERROR_INTERNAL),
+    ],
+    ids=["positive-exit", "signal-termination"],
+)
+def test_native_translator_failure_preserves_authority(
+    action_runtime, monkeypatch, tmp_path, body, error_code,
+):
+    """Classify a failed process while retaining the active accepted generation."""
+    activate(action_runtime)
+    active_planner = action_runtime.planner.ltl_planner
+    active_run = active_planner.run
+    active_snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    active_seq = action_runtime.planner._execution_step_seq
+    executable = tmp_path / "controlled-ltl2ba"
+    executable.write_text("#!/bin/sh\n" + body, encoding="utf-8")
+    executable.chmod(0o700)
+
+    def failed_translation(formula):
+        return ltl2ba_module.run_ltl2ba(formula, executable=str(executable))
+
+    monkeypatch.setattr(buchi_module, "run_ltl2ba", failed_translation)
+    response = action_result(
+        action_runtime, send_goal(action_runtime, make_goal(hard_task="<> r3")),
+    )
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert not response.result.success
+    assert response.result.error_code == error_code
+    if error_code == PlanLTL.Result.ERROR_INTERNAL:
+        assert "signal 9" in response.result.message
+    else:
+        assert "controlled translator error" in response.result.message
+    assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+    assert action_runtime.planner.ltl_planner is active_planner
+    assert action_runtime.planner.ltl_planner.run is active_run
+    assert action_runtime.planner._execution_step_seq == active_seq
+    assert get_planning_graph_snapshot(action_runtime).snapshot == active_snapshot
+
+
+def test_malformed_translator_output_never_replaces_active_plan(action_runtime, monkeypatch):
+    """Reject truncated tool output before it can authorize a new plan."""
+    activate(action_runtime)
+    active_planner = action_runtime.planner.ltl_planner
+    active_run = active_planner.run
+    active_snapshot = get_planning_graph_snapshot(action_runtime).snapshot
+    active_seq = action_runtime.planner._execution_step_seq
+
+    def malformed_translation(formula):
+        return f"never {{ /*{formula}*/\naccept_init:\n    skip\n"
+
+    monkeypatch.setattr(buchi_module, "run_ltl2ba", malformed_translation)
+    response = action_result(
+        action_runtime, send_goal(action_runtime, make_goal(hard_task="<> r3")),
+    )
+    assert response.status == GoalStatus.STATUS_ABORTED
+    assert not response.result.success
+    assert response.result.error_code == PlanLTL.Result.ERROR_INTERNAL
+    assert action_runtime.planner._planner_state == PlannerStatus.ACTIVE
+    assert action_runtime.planner.ltl_planner is active_planner
+    assert action_runtime.planner.ltl_planner.run is active_run
+    assert action_runtime.planner._execution_step_seq == active_seq
+    assert get_planning_graph_snapshot(action_runtime).snapshot == active_snapshot
 
 
 def test_invalid_and_stale_initial_states_do_not_start_worker(
@@ -769,13 +1471,17 @@ def test_unexpected_state_defers_recovery_until_candidate_finishes(
     assert first_snapshot.metadata.planning_generation == 1
     active_planner = action_runtime.planner.ltl_planner
     recovery_calls = []
-    original_recovery = active_planner.replan_from_ts_state
+    original_recovery = type(active_planner).replan_from_ts_state
 
-    def counted_recovery(state):
+    def counted_recovery(planner, state):
         recovery_calls.append(state)
-        return original_recovery(state)
+        return original_recovery(planner, state)
 
-    active_planner.replan_from_ts_state = counted_recovery
+    monkeypatch.setattr(
+        type(active_planner),
+        "replan_from_ts_state",
+        counted_recovery,
+    )
     started, release = block_candidate(monkeypatch)
     goal_handle = send_goal(action_runtime, make_goal())
     assert spin_until(action_runtime, started.is_set)
@@ -792,12 +1498,148 @@ def test_unexpected_state_defers_recovery_until_candidate_finishes(
     assert response.status == GoalStatus.STATUS_ABORTED
     assert response.result.error_code == PlanLTL.Result.ERROR_NOT_READY
     assert recovery_calls == [("r3",)]
-    assert active_planner.curr_ts_state == ("r3",)
+    assert action_runtime.planner.ltl_planner is not active_planner
+    assert active_planner.curr_ts_state == ("r1",)
+    assert action_runtime.planner.ltl_planner.curr_ts_state == ("r3",)
     assert action_runtime.planner._pending_divergence is None
     recovered = get_planning_graph_snapshot(action_runtime)
     assert recovered.success
     assert recovered.snapshot.metadata.planning_generation == 2
     assert recovered.snapshot != first_snapshot
+
+
+@pytest.mark.parametrize("stage", ["copy", "ids"])
+def test_state_replanning_commit_failure_preserves_transaction_authority(
+    action_runtime, monkeypatch, stage,
+):
+    """Keep old authority after state recovery commit preparation fails."""
+    activate(action_runtime, DIVERGENCE_TS)
+    node = action_runtime.planner
+    old_planner = node.ltl_planner
+    old_run = old_planner.run
+    old_product = old_planner.product
+    old_ts = old_product.graph["ts"]
+    old_active_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    old_canonical = node._canonical_ts_state
+    old_generation = node._planning_generation
+    old_sequence = node._execution_step_seq
+    old_revision = node._ts_state_revision
+    old_snapshot_message = get_planning_graph_snapshot(action_runtime).snapshot
+
+    message = TransitionSystemStateStamped()
+    assert node._previous_state_stamp is None
+    message.header.stamp.nanosec = 1
+    message.ts_state.states = ["r3"]
+    message.ts_state.state_dimension_names = ["region"]
+
+    with monkeypatch.context() as patch:
+        _fail_snapshot_commit_preparation(patch, stage)
+        leaked = None
+        try:
+            node._ts_state_callback(message)
+        except RuntimeError as error:
+            leaked = error
+
+        assert leaked is None, f"State recovery leaked controlled error: {leaked}"
+
+    assert node.ltl_planner is old_planner
+    assert old_planner.run is old_run
+    assert old_planner.product is old_product
+    assert old_ts is old_product.graph["ts"]
+    assert node._active_transition_system is old_active_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._canonical_ts_state == ("r3",)
+    assert old_canonical == ("r1",)
+    assert old_planner.curr_ts_state == ("r1",)
+    assert node._planning_generation == old_generation
+    assert node._execution_step_seq == old_sequence
+    assert node._ts_state_revision == old_revision + 1
+    assert node._previous_state_stamp == (0, 1)
+    assert get_planning_graph_snapshot(action_runtime).snapshot == (
+        old_snapshot_message
+    )
+
+    assert node._recover_from_ts_state(("r3",))
+    assert node._planning_generation == old_generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._canonical_ts_state == ("r3",)
+    assert node._active_transition_system is node.ltl_planner.ts
+    assert node._active_transition_system.graph["initial"] == {("r3",)}
+    assert node._active_planning_graph_snapshot is not old_snapshot
+
+
+def test_state_replanning_cost_overflow_preserves_transaction_authority(
+    action_runtime,
+):
+    """Reject an overflowing state recovery without replacing the active run."""
+    data = planner_module.yaml.safe_load(DIVERGENCE_TS)
+    nodes = data["state_models"]["region"]["nodes"]
+    nodes["r3"]["connected_to"] = {"r4": "recover_r2"}
+    nodes["r4"] = {"connected_to": {"r2": "recover_r2"}}
+    data["actions"]["recover_r2"]["weight"] = 1e308
+    overflow_ts = planner_module.yaml.safe_dump(data)
+
+    activate(action_runtime, overflow_ts)
+    node = action_runtime.planner
+    old_planner = node.ltl_planner
+    old_run = old_planner.run
+    old_product = old_planner.product
+    old_ts = old_product.graph["ts"]
+    old_active_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    old_canonical = node._canonical_ts_state
+    old_generation = node._planning_generation
+    old_sequence = node._execution_step_seq
+    old_revision = node._ts_state_revision
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    assert isfinite(old_run.totalcost)
+
+    message = TransitionSystemStateStamped()
+    assert node._previous_state_stamp is None
+    message.header.stamp.nanosec = 1
+    message.ts_state.states = ["r3"]
+    message.ts_state.state_dimension_names = ["region"]
+    leaked = None
+    try:
+        node._ts_state_callback(message)
+    except (RuntimeError, ValueError) as error:
+        leaked = error
+
+    assert leaked is None, f"State recovery leaked controlled error: {leaked}"
+    assert node.ltl_planner is old_planner
+    assert old_planner.run is old_run
+    assert old_planner.product is old_product
+    assert old_ts is old_product.graph["ts"]
+    assert node._active_transition_system is old_active_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._canonical_ts_state == ("r3",)
+    assert old_canonical == ("r1",)
+    assert node._planning_generation == old_generation
+    assert node._execution_step_seq == old_sequence
+    assert node._ts_state_revision == old_revision + 1
+    assert node._previous_state_stamp == (0, 1)
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+    next_message = TransitionSystemStateStamped()
+    next_message.header.stamp.nanosec = 2
+    next_message.ts_state.states = ["r2"]
+    next_message.ts_state.state_dimension_names = ["region"]
+    node._ts_state_callback(next_message)
+    assert node._canonical_ts_state == ("r2",)
+    assert node._recover_from_ts_state(("r2",))
+    assert node._planning_generation == old_generation + 1
+    assert node._execution_step_seq == 0
+    assert node._active_transition_system is node.ltl_planner.ts
+    assert node._active_transition_system.graph["initial"] == {("r2",)}
+    assert isfinite(node.ltl_planner.run.totalcost)
 
 
 def test_shutdown_does_not_wait_for_or_commit_blocked_worker(
@@ -1063,6 +1905,7 @@ def test_expected_state_does_not_change_snapshot_generation(action_runtime):
     """Keep the committed full run while the execution cursor advances."""
     activate(action_runtime)
     before = get_planning_graph_snapshot(action_runtime)
+    assert action_runtime.planner._execution_step_seq == 0
     publish_state(action_runtime, "r2")
     assert spin_until(
         action_runtime,
@@ -1070,3 +1913,303 @@ def test_expected_state_does_not_change_snapshot_generation(action_runtime):
     )
     after = get_planning_graph_snapshot(action_runtime)
     assert after.snapshot == before.snapshot
+    assert action_runtime.planner._execution_step_seq == 1
+
+
+def test_self_loop_step_republication_and_stale_feedback(action_runtime):
+    """Advance self-loops once per fresh feedback and preserve generation."""
+    activate(action_runtime)
+    before = get_planning_graph_snapshot(action_runtime)
+    first = publish_state(action_runtime, "r2")
+    assert spin_until(action_runtime, lambda: action_runtime.planner._execution_step_seq == 1)
+    second = publish_state(action_runtime, "r2")
+    assert spin_until(action_runtime, lambda: action_runtime.planner._execution_step_seq == 2)
+
+    action_runtime.planner._ts_state_callback(second)
+    action_runtime.planner._ts_state_callback(first)
+    action_runtime.planner._publish_planning_execution_observation()
+    assert action_runtime.planner._execution_step_seq == 2
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before.snapshot
+
+    failed = action_result(action_runtime, send_goal(
+        action_runtime, make_goal(state="r2", hard_task="<> r3"),
+    ))
+    assert failed.status == GoalStatus.STATUS_ABORTED
+    assert action_runtime.planner._execution_step_seq == 2
+    accepted = action_result(action_runtime, send_goal(
+        action_runtime, make_goal(state="r2", hard_task="[]<> r2"),
+    ))
+    assert accepted.status == GoalStatus.STATUS_SUCCEEDED
+    assert action_runtime.planner._execution_step_seq == 0
+    assert get_planning_graph_snapshot(
+        action_runtime,
+    ).snapshot.metadata.planning_generation == before.snapshot.metadata.planning_generation + 1
+
+
+def _current_teaching_loop(planner):
+    for source in planner.product.possible_states:
+        for target in planner.product.successors(source):
+            if source[0] == target[0] == planner.curr_ts_state:
+                return ((source, target),)
+    raise AssertionError("Fixture requires a current-state teaching transition.")
+
+
+def _activate_at_self_loop(runtime):
+    activate(runtime)
+    publish_state(runtime, "r2")
+    assert spin_until(runtime, lambda: runtime.planner._execution_step_seq == 1)
+    return runtime.planner.ltl_planner
+
+
+def test_irl_commit_updates_beta_snapshot_and_resets_step(action_runtime, monkeypatch):
+    """Install an injected learning result through the real candidate planner."""
+    old = _activate_at_self_loop(action_runtime)
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    beta = old.beta
+    monkeypatch.setattr(
+        planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=beta + 7),
+    )
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+    assert action_runtime.planner.start_irl_replan(_current_teaching_loop(old), identity)
+    assert spin_until(
+        action_runtime,
+        lambda: action_runtime.planner._planning_token is None,
+    )
+    current = action_runtime.planner.ltl_planner
+    after = get_planning_graph_snapshot(action_runtime).snapshot
+    assert current is not old
+    assert old.beta == beta
+    assert current.beta == beta + 7
+    assert current.product.graph["beta"] == beta + 7
+    assert (current.hard_spec, current.soft_spec, current.gamma) == (
+        old.hard_spec, old.soft_spec, old.gamma,
+    )
+    assert after.metadata.available
+    assert after.metadata.planning_generation == before.metadata.planning_generation + 1
+    assert action_runtime.planner._execution_step_seq == 0
+    assert current.run.prefix[-1] in current.product.graph["accept"]
+
+
+def test_irl_learning_failure_preserves_live_planner(action_runtime, monkeypatch):
+    """A worker-local weight mutation cannot damage the active run on failure."""
+    old = _activate_at_self_loop(action_runtime)
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    old_product, old_run = old.product, old.run
+    weights = dict(((u, v), data["weight"]) for u, v, data in old.product.edges(data=True))
+    beta = old.beta
+
+    def failed_learning(product, *_args):
+        first = next(iter(product.edges))
+        product.edges[first]["weight"] = 99999
+        raise RuntimeError("Controlled IRL failure")
+
+    monkeypatch.setattr(planner_module, "learn_beta", failed_learning)
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+    assert action_runtime.planner.start_irl_replan(_current_teaching_loop(old), identity)
+    assert spin_until(action_runtime, lambda: action_runtime.planner._planning_token is None)
+    assert action_runtime.planner.ltl_planner is old
+    assert old.product is old_product and old.run is old_run
+    assert old.beta == beta
+    assert dict(((u, v), data["weight"]) for u, v, data in old.product.edges(data=True)) == weights
+    assert action_runtime.planner._execution_step_seq == 1
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+
+@pytest.mark.parametrize("stage", ["copy", "ids"])
+def test_irl_snapshot_commit_preparation_failure_preserves_live_authority(
+    action_runtime, monkeypatch, stage,
+):
+    """Reject a learned candidate when retained snapshot preparation fails."""
+    old = _activate_at_self_loop(action_runtime)
+    node = action_runtime.planner
+    old_ts = node._active_transition_system
+    old_snapshot = node._active_planning_graph_snapshot
+    old_ids = node._active_product_node_ids
+    generation, sequence = node._planning_generation, node._execution_step_seq
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+    beta = old.beta
+    weights = {(u, v): data["weight"] for u, v, data in old.product.edges(data=True)}
+    monkeypatch.setattr(
+        planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=beta + 7),
+    )
+
+    with monkeypatch.context() as patch:
+        _fail_snapshot_commit_preparation(patch, stage)
+        assert node.start_irl_replan(_current_teaching_loop(old), identity)
+        assert spin_until(action_runtime, lambda: node._planning_token is None)
+
+    assert node.ltl_planner is old and old.beta == beta
+    assert {(u, v): data["weight"] for u, v, data in old.product.edges(data=True)} == weights
+    assert node._active_transition_system is old_ts
+    assert node._active_planning_graph_snapshot is old_snapshot
+    assert node._active_product_node_ids is old_ids
+    assert node._planning_generation == generation
+    assert node._execution_step_seq == sequence
+    assert node._planning_worker is None
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+    assert node.start_irl_replan(_current_teaching_loop(old), identity)
+    assert spin_until(action_runtime, lambda: node._planning_token is None)
+    assert node.ltl_planner is not old
+    assert node.ltl_planner.beta == beta + 7
+    assert node._planning_generation == generation + 1
+    assert node._execution_step_seq == 0
+    assert node._planner_state == PlannerStatus.ACTIVE
+
+
+def test_irl_computed_cost_overflow_preserves_live_authority(action_runtime, monkeypatch):
+    """Reject an overflowing injected learned beta after real candidate replanning."""
+    activate(action_runtime, goal=make_goal(soft_task="(missing1 && missing2)"))
+    publish_state(action_runtime, "r2")
+    node = action_runtime.planner
+    assert spin_until(action_runtime, lambda: node._execution_step_seq == 1)
+    old = node.ltl_planner
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    old_beta = old.beta
+    weights = {(u, v): edge["weight"] for u, v, edge in old.product.edges(data=True)}
+    monkeypatch.setattr(planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=1e308))
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+
+    assert node.start_irl_replan(_current_teaching_loop(old), identity)
+    assert spin_until(action_runtime, lambda: node._planning_token is None)
+
+    assert node.ltl_planner is old and old.beta == old_beta
+    assert {(u, v): edge["weight"] for u, v, edge in old.product.edges(data=True)} == weights
+    assert node._planner_state == PlannerStatus.ACTIVE
+    assert node._execution_step_seq == 1
+    assert node._planning_generation == before.metadata.planning_generation
+    assert get_planning_graph_snapshot(action_runtime).snapshot == before
+
+
+def _block_irl_candidate(monkeypatch):
+    started, release = Event(), Event()
+    original = planner_module.compute_irl_candidate
+
+    def controlled(request):
+        started.set()
+        if not release.wait(timeout=8.0):
+            return planner_module.PlanningOutcome(
+                PlanLTL.Result.ERROR_INTERNAL, "Controlled IRL candidate was not released.",
+            )
+        return original(request)
+
+    monkeypatch.setattr(planner_module, "compute_irl_candidate", controlled)
+    return started, release
+
+
+def test_irl_new_execution_step_rejects_candidate_and_concurrent_goal(
+    action_runtime, monkeypatch,
+):
+    """A self-loop is new execution even though its TS state is unchanged."""
+    old = _activate_at_self_loop(action_runtime)
+    before = get_planning_graph_snapshot(action_runtime).snapshot
+    beta = old.beta
+    monkeypatch.setattr(
+        planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=beta + 7),
+    )
+    started, release = _block_irl_candidate(monkeypatch)
+    identity = (before.metadata.planner_instance_id, before.metadata.planning_generation)
+    try:
+        assert action_runtime.planner.start_irl_replan(_current_teaching_loop(old), identity)
+        assert spin_until(action_runtime, started.is_set)
+        assert not action_runtime.planner.start_irl_replan(_current_teaching_loop(old), identity)
+        assert not send_goal(action_runtime, make_goal(state="r2")).accepted
+        publish_state(action_runtime, "r2")
+        assert spin_until(action_runtime, lambda: action_runtime.planner._execution_step_seq == 2)
+        release.set()
+        assert spin_until(action_runtime, lambda: action_runtime.planner._planning_token is None)
+        assert action_runtime.planner.ltl_planner is old
+        assert old.beta == beta
+        assert action_runtime.planner._canonical_ts_state == ("r2",)
+        assert action_runtime.planner._execution_step_seq == 2
+        assert get_planning_graph_snapshot(action_runtime).snapshot == before
+    finally:
+        release.set()
+
+
+def test_irl_stale_teaching_identity_is_rejected_before_worker(action_runtime):
+    """Teaching from an old generation cannot start a new learning transaction."""
+    old = _activate_at_self_loop(action_runtime)
+    node = action_runtime.planner
+    assert not node.start_irl_replan(
+        _current_teaching_loop(old), (node._planner_instance_id, node._planning_generation - 1),
+    )
+    assert node._planning_token is None
+    assert node.ltl_planner is old
+
+
+def test_irl_unplanned_return_to_start_still_invalidates_learning(action_runtime, monkeypatch):
+    """An unplanned A-to-B-to-A word is newer even with an unchanged cursor."""
+    branching = """state_dim: [region]
+state_models:
+  region:
+    initial: r1
+    nodes:
+      r1: {connected_to: {r2: to_r2, r3: to_r3}}
+      r2: {connected_to: {r1: back}}
+      r3: {connected_to: {r1: back}}
+actions:
+  to_r2: {guard: '1', weight: 1.0}
+  to_r3: {guard: '1', weight: 2.0}
+  back: {guard: '1', weight: 1.0}
+"""
+    activate(action_runtime, branching, make_goal(hard_task="[]<> r1"))
+    node = action_runtime.planner
+    node.replan_on_unplanned_move = False
+    old = node.ltl_planner
+    beta = old.beta
+    runs = {
+        (source, middle, end)
+        for source in old.product.possible_states
+        for middle in old.product.successors(source) if middle[0] == ("r2",)
+        for end in old.product.successors(middle) if end[0] == ("r1",)
+    }
+    assert runs
+    monkeypatch.setattr(
+        planner_module, "learn_beta", lambda *_args: SimpleNamespace(beta=beta + 7),
+    )
+    started, release = _block_irl_candidate(monkeypatch)
+    identity = (node._planner_instance_id, node._planning_generation)
+    revision = node._ts_state_revision
+    try:
+        assert node.start_irl_replan(runs, identity)
+        assert spin_until(action_runtime, started.is_set)
+        publish_state(action_runtime, "r3")
+        assert spin_until(action_runtime, lambda: node._canonical_ts_state == ("r3",))
+        publish_state(action_runtime, "r1")
+        assert spin_until(action_runtime, lambda: node._canonical_ts_state == ("r1",))
+        assert node._execution_step_seq == 0
+        assert node._ts_state_revision == revision + 2
+        release.set()
+        assert spin_until(action_runtime, lambda: node._planning_token is None)
+        assert node.ltl_planner.beta == beta
+        assert node._planner_state == PlannerStatus.ACTIVE
+    finally:
+        release.set()
+
+
+def test_irl_late_worker_after_shutdown_cannot_commit(action_runtime, monkeypatch):
+    """Complete a daemon IRL worker after teardown without publishing a new run."""
+    old = _activate_at_self_loop(action_runtime)
+    node = action_runtime.planner
+    generation = node._planning_generation
+    started, release = _block_irl_candidate(monkeypatch)
+    try:
+        assert node.start_irl_replan(
+            _current_teaching_loop(old), (node._planner_instance_id, generation),
+        )
+        assert spin_until(action_runtime, started.is_set)
+        worker = node._planning_worker
+        node.destroy_node()
+        action_runtime.planner_destroyed = True
+        release.set()
+        worker.join(timeout=3.0)
+        assert not worker.is_alive()
+        action_runtime.executor.spin_once(timeout_sec=0.05)
+        assert node._planning_generation == generation
+        assert node.ltl_planner is old
+        assert node._planning_token is None
+    finally:
+        release.set()

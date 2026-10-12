@@ -7,6 +7,7 @@ import rclpy
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
 )
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile
 from sensor_msgs.msg import JointState
@@ -20,25 +21,51 @@ class Region6DJointspaceModel:
         self.region_dict = region_dict
         self.state = None
 
-    def is_in_region(self, position, region, hysteresis=0.0):
-        if len(position) < 6:
-            raise ValueError("JointState must contain at least six positions.")
+    @staticmethod
+    def _validate_position(position):
+        """Validate the six coordinates used by the region model."""
+        try:
+            if len(position) < 6:
+                raise ValueError(
+                    "JointState must contain at least six positions."
+                )
+            values = tuple(position[index] for index in range(6))
+        except (IndexError, TypeError) as error:
+            raise ValueError(
+                "JointState must contain at least six numeric positions."
+            ) from error
+        try:
+            finite = all(math.isfinite(value) for value in values)
+        except (TypeError, OverflowError) as error:
+            raise ValueError(
+                "JointState positions must be finite numbers."
+            ) from error
+        if not finite:
+            raise ValueError("JointState positions must be finite numbers.")
+
+    def _contains_position(self, position, region, hysteresis=0.0):
+        """Return membership for an already validated position."""
         attr = self.region_dict["nodes"][region]["attr"]
         center = attr["position"]
-        distance = math.sqrt(
-            sum((position[index] - center[index]) ** 2 for index in range(6))
+        distance = math.hypot(
+            *(position[index] - center[index] for index in range(6))
         )
         return distance < attr["radius"] + hysteresis
 
+    def is_in_region(self, position, region, hysteresis=0.0):
+        self._validate_position(position)
+        return self._contains_position(position, region, hysteresis)
+
     def _find(self, position, names):
         for name in names:
-            if self.is_in_region(position, name):
+            if self._contains_position(position, name):
                 self.state = name
                 return name
         return None
 
     def update(self, position):
         """Return the current region and whether the transition was connected."""
+        self._validate_position(position)
         if self.state:
             found = self._find(
                 position,
@@ -56,7 +83,11 @@ class Region6DJointspaceMonitor(Node):
 
     def __init__(self):
         super().__init__("region_6d_jointspace_monitor")
-        self.declare_parameter("transition_system_path", "")
+        self.declare_parameter(
+            "transition_system_path",
+            "",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
         path = self.get_parameter("transition_system_path").value
         if not path:
             raise ValueError("transition_system_path must be set.")

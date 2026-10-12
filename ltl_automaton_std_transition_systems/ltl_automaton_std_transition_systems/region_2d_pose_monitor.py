@@ -14,6 +14,7 @@ from ltl_automaton_msgs.srv import ClosestState
 from ltl_automaton_planner_core.configuration.transition_system import (
     import_ts_from_file,
 )
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile
 from std_msgs.msg import String
@@ -57,6 +58,33 @@ class Region2DPoseModel:
             if data["attr"]["type"] == "square"
         ]
 
+    @staticmethod
+    def _validate_pose(pose):
+        """Reject non-finite positions and invalid zero quaternions."""
+        try:
+            values = (
+                pose.position.x,
+                pose.position.y,
+                pose.orientation.x,
+                pose.orientation.y,
+                pose.orientation.z,
+                pose.orientation.w,
+            )
+        except AttributeError as error:
+            raise ValueError("Pose is missing position or orientation fields.") from error
+        try:
+            finite = all(math.isfinite(value) for value in values)
+        except (TypeError, OverflowError) as error:
+            raise ValueError(
+                "Pose position and orientation must be finite numbers."
+            ) from error
+        if not finite:
+            raise ValueError(
+                "Pose position and orientation must be finite numbers."
+            )
+        if all(value == 0.0 for value in values[2:]):
+            raise ValueError("Pose orientation quaternion must be non-zero.")
+
     def is_in_square(self, pose, square, hysteresis=0.0):
         attr = self.region_dict["nodes"][square]["attr"]
         half = float(attr["length"]) / 2.0 + hysteresis
@@ -84,10 +112,11 @@ class Region2DPoseModel:
             attr["pose"][0][0] - pose.position.x,
             attr["pose"][0][1] - pose.position.y,
         )
+        yaw_difference = attr["pose"][1][0] - self._yaw(pose)
         angle = abs(
             math.atan2(
-                math.sin(attr["pose"][1][0] - self._yaw(pose)),
-                math.cos(attr["pose"][1][0] - self._yaw(pose)),
+                math.sin(yaw_difference),
+                math.cos(yaw_difference),
             )
         )
         threshold = attr.get("angle_threshold", attr.get("angle_tolerance"))
@@ -102,8 +131,8 @@ class Region2DPoseModel:
         names = list(region_names)
         for name in names:
             if (
-                name in self.stations
-                and self.station_access_request == name
+                self.station_access_request == name
+                and name in self.stations
                 and self.is_in_station(pose, name)
             ):
                 self.state = name
@@ -116,6 +145,7 @@ class Region2DPoseModel:
 
     def update(self, pose):
         """Update the region and return its name, or None when outside the TS."""
+        self._validate_pose(pose)
         nodes = self.region_dict["nodes"]
         if self.state:
             connected = nodes[self.state]["connected_to"]
@@ -148,6 +178,7 @@ class Region2DPoseModel:
 
     def closest_region(self, pose):
         """Return the closest connected region and boundary distance."""
+        self._validate_pose(pose)
         if not self.state:
             return None, None
         closest = None
@@ -178,8 +209,16 @@ class Region2DPoseMonitor(Node):
 
     def __init__(self):
         super().__init__("region_2d_pose_monitor")
-        self.declare_parameter("transition_system_path", "")
-        self.declare_parameter("pose_message_type", "geometry_msgs/msg/Pose")
+        self.declare_parameter(
+            "transition_system_path",
+            "",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
+        self.declare_parameter(
+            "pose_message_type",
+            "geometry_msgs/msg/Pose",
+            descriptor=ParameterDescriptor(read_only=True),
+        )
         path = self.get_parameter("transition_system_path").value
         if not path:
             raise ValueError("transition_system_path must be set.")
@@ -205,9 +244,14 @@ class Region2DPoseMonitor(Node):
         self.create_service(ClosestState, "closest_region", self._closest_callback)
 
     def _pose_callback(self, message):
-        self.current_pose = _pose_from_message(message)
+        pose = _pose_from_message(message)
         previous = self.model.state
-        region = self.model.update(self.current_pose)
+        try:
+            region = self.model.update(pose)
+        except ValueError as error:
+            self.get_logger().warning(str(error))
+            return
+        self.current_pose = pose
         if region is not None and region != previous:
             self.region_publisher.publish(String(data=region))
 

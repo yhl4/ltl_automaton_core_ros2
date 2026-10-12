@@ -1,0 +1,339 @@
+{
+  "schema": "cmr-unified-native-readback-v1",
+  "status": "PASSED",
+  "planner_imported": false,
+  "version_binding_id": "CMR_UNIFIED_BACKENDS_V1-491909e686b46c61",
+  "version_binding_sha256": "273bb7c1752cd2e5302dd778927e76bff22d78877183a29d729c9b9b0ad668c8",
+  "cells": [
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "FULL",
+      "backends": {
+        "reference": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "15",
+          "T_total": 1.169437561,
+          "T_product": 0.37083712,
+          "T_search": 0.215484811,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        },
+        "ros2-v6": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "15",
+          "T_total": 1.00808723,
+          "T_product": 0.0268752,
+          "T_search": 0.33348701,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        }
+      }
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "AP-D",
+      "backends": {
+        "reference": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "13",
+          "T_total": 0.780417005,
+          "T_product": 0.0859367,
+          "T_search": 0.059641902000000004,
+          "refinement_rounds": 5,
+          "build_rounds": 6
+        },
+        "ros2-v6": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "13",
+          "T_total": 0.856721304,
+          "T_product": 0.0121823,
+          "T_search": 0.097429001,
+          "refinement_rounds": 5,
+          "build_rounds": 6
+        }
+      }
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "FULL",
+      "backends": {
+        "reference": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "20",
+          "T_total": 0.502626002,
+          "T_product": 0.0010344,
+          "T_search": 0.0010388,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        },
+        "ros2-v6": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "20",
+          "T_total": 0.616861102,
+          "T_product": 0.0009178,
+          "T_search": 0.0025371,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        }
+      }
+    },
+    {
+      "instance_id": "B-D-CHAIN-S1",
+      "method": "FULL",
+      "backends": {
+        "reference": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "15",
+          "T_total": 1.450930505,
+          "T_product": 0.456303602,
+          "T_search": 0.234833201,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        },
+        "ros2-v6": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "15",
+          "T_total": 1.607757884,
+          "T_product": 0.047917199,
+          "T_search": 0.506750795,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        }
+      }
+    },
+    {
+      "instance_id": "B-D-CHAIN-S1",
+      "method": "AP-D",
+      "backends": {
+        "reference": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "15",
+          "T_total": 1.146459506,
+          "T_product": 0.1520157,
+          "T_search": 0.144179701,
+          "refinement_rounds": 3,
+          "build_rounds": 4
+        },
+        "ros2-v6": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "15",
+          "T_total": 1.029749606,
+          "T_product": 0.0128954,
+          "T_search": 0.208215101,
+          "refinement_rounds": 3,
+          "build_rounds": 4
+        }
+      }
+    },
+    {
+      "instance_id": "B-D-CHAIN-S1",
+      "method": "DEP-D",
+      "backends": {
+        "reference": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "15",
+          "T_total": 0.740500904,
+          "T_product": 0.096064801,
+          "T_search": 0.0619774,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        },
+        "ros2-v6": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "15",
+          "T_total": 0.770590871,
+          "T_product": 0.0077784,
+          "T_search": 0.090803996,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        }
+      }
+    },
+    {
+      "instance_id": "C1-T2",
+      "method": "FULL",
+      "backends": {
+        "reference": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "13",
+          "T_total": 0.725896403,
+          "T_product": 0.115717401,
+          "T_search": 0.0464994,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        },
+        "ros2-v6": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "13",
+          "T_total": 0.721219602,
+          "T_product": 0.0115368,
+          "T_search": 0.0700867,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        }
+      }
+    },
+    {
+      "instance_id": "C1-T2",
+      "method": "AP-D",
+      "backends": {
+        "reference": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "13",
+          "T_total": 0.988904906,
+          "T_product": 0.213176402,
+          "T_search": 0.11130420099999999,
+          "refinement_rounds": 4,
+          "build_rounds": 5
+        },
+        "ros2-v6": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "13",
+          "T_total": 0.902131106,
+          "T_product": 0.0275117,
+          "T_search": 0.159895802,
+          "refinement_rounds": 4,
+          "build_rounds": 5
+        }
+      }
+    },
+    {
+      "instance_id": "C1-T2",
+      "method": "DEP-D",
+      "backends": {
+        "reference": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "13",
+          "T_total": 0.924219305,
+          "T_product": 0.223462502,
+          "T_search": 0.103943,
+          "refinement_rounds": 3,
+          "build_rounds": 4
+        },
+        "ros2-v6": {
+          "terminal_status": "OPTIMALITY_CERTIFIED",
+          "objective": "13",
+          "T_total": 0.884239304,
+          "T_product": 0.0259705,
+          "T_search": 0.153573201,
+          "refinement_rounds": 3,
+          "build_rounds": 4
+        }
+      }
+    },
+    {
+      "instance_id": "D1-1",
+      "method": "FULL",
+      "backends": {
+        "reference": {
+          "terminal_status": "INFEASIBLE_CERTIFIED",
+          "objective": null,
+          "T_total": 0.485468203,
+          "T_product": 0.0002528,
+          "T_search": 9.65e-05,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        },
+        "ros2-v6": {
+          "terminal_status": "INFEASIBLE_CERTIFIED",
+          "objective": null,
+          "T_total": 0.589909602,
+          "T_product": 0.0001674,
+          "T_search": 0.0003023,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        }
+      }
+    },
+    {
+      "instance_id": "D1-1",
+      "method": "AP-D",
+      "backends": {
+        "reference": {
+          "terminal_status": "INFEASIBLE_CERTIFIED",
+          "objective": null,
+          "T_total": 0.509868002,
+          "T_product": 0.0002424,
+          "T_search": 9.77e-05,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        },
+        "ros2-v6": {
+          "terminal_status": "INFEASIBLE_CERTIFIED",
+          "objective": null,
+          "T_total": 0.589082703,
+          "T_product": 0.00015,
+          "T_search": 0.0002938,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        }
+      }
+    },
+    {
+      "instance_id": "D1-1",
+      "method": "DEP-D",
+      "backends": {
+        "reference": {
+          "terminal_status": "INFEASIBLE_CERTIFIED",
+          "objective": null,
+          "T_total": 0.468641302,
+          "T_product": 0.0002588,
+          "T_search": 9.69e-05,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        },
+        "ros2-v6": {
+          "terminal_status": "INFEASIBLE_CERTIFIED",
+          "objective": null,
+          "T_total": 0.629336603,
+          "T_product": 0.0001524,
+          "T_search": 0.000339,
+          "refinement_rounds": 0,
+          "build_rounds": 1
+        }
+      }
+    }
+  ],
+  "dds": [
+    {
+      "instance_id": "C1-T1",
+      "method": "AP-D",
+      "terminal_status": "OPTIMALITY_CERTIFIED",
+      "objective": "13",
+      "executed_steps": 4
+    },
+    {
+      "instance_id": "D1-1",
+      "method": "FULL",
+      "terminal_status": "INFEASIBLE_CERTIFIED",
+      "objective": null,
+      "executed_steps": 0
+    }
+  ],
+  "method_workers": 24,
+  "dds_workers": 2,
+  "independent_feasible_certificate_replays": 19,
+  "exact_empty_outcomes": 7,
+  "total_build_rounds": 61,
+  "frozen_inputs": 58,
+  "offline_checks": 16,
+  "original_driver_rc": 1,
+  "original_qualification_status": "FAILED",
+  "validation_only_correction": {
+    "schema": "cmr-dds-validator-correction-v1",
+    "status": "PASSED",
+    "original_qualification_sha256": "8d6b29626f2ba0d1cb522c93a48cfe844377bff92a909cb5094a96370dde2d09",
+    "original_dds_report_sha256": "91d3e52c6d5d5201ba8ec66d763ce23e2c9327a03a5d170a2dc8979bb28b0281",
+    "original_status": "FAILED",
+    "reason": "existing driver deliberately emits stale generation 0 after accepted dispatch",
+    "acceptance": "original rule: stale observation received but ignored; complete unique dispatch and independent TS feedback retained",
+    "execution_identity": "ed015febed55455fb3b311576af70f4d40c3ad86+cmr-unified-22fec8e176709683",
+    "version_binding_id": "CMR_UNIFIED_BACKENDS_V1-491909e686b46c61",
+    "original_dds_sha256": "54269d6b3ea4c1dbac07e3cc0690f025582105969913aefc207b8c49bf38ccc5",
+    "corrected_dds_sha256": "4a75f373b1bb44d7b2c07a9c534f019adec4de788443a35b89f6075a01c35665",
+    "outside_validator_ast_unchanged": true,
+    "additional_solver_workers": 0,
+    "additional_dds_runs": 0,
+    "validation_replay_only": true
+  }
+}

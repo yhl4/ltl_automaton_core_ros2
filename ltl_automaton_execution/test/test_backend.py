@@ -21,25 +21,29 @@ from ltl_automaton_execution.models import ProductNode
 from ltl_automaton_execution.models import SymbolicState
 
 
+class UnhashableString(str):
+    __hash__ = None
+
+
 def _state(value):
     return SymbolicState(("region",), (value,))
 
 
 def _step():
     return ExecutionStep(
-        "planner-a", 1, "move", _state("r1"), _state("r2"), (1,), (2,)
+        "planner-a", 1, 0, "move", _state("r1"), _state("r2"), (1,), (2,)
     )
 
 
-def _observation(generation=1):
+def _observation(generation=1, sequence=0, instance="planner-a"):
     return ExecutionObservation(
-        "planner-a", generation, (1,), True, "move"
+        instance, generation, sequence, (1,), True, "move"
     )
 
 
-def _snapshot(generation=1):
+def _snapshot(generation=1, instance="planner-a"):
     return PlanningSnapshot(
-        "planner-a",
+        instance,
         generation,
         (ProductNode(1, _state("r1")), ProductNode(2, _state("r2"))),
         (ProductEdge(1, 2, "move"), ProductEdge(2, 2, "wait")),
@@ -72,21 +76,89 @@ def test_a1_backend_completion_has_no_symbolic_state_authority():
     ]
 
 
-def test_a2_fake_execution_updates_plant_only_after_delay():
+@pytest.mark.parametrize("delay", [0.0, 0.25, 1e10])
+def test_a2_fake_execution_updates_plant_only_after_delay(delay):
     plant = FakePlant(_state("r1"))
     scheduler = ManualScheduler()
     completions = []
-    backend = FakeBackend(plant, scheduler, execution_delay_sec=0.25)
+    backend = FakeBackend(plant, scheduler, execution_delay_sec=delay)
 
     assert backend.execute(_step(), completions.append)
     assert plant.current_state == _state("r1")
     assert completions == []
-    assert scheduler.calls[0][0] == 0.25
+    assert scheduler.calls[0][0] == delay
     scheduler.calls[0][1]()
     assert plant.current_state == _state("r2")
     assert completions == [ExecutionCompletion(
         True, "Fake execution completed action move."
     )]
+
+
+@pytest.mark.parametrize(
+    "delay", [-1.0, float("nan"), float("inf"), -float("inf"), True, "0.5", None],
+)
+def test_fake_backend_rejects_invalid_delay_before_scheduling(delay):
+    """Reject malformed delays without executing or observing a state change."""
+    plant = FakePlant(_state("r1"))
+    scheduler = ManualScheduler()
+    with pytest.raises(ValueError, match="execution_delay_sec"):
+        FakeBackend(plant, scheduler, execution_delay_sec=delay)
+    assert plant.current_state == _state("r1")
+    assert scheduler.calls == []
+
+
+def test_fake_observer_failure_reports_completion_without_rolling_back_truth():
+    """Preserve an observer error and the actual plant update, but report failure."""
+    plant = FakePlant(_state("r1"))
+    scheduler = ManualScheduler()
+    completions = []
+    observed = []
+
+    def fail(observation):
+        observed.append(observation)
+        raise RuntimeError("Injected observation delivery failure.")
+
+    plant.add_listener(fail)
+    assert FakeBackend(plant, scheduler).execute(_step(), completions.append)
+    with pytest.raises(RuntimeError, match="Injected observation delivery failure"):
+        scheduler.calls[0][1]()
+    assert plant.current_state == _state("r2")
+    assert observed == [FakePlantObservation(_state("r2"))]
+    assert len(completions) == 1
+    assert not completions[0].success
+    assert "Injected observation delivery failure" in completions[0].message
+
+
+def test_fake_observer_failure_releases_manager_for_new_authority_step():
+    """An asynchronous observation error must not leave dispatch permanently busy."""
+    plant = FakePlant(_state("r1"))
+    scheduler = ManualScheduler()
+    diagnostics = []
+
+    def fail(_observation):
+        raise RuntimeError("Injected observation delivery failure.")
+
+    plant.add_listener(fail)
+    manager = ExecutionManager(
+        AcceptedRunResolver(), FakeBackend(plant, scheduler), diagnostics.append,
+    )
+    first = _observation()
+    assert manager.observe_authority(first)
+    assert manager.dispatch(first, _snapshot())
+    with pytest.raises(RuntimeError, match="Injected observation delivery failure"):
+        scheduler.calls[0][1]()
+    assert not manager.in_flight
+    assert "Injected observation delivery failure" in diagnostics[-1]
+    assert plant.current_state == _state("r2")
+    assert not manager.dispatch(first, _snapshot())
+    assert len(scheduler.calls) == 1
+    plant.remove_listener(fail)
+    latest = ExecutionObservation("planner-a", 1, 1, (2,), True, "wait")
+    assert manager.observe_authority(latest)
+    assert manager.dispatch(latest, _snapshot())
+    scheduler.calls[1][1]()
+    assert not manager.in_flight
+    assert plant.current_state == _state("r2")
 
 
 def test_a3_fake_state_observer_emits_exactly_once_per_plant_update():
@@ -124,6 +196,7 @@ def test_a5_failed_backend_does_not_change_or_observe_plant():
     assert plant.current_state == _state("r1")
     assert observed == []
     assert diagnostics == ["controller failed"]
+    assert not manager.dispatch(observation, _snapshot())
 
 
 def test_a6_observer_and_abstraction_work_without_execution():
@@ -153,6 +226,56 @@ def test_a6_observer_and_abstraction_work_without_execution():
 def test_symbolic_state_rejects_malformed_dimensions(dimensions, values):
     with pytest.raises(ValueError):
         SymbolicState(dimensions, values)
+
+
+@pytest.mark.parametrize("invalid", [2, b"nonempty", ["nonempty"]], ids=["int", "bytes", "list"])
+@pytest.mark.parametrize("field", ["dimensions", "values"])
+def test_symbolic_state_requires_strings_in_every_position(invalid, field):
+    """Reject non-string elements before strip or ROS message assignment."""
+    dimensions = ("region", invalid) if field == "dimensions" else ("region", "load")
+    values = ("r1", invalid) if field == "values" else ("r1", "holding")
+
+    with pytest.raises(ValueError) as caught:
+        SymbolicState(dimensions, values)
+
+    assert str(caught.value) == f"Symbolic state {field} must be non-empty."
+    if isinstance(invalid, list):
+        assert invalid == ["nonempty"]
+
+
+@pytest.mark.parametrize("unhashable", [False, True])
+def test_symbolic_state_keeps_string_subclasses_and_exact_values(unhashable):
+    """Retain valid string objects and surrounding whitespace without normalization."""
+    class StateString(str):
+        pass
+
+    if unhashable:
+        StateString.__hash__ = None
+    dimensions = (StateString(" region "), "load")
+    values = (StateString(" r1 "), "holding")
+
+    state = SymbolicState(dimensions, values)
+
+    assert state.dimension_names is dimensions
+    assert state.states is values
+    assert state.dimension_names == (" region ", "load")
+    assert state.states == (" r1 ", "holding")
+
+
+@pytest.mark.parametrize(
+    "dimensions",
+    [
+        (UnhashableString("region"), "region"),
+        ("region", UnhashableString("region")),
+        (UnhashableString("region"), UnhashableString("region")),
+    ],
+)
+def test_symbolic_state_rejects_unhashable_duplicate_dimensions(dimensions):
+    """Keep duplicate-dimension diagnostics ahead of value validation."""
+    with pytest.raises(ValueError) as caught:
+        SymbolicState(dimensions, ("r1", ""))
+
+    assert str(caught.value) == "Symbolic state dimensions must be unique."
 
 
 def test_a7_abstraction_rejects_unsupported_or_malformed_observation():
@@ -189,6 +312,76 @@ def test_a8_in_flight_old_generation_still_updates_observed_plant():
     assert not manager.in_flight
 
 
+def test_step_sequence_allows_repeated_action_after_completion():
+    backend = RecordingBackend()
+    manager = ExecutionManager(
+        AcceptedRunResolver(), backend, lambda _message: None
+    )
+    first = _observation(sequence=0)
+    second = _observation(sequence=1)
+    assert manager.observe_authority(first)
+    assert manager.dispatch(first, _snapshot())
+    backend.calls[0][1](ExecutionCompletion(True, "done"))
+    assert manager.observe_authority(second)
+    assert manager.dispatch(second, _snapshot())
+    assert [call[0].execution_step_seq for call in backend.calls] == [0, 1]
+
+
+def test_duplicate_and_reverse_step_sequences_are_rejected():
+    diagnostics = []
+    backend = RecordingBackend()
+    manager = ExecutionManager(
+        AcceptedRunResolver(), backend, diagnostics.append
+    )
+    current = _observation(sequence=2)
+    assert manager.observe_authority(current)
+    assert manager.dispatch(current, _snapshot())
+    backend.calls[0][1](ExecutionCompletion(True, "done"))
+    assert manager.observe_authority(_observation(sequence=2))
+    assert not manager.dispatch(_observation(sequence=2), _snapshot())
+    assert not manager.observe_authority(_observation(sequence=1))
+    assert len(backend.calls) == 1
+    assert "stale execution step" in diagnostics[-1]
+
+
+def test_epoch_change_resets_step_sequence_deduplication():
+    backend = RecordingBackend()
+    manager = ExecutionManager(
+        AcceptedRunResolver(), backend, lambda _message: None
+    )
+    first = _observation(generation=1, sequence=4)
+    second = _observation(
+        generation=1, sequence=0, instance="planner-b"
+    )
+    assert manager.observe_authority(first)
+    assert manager.dispatch(first, _snapshot())
+    backend.calls[0][1](ExecutionCompletion(True, "done"))
+    assert manager.observe_authority(second)
+    assert manager.dispatch(second, _snapshot(instance="planner-b"))
+    assert len(backend.calls) == 2
+
+
+def test_busy_manager_keeps_latest_sequence_and_ignores_duplicate_completion():
+    backend = RecordingBackend()
+    manager = ExecutionManager(
+        AcceptedRunResolver(), backend, lambda _message: None
+    )
+    first = _observation(sequence=0)
+    latest = _observation(sequence=1)
+    assert manager.observe_authority(first)
+    assert manager.dispatch(first, _snapshot())
+    old_completion = backend.calls[0][1]
+    assert manager.observe_authority(latest)
+    assert not manager.dispatch(latest, _snapshot())
+    old_completion(ExecutionCompletion(True, "done"))
+    assert manager.dispatch(latest, _snapshot())
+    assert manager.in_flight
+    old_completion(ExecutionCompletion(True, "duplicate"))
+    assert manager.in_flight
+    backend.calls[1][1](ExecutionCompletion(True, "done"))
+    assert not manager.in_flight
+
+
 def test_a9_recording_backend_seam_has_no_observation_capability():
     backend = RecordingBackend()
     manager = ExecutionManager(
@@ -202,3 +395,18 @@ def test_a9_recording_backend_seam_has_no_observation_capability():
     assert backend.calls[0][0].action == "move"
     backend.calls[0][1](ExecutionCompletion(True, "done"))
     assert not manager.in_flight
+
+
+def test_backend_exception_releases_busy_state_and_reports_failure():
+    """Do not leave execution permanently busy after a dispatch exception."""
+    class BrokenBackend:
+        def execute(self, step, completion):
+            raise RuntimeError("controller disconnected")
+
+    diagnostics = []
+    manager = ExecutionManager(AcceptedRunResolver(), BrokenBackend(), diagnostics.append)
+    observation = _observation()
+    assert manager.observe_authority(observation)
+    assert not manager.dispatch(observation, _snapshot())
+    assert not manager.in_flight
+    assert "controller disconnected" in diagnostics[-1]

@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 import logging
+from math import isfinite
 
 from .buchi import mission_to_buchi
 from .discrete_plan import (
@@ -26,6 +27,19 @@ class LTLPlanner:
         gamma=10,
     ):
         """Initialize the planner from a TS and hard/soft LTL tasks."""
+        for name, value in (("beta", beta), ("gamma", gamma)):
+            try:
+                invalid_value = (
+                    isinstance(value, bool)
+                    or not isfinite(value)
+                    or value < 0
+                )
+            except OverflowError as error:
+                raise ValueError(
+                    f"{name} must be finite and nonnegative."
+                ) from error
+            if invalid_value:
+                raise ValueError(f"{name} must be finite and nonnegative.")
         self.hard_spec = hard_spec
         self.soft_spec = soft_spec
         self.ts = ts
@@ -49,6 +63,49 @@ class LTLPlanner:
         self.index = 0
         self.segment = "line"
         self.next_move = None
+
+    def _copy_for_replanning(self):
+        """Deep-copy while reusing immutable keys and scalar objects."""
+        node_scalar_types = (str, int)
+
+        def is_immutable_node(node):
+            if type(node) is not tuple:
+                return False
+            for item in node:
+                if type(item) in node_scalar_types:
+                    continue
+                if type(item) is tuple:
+                    for inner in item:
+                        if type(inner) not in node_scalar_types:
+                            return False
+                    continue
+                return False
+            return True
+
+        memo = {}
+
+        def remember_node(node):
+            if id(node) in memo or not is_immutable_node(node):
+                return
+            memo[id(node)] = node
+            for item in node:
+                if type(item) is tuple:
+                    memo[id(item)] = item
+
+        scalar_types = (str, int, float, bool, type(None))
+        graphs = (self.ts,) if self.product is None else (self.ts, self.product)
+        for graph in graphs:
+            for node in graph:
+                remember_node(node)
+            for _, target, data in graph.edges(data=True):
+                remember_node(target)
+                if type(data) is dict:
+                    for key, value in data.items():
+                        if type(key) in scalar_types:
+                            memo[id(key)] = key
+                        if type(value) in scalar_types:
+                            memo[id(value)] = value
+        return deepcopy(self, memo)
 
     def optimal(self, style="static"):
         """Construct or update the product and compute an accepting run."""
@@ -76,7 +133,8 @@ class LTLPlanner:
                 self.beta,
             )
 
-            self.product.graph["ts"].build_full()
+            if not self.ts:
+                self.ts.build_full()
             self.product.build_full()
 
         elif style == "ready":
@@ -144,6 +202,10 @@ class LTLPlanner:
         if not self._initialize_execution_state():
             return False
 
+        # A newly planned task starts a new execution word. History-based
+        # replanning below keeps this word because it retains the same task.
+        self.trace = []
+
         _LOGGER.info(
             "LTL Planner: --- Planning successful! ---"
         )
@@ -195,7 +257,7 @@ class LTLPlanner:
         )
         return False
 
-    def update_possible_states(self, ts_node):
+    def update_possible_states(self, ts_node, *, enforce_accepting_boundary=True):
         """Update possible product states after observing a TS state."""
         if self.product is None:
             _LOGGER.error(
@@ -207,7 +269,7 @@ class LTLPlanner:
             self.product.get_possible_states(ts_node)
         )
 
-        if self._reaches_accepting_boundary():
+        if enforce_accepting_boundary and self._reaches_accepting_boundary():
             self.product.possible_states = self.intersect_accept(
                 self.product.possible_states,
                 ts_node,
@@ -300,38 +362,40 @@ class LTLPlanner:
 
     def replan_from_ts_state(self, ts_state):
         """Replan after replacing the current TS initial state."""
-        snapshot = deepcopy(self.__dict__)
         target_ts = (
             self.ts
             if self.product is None
             else self.product.graph["ts"]
         )
 
-        if not target_ts.set_initial(ts_state):
+        if ts_state not in target_ts.nodes():
             _LOGGER.error(
                 "LTL Planner: Cannot replan from unknown TS state %s.",
                 ts_state,
             )
             return False
 
-        try:
-            replanned = self.optimal(
-                style=(
-                    "static"
-                    if self.product is None
-                    else "on-the-fly-initial"
-                )
+        candidate = self._copy_for_replanning()
+        candidate_target_ts = (
+            candidate.ts
+            if candidate.product is None
+            else candidate.product.graph["ts"]
+        )
+        candidate_target_ts.set_initial(ts_state)
+        replanned = candidate.optimal(
+            style=(
+                "static"
+                if candidate.product is None
+                else "on-the-fly-initial"
             )
-        except Exception:
-            self.__dict__.clear()
-            self.__dict__.update(snapshot)
-            raise
-
+        )
         if not replanned:
-            self.__dict__.clear()
-            self.__dict__.update(snapshot)
+            return False
 
-        return replanned
+        self.__dict__.clear()
+        self.__dict__.update(candidate.__dict__)
+
+        return True
 
     def replan_task(
         self,
@@ -340,43 +404,47 @@ class LTLPlanner:
         initial_ts_state=None,
     ):
         """Replace the task and optionally the current TS initial state."""
-        snapshot = deepcopy(self.__dict__)
         target_ts = (
             self.ts
             if self.product is None
             else self.product.graph["ts"]
         )
 
-        if initial_ts_state is not None:
-            if not target_ts.set_initial(initial_ts_state):
-                _LOGGER.error(
-                    "LTL Planner: Cannot replan task from unknown "
-                    "TS state %s.",
-                    initial_ts_state,
-                )
-                return False
-
-        self.hard_spec = hard_spec
-        self.soft_spec = soft_spec
-
-        try:
-            replanned = self.optimal(
-                style=(
-                    "static"
-                    if self.product is None
-                    else "on-the-fly-task"
-                )
+        if (
+            initial_ts_state is not None
+            and initial_ts_state not in target_ts.nodes()
+        ):
+            _LOGGER.error(
+                "LTL Planner: Cannot replan task from unknown "
+                "TS state %s.",
+                initial_ts_state,
             )
-        except Exception:
-            self.__dict__.clear()
-            self.__dict__.update(snapshot)
-            raise
+            return False
 
+        candidate = self._copy_for_replanning()
+        candidate_target_ts = (
+            candidate.ts
+            if candidate.product is None
+            else candidate.product.graph["ts"]
+        )
+        if initial_ts_state is not None:
+            candidate_target_ts.set_initial(initial_ts_state)
+        candidate.hard_spec = hard_spec
+        candidate.soft_spec = soft_spec
+        replanned = candidate.optimal(
+            style=(
+                "static"
+                if candidate.product is None
+                else "on-the-fly-task"
+            )
+        )
         if not replanned:
-            self.__dict__.clear()
-            self.__dict__.update(snapshot)
+            return False
 
-        return replanned
+        self.__dict__.clear()
+        self.__dict__.update(candidate.__dict__)
+
+        return True
 
     def replan(self):
         """Create a new plan consistent with the execution history."""
@@ -386,9 +454,18 @@ class LTLPlanner:
             )
             return False
 
+        # trace contains sources of completed actions; the cursor now points
+        # at their latest reached state, which must also constrain the search.
+        remaining_prefix = (
+            self.run.prefix[self.index:]
+            if self.segment == "line"
+            else [self.run.suffix[self.index]]
+        )
+        current_state = remaining_prefix[0][0]
         new_run = improve_plan_given_history(
             self.product,
-            self.trace,
+            [*self.trace, current_state],
+            gamma=self.gamma,
         )
 
         if new_run is None:
@@ -406,15 +483,9 @@ class LTLPlanner:
             new_run.loop,
         )
 
-        remaining_prefix = (
-            self.run.pre_plan[self.index:]
-            if self.segment == "line"
-            else []
-        )
-
         if (
-            new_run.pre_plan == remaining_prefix
-            and new_run.suf_plan == self.run.suf_plan
+            new_run.prefix == remaining_prefix
+            and new_run.suffix == self.run.suffix
         ):
             _LOGGER.info(
                 "LTL Planner: The current plan remains valid."

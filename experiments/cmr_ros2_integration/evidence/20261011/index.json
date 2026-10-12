@@ -1,0 +1,56 @@
+{
+  "schema": "cmr-ros2-refinement-dds-evidence-index-v1",
+  "population": "SYNTHETIC_SMOKE",
+  "source_head": "33244a5bc5ed9c63184f1ae9c7c5ad5b52334bfa",
+  "status": "PASSED_BY_SCOPED_CONTINUATIONS",
+  "scope": "six refinement pairs, four measured phase timeouts, deadline boundary, blocking-worker watchdog and three actual DDS cases",
+  "attempts": [
+    {
+      "name": "initial",
+      "status": "FAILED",
+      "rc": 1,
+      "completed": "six reference/adapted pairs and four phase timeouts",
+      "cause": "2-second watchdog expired during bound-source preflight, before search injection"
+    },
+    {
+      "name": "watchdog_fix1",
+      "status": "FAILED",
+      "rc": 1,
+      "completed": "7-second watchdog interrupted search and cleaned worker",
+      "cause": "DDS stale generation injected before execution authority acceptance"
+    },
+    {
+      "name": "dds_fix2",
+      "status": "PASSED",
+      "rc": 0,
+      "completed": "all three DDS cases; four actual dispatches/completions/observer feedback/TS receives in successful case"
+    }
+  ],
+  "qualification_files": {
+    "matrix_and_phase_timeouts": "initial/qualification/qualification.json",
+    "watchdog": "watchdog_fix1/continuation.json",
+    "dds": "dds_fix2/continuation.json"
+  },
+  "notes": [
+    "Archives preserve all attempts and original rc/log bytes; no failed result is discarded.",
+    "The two scoped continuations do not re-run or pool the completed matrix and phase-timeout checks.",
+    "Pre-fix source bytes are identified by per-attempt input hashes but not included; final source is committed in this repository.",
+    "Native readback imports no planner and independently checks JSON, exact Fraction costs, source bytes and process identities.",
+    "Production core and frozen CMR scientific sources/results are unchanged. No formal campaign, performance claim, provider or real-robot run."
+  ],
+  "archive_members": 176,
+  "files": {
+    "raw_attempts.zip": {
+      "size": 486785,
+      "sha256": "48f91be9fec76db62ce24b0cf56a2a2461767c290ae63efcd7d89f41f0b12976"
+    },
+    "archive_manifest.json": {
+      "size": 29604,
+      "sha256": "390c89e1218c51a180470096f8d1010c0fd3697d54142072e29cc2e65930022d"
+    },
+    "native_readback.json": {
+      "size": 2481,
+      "sha256": "59e860827cc37982bd30570d225a8378b09a7708f905befe4e8b5bea31a9d4c0"
+    }
+  }
+}

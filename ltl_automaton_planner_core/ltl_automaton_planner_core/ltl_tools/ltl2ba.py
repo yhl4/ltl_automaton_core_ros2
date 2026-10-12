@@ -47,15 +47,27 @@ def run_ltl2ba(formula, executable="ltl2ba", timeout=30.0):
         raise LTL2BAError(
             "ltl2ba execution timed out."
         ) from error
+    except OSError as error:
+        raise LTL2BAError(
+            f"ltl2ba could not start: {error}"
+        ) from error
     except subprocess.CalledProcessError as error:
-        message = (
+        detail = (
             error.stderr.strip()
             or error.stdout.strip()
-            or "Unknown ltl2ba error."
         )
+        if error.returncode < 0:
+            message = (
+                f"ltl2ba was terminated by signal {-error.returncode}."
+            )
+            if detail:
+                message = f"{message} {detail}"
+        else:
+            message = detail or "Unknown ltl2ba error."
+            message = f"ltl2ba execution failed: {message}"
 
         raise LTL2BAError(
-            f"ltl2ba execution failed: {message}"
+            message
         ) from error
 
     if not result.stdout.strip():

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
+from copy import copy
+from itertools import product as cartesian_product
 
 from networkx.classes.digraph import DiGraph
 
@@ -13,16 +15,36 @@ class TSModel(DiGraph):
 
     def __init__(self, state_models):
         """TS model, built from a list of state models to combine."""
+        if not state_models:
+            raise ValueError("At least one state model is required.")
+        DiGraph.__init__(self, initial=set(), ts_state_format=[])
         self.state_models = state_models
+        self._guard_cache = {}
 
     def build_full(self):
         """Build TS graph from one or more state model TS."""
+        self._guard_cache.clear()
         # If only one state model, use directly as the TS
         if len(self.state_models) == 1:
             DiGraph.__init__(self,
                              incoming_graph_data=self.state_models[0],
-                             initial=self.state_models[0].graph['initial'],
-                             ts_state_format=self.state_models[0].graph['ts_state_format'])
+                             initial=copy(self.state_models[0].graph['initial']),
+                             ts_state_format=copy(
+                                 self.state_models[0].graph['ts_state_format']
+                             ))
+            disallowed = []
+            for source, successors in self.adjacency():
+                guard_checks = {}
+                for target, data in successors.items():
+                    guard = data['guard']
+                    if guard not in guard_checks:
+                        guard_checks[guard] = self.is_action_allowed(
+                            guard,
+                            self.nodes[source].get('label', source),
+                        )
+                    if not guard_checks[guard]:
+                        disallowed.append((source, target))
+            self.remove_edges_from(disallowed)
 
         # If more than one, build a combined TS model
         else:
@@ -30,7 +52,8 @@ class TSModel(DiGraph):
             DiGraph.__init__(self,
                              initial=set(),
                              ts_state_format=[
-                                 model.graph['ts_state_format'] for model in self.state_models]
+                                 copy(model.graph['ts_state_format'])
+                                 for model in self.state_models]
                              )
             # Compose and add nodes
             self.compose_nodes(self.state_models)
@@ -68,9 +91,9 @@ class TSModel(DiGraph):
 
         """
         initial_states = [list(graph.graph['initial']) for graph in graph_list]
-        init_nodes = self.node_product(*initial_states)
-
-        self.graph['initial'].update(set(init_nodes))
+        self.graph['initial'].update(
+            self._iter_node_product(*initial_states)
+        )
 
     def compose_nodes(self, graph_list):
         """
@@ -78,8 +101,7 @@ class TSModel(DiGraph):
 
         Nodes are products of nodes from the input graph list.
         """
-        node_product = self.node_product(*graph_list)
-        for node in node_product:
+        for node in self._iter_node_product(*graph_list):
             self.add_node(node, label=node, marker='unvisited')
 
     def compose_edges(self, graph_list):
@@ -90,36 +112,63 @@ class TSModel(DiGraph):
 
         Needs to be called after composing nodes.
         """
-        # For each individual state model
-        for i in range(len(graph_list)):
-            # For each state in this model
-            for state in graph_list[i]:
-                # Look for node in the product which include this state
-                nodes = [elem for elem in self.nodes if elem[i] == state[0]]
-                for node in nodes:
-                    successor_state_node = list(node)
-                    for successor_state in graph_list[i].successors(state):
-                        # Create successor node by replacing one state by its successor
-                        successor_state_node[i] = successor_state[0]
-                        successor_node = tuple(successor_state_node)
-                        # Add edge using weight and action label from the state model
-                        if self.is_action_allowed(
-                            graph_list[i][state][successor_state]['guard'],
+        # Enumerate each combined source node once, then expand only the
+        # actual successors of each factor state.  Keeping factors in order
+        # preserves the historical later-dimension overwrite for collisions.
+        successor_tables = [{} for _ in graph_list]
+        for node in self.nodes:
+            guard_checks = {}
+            for i, graph in enumerate(graph_list):
+                state = (node[i],)
+                state_successors = successor_tables[i].get(state)
+                if state_successors is None:
+                    state_successors = tuple(
+                        (
+                            successor_state,
+                            graph[state][successor_state],
+                        )
+                        for successor_state in graph.successors(state)
+                    )
+                    successor_tables[i][state] = state_successors
+                successor_state_node = None
+                for successor_state, edge_data in state_successors:
+                    guard = edge_data['guard']
+                    if guard not in guard_checks:
+                        guard_checks[guard] = self.is_action_allowed(
+                            guard,
                             self.nodes[node]['label'],
-                        ):
-                            self.add_edge(node, successor_node,
-                                          action=graph_list[i][state][successor_state]['action'],
-                                          guard=graph_list[i][state][successor_state]['guard'],
-                                          weight=graph_list[i][state][successor_state]['weight'],
-                                          marker='visited')
+                        )
+                    if not guard_checks[guard]:
+                        continue
+
+                    if successor_state_node is None:
+                        successor_state_node = list(node)
+                    successor_state_node[i] = successor_state[0]
+                    successor_node = tuple(successor_state_node)
+                    self.add_edge(
+                        node,
+                        successor_node,
+                        action=edge_data['action'],
+                        guard=edge_data['guard'],
+                        weight=edge_data['weight'],
+                        marker='visited',
+                    )
 
     def is_action_allowed(self, action_guard, ts_label):
         """Check action guard against the node label."""
-        guard_expr = parse_guard(action_guard)
-        if guard_expr.check(ts_label):
-            return True
-        else:
-            return False
+        if action_guard not in self._guard_cache:
+            self._guard_cache[action_guard] = parse_guard(action_guard)
+        return self._guard_cache[action_guard].check(ts_label)
+
+    @staticmethod
+    def _iter_node_product(*args):
+        """Yield flattened product nodes without materializing the product."""
+        for combination in cartesian_product(*args):
+            yield tuple(
+                value
+                for node in combination
+                for value in node
+            )
 
     @staticmethod
     def node_product(*args):
@@ -129,9 +178,4 @@ class TSModel(DiGraph):
         Take as input lists of nodes.
 
         """
-        node_pools = [list(pool) for pool in args]
-        product_pool = [tuple()]
-        for node_pool in node_pools:
-            product_pool = [x+y for x in product_pool for y in node_pool]
-
-        return product_pool
+        return list(TSModel._iter_node_product(*args))

@@ -1,0 +1,4720 @@
+{
+  "cases": [
+    {
+      "kind": "direct",
+      "mode": "late_solver",
+      "original_status": "PASSED",
+      "record": {
+        "mode": "late_solver",
+        "result": {
+          "backend_binding": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "backend_configuration": {
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "original_builder_global_preserved": true,
+            "original_local_code_preserved": true,
+            "original_loop_code_preserved": true
+          },
+          "build_work": [
+            {
+              "buchi_queries": 385,
+              "cache_entries": 9,
+              "cache_hits": 376,
+              "cache_misses": 9,
+              "completed": true,
+              "full_ts_rebuild_calls": 1,
+              "precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "product_edges": 400,
+              "product_states": 64,
+              "reachable_ts_states": 64,
+              "reduced_ts_edges": 384
+            }
+          ],
+          "fault_qualification": {
+            "actual_wall_seconds": 16.822032791,
+            "injected_offset_ns": 180000000000,
+            "mode": "late_solver",
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "simulated_clock": true
+          },
+          "outer_start_ns": 1547899096469,
+          "row": {
+            "T_certification": 0.087807907,
+            "T_concretization": 0.0040225,
+            "T_full_ts": 0.010946101,
+            "T_initialization": 1.9e-05,
+            "T_input_preprocess": 0.716898561,
+            "T_logging": 2.94e-05,
+            "T_method": 0.051632804,
+            "T_other": 180.50355072899998,
+            "T_plan_wall": 181.357565401,
+            "T_product": 0.003242701,
+            "T_reduction": 0.0102228,
+            "T_refinement": 0.0,
+            "T_search": 0.020825702,
+            "T_total": 181.357565401,
+            "ai_inference_latency_seconds": null,
+            "ai_selection": null,
+            "ai_selection_artifact_sha256": null,
+            "api_key_reads": 0,
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+            "benchmark_identity": "RACMR-Bench-v1-r1",
+            "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+            "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+            "candidate_identity": {
+              "lower_bound": "13",
+              "prefix_actions": [
+                "change_robot_location",
+                "change_inspection_state",
+                "change_payload_state"
+              ],
+              "prefix_length": 4,
+              "suffix_actions": [
+                "wait"
+              ],
+              "suffix_length": 2
+            },
+            "canonical_status": "TIMEOUT",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "cumulative_work": {
+              "product_edges_built": 400,
+              "product_states_built": 64,
+              "reduced_ts_edges_built": 384,
+              "reduced_ts_states_built": 64,
+              "search_settled_events": 135
+            },
+            "error": null,
+            "exact_status": "TIMEOUT",
+            "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-6da857dae4dd3db1",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "experimental_llm_calls": 0,
+            "final_precision": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "final_precision_size": 6,
+            "final_unique_graph_size": {
+              "product_edges": 400,
+              "product_states": 64,
+              "reduced_ts_edges": 384,
+              "reduced_ts_states": 64
+            },
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "initial_S0": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "initial_precision_size": 6,
+            "instance_id": "C2-T3",
+            "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+            "llm_calls": 0,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 1562569839033,
+            "objective": null,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                1743426603705,
+                1743927404434
+              ],
+              "T_certification_external": [
+                1743338784198,
+                1743426567005
+              ],
+              "T_initialization": [
+                1563286737594,
+                1563286756594
+              ],
+              "T_input_preprocess": [
+                1562569839033,
+                1563286737594
+              ],
+              "T_logging": [
+                1743426569305,
+                1743426598705
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "post_runner_delivery_seconds": 0.500800729,
+            "prefix_actions": [
+              "change_robot_location",
+              "change_inspection_state",
+              "change_payload_state"
+            ],
+            "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualified_runner_completion_ns": 1743426603705,
+            "refinement_rounds": 0,
+            "result_hash": "78014bd79deee218adf70990561ef3f129a82a28c941fb6107b111af09984572",
+            "right_censored": true,
+            "rounds": [
+              {
+                "H_k": [],
+                "J_lb": "13",
+                "J_ub": "13",
+                "N": 6,
+                "R_k": [],
+                "S_k": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "S_k_size": 6,
+                "S_phi": [
+                  3,
+                  5
+                ],
+                "abstract_prefix_cost": "3",
+                "abstract_suffix_cost": "1",
+                "added_dimension": null,
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                "bound_pruned_entries": 31,
+                "candidate_entries": 32,
+                "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+                "certificate_status": "OPTIMALITY_CERTIFIED",
+                "concretization_status": "CONCRETIZABLE",
+                "ell": 0,
+                "error": null,
+                "exact_entry_searches": 1,
+                "final_precision": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "infeasibility_certificate_type": null,
+                "infeasibility_precision": null,
+                "infeasibility_proof_basis": null,
+                "initial_S0": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "instance_id": "C2-T3",
+                "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                "lower_bound_settled": 64,
+                "lower_precision_infeasibility": null,
+                "m": 1,
+                "method": "FULL",
+                "phase_intervals_ns": {
+                  "T_certification": [
+                    1563336503598,
+                    1563336528698
+                  ],
+                  "T_concretization": [
+                    1563332477198,
+                    1563336499698
+                  ],
+                  "T_full_ts": [
+                    1563286942594,
+                    1563297888695
+                  ],
+                  "T_product": [
+                    1563308119795,
+                    1563311362496
+                  ],
+                  "T_reduction": [
+                    1563297892595,
+                    1563308115395
+                  ],
+                  "T_search": [
+                    1563311636196,
+                    1563332461898
+                  ]
+                },
+                "prefix_actions": [
+                  "change_robot_location",
+                  "change_inspection_state",
+                  "change_payload_state"
+                ],
+                "prefix_cost": "3",
+                "prefix_settled": 64,
+                "product_unique_edges": 400,
+                "product_unique_states": 64,
+                "qualifying_sccs": 1,
+                "queue_pops": 135,
+                "queue_pushes": 145,
+                "reachable_product_nodes": 64,
+                "reduced_ts_edges": 384,
+                "reduced_ts_states": 64,
+                "round_index": 0,
+                "schema_version": "cmr-p2b-round-v1",
+                "semantic_contract_id": "INITIAL_LABEL_V1",
+                "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+                "suffix_actions": [
+                  "wait"
+                ],
+                "suffix_cost": "1",
+                "suffix_entry_product_state": {
+                  "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+                  "state": [
+                    0,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                "suffix_settled": 7,
+                "terminal_claim_valid": false,
+                "terminal_status": "OPTIMALITY_CERTIFIED",
+                "timings": {
+                  "T_certification": 2.51e-05,
+                  "T_concretization": 0.0040225,
+                  "T_full_ts": 0.010946101,
+                  "T_product": 0.003242701,
+                  "T_reduction": 0.0102228,
+                  "T_refinement": 0.0,
+                  "T_search": 0.020825702
+                },
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+                "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+              }
+            ],
+            "schema_version": "cmr-p2b-result-v1",
+            "search_counter_basis": "unchanged V5 search; within-build Buchi cache queries/hits/misses",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": [
+              "wait"
+            ],
+            "suffix_entry_product_state": {
+              "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+              "state": [
+                0,
+                1,
+                1,
+                1,
+                0,
+                0
+              ]
+            },
+            "terminal_completion_ns": 1743927404434,
+            "terminal_status": "TIMEOUT",
+            "timeout_stage": "planner",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "RIGHT_CENSORED",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "search_work": [
+            {
+              "bound_pruned_entries": 31,
+              "candidate_entries": 32,
+              "completed": true,
+              "deadline_ns": 1742569839033,
+              "deadline_observed_exceeded": false,
+              "exact_entry_searches": 1,
+              "graph_reuses": 1,
+              "helpers": [
+                {
+                  "completed": true,
+                  "edges": 400,
+                  "elapsed_ns": 3180300,
+                  "helper": "_prefix_distances",
+                  "nodes": 64,
+                  "phase": "prefix",
+                  "returned_len": 64
+                },
+                {
+                  "completed": true,
+                  "edges": 160,
+                  "elapsed_ns": 935100,
+                  "helper": "_prefix_distances",
+                  "nodes": 32,
+                  "phase": "lower_bound",
+                  "returned_len": 32
+                },
+                {
+                  "completed": true,
+                  "edges": 160,
+                  "elapsed_ns": 989000,
+                  "helper": "_prefix_distances",
+                  "nodes": 32,
+                  "phase": "lower_bound",
+                  "returned_len": 32
+                },
+                {
+                  "completed": true,
+                  "edges": 166,
+                  "elapsed_ns": 335200,
+                  "helper": "_target_component_distances",
+                  "nodes": 33,
+                  "phase": "suffix",
+                  "returned_len": 7
+                },
+                {
+                  "completed": true,
+                  "edges": 166,
+                  "elapsed_ns": 64300,
+                  "helper": "_restore_tight_path",
+                  "nodes": 33,
+                  "phase": "restore",
+                  "returned_len": 2
+                },
+                {
+                  "completed": true,
+                  "edges": 400,
+                  "elapsed_ns": 85800,
+                  "helper": "_restore_tight_path",
+                  "nodes": 64,
+                  "phase": "restore",
+                  "returned_len": 4
+                }
+              ],
+              "lower_bound_settled": 64,
+              "precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "prefix_settled": 64,
+              "product_states_unique": 64,
+              "qualifying_sccs": 1,
+              "queue_pops": 135,
+              "queue_pushes": 145,
+              "reachable_nodes": 64,
+              "reachable_original_edges": 400,
+              "reachable_original_nodes": 64,
+              "reverse_views": 1,
+              "subgraph_copies": 1,
+              "suffix_lifts": [
+                {
+                  "edges": 166,
+                  "entry": 29,
+                  "entry_accepting": true,
+                  "layers": 1,
+                  "nodes": 33
+                }
+              ],
+              "suffix_settled": 7,
+              "target_searches": [
+                {
+                  "discovered_nodes": 17,
+                  "fringe_remaining": 10,
+                  "settled_nodes": 7,
+                  "stop_reason": "target_finalized",
+                  "target_distance": "1",
+                  "target_settled": true
+                }
+              ],
+              "tracemalloc_enabled": true,
+              "unique_original_edges": 400,
+              "unique_original_nodes": 64
+            }
+          ],
+          "transport": null,
+          "worker_alive_after_cleanup": false,
+          "worker_exitcode": 0,
+          "worker_pid": 1141
+        },
+        "status": "PASSED"
+      },
+      "source": "ORIGINAL",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+      "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+    },
+    {
+      "kind": "direct",
+      "mode": "late_certificate",
+      "original_status": "PASSED",
+      "record": {
+        "mode": "late_certificate",
+        "result": {
+          "backend_binding": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "backend_configuration": {
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "original_builder_global_preserved": true,
+            "original_local_code_preserved": true,
+            "original_loop_code_preserved": true
+          },
+          "build_work": [
+            {
+              "buchi_queries": 385,
+              "cache_entries": 9,
+              "cache_hits": 376,
+              "cache_misses": 9,
+              "completed": true,
+              "full_ts_rebuild_calls": 1,
+              "precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "product_edges": 400,
+              "product_states": 64,
+              "reachable_ts_states": 64,
+              "reduced_ts_edges": 384
+            }
+          ],
+          "fault_qualification": {
+            "actual_wall_seconds": 16.866213774,
+            "injected_offset_ns": 180000000000,
+            "mode": "late_certificate",
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "simulated_clock": true
+          },
+          "outer_start_ns": 1564728151876,
+          "row": {
+            "T_certification": 180.113850401,
+            "T_concretization": 0.0039706,
+            "T_full_ts": 0.0088058,
+            "T_initialization": 5.2e-06,
+            "T_input_preprocess": 0.727934805,
+            "T_logging": 7.32e-05,
+            "T_method": 0.0484523,
+            "T_other": 0.5435666029999879,
+            "T_plan_wall": 181.432355009,
+            "T_product": 0.0032196,
+            "T_reduction": 0.0099439,
+            "T_refinement": 0.0,
+            "T_search": 0.0209849,
+            "T_total": 181.432355009,
+            "ai_inference_latency_seconds": null,
+            "ai_selection": null,
+            "ai_selection_artifact_sha256": null,
+            "api_key_reads": 0,
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+            "benchmark_identity": "RACMR-Bench-v1-r1",
+            "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+            "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+            "candidate_identity": {
+              "lower_bound": "13",
+              "prefix_actions": [
+                "change_robot_location",
+                "change_inspection_state",
+                "change_payload_state"
+              ],
+              "prefix_length": 4,
+              "suffix_actions": [
+                "wait"
+              ],
+              "suffix_length": 2
+            },
+            "canonical_status": "TIMEOUT",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "cumulative_work": {
+              "product_edges_built": 400,
+              "product_states_built": 64,
+              "reduced_ts_edges_built": 384,
+              "reduced_ts_states_built": 64,
+              "search_settled_events": 135
+            },
+            "error": null,
+            "exact_status": "TIMEOUT",
+            "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-6da857dae4dd3db1",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "experimental_llm_calls": 0,
+            "final_precision": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "final_precision_size": 6,
+            "final_unique_graph_size": {
+              "product_edges": 400,
+              "product_states": 64,
+              "reduced_ts_edges": 384,
+              "reduced_ts_states": 64
+            },
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "initial_S0": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "initial_precision_size": 6,
+            "instance_id": "C2-T3",
+            "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+            "llm_calls": 0,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 1579369051806,
+            "objective": null,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                1760259573612,
+                1760801406815
+              ],
+              "T_certification_external": [
+                1580145655211,
+                1760259486212
+              ],
+              "T_initialization": [
+                1580096986611,
+                1580096991811
+              ],
+              "T_input_preprocess": [
+                1579369051806,
+                1580096986611
+              ],
+              "T_logging": [
+                1760259489912,
+                1760259563112
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "post_runner_delivery_seconds": 0.541833203,
+            "prefix_actions": [
+              "change_robot_location",
+              "change_inspection_state",
+              "change_payload_state"
+            ],
+            "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualified_runner_completion_ns": 1760259573612,
+            "refinement_rounds": 0,
+            "result_hash": "1b473449c6248596d798ad59c49eda39a2c6b3948ead82bd65573482ab966956",
+            "right_censored": true,
+            "rounds": [
+              {
+                "H_k": [],
+                "J_lb": "13",
+                "J_ub": "13",
+                "N": 6,
+                "R_k": [],
+                "S_k": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "S_k_size": 6,
+                "S_phi": [
+                  3,
+                  5
+                ],
+                "abstract_prefix_cost": "3",
+                "abstract_suffix_cost": "1",
+                "added_dimension": null,
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                "bound_pruned_entries": 31,
+                "candidate_entries": 32,
+                "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+                "certificate_status": "OPTIMALITY_CERTIFIED",
+                "concretization_status": "CONCRETIZABLE",
+                "ell": 0,
+                "error": null,
+                "exact_entry_searches": 1,
+                "final_precision": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "infeasibility_certificate_type": null,
+                "infeasibility_precision": null,
+                "infeasibility_proof_basis": null,
+                "initial_S0": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "instance_id": "C2-T3",
+                "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                "lower_bound_settled": 64,
+                "lower_precision_infeasibility": null,
+                "m": 1,
+                "method": "FULL",
+                "phase_intervals_ns": {
+                  "T_certification": [
+                    1580144437811,
+                    1580144457211
+                  ],
+                  "T_concretization": [
+                    1580140465111,
+                    1580144435711
+                  ],
+                  "T_full_ts": [
+                    1580097049711,
+                    1580105855511
+                  ],
+                  "T_product": [
+                    1580115807511,
+                    1580119027111
+                  ],
+                  "T_reduction": [
+                    1580105859211,
+                    1580115803111
+                  ],
+                  "T_search": [
+                    1580119461311,
+                    1580140446211
+                  ]
+                },
+                "prefix_actions": [
+                  "change_robot_location",
+                  "change_inspection_state",
+                  "change_payload_state"
+                ],
+                "prefix_cost": "3",
+                "prefix_settled": 64,
+                "product_unique_edges": 400,
+                "product_unique_states": 64,
+                "qualifying_sccs": 1,
+                "queue_pops": 135,
+                "queue_pushes": 145,
+                "reachable_product_nodes": 64,
+                "reduced_ts_edges": 384,
+                "reduced_ts_states": 64,
+                "round_index": 0,
+                "schema_version": "cmr-p2b-round-v1",
+                "semantic_contract_id": "INITIAL_LABEL_V1",
+                "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+                "suffix_actions": [
+                  "wait"
+                ],
+                "suffix_cost": "1",
+                "suffix_entry_product_state": {
+                  "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+                  "state": [
+                    0,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                "suffix_settled": 7,
+                "terminal_claim_valid": false,
+                "terminal_status": "OPTIMALITY_CERTIFIED",
+                "timings": {
+                  "T_certification": 1.94e-05,
+                  "T_concretization": 0.0039706,
+                  "T_full_ts": 0.0088058,
+                  "T_product": 0.0032196,
+                  "T_reduction": 0.0099439,
+                  "T_refinement": 0.0,
+                  "T_search": 0.0209849
+                },
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+                "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+              }
+            ],
+            "schema_version": "cmr-p2b-result-v1",
+            "search_counter_basis": "unchanged V5 search; within-build Buchi cache queries/hits/misses",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": [
+              "wait"
+            ],
+            "suffix_entry_product_state": {
+              "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+              "state": [
+                0,
+                1,
+                1,
+                1,
+                0,
+                0
+              ]
+            },
+            "terminal_completion_ns": 1760801406815,
+            "terminal_status": "TIMEOUT",
+            "timeout_stage": "planner",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "RIGHT_CENSORED",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "search_work": [
+            {
+              "bound_pruned_entries": 31,
+              "candidate_entries": 32,
+              "completed": true,
+              "deadline_ns": 1759369051806,
+              "deadline_observed_exceeded": false,
+              "exact_entry_searches": 1,
+              "graph_reuses": 1,
+              "helpers": [
+                {
+                  "completed": true,
+                  "edges": 400,
+                  "elapsed_ns": 2860100,
+                  "helper": "_prefix_distances",
+                  "nodes": 64,
+                  "phase": "prefix",
+                  "returned_len": 64
+                },
+                {
+                  "completed": true,
+                  "edges": 160,
+                  "elapsed_ns": 995700,
+                  "helper": "_prefix_distances",
+                  "nodes": 32,
+                  "phase": "lower_bound",
+                  "returned_len": 32
+                },
+                {
+                  "completed": true,
+                  "edges": 160,
+                  "elapsed_ns": 904900,
+                  "helper": "_prefix_distances",
+                  "nodes": 32,
+                  "phase": "lower_bound",
+                  "returned_len": 32
+                },
+                {
+                  "completed": true,
+                  "edges": 166,
+                  "elapsed_ns": 325000,
+                  "helper": "_target_component_distances",
+                  "nodes": 33,
+                  "phase": "suffix",
+                  "returned_len": 7
+                },
+                {
+                  "completed": true,
+                  "edges": 166,
+                  "elapsed_ns": 58000,
+                  "helper": "_restore_tight_path",
+                  "nodes": 33,
+                  "phase": "restore",
+                  "returned_len": 2
+                },
+                {
+                  "completed": true,
+                  "edges": 400,
+                  "elapsed_ns": 84500,
+                  "helper": "_restore_tight_path",
+                  "nodes": 64,
+                  "phase": "restore",
+                  "returned_len": 4
+                }
+              ],
+              "lower_bound_settled": 64,
+              "precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "prefix_settled": 64,
+              "product_states_unique": 64,
+              "qualifying_sccs": 1,
+              "queue_pops": 135,
+              "queue_pushes": 145,
+              "reachable_nodes": 64,
+              "reachable_original_edges": 400,
+              "reachable_original_nodes": 64,
+              "reverse_views": 1,
+              "subgraph_copies": 1,
+              "suffix_lifts": [
+                {
+                  "edges": 166,
+                  "entry": 29,
+                  "entry_accepting": true,
+                  "layers": 1,
+                  "nodes": 33
+                }
+              ],
+              "suffix_settled": 7,
+              "target_searches": [
+                {
+                  "discovered_nodes": 17,
+                  "fringe_remaining": 10,
+                  "settled_nodes": 7,
+                  "stop_reason": "target_finalized",
+                  "target_distance": "1",
+                  "target_settled": true
+                }
+              ],
+              "tracemalloc_enabled": true,
+              "unique_original_edges": 400,
+              "unique_original_nodes": 64
+            }
+          ],
+          "transport": null,
+          "worker_alive_after_cleanup": false,
+          "worker_exitcode": 0,
+          "worker_pid": 1147
+        },
+        "status": "PASSED"
+      },
+      "source": "ORIGINAL",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+      "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+    },
+    {
+      "kind": "direct",
+      "mode": "late_logging",
+      "original_status": "PASSED",
+      "record": {
+        "mode": "late_logging",
+        "result": {
+          "backend_binding": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "backend_configuration": {
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "original_builder_global_preserved": true,
+            "original_local_code_preserved": true,
+            "original_loop_code_preserved": true
+          },
+          "build_work": [
+            {
+              "buchi_queries": 385,
+              "cache_entries": 9,
+              "cache_hits": 376,
+              "cache_misses": 9,
+              "completed": true,
+              "full_ts_rebuild_calls": 1,
+              "precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "product_edges": 400,
+              "product_states": 64,
+              "reachable_ts_states": 64,
+              "reduced_ts_edges": 384
+            }
+          ],
+          "fault_qualification": {
+            "actual_wall_seconds": 16.995279576,
+            "injected_offset_ns": 180000000000,
+            "mode": "late_logging",
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "simulated_clock": true
+          },
+          "outer_start_ns": 1581584426219,
+          "row": {
+            "T_certification": 0.09500810100000001,
+            "T_concretization": 0.0040753,
+            "T_full_ts": 0.0094521,
+            "T_initialization": 1.18e-05,
+            "T_input_preprocess": 0.732526502,
+            "T_logging": 180.0000266,
+            "T_method": 0.051496,
+            "T_other": 0.5862261020000119,
+            "T_plan_wall": 181.463760505,
+            "T_product": 0.0032442,
+            "T_reduction": 0.0104737,
+            "T_refinement": 0.0,
+            "T_search": 0.0227161,
+            "T_total": 181.463760505,
+            "ai_inference_latency_seconds": null,
+            "ai_selection": null,
+            "ai_selection_artifact_sha256": null,
+            "api_key_reads": 0,
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+            "benchmark_identity": "RACMR-Bench-v1-r1",
+            "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+            "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+            "candidate_identity": {
+              "lower_bound": "13",
+              "prefix_actions": [
+                "change_robot_location",
+                "change_inspection_state",
+                "change_payload_state"
+              ],
+              "prefix_length": 4,
+              "suffix_actions": [
+                "wait"
+              ],
+              "suffix_length": 2
+            },
+            "canonical_status": "TIMEOUT",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "cumulative_work": {
+              "product_edges_built": 400,
+              "product_states_built": 64,
+              "reduced_ts_edges_built": 384,
+              "reduced_ts_states_built": 64,
+              "search_settled_events": 135
+            },
+            "error": null,
+            "exact_status": "TIMEOUT",
+            "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-6da857dae4dd3db1",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "experimental_llm_calls": 0,
+            "final_precision": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "final_precision_size": 6,
+            "final_unique_graph_size": {
+              "product_edges": 400,
+              "product_states": 64,
+              "reduced_ts_edges": 384,
+              "reduced_ts_states": 64
+            },
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "initial_S0": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "initial_precision_size": 6,
+            "instance_id": "C2-T3",
+            "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+            "llm_calls": 0,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 1596326319286,
+            "objective": null,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                1777205584389,
+                1777790079791
+              ],
+              "T_certification_external": [
+                1597110560788,
+                1597205548889
+              ],
+              "T_initialization": [
+                1597058845788,
+                1597058857588
+              ],
+              "T_input_preprocess": [
+                1596326319286,
+                1597058845788
+              ],
+              "T_logging": [
+                1597205552989,
+                1777205579589
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "post_runner_delivery_seconds": 0.584495402,
+            "prefix_actions": [
+              "change_robot_location",
+              "change_inspection_state",
+              "change_payload_state"
+            ],
+            "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualified_runner_completion_ns": 1777205584389,
+            "refinement_rounds": 0,
+            "result_hash": "d5e657acf7b91409c47647e3c4f3e7987bb071e1e59070f7692ce76c615e50bf",
+            "right_censored": true,
+            "rounds": [
+              {
+                "H_k": [],
+                "J_lb": "13",
+                "J_ub": "13",
+                "N": 6,
+                "R_k": [],
+                "S_k": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "S_k_size": 6,
+                "S_phi": [
+                  3,
+                  5
+                ],
+                "abstract_prefix_cost": "3",
+                "abstract_suffix_cost": "1",
+                "added_dimension": null,
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                "bound_pruned_entries": 31,
+                "candidate_entries": 32,
+                "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+                "certificate_status": "OPTIMALITY_CERTIFIED",
+                "concretization_status": "CONCRETIZABLE",
+                "ell": 0,
+                "error": null,
+                "exact_entry_searches": 1,
+                "final_precision": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "infeasibility_certificate_type": null,
+                "infeasibility_precision": null,
+                "infeasibility_proof_basis": null,
+                "initial_S0": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "instance_id": "C2-T3",
+                "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                "lower_bound_settled": 64,
+                "lower_precision_infeasibility": null,
+                "m": 1,
+                "method": "FULL",
+                "phase_intervals_ns": {
+                  "T_certification": [
+                    1597109326588,
+                    1597109346588
+                  ],
+                  "T_concretization": [
+                    1597105248488,
+                    1597109323788
+                  ],
+                  "T_full_ts": [
+                    1597058937488,
+                    1597068389588
+                  ],
+                  "T_product": [
+                    1597078871588,
+                    1597082115788
+                  ],
+                  "T_reduction": [
+                    1597068393488,
+                    1597078867188
+                  ],
+                  "T_search": [
+                    1597082513388,
+                    1597105229488
+                  ]
+                },
+                "prefix_actions": [
+                  "change_robot_location",
+                  "change_inspection_state",
+                  "change_payload_state"
+                ],
+                "prefix_cost": "3",
+                "prefix_settled": 64,
+                "product_unique_edges": 400,
+                "product_unique_states": 64,
+                "qualifying_sccs": 1,
+                "queue_pops": 135,
+                "queue_pushes": 145,
+                "reachable_product_nodes": 64,
+                "reduced_ts_edges": 384,
+                "reduced_ts_states": 64,
+                "round_index": 0,
+                "schema_version": "cmr-p2b-round-v1",
+                "semantic_contract_id": "INITIAL_LABEL_V1",
+                "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+                "suffix_actions": [
+                  "wait"
+                ],
+                "suffix_cost": "1",
+                "suffix_entry_product_state": {
+                  "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+                  "state": [
+                    0,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                "suffix_settled": 7,
+                "terminal_claim_valid": false,
+                "terminal_status": "OPTIMALITY_CERTIFIED",
+                "timings": {
+                  "T_certification": 2e-05,
+                  "T_concretization": 0.0040753,
+                  "T_full_ts": 0.0094521,
+                  "T_product": 0.0032442,
+                  "T_reduction": 0.0104737,
+                  "T_refinement": 0.0,
+                  "T_search": 0.0227161
+                },
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+                "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+              }
+            ],
+            "schema_version": "cmr-p2b-result-v1",
+            "search_counter_basis": "unchanged V5 search; within-build Buchi cache queries/hits/misses",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": [
+              "wait"
+            ],
+            "suffix_entry_product_state": {
+              "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+              "state": [
+                0,
+                1,
+                1,
+                1,
+                0,
+                0
+              ]
+            },
+            "terminal_completion_ns": 1777790079791,
+            "terminal_status": "TIMEOUT",
+            "timeout_stage": "planner",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "RIGHT_CENSORED",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "search_work": [
+            {
+              "bound_pruned_entries": 31,
+              "candidate_entries": 32,
+              "completed": true,
+              "deadline_ns": 1776326319286,
+              "deadline_observed_exceeded": false,
+              "exact_entry_searches": 1,
+              "graph_reuses": 1,
+              "helpers": [
+                {
+                  "completed": true,
+                  "edges": 400,
+                  "elapsed_ns": 3117000,
+                  "helper": "_prefix_distances",
+                  "nodes": 64,
+                  "phase": "prefix",
+                  "returned_len": 64
+                },
+                {
+                  "completed": true,
+                  "edges": 160,
+                  "elapsed_ns": 997400,
+                  "helper": "_prefix_distances",
+                  "nodes": 32,
+                  "phase": "lower_bound",
+                  "returned_len": 32
+                },
+                {
+                  "completed": true,
+                  "edges": 160,
+                  "elapsed_ns": 941100,
+                  "helper": "_prefix_distances",
+                  "nodes": 32,
+                  "phase": "lower_bound",
+                  "returned_len": 32
+                },
+                {
+                  "completed": true,
+                  "edges": 166,
+                  "elapsed_ns": 394400,
+                  "helper": "_target_component_distances",
+                  "nodes": 33,
+                  "phase": "suffix",
+                  "returned_len": 7
+                },
+                {
+                  "completed": true,
+                  "edges": 166,
+                  "elapsed_ns": 60400,
+                  "helper": "_restore_tight_path",
+                  "nodes": 33,
+                  "phase": "restore",
+                  "returned_len": 2
+                },
+                {
+                  "completed": true,
+                  "edges": 400,
+                  "elapsed_ns": 83700,
+                  "helper": "_restore_tight_path",
+                  "nodes": 64,
+                  "phase": "restore",
+                  "returned_len": 4
+                }
+              ],
+              "lower_bound_settled": 64,
+              "precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "prefix_settled": 64,
+              "product_states_unique": 64,
+              "qualifying_sccs": 1,
+              "queue_pops": 135,
+              "queue_pushes": 145,
+              "reachable_nodes": 64,
+              "reachable_original_edges": 400,
+              "reachable_original_nodes": 64,
+              "reverse_views": 1,
+              "subgraph_copies": 1,
+              "suffix_lifts": [
+                {
+                  "edges": 166,
+                  "entry": 29,
+                  "entry_accepting": true,
+                  "layers": 1,
+                  "nodes": 33
+                }
+              ],
+              "suffix_settled": 7,
+              "target_searches": [
+                {
+                  "discovered_nodes": 17,
+                  "fringe_remaining": 10,
+                  "settled_nodes": 7,
+                  "stop_reason": "target_finalized",
+                  "target_distance": "1",
+                  "target_settled": true
+                }
+              ],
+              "tracemalloc_enabled": true,
+              "unique_original_edges": 400,
+              "unique_original_nodes": 64
+            }
+          ],
+          "transport": null,
+          "worker_alive_after_cleanup": false,
+          "worker_exitcode": 0,
+          "worker_pid": 1150
+        },
+        "status": "PASSED"
+      },
+      "source": "ORIGINAL",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+      "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+    },
+    {
+      "kind": "direct",
+      "mode": "late_delivery",
+      "original_status": "PASSED",
+      "record": {
+        "mode": "late_delivery",
+        "result": {
+          "backend_binding": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "backend_configuration": {
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "original_builder_global_preserved": true,
+            "original_local_code_preserved": true,
+            "original_loop_code_preserved": true
+          },
+          "build_work": [
+            {
+              "buchi_queries": 385,
+              "cache_entries": 9,
+              "cache_hits": 376,
+              "cache_misses": 9,
+              "completed": true,
+              "full_ts_rebuild_calls": 1,
+              "precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "product_edges": 400,
+              "product_states": 64,
+              "reachable_ts_states": 64,
+              "reduced_ts_edges": 384
+            }
+          ],
+          "fault_qualification": {
+            "actual_wall_seconds": 17.066690249,
+            "injected_offset_ns": 180000000000,
+            "mode": "late_delivery",
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "simulated_clock": true
+          },
+          "outer_start_ns": 1598625821293,
+          "row": {
+            "T_certification": 0.0934665,
+            "T_concretization": 0.0043911,
+            "T_full_ts": 0.0099079,
+            "T_initialization": 1.29e-05,
+            "T_input_preprocess": 0.796999702,
+            "T_logging": 2.95e-05,
+            "T_method": 0.0529466,
+            "T_other": 180.59603480200002,
+            "T_plan_wall": 181.537954304,
+            "T_product": 0.0033162,
+            "T_reduction": 0.0120059,
+            "T_refinement": 0.0,
+            "T_search": 0.0217898,
+            "T_total": 181.537954304,
+            "ai_inference_latency_seconds": null,
+            "ai_selection": null,
+            "ai_selection_artifact_sha256": null,
+            "api_key_reads": 0,
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+            "benchmark_identity": "RACMR-Bench-v1-r1",
+            "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+            "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+            "candidate_identity": {
+              "lower_bound": "13",
+              "prefix_actions": [
+                "change_robot_location",
+                "change_inspection_state",
+                "change_payload_state"
+              ],
+              "prefix_length": 4,
+              "suffix_actions": [
+                "wait"
+              ],
+              "suffix_length": 2
+            },
+            "canonical_status": "TIMEOUT",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "cumulative_work": {
+              "product_edges_built": 400,
+              "product_states_built": 64,
+              "reduced_ts_edges_built": 384,
+              "reduced_ts_states_built": 64,
+              "search_settled_events": 135
+            },
+            "error": null,
+            "exact_status": "TIMEOUT",
+            "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-6da857dae4dd3db1",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "experimental_llm_calls": 0,
+            "final_precision": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "final_precision_size": 6,
+            "final_unique_graph_size": {
+              "product_edges": 400,
+              "product_states": 64,
+              "reduced_ts_edges": 384,
+              "reduced_ts_states": 64
+            },
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "initial_S0": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "initial_precision_size": 6,
+            "instance_id": "C2-T3",
+            "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+            "llm_calls": 0,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 1613308593436,
+            "objective": null,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                1614252444938,
+                1794846547740
+              ],
+              "T_certification_external": [
+                1614158963038,
+                1614252408438
+              ],
+              "T_initialization": [
+                1614105593138,
+                1614105606038
+              ],
+              "T_input_preprocess": [
+                1613308593436,
+                1614105593138
+              ],
+              "T_logging": [
+                1614252410338,
+                1614252439838
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "post_runner_delivery_seconds": 180.594102802,
+            "prefix_actions": [
+              "change_robot_location",
+              "change_inspection_state",
+              "change_payload_state"
+            ],
+            "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualified_runner_completion_ns": 1614252444938,
+            "refinement_rounds": 0,
+            "result_hash": "898a125dda82ec511498b06beea21ef45aafdd0aa21d1f50cbdd659b31f5c9fc",
+            "right_censored": true,
+            "rounds": [
+              {
+                "H_k": [],
+                "J_lb": "13",
+                "J_ub": "13",
+                "N": 6,
+                "R_k": [],
+                "S_k": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "S_k_size": 6,
+                "S_phi": [
+                  3,
+                  5
+                ],
+                "abstract_prefix_cost": "3",
+                "abstract_suffix_cost": "1",
+                "added_dimension": null,
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                "bound_pruned_entries": 31,
+                "candidate_entries": 32,
+                "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+                "certificate_status": "OPTIMALITY_CERTIFIED",
+                "concretization_status": "CONCRETIZABLE",
+                "ell": 0,
+                "error": null,
+                "exact_entry_searches": 1,
+                "final_precision": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "infeasibility_certificate_type": null,
+                "infeasibility_precision": null,
+                "infeasibility_proof_basis": null,
+                "initial_S0": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "instance_id": "C2-T3",
+                "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                "lower_bound_settled": 64,
+                "lower_precision_infeasibility": null,
+                "m": 1,
+                "method": "FULL",
+                "phase_intervals_ns": {
+                  "T_certification": [
+                    1614157420838,
+                    1614157441938
+                  ],
+                  "T_concretization": [
+                    1614153026938,
+                    1614157418038
+                  ],
+                  "T_full_ts": [
+                    1614105725638,
+                    1614115633538
+                  ],
+                  "T_product": [
+                    1614127647938,
+                    1614130964138
+                  ],
+                  "T_reduction": [
+                    1614115637238,
+                    1614127643138
+                  ],
+                  "T_search": [
+                    1614131212938,
+                    1614153002738
+                  ]
+                },
+                "prefix_actions": [
+                  "change_robot_location",
+                  "change_inspection_state",
+                  "change_payload_state"
+                ],
+                "prefix_cost": "3",
+                "prefix_settled": 64,
+                "product_unique_edges": 400,
+                "product_unique_states": 64,
+                "qualifying_sccs": 1,
+                "queue_pops": 135,
+                "queue_pushes": 145,
+                "reachable_product_nodes": 64,
+                "reduced_ts_edges": 384,
+                "reduced_ts_states": 64,
+                "round_index": 0,
+                "schema_version": "cmr-p2b-round-v1",
+                "semantic_contract_id": "INITIAL_LABEL_V1",
+                "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+                "suffix_actions": [
+                  "wait"
+                ],
+                "suffix_cost": "1",
+                "suffix_entry_product_state": {
+                  "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+                  "state": [
+                    0,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                "suffix_settled": 7,
+                "terminal_claim_valid": false,
+                "terminal_status": "OPTIMALITY_CERTIFIED",
+                "timings": {
+                  "T_certification": 2.11e-05,
+                  "T_concretization": 0.0043911,
+                  "T_full_ts": 0.0099079,
+                  "T_product": 0.0033162,
+                  "T_reduction": 0.0120059,
+                  "T_refinement": 0.0,
+                  "T_search": 0.0217898
+                },
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+                "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+              }
+            ],
+            "schema_version": "cmr-p2b-result-v1",
+            "search_counter_basis": "unchanged V5 search; within-build Buchi cache queries/hits/misses",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": [
+              "wait"
+            ],
+            "suffix_entry_product_state": {
+              "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+              "state": [
+                0,
+                1,
+                1,
+                1,
+                0,
+                0
+              ]
+            },
+            "terminal_completion_ns": 1794846547740,
+            "terminal_status": "TIMEOUT",
+            "timeout_stage": "planner",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "RIGHT_CENSORED",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "search_work": [
+            {
+              "bound_pruned_entries": 31,
+              "candidate_entries": 32,
+              "completed": true,
+              "deadline_ns": 1793308593436,
+              "deadline_observed_exceeded": false,
+              "exact_entry_searches": 1,
+              "graph_reuses": 1,
+              "helpers": [
+                {
+                  "completed": true,
+                  "edges": 400,
+                  "elapsed_ns": 3110600,
+                  "helper": "_prefix_distances",
+                  "nodes": 64,
+                  "phase": "prefix",
+                  "returned_len": 64
+                },
+                {
+                  "completed": true,
+                  "edges": 160,
+                  "elapsed_ns": 985600,
+                  "helper": "_prefix_distances",
+                  "nodes": 32,
+                  "phase": "lower_bound",
+                  "returned_len": 32
+                },
+                {
+                  "completed": true,
+                  "edges": 160,
+                  "elapsed_ns": 975100,
+                  "helper": "_prefix_distances",
+                  "nodes": 32,
+                  "phase": "lower_bound",
+                  "returned_len": 32
+                },
+                {
+                  "completed": true,
+                  "edges": 166,
+                  "elapsed_ns": 388100,
+                  "helper": "_target_component_distances",
+                  "nodes": 33,
+                  "phase": "suffix",
+                  "returned_len": 7
+                },
+                {
+                  "completed": true,
+                  "edges": 166,
+                  "elapsed_ns": 65500,
+                  "helper": "_restore_tight_path",
+                  "nodes": 33,
+                  "phase": "restore",
+                  "returned_len": 2
+                },
+                {
+                  "completed": true,
+                  "edges": 400,
+                  "elapsed_ns": 95200,
+                  "helper": "_restore_tight_path",
+                  "nodes": 64,
+                  "phase": "restore",
+                  "returned_len": 4
+                }
+              ],
+              "lower_bound_settled": 64,
+              "precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "prefix_settled": 64,
+              "product_states_unique": 64,
+              "qualifying_sccs": 1,
+              "queue_pops": 135,
+              "queue_pushes": 145,
+              "reachable_nodes": 64,
+              "reachable_original_edges": 400,
+              "reachable_original_nodes": 64,
+              "reverse_views": 1,
+              "subgraph_copies": 1,
+              "suffix_lifts": [
+                {
+                  "edges": 166,
+                  "entry": 29,
+                  "entry_accepting": true,
+                  "layers": 1,
+                  "nodes": 33
+                }
+              ],
+              "suffix_settled": 7,
+              "target_searches": [
+                {
+                  "discovered_nodes": 17,
+                  "fringe_remaining": 10,
+                  "settled_nodes": 7,
+                  "stop_reason": "target_finalized",
+                  "target_distance": "1",
+                  "target_settled": true
+                }
+              ],
+              "tracemalloc_enabled": true,
+              "unique_original_edges": 400,
+              "unique_original_nodes": 64
+            }
+          ],
+          "transport": null,
+          "worker_alive_after_cleanup": false,
+          "worker_exitcode": 0,
+          "worker_pid": 1153
+        },
+        "status": "PASSED"
+      },
+      "source": "ORIGINAL",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+      "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+    },
+    {
+      "kind": "direct",
+      "mode": "crash",
+      "original_status": "FAILED",
+      "record": {
+        "kind": "direct",
+        "mode": "crash",
+        "result": {
+          "backend_binding": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "build_work": [],
+          "fault_qualification": {
+            "actual_wall_seconds": 23.899702529,
+            "injected_offset_ns": 0,
+            "mode": "crash",
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "simulated_clock": false
+          },
+          "outer_start_ns": 2416350912362,
+          "row": {
+            "T_certification": null,
+            "T_concretization": null,
+            "T_full_ts": null,
+            "T_initialization": null,
+            "T_input_preprocess": null,
+            "T_logging": null,
+            "T_other": null,
+            "T_plan_wall": 23.07315482,
+            "T_product": null,
+            "T_reduction": null,
+            "T_refinement": null,
+            "T_search": null,
+            "T_total": 23.07315482,
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "benchmark_payload_sha256": null,
+            "candidate_fingerprint": null,
+            "candidate_identity": null,
+            "canonical_status": "INFRASTRUCTURE_FAILURE",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "error": "worker exit or missing result: 23",
+            "exact_status": "INFRASTRUCTURE_FAILURE",
+            "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-645f9be8058ee0b1",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "instance_id": "C2-T3",
+            "instance_sha256": null,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 2416350912362,
+            "objective": null,
+            "outer_observed_seconds": 22.888824117,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                2439239736479,
+                2439424067182
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "post_runner_delivery_seconds": 0.184330703,
+            "prefix_actions": null,
+            "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualified_runner_completion_ns": 2439239736479,
+            "refinement_rounds": null,
+            "result_hash": "a01538e8324d5dfab51efa9bb13a97d3bbbe830f5ccac174a83bbdd9b3f62f63",
+            "right_censored": false,
+            "rounds": null,
+            "schema_version": "cmr-p2b-result-v1",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": null,
+            "suffix_entry_product_state": null,
+            "terminal_completion_ns": 2439424067182,
+            "terminal_status": "INFRASTRUCTURE_FAILURE",
+            "timeout_stage": "infrastructure",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "ANOMALY",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "search_work": [],
+          "transport": null,
+          "worker_alive_after_cleanup": false,
+          "worker_exitcode": 23,
+          "worker_pid": 177
+        },
+        "status": "PASSED",
+        "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+        "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+      },
+      "source": "RECOVERY",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+      "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+    },
+    {
+      "kind": "direct",
+      "mode": "missing_result",
+      "original_status": "FAILED",
+      "record": {
+        "kind": "direct",
+        "mode": "missing_result",
+        "result": {
+          "backend_binding": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "build_work": [],
+          "fault_qualification": {
+            "actual_wall_seconds": 23.487670599,
+            "injected_offset_ns": 0,
+            "mode": "missing_result",
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "simulated_clock": false
+          },
+          "outer_start_ns": 2440406211701,
+          "row": {
+            "T_certification": null,
+            "T_concretization": null,
+            "T_full_ts": null,
+            "T_initialization": null,
+            "T_input_preprocess": null,
+            "T_logging": null,
+            "T_other": null,
+            "T_plan_wall": 22.692551585,
+            "T_product": null,
+            "T_reduction": null,
+            "T_refinement": null,
+            "T_search": null,
+            "T_total": 22.692551585,
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "benchmark_payload_sha256": null,
+            "candidate_fingerprint": null,
+            "candidate_identity": null,
+            "canonical_status": "INFRASTRUCTURE_FAILURE",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "error": "worker exit or missing result: 0",
+            "exact_status": "INFRASTRUCTURE_FAILURE",
+            "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-645f9be8058ee0b1",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "instance_id": "C2-T3",
+            "instance_sha256": null,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 2440406211701,
+            "objective": null,
+            "outer_observed_seconds": 22.491863084,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                2462898074785,
+                2463098763286
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "post_runner_delivery_seconds": 0.200688501,
+            "prefix_actions": null,
+            "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualified_runner_completion_ns": 2462898074785,
+            "refinement_rounds": null,
+            "result_hash": "25c1d23af5e8b0b471f2b45b91c7d9a5bbd351dcbde2ab2cc6dc22171edec9c7",
+            "right_censored": false,
+            "rounds": null,
+            "schema_version": "cmr-p2b-result-v1",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": null,
+            "suffix_entry_product_state": null,
+            "terminal_completion_ns": 2463098763286,
+            "terminal_status": "INFRASTRUCTURE_FAILURE",
+            "timeout_stage": "infrastructure",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "ANOMALY",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "search_work": [],
+          "transport": null,
+          "worker_alive_after_cleanup": false,
+          "worker_exitcode": 0,
+          "worker_pid": 188
+        },
+        "status": "PASSED",
+        "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+        "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+      },
+      "source": "RECOVERY",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+      "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+    },
+    {
+      "kind": "direct",
+      "mode": "malformed_result",
+      "original_status": "FAILED",
+      "record": {
+        "kind": "direct",
+        "mode": "malformed_result",
+        "result": {
+          "backend_binding": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "build_work": [],
+          "fault_qualification": {
+            "actual_wall_seconds": 23.592106261,
+            "injected_offset_ns": 0,
+            "mode": "malformed_result",
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "simulated_clock": false
+          },
+          "outer_start_ns": 2464112114592,
+          "row": {
+            "T_certification": null,
+            "T_concretization": null,
+            "T_full_ts": null,
+            "T_initialization": null,
+            "T_input_preprocess": null,
+            "T_logging": null,
+            "T_other": null,
+            "T_plan_wall": 22.785022755,
+            "T_product": null,
+            "T_reduction": null,
+            "T_refinement": null,
+            "T_search": null,
+            "T_total": 22.785022755,
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "benchmark_payload_sha256": null,
+            "candidate_fingerprint": null,
+            "candidate_identity": null,
+            "canonical_status": "INFRASTRUCTURE_FAILURE",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "error": "JSONDecodeError('Expecting property name enclosed in double quotes: line 1 column 2 (char 1)')",
+            "exact_status": "INFRASTRUCTURE_FAILURE",
+            "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-645f9be8058ee0b1",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "instance_id": "C2-T3",
+            "instance_sha256": null,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 2464112114592,
+            "objective": null,
+            "outer_observed_seconds": 22.592533052,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                2486704647644,
+                2486897137347
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "post_runner_delivery_seconds": 0.192489703,
+            "prefix_actions": null,
+            "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualified_runner_completion_ns": 2486704647644,
+            "refinement_rounds": null,
+            "result_hash": "7db6f9a5b44c482de08c7749f163db8d4cb65692625108421246ed30146b5f40",
+            "right_censored": false,
+            "rounds": null,
+            "schema_version": "cmr-p2b-result-v1",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": null,
+            "suffix_entry_product_state": null,
+            "terminal_completion_ns": 2486897137347,
+            "terminal_status": "INFRASTRUCTURE_FAILURE",
+            "timeout_stage": "infrastructure",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "ANOMALY",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "search_work": [],
+          "transport": null,
+          "worker_alive_after_cleanup": false,
+          "worker_exitcode": 0,
+          "worker_pid": 193
+        },
+        "status": "PASSED",
+        "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+        "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+      },
+      "source": "RECOVERY",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+      "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+    },
+    {
+      "kind": "direct",
+      "mode": "crash_after_result",
+      "original_status": "FAILED",
+      "record": {
+        "kind": "direct",
+        "mode": "crash_after_result",
+        "result": {
+          "backend_binding": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "build_work": [],
+          "fault_qualification": {
+            "actual_wall_seconds": 24.676142157,
+            "injected_offset_ns": 0,
+            "mode": "crash_after_result",
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "simulated_clock": false
+          },
+          "outer_start_ns": 2487847613364,
+          "row": {
+            "T_certification": null,
+            "T_concretization": null,
+            "T_full_ts": null,
+            "T_initialization": null,
+            "T_input_preprocess": null,
+            "T_logging": null,
+            "T_other": null,
+            "T_plan_wall": 23.917460245,
+            "T_product": null,
+            "T_reduction": null,
+            "T_refinement": null,
+            "T_search": null,
+            "T_total": 23.917460245,
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "benchmark_payload_sha256": null,
+            "candidate_fingerprint": null,
+            "candidate_identity": null,
+            "canonical_status": "INFRASTRUCTURE_FAILURE",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "error": "worker exit or missing result: 23",
+            "exact_status": "INFRASTRUCTURE_FAILURE",
+            "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-645f9be8058ee0b1",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "instance_id": "C2-T3",
+            "instance_sha256": null,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 2487847613364,
+            "objective": null,
+            "outer_observed_seconds": 23.747100943,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                2511594714307,
+                2511765073609
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "post_runner_delivery_seconds": 0.170359302,
+            "prefix_actions": null,
+            "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualified_runner_completion_ns": 2511594714307,
+            "refinement_rounds": null,
+            "result_hash": "e90400112c70ac22dd94ca07305b8f346e252196b52adfa30f7d9671140d8563",
+            "right_censored": false,
+            "rounds": null,
+            "schema_version": "cmr-p2b-result-v1",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": null,
+            "suffix_entry_product_state": null,
+            "terminal_completion_ns": 2511765073609,
+            "terminal_status": "INFRASTRUCTURE_FAILURE",
+            "timeout_stage": "infrastructure",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "ANOMALY",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "search_work": [],
+          "transport": null,
+          "worker_alive_after_cleanup": false,
+          "worker_exitcode": 23,
+          "worker_pid": 198
+        },
+        "status": "PASSED",
+        "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+        "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+      },
+      "source": "RECOVERY",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+      "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+    },
+    {
+      "kind": "direct",
+      "mode": "watchdog",
+      "original_status": "FAILED",
+      "record": {
+        "kind": "direct",
+        "mode": "watchdog",
+        "result": {
+          "backend_binding": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "build_work": [],
+          "fault_qualification": {
+            "actual_wall_seconds": 206.274735121,
+            "injected_offset_ns": 0,
+            "mode": "watchdog",
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "simulated_clock": false
+          },
+          "outer_start_ns": 2512698300916,
+          "row": {
+            "T_certification": null,
+            "T_concretization": null,
+            "T_full_ts": null,
+            "T_initialization": null,
+            "T_input_preprocess": null,
+            "T_logging": null,
+            "T_other": null,
+            "T_plan_wall": 205.525632222,
+            "T_product": null,
+            "T_reduction": null,
+            "T_refinement": null,
+            "T_search": null,
+            "T_total": 205.525632222,
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "benchmark_payload_sha256": null,
+            "candidate_fingerprint": null,
+            "candidate_identity": null,
+            "canonical_status": "TIMEOUT",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "error": "watchdog",
+            "exact_status": "TIMEOUT",
+            "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-645f9be8058ee0b1",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "instance_id": "C2-T3",
+            "instance_sha256": null,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 2512698300916,
+            "objective": null,
+            "outer_observed_seconds": 205.329230931,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {},
+            "planner_budget_seconds": 180,
+            "prefix_actions": null,
+            "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualified_runner_completion_ns": 2718027531847,
+            "refinement_rounds": null,
+            "result_hash": "7765a45c56861634abe823ea8bda8f299ce764697fd2244334d74d0962fc5601",
+            "right_censored": true,
+            "rounds": null,
+            "schema_version": "cmr-p2b-result-v1",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": null,
+            "suffix_entry_product_state": null,
+            "terminal_completion_ns": 2718223933138,
+            "terminal_status": "TIMEOUT",
+            "timeout_stage": "outer_watchdog",
+            "timing_basis": "outer worker elapsed; method start unavailable",
+            "timing_status": "RIGHT_CENSORED",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "search_work": [],
+          "transport": null,
+          "worker_alive_after_cleanup": false,
+          "worker_exitcode": -9,
+          "worker_pid": 203
+        },
+        "status": "PASSED",
+        "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+        "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+      },
+      "source": "RECOVERY",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+      "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+    },
+    {
+      "kind": "dds",
+      "mode": "none",
+      "original_status": "PASSED",
+      "record": {
+        "artifact": {
+          "certificate_replay": {
+            "certificate_hash": "b47a8f263a8d66a7d312811b89a03368c40f7b36b0ae8a41ec8e61cefbc55717",
+            "instance_id": "C2-T3",
+            "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+            "objective": "13",
+            "schema_id": "ECC-E2.2-CERTIFICATE-INITIAL_LABEL_V1",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "status": "PASS"
+          },
+          "command_topic": "/next_move_cmd",
+          "descriptor": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "domain_id": 219,
+          "driver": {
+            "abstraction_feedback_count": 4,
+            "abstraction_feedback_states": [
+              [
+                "0",
+                "1",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "1",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "1",
+                "0",
+                "0"
+              ]
+            ],
+            "commands": [
+              "change_robot_location",
+              "change_inspection_state",
+              "change_payload_state",
+              "wait"
+            ],
+            "commands_match": true,
+            "completion_count": 4,
+            "events": [
+              {
+                "event": "driver_ready",
+                "execution_module": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+                "pid": 1483,
+                "time_ns": 1885959563080
+              },
+              {
+                "event": "request_published",
+                "request_id": "cmr-v2-fault-none",
+                "time_ns": 1885959728181
+              },
+              {
+                "event": "result_received",
+                "status": "OPTIMALITY_CERTIFIED",
+                "time_ns": 1903546329546
+              },
+              {
+                "action": "change_robot_location",
+                "event": "observation_received",
+                "generation": 1,
+                "has_next_action": true,
+                "step": 0,
+                "time_ns": 1903547103146
+              },
+              {
+                "action": "change_robot_location",
+                "event": "command_received",
+                "time_ns": 1903547173246
+              },
+              {
+                "action": "change_robot_location",
+                "event": "dispatch",
+                "execution_step_seq": 0,
+                "source_product_node_ids": [
+                  0
+                ],
+                "source_state": [
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "target_product_node_ids": [
+                  1
+                ],
+                "target_state": [
+                  "0",
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903550400846
+              },
+              {
+                "accepted_generation": 1,
+                "action": "change_robot_location",
+                "event": "wrong_generation_published",
+                "execution_step_seq": 0,
+                "generation": 0,
+                "invalid_generation": true,
+                "time_ns": 1903550520246
+              },
+              {
+                "action": "change_robot_location",
+                "event": "observation_received",
+                "generation": 0,
+                "has_next_action": true,
+                "step": 0,
+                "time_ns": 1903551188946
+              },
+              {
+                "event": "observer_feedback",
+                "state": [
+                  "0",
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903770083437
+              },
+              {
+                "event": "abstraction_feedback",
+                "state": [
+                  "0",
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903770098137
+              },
+              {
+                "action": "change_robot_location",
+                "event": "backend_completion",
+                "execution_step_seq": 0,
+                "source_product_node_ids": [
+                  0
+                ],
+                "source_state": [
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "success": true,
+                "target_product_node_ids": [
+                  1
+                ],
+                "target_state": [
+                  "0",
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903770825737
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903772510037
+              },
+              {
+                "action": "change_inspection_state",
+                "event": "observation_received",
+                "generation": 1,
+                "has_next_action": true,
+                "step": 1,
+                "time_ns": 1903774240237
+              },
+              {
+                "action": "change_inspection_state",
+                "event": "dispatch",
+                "execution_step_seq": 1,
+                "source_product_node_ids": [
+                  1
+                ],
+                "source_state": [
+                  "0",
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "target_product_node_ids": [
+                  2
+                ],
+                "target_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903774431337
+              },
+              {
+                "action": "change_inspection_state",
+                "event": "command_received",
+                "time_ns": 1903774595237
+              },
+              {
+                "event": "observer_feedback",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903785847537
+              },
+              {
+                "event": "abstraction_feedback",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903785858137
+              },
+              {
+                "action": "change_inspection_state",
+                "event": "backend_completion",
+                "execution_step_seq": 1,
+                "source_product_node_ids": [
+                  1
+                ],
+                "source_state": [
+                  "0",
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "success": true,
+                "target_product_node_ids": [
+                  2
+                ],
+                "target_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903786332637
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903787515936
+              },
+              {
+                "action": "change_payload_state",
+                "event": "observation_received",
+                "generation": 1,
+                "has_next_action": true,
+                "step": 2,
+                "time_ns": 1903788199836
+              },
+              {
+                "action": "change_payload_state",
+                "event": "command_received",
+                "time_ns": 1903788290536
+              },
+              {
+                "action": "change_payload_state",
+                "event": "dispatch",
+                "execution_step_seq": 2,
+                "source_product_node_ids": [
+                  2
+                ],
+                "source_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "target_product_node_ids": [
+                  3
+                ],
+                "target_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903788420536
+              },
+              {
+                "event": "observer_feedback",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903799446136
+              },
+              {
+                "event": "abstraction_feedback",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903799453336
+              },
+              {
+                "action": "change_payload_state",
+                "event": "backend_completion",
+                "execution_step_seq": 2,
+                "source_product_node_ids": [
+                  2
+                ],
+                "source_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "success": true,
+                "target_product_node_ids": [
+                  3
+                ],
+                "target_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903799848736
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903800815536
+              },
+              {
+                "action": "wait",
+                "event": "observation_received",
+                "generation": 1,
+                "has_next_action": true,
+                "step": 3,
+                "time_ns": 1903801302936
+              },
+              {
+                "action": "wait",
+                "event": "command_received",
+                "time_ns": 1903801369136
+              },
+              {
+                "action": "wait",
+                "event": "dispatch",
+                "execution_step_seq": 3,
+                "source_product_node_ids": [
+                  3
+                ],
+                "source_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "target_product_node_ids": [
+                  3
+                ],
+                "target_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903801472636
+              },
+              {
+                "event": "observer_feedback",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903812299535
+              },
+              {
+                "event": "abstraction_feedback",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903812306235
+              },
+              {
+                "action": "wait",
+                "event": "backend_completion",
+                "execution_step_seq": 3,
+                "source_product_node_ids": [
+                  3
+                ],
+                "source_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "success": true,
+                "target_product_node_ids": [
+                  3
+                ],
+                "target_state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903812573835
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1903813726235
+              },
+              {
+                "action": "",
+                "event": "observation_received",
+                "generation": 1,
+                "has_next_action": false,
+                "step": 4,
+                "time_ns": 1903813828635
+              }
+            ],
+            "execution_counts_match": true,
+            "expected_actions": [
+              "change_robot_location",
+              "change_inspection_state",
+              "change_payload_state",
+              "wait"
+            ],
+            "expected_sources": [
+              [
+                "0",
+                "0",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "1",
+                "0",
+                "0"
+              ]
+            ],
+            "expected_targets": [
+              [
+                "0",
+                "1",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "1",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "1",
+                "0",
+                "0"
+              ]
+            ],
+            "module_identity_match": true,
+            "module_paths": {
+              "execution_models": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/models.py",
+              "execution_node": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "fake_runtime": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+            },
+            "module_resolved_paths": {
+              "execution_models": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/models.py",
+              "execution_node": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "fake_runtime": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+            },
+            "module_sha256": {
+              "execution_models": "c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371",
+              "execution_node": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+              "fake_runtime": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+            },
+            "observed_ts_states": [
+              [
+                "0",
+                "1",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "1",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "1",
+                "0",
+                "0"
+              ]
+            ],
+            "observer_feedback_count": 4,
+            "observer_feedback_states": [
+              [
+                "0",
+                "1",
+                "0",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "0",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "1",
+                "0",
+                "0"
+              ],
+              [
+                "0",
+                "1",
+                "1",
+                "1",
+                "0",
+                "0"
+              ]
+            ],
+            "pid": 1483,
+            "result": {
+              "T_certification": 0.092845397,
+              "T_concretization": 0.003771999,
+              "T_full_ts": 0.008440999,
+              "T_initialization": 3.7e-06,
+              "T_input_preprocess": 0.75641867,
+              "T_logging": 2.66e-05,
+              "T_method": 0.053960197,
+              "T_other": 0.5161110790000001,
+              "T_plan_wall": 1.417855543,
+              "T_product": 0.0034285,
+              "T_reduction": 0.0095299,
+              "T_refinement": 0.0,
+              "T_search": 0.027278699,
+              "T_total": 1.417855543,
+              "accepting_buchi_states": [
+                "[[[\"G\",\"safe\"]],0,[],true]"
+              ],
+              "ai_inference_latency_seconds": null,
+              "ai_selection": null,
+              "ai_selection_artifact_sha256": null,
+              "api_key_reads": 0,
+              "backend": "ros2-v6",
+              "backend_binding": {
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+                "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+              },
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+              "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+              "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+              "benchmark_identity": "RACMR-Bench-v1-r1",
+              "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+              "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+              "candidate_identity": {
+                "lower_bound": "13",
+                "prefix_actions": [
+                  "change_robot_location",
+                  "change_inspection_state",
+                  "change_payload_state"
+                ],
+                "prefix_length": 4,
+                "suffix_actions": [
+                  "wait"
+                ],
+                "suffix_length": 2
+              },
+              "canonical_status": "OPTIMALITY_CERTIFIED",
+              "certificate_hash": "b47a8f263a8d66a7d312811b89a03368c40f7b36b0ae8a41ec8e61cefbc55717",
+              "certificate_objective": "13",
+              "certificate_path": "C2-T3__FULL__116.json",
+              "certificate_schema": "ECC-E2.2-CERTIFICATE-INITIAL_LABEL_V1",
+              "certificate_valid_for_terminal": true,
+              "certificate_verifier_status": "PASS",
+              "concrete_lasso": {
+                "ell": 0,
+                "m": 1,
+                "prefix": [
+                  [
+                    [
+                      0,
+                      0,
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "[[[\"F\",\"payload_state_delivered\"],[\"G\",\"safe\"]],0,[],false]"
+                  ],
+                  [
+                    [
+                      0,
+                      1,
+                      0,
+                      0,
+                      0,
+                      0
+                    ],
+                    "[[[\"F\",\"payload_state_delivered\"],[\"G\",\"safe\"]],0,[],false]"
+                  ],
+                  [
+                    [
+                      0,
+                      1,
+                      1,
+                      0,
+                      0,
+                      0
+                    ],
+                    "[[[\"F\",\"payload_state_delivered\"],[\"G\",\"safe\"]],0,[],false]"
+                  ],
+                  [
+                    [
+                      0,
+                      1,
+                      1,
+                      1,
+                      0,
+                      0
+                    ],
+                    "[[[\"G\",\"safe\"]],0,[],true]"
+                  ]
+                ],
+                "prefix_cost": "3",
+                "prefix_edges": [
+                  {
+                    "action": "change_robot_location",
+                    "cost": "1",
+                    "source": [
+                      [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                      ],
+                      "[[[\"F\",\"payload_state_delivered\"],[\"G\",\"safe\"]],0,[],false]"
+                    ],
+                    "target": [
+                      [
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0
+                      ],
+                      "[[[\"F\",\"payload_state_delivered\"],[\"G\",\"safe\"]],0,[],false]"
+                    ]
+                  },
+                  {
+                    "action": "change_inspection_state",
+                    "cost": "1",
+                    "source": [
+                      [
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0
+                      ],
+                      "[[[\"F\",\"payload_state_delivered\"],[\"G\",\"safe\"]],0,[],false]"
+                    ],
+                    "target": [
+                      [
+                        0,
+                        1,
+                        1,
+                        0,
+                        0,
+                        0
+                      ],
+                      "[[[\"F\",\"payload_state_delivered\"],[\"G\",\"safe\"]],0,[],false]"
+                    ]
+                  },
+                  {
+                    "action": "change_payload_state",
+                    "cost": "1",
+                    "source": [
+                      [
+                        0,
+                        1,
+                        1,
+                        0,
+                        0,
+                        0
+                      ],
+                      "[[[\"F\",\"payload_state_delivered\"],[\"G\",\"safe\"]],0,[],false]"
+                    ],
+                    "target": [
+                      [
+                        0,
+                        1,
+                        1,
+                        1,
+                        0,
+                        0
+                      ],
+                      "[[[\"G\",\"safe\"]],0,[],true]"
+                    ]
+                  }
+                ],
+                "suffix": [
+                  [
+                    [
+                      0,
+                      1,
+                      1,
+                      1,
+                      0,
+                      0
+                    ],
+                    "[[[\"G\",\"safe\"]],0,[],true]"
+                  ],
+                  [
+                    [
+                      0,
+                      1,
+                      1,
+                      1,
+                      0,
+                      0
+                    ],
+                    "[[[\"G\",\"safe\"]],0,[],true]"
+                  ]
+                ],
+                "suffix_cost": "1",
+                "suffix_edges": [
+                  {
+                    "action": "wait",
+                    "cost": "1",
+                    "source": [
+                      [
+                        0,
+                        1,
+                        1,
+                        1,
+                        0,
+                        0
+                      ],
+                      "[[[\"G\",\"safe\"]],0,[],true]"
+                    ],
+                    "target": [
+                      [
+                        0,
+                        1,
+                        1,
+                        1,
+                        0,
+                        0
+                      ],
+                      "[[[\"G\",\"safe\"]],0,[],true]"
+                    ]
+                  }
+                ],
+                "upper_bound": "13"
+              },
+              "cumulative_work": {
+                "product_edges_built": 400,
+                "product_states_built": 64,
+                "reduced_ts_edges_built": 384,
+                "reduced_ts_states_built": 64,
+                "search_settled_events": 135
+              },
+              "error": null,
+              "exact_status": "OPTIMAL",
+              "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-6da857dae4dd3db1",
+              "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+              "experimental_llm_calls": 0,
+              "final_precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "final_precision_size": 6,
+              "final_unique_graph_size": {
+                "product_edges": 400,
+                "product_states": 64,
+                "reduced_ts_edges": 384,
+                "reduced_ts_states": 64
+              },
+              "formal_campaign": false,
+              "infeasibility_certificate_type": null,
+              "infeasibility_precision": null,
+              "infeasibility_proof_basis": null,
+              "initial_S0": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "initial_precision_size": 6,
+              "instance_id": "C2-T3",
+              "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+              "llm_calls": 0,
+              "lower_precision_infeasibility": null,
+              "method": "FULL",
+              "method_order_position": 0,
+              "method_start_ns": 1901988453109,
+              "objective": "13",
+              "outer_watchdog_seconds": 195,
+              "phase_intervals_ns": {
+                "ROS_result_delivery": [
+                  1902891909473,
+                  1903406308652
+                ],
+                "T_certification_external": [
+                  1902799051876,
+                  1902891877973
+                ],
+                "T_initialization": [
+                  1902744871779,
+                  1902744875479
+                ],
+                "T_input_preprocess": [
+                  1901988453109,
+                  1902744871779
+                ],
+                "T_logging": [
+                  1902891878973,
+                  1902891905573
+                ]
+              },
+              "planner_budget_seconds": 180,
+              "population": "CMR_V6_DEFAULT_ACCEPTANCE",
+              "post_runner_delivery_seconds": 0.514399179,
+              "prefix_actions": [
+                "change_robot_location",
+                "change_inspection_state",
+                "change_payload_state"
+              ],
+              "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+              "qualified_runner_completion_ns": 1902891909473,
+              "refinement_rounds": 0,
+              "request_id": "cmr-v2-fault-none",
+              "result_hash": "20f415a5a30986674dbba070a8320b2d28050e31981745df4a7daff6b61b7af4",
+              "right_censored": false,
+              "rounds": [
+                {
+                  "H_k": [],
+                  "J_lb": "13",
+                  "J_ub": "13",
+                  "N": 6,
+                  "R_k": [],
+                  "S_k": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "S_k_size": 6,
+                  "S_phi": [
+                    3,
+                    5
+                  ],
+                  "abstract_prefix_cost": "3",
+                  "abstract_suffix_cost": "1",
+                  "added_dimension": null,
+                  "backend": "ros2-v6",
+                  "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                  "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                  "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                  "bound_pruned_entries": 31,
+                  "candidate_entries": 32,
+                  "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+                  "certificate_status": "OPTIMALITY_CERTIFIED",
+                  "concretization_status": "CONCRETIZABLE",
+                  "ell": 0,
+                  "error": null,
+                  "exact_entry_searches": 1,
+                  "final_precision": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "infeasibility_certificate_type": null,
+                  "infeasibility_precision": null,
+                  "infeasibility_proof_basis": null,
+                  "initial_S0": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "instance_id": "C2-T3",
+                  "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                  "lower_bound_settled": 64,
+                  "lower_precision_infeasibility": null,
+                  "m": 1,
+                  "method": "FULL",
+                  "phase_intervals_ns": {
+                    "T_certification": [
+                      1902797742076,
+                      1902797761376
+                    ],
+                    "T_concretization": [
+                      1902793967977,
+                      1902797739976
+                    ],
+                    "T_full_ts": [
+                      1902744925979,
+                      1902753366978
+                    ],
+                    "T_product": [
+                      1902762908178,
+                      1902766336678
+                    ],
+                    "T_reduction": [
+                      1902753373078,
+                      1902762902978
+                    ],
+                    "T_search": [
+                      1902766674378,
+                      1902793953077
+                    ]
+                  },
+                  "prefix_actions": [
+                    "change_robot_location",
+                    "change_inspection_state",
+                    "change_payload_state"
+                  ],
+                  "prefix_cost": "3",
+                  "prefix_settled": 64,
+                  "product_unique_edges": 400,
+                  "product_unique_states": 64,
+                  "qualifying_sccs": 1,
+                  "queue_pops": 135,
+                  "queue_pushes": 145,
+                  "reachable_product_nodes": 64,
+                  "reduced_ts_edges": 384,
+                  "reduced_ts_states": 64,
+                  "round_index": 0,
+                  "schema_version": "cmr-p2b-round-v1",
+                  "semantic_contract_id": "INITIAL_LABEL_V1",
+                  "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+                  "suffix_actions": [
+                    "wait"
+                  ],
+                  "suffix_cost": "1",
+                  "suffix_entry_product_state": {
+                    "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+                    "state": [
+                      0,
+                      1,
+                      1,
+                      1,
+                      0,
+                      0
+                    ]
+                  },
+                  "suffix_settled": 7,
+                  "terminal_claim_valid": true,
+                  "terminal_status": "OPTIMALITY_CERTIFIED",
+                  "timings": {
+                    "T_certification": 1.93e-05,
+                    "T_concretization": 0.003771999,
+                    "T_full_ts": 0.008440999,
+                    "T_product": 0.0034285,
+                    "T_reduction": 0.0095299,
+                    "T_refinement": 0.0,
+                    "T_search": 0.027278699
+                  },
+                  "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+                  "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+                }
+              ],
+              "schema": "cmr-ros2-integration-result-v1",
+              "schema_version": "cmr-p2b-result-v1",
+              "search_counter_basis": "unchanged V5 search; within-build Buchi cache queries/hits/misses",
+              "semantic_contract_id": "INITIAL_LABEL_V1",
+              "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+              "suffix_actions": [
+                "wait"
+              ],
+              "suffix_entry_product_state": {
+                "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+                "state": [
+                  0,
+                  1,
+                  1,
+                  1,
+                  0,
+                  0
+                ]
+              },
+              "terminal_completion_ns": 1903406308652,
+              "terminal_status": "OPTIMALITY_CERTIFIED",
+              "timeout_stage": "none",
+              "timing_basis": "qualified runner method start; worker startup excluded",
+              "timing_status": "UNCENSORED",
+              "variant": "real",
+              "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+              "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f",
+              "worker_alive_after_cleanup": false,
+              "worker_exitcode": 0,
+              "worker_pid": 1506
+            },
+            "ts_state_receive_count": 4
+          },
+          "driver_pid": 1483,
+          "driver_rc": 0,
+          "module": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_backend/dds.py",
+          "observation_topic": "/planning_execution_observation",
+          "request": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "canonical_instance_index": 116,
+            "execution_identity": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-6da857dae4dd3db1",
+            "execution_index": 348,
+            "expected_initial_S0": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "formal_campaign": false,
+            "instance_id": "C2-T3",
+            "method": "FULL",
+            "method_order_position": 0,
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "population": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualification_id": "CMR_V6_DEFAULT_ACCEPTANCE_20261012",
+            "request_id": "cmr-v2-fault-none",
+            "source_cell_id": "be9c2acd506d5dc835b08a3264c7b82c73397b4286eef412a90adf3938907ca3",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "request_topic": "/cmr_smoke/request",
+          "result_topic": "/cmr_smoke/result",
+          "ros_localhost_only": true,
+          "schema": "cmr-ros2-v6-dds-case-v1",
+          "server": {
+            "events": [
+              {
+                "event": "server_ready",
+                "module": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_backend/dds.py",
+                "pid": 1482,
+                "time_ns": 1885786480715
+              },
+              {
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "request_received",
+                "request_id": "cmr-v2-fault-none",
+                "time_ns": 1885960223881,
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6"
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "cmr_solver_started",
+                "time_ns": 1885960229381
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "cmr_solver_completed",
+                "status": "OPTIMALITY_CERTIFIED",
+                "time_ns": 1903545156446
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "result_published",
+                "status": "OPTIMALITY_CERTIFIED",
+                "time_ns": 1903545505746
+              },
+              {
+                "action": "change_robot_location",
+                "event": "command_published",
+                "time_ns": 1903546248846
+              },
+              {
+                "action": "change_robot_location",
+                "event": "observation_published",
+                "step": 0,
+                "time_ns": 1903546250846
+              },
+              {
+                "event": "snapshot_served",
+                "time_ns": 1903548174446
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "1",
+                  "0",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "step": 0,
+                "time_ns": 1903772374137
+              },
+              {
+                "action": "change_inspection_state",
+                "event": "command_published",
+                "time_ns": 1903773115537
+              },
+              {
+                "action": "change_inspection_state",
+                "event": "observation_published",
+                "step": 1,
+                "time_ns": 1903773118837
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "0",
+                  "0",
+                  "0"
+                ],
+                "step": 1,
+                "time_ns": 1903786919137
+              },
+              {
+                "action": "change_payload_state",
+                "event": "command_published",
+                "time_ns": 1903787168937
+              },
+              {
+                "action": "change_payload_state",
+                "event": "observation_published",
+                "step": 2,
+                "time_ns": 1903787170637
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "step": 2,
+                "time_ns": 1903800246436
+              },
+              {
+                "action": "wait",
+                "event": "command_published",
+                "time_ns": 1903800455236
+              },
+              {
+                "action": "wait",
+                "event": "observation_published",
+                "step": 3,
+                "time_ns": 1903800457636
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "1",
+                  "1",
+                  "1",
+                  "0",
+                  "0"
+                ],
+                "step": 3,
+                "time_ns": 1903812974635
+              },
+              {
+                "action": "",
+                "event": "observation_published",
+                "step": 4,
+                "time_ns": 1903813113535
+              }
+            ],
+            "pid": 1482
+          },
+          "server_pid": 1482,
+          "server_rc": 0,
+          "snapshot_service": "/get_planning_graph_snapshot",
+          "status": "RUNNING",
+          "ts_topic": "/ts_state"
+        },
+        "mode": "none",
+        "status": "PASSED"
+      },
+      "source": "ORIGINAL",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+      "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+    },
+    {
+      "kind": "dds",
+      "mode": "late_delivery",
+      "original_status": "PASSED",
+      "record": {
+        "artifact": {
+          "command_topic": "/next_move_cmd",
+          "descriptor": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "domain_id": 219,
+          "driver": {
+            "abstraction_feedback_count": 0,
+            "abstraction_feedback_states": [],
+            "commands": [],
+            "commands_match": null,
+            "completion_count": 0,
+            "events": [
+              {
+                "event": "driver_ready",
+                "execution_module": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+                "pid": 1531,
+                "time_ns": 1917493016396
+              },
+              {
+                "event": "request_published",
+                "request_id": "cmr-v2-fault-late_delivery",
+                "time_ns": 1917493218296
+              },
+              {
+                "event": "result_received",
+                "status": "TIMEOUT",
+                "time_ns": 1938038894309
+              },
+              {
+                "event": "late_state_published",
+                "time_ns": 1938039214309
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1938040394809
+              }
+            ],
+            "execution_counts_match": null,
+            "expected_actions": null,
+            "expected_sources": null,
+            "expected_targets": null,
+            "module_identity_match": true,
+            "module_paths": {
+              "execution_models": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/models.py",
+              "execution_node": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "fake_runtime": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+            },
+            "module_resolved_paths": {
+              "execution_models": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/models.py",
+              "execution_node": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "fake_runtime": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+            },
+            "module_sha256": {
+              "execution_models": "c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371",
+              "execution_node": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+              "fake_runtime": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+            },
+            "observed_ts_states": [
+              [
+                "0",
+                "0"
+              ]
+            ],
+            "observer_feedback_count": 0,
+            "observer_feedback_states": [],
+            "pid": 1531,
+            "result": {
+              "T_certification": 0.09783051300000001,
+              "T_concretization": 0.007108501,
+              "T_full_ts": 0.017940402,
+              "T_initialization": 4.42e-05,
+              "T_input_preprocess": 1.122433951,
+              "T_logging": 3.04e-05,
+              "T_method": 0.092265912,
+              "T_other": 180.637470985,
+              "T_plan_wall": 181.947147161,
+              "T_product": 0.007033901,
+              "T_reduction": 0.019166203,
+              "T_refinement": 0.0,
+              "T_search": 0.038088105,
+              "T_total": 181.947147161,
+              "ai_inference_latency_seconds": null,
+              "ai_selection": null,
+              "ai_selection_artifact_sha256": null,
+              "api_key_reads": 0,
+              "backend": "ros2-v6",
+              "backend_binding": {
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+                "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+              },
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+              "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+              "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+              "benchmark_identity": "RACMR-Bench-v1-r1",
+              "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+              "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+              "candidate_identity": {
+                "lower_bound": "13",
+                "prefix_actions": [
+                  "change_robot_location",
+                  "change_inspection_state",
+                  "change_payload_state"
+                ],
+                "prefix_length": 4,
+                "suffix_actions": [
+                  "wait"
+                ],
+                "suffix_length": 2
+              },
+              "canonical_status": "TIMEOUT",
+              "certificate_hash": "NOT_AVAILABLE",
+              "certificate_objective": null,
+              "certificate_path": "NOT_AVAILABLE",
+              "certificate_schema": "NOT_AVAILABLE",
+              "certificate_valid_for_terminal": false,
+              "certificate_verifier_status": "NOT_AVAILABLE",
+              "cumulative_work": {
+                "product_edges_built": 400,
+                "product_states_built": 64,
+                "reduced_ts_edges_built": 384,
+                "reduced_ts_states_built": 64,
+                "search_settled_events": 135
+              },
+              "error": null,
+              "exact_status": "TIMEOUT",
+              "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-6da857dae4dd3db1",
+              "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+              "experimental_llm_calls": 0,
+              "final_precision": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "final_precision_size": 6,
+              "final_unique_graph_size": {
+                "product_edges": 400,
+                "product_states": 64,
+                "reduced_ts_edges": 384,
+                "reduced_ts_states": 64
+              },
+              "formal_campaign": false,
+              "infeasibility_certificate_type": null,
+              "infeasibility_precision": null,
+              "infeasibility_proof_basis": null,
+              "initial_S0": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "initial_precision_size": 6,
+              "instance_id": "C2-T3",
+              "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+              "llm_calls": 0,
+              "lower_precision_infeasibility": null,
+              "method": "FULL",
+              "method_order_position": 0,
+              "method_start_ns": 1935923774025,
+              "objective": null,
+              "outer_watchdog_seconds": 195,
+              "phase_intervals_ns": {
+                "ROS_result_delivery": [
+                  1937236852701,
+                  2117870921186
+                ],
+                "T_certification_external": [
+                  1937139020888,
+                  1937236814501
+                ],
+                "T_initialization": [
+                  1937046207976,
+                  1937046252176
+                ],
+                "T_input_preprocess": [
+                  1935923774025,
+                  1937046207976
+                ],
+                "T_logging": [
+                  1937236816701,
+                  1937236847101
+                ]
+              },
+              "planner_budget_seconds": 180,
+              "population": "CMR_V6_DEFAULT_ACCEPTANCE",
+              "post_runner_delivery_seconds": 180.634068485,
+              "prefix_actions": [
+                "change_robot_location",
+                "change_inspection_state",
+                "change_payload_state"
+              ],
+              "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+              "qualified_runner_completion_ns": 1937236852701,
+              "refinement_rounds": 0,
+              "request_id": "cmr-v2-fault-late_delivery",
+              "result_hash": "037e4338dc7378f2909b850d151b6709a0da17792b7db5da7c3367cb35371536",
+              "right_censored": true,
+              "rounds": [
+                {
+                  "H_k": [],
+                  "J_lb": "13",
+                  "J_ub": "13",
+                  "N": 6,
+                  "R_k": [],
+                  "S_k": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "S_k_size": 6,
+                  "S_phi": [
+                    3,
+                    5
+                  ],
+                  "abstract_prefix_cost": "3",
+                  "abstract_suffix_cost": "1",
+                  "added_dimension": null,
+                  "backend": "ros2-v6",
+                  "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                  "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                  "benchmark_payload_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                  "bound_pruned_entries": 31,
+                  "candidate_entries": 32,
+                  "candidate_fingerprint": "01fb48d021257139942afe14e92547b0950f3eee4990a98558f17d9e8dea0795",
+                  "certificate_status": "OPTIMALITY_CERTIFIED",
+                  "concretization_status": "CONCRETIZABLE",
+                  "ell": 0,
+                  "error": null,
+                  "exact_entry_searches": 1,
+                  "final_precision": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "infeasibility_certificate_type": null,
+                  "infeasibility_precision": null,
+                  "infeasibility_proof_basis": null,
+                  "initial_S0": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "instance_id": "C2-T3",
+                  "instance_sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a",
+                  "lower_bound_settled": 64,
+                  "lower_precision_infeasibility": null,
+                  "m": 1,
+                  "method": "FULL",
+                  "phase_intervals_ns": {
+                    "T_certification": [
+                      1937136655288,
+                      1937136692188
+                    ],
+                    "T_concretization": [
+                      1937129541387,
+                      1937136649888
+                    ],
+                    "T_full_ts": [
+                      1937046564976,
+                      1937064505378
+                    ],
+                    "T_product": [
+                      1937083685281,
+                      1937090719182
+                    ],
+                    "T_reduction": [
+                      1937064511278,
+                      1937083677481
+                    ],
+                    "T_search": [
+                      1937091409382,
+                      1937129497487
+                    ]
+                  },
+                  "prefix_actions": [
+                    "change_robot_location",
+                    "change_inspection_state",
+                    "change_payload_state"
+                  ],
+                  "prefix_cost": "3",
+                  "prefix_settled": 64,
+                  "product_unique_edges": 400,
+                  "product_unique_states": 64,
+                  "qualifying_sccs": 1,
+                  "queue_pops": 135,
+                  "queue_pushes": 145,
+                  "reachable_product_nodes": 64,
+                  "reduced_ts_edges": 384,
+                  "reduced_ts_states": 64,
+                  "round_index": 0,
+                  "schema_version": "cmr-p2b-round-v1",
+                  "semantic_contract_id": "INITIAL_LABEL_V1",
+                  "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+                  "suffix_actions": [
+                    "wait"
+                  ],
+                  "suffix_cost": "1",
+                  "suffix_entry_product_state": {
+                    "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+                    "state": [
+                      0,
+                      1,
+                      1,
+                      1,
+                      0,
+                      0
+                    ]
+                  },
+                  "suffix_settled": 7,
+                  "terminal_claim_valid": false,
+                  "terminal_status": "OPTIMALITY_CERTIFIED",
+                  "timings": {
+                    "T_certification": 3.69e-05,
+                    "T_concretization": 0.007108501,
+                    "T_full_ts": 0.017940402,
+                    "T_product": 0.007033901,
+                    "T_reduction": 0.019166203,
+                    "T_refinement": 0.0,
+                    "T_search": 0.038088105
+                  },
+                  "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+                  "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+                }
+              ],
+              "schema": "cmr-ros2-integration-result-v1",
+              "schema_version": "cmr-p2b-result-v1",
+              "search_counter_basis": "unchanged V5 search; within-build Buchi cache queries/hits/misses",
+              "semantic_contract_id": "INITIAL_LABEL_V1",
+              "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+              "suffix_actions": [
+                "wait"
+              ],
+              "suffix_entry_product_state": {
+                "buchi_state": "[[[\"G\",\"safe\"]],0,[],true]",
+                "state": [
+                  0,
+                  1,
+                  1,
+                  1,
+                  0,
+                  0
+                ]
+              },
+              "terminal_completion_ns": 2117870921186,
+              "terminal_status": "TIMEOUT",
+              "timeout_stage": "planner",
+              "timing_basis": "qualified runner method start; worker startup excluded",
+              "timing_status": "RIGHT_CENSORED",
+              "variant": "real",
+              "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+              "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f",
+              "worker_alive_after_cleanup": false,
+              "worker_exitcode": 0,
+              "worker_pid": 1554
+            },
+            "ts_state_receive_count": 1
+          },
+          "driver_pid": 1531,
+          "driver_rc": 0,
+          "module": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_backend/dds.py",
+          "observation_topic": "/planning_execution_observation",
+          "request": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "canonical_instance_index": 116,
+            "execution_identity": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-6da857dae4dd3db1",
+            "execution_index": 348,
+            "expected_initial_S0": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "formal_campaign": false,
+            "instance_id": "C2-T3",
+            "method": "FULL",
+            "method_order_position": 0,
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "population": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualification_id": "CMR_V6_DEFAULT_ACCEPTANCE_20261012",
+            "request_id": "cmr-v2-fault-late_delivery",
+            "source_cell_id": "be9c2acd506d5dc835b08a3264c7b82c73397b4286eef412a90adf3938907ca3",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "request_topic": "/cmr_smoke/request",
+          "result_topic": "/cmr_smoke/result",
+          "ros_localhost_only": true,
+          "schema": "cmr-ros2-v6-dds-case-v1",
+          "server": {
+            "events": [
+              {
+                "event": "server_ready",
+                "module": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_backend/dds.py",
+                "pid": 1530,
+                "time_ns": 1917231598244
+              },
+              {
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "request_received",
+                "request_id": "cmr-v2-fault-late_delivery",
+                "time_ns": 1917493571896,
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6"
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "cmr_solver_started",
+                "time_ns": 1917493577896
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "cmr_solver_completed",
+                "status": "TIMEOUT",
+                "time_ns": 1938036781708
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "result_published",
+                "status": "TIMEOUT",
+                "time_ns": 1938037435908
+              },
+              {
+                "event": "ts_state_received",
+                "state": [
+                  "0",
+                  "0"
+                ],
+                "step": 0,
+                "time_ns": 1938039710809
+              },
+              {
+                "event": "late_state_ignored",
+                "state": [
+                  "0",
+                  "0"
+                ],
+                "time_ns": 1938039713209
+              }
+            ],
+            "pid": 1530
+          },
+          "server_pid": 1530,
+          "server_rc": 0,
+          "snapshot_service": "/get_planning_graph_snapshot",
+          "status": "RUNNING",
+          "ts_topic": "/ts_state"
+        },
+        "mode": "late_delivery",
+        "status": "PASSED"
+      },
+      "source": "ORIGINAL",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+      "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+    },
+    {
+      "kind": "dds",
+      "mode": "crash",
+      "original_status": "FAILED",
+      "record": {
+        "artifact": {
+          "command_topic": "/next_move_cmd",
+          "descriptor": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "domain_id": 219,
+          "driver": {
+            "abstraction_feedback_count": 0,
+            "abstraction_feedback_states": [],
+            "commands": [],
+            "commands_match": null,
+            "completion_count": 0,
+            "events": [
+              {
+                "event": "driver_ready",
+                "execution_module": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+                "pid": 522,
+                "time_ns": 2721830677862
+              },
+              {
+                "event": "request_published",
+                "request_id": "cmr-v2-recovery-dds-crash",
+                "time_ns": 2721830862862
+              },
+              {
+                "event": "result_received",
+                "status": "INFRASTRUCTURE_FAILURE",
+                "time_ns": 2747702811062
+              }
+            ],
+            "execution_counts_match": null,
+            "expected_actions": null,
+            "expected_sources": null,
+            "expected_targets": null,
+            "module_identity_match": true,
+            "module_paths": {
+              "execution_models": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/models.py",
+              "execution_node": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "fake_runtime": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+            },
+            "module_resolved_paths": {
+              "execution_models": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/models.py",
+              "execution_node": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "fake_runtime": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+            },
+            "module_sha256": {
+              "execution_models": "c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371",
+              "execution_node": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+              "fake_runtime": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+            },
+            "observed_ts_states": [],
+            "observer_feedback_count": 0,
+            "observer_feedback_states": [],
+            "pid": 522,
+            "result": {
+              "T_certification": null,
+              "T_concretization": null,
+              "T_full_ts": null,
+              "T_initialization": null,
+              "T_input_preprocess": null,
+              "T_logging": null,
+              "T_other": null,
+              "T_plan_wall": 24.05522438,
+              "T_product": null,
+              "T_reduction": null,
+              "T_refinement": null,
+              "T_search": null,
+              "T_total": 24.05522438,
+              "backend": "ros2-v6",
+              "backend_binding": {
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+                "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+              },
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+              "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+              "benchmark_payload_sha256": null,
+              "candidate_fingerprint": null,
+              "candidate_identity": null,
+              "canonical_status": "INFRASTRUCTURE_FAILURE",
+              "certificate_hash": "NOT_AVAILABLE",
+              "certificate_objective": null,
+              "certificate_path": "NOT_AVAILABLE",
+              "certificate_schema": "NOT_AVAILABLE",
+              "certificate_valid_for_terminal": false,
+              "certificate_verifier_status": "NOT_AVAILABLE",
+              "error": "worker exit or missing result: 23",
+              "exact_status": "INFRASTRUCTURE_FAILURE",
+              "execution_commit": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-645f9be8058ee0b1",
+              "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+              "formal_campaign": false,
+              "infeasibility_certificate_type": null,
+              "infeasibility_precision": null,
+              "infeasibility_proof_basis": null,
+              "instance_id": "C2-T3",
+              "instance_sha256": null,
+              "lower_precision_infeasibility": null,
+              "method": "FULL",
+              "method_order_position": 0,
+              "method_start_ns": 2723519416779,
+              "objective": null,
+              "outer_observed_seconds": 23.874546277,
+              "outer_watchdog_seconds": 195,
+              "phase_intervals_ns": {
+                "ROS_result_delivery": [
+                  2747393963056,
+                  2747574641159
+                ]
+              },
+              "planner_budget_seconds": 180,
+              "population": "CMR_V6_DEFAULT_ACCEPTANCE",
+              "post_runner_delivery_seconds": 0.180678103,
+              "prefix_actions": null,
+              "qualification_scope": "CMR_V6_DEFAULT_ACCEPTANCE",
+              "qualified_runner_completion_ns": 2747393963056,
+              "refinement_rounds": null,
+              "request_id": "cmr-v2-recovery-dds-crash",
+              "result_hash": "fa21f6b85d8e95a226255b2bf037f024ee180187172c0fc924d7a736a28cae8c",
+              "right_censored": false,
+              "rounds": null,
+              "schema": "cmr-ros2-integration-result-v1",
+              "schema_version": "cmr-p2b-result-v1",
+              "semantic_contract_id": "INITIAL_LABEL_V1",
+              "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+              "suffix_actions": null,
+              "suffix_entry_product_state": null,
+              "terminal_completion_ns": 2747574641159,
+              "terminal_status": "INFRASTRUCTURE_FAILURE",
+              "timeout_stage": "infrastructure",
+              "timing_basis": "qualified runner method start; worker startup excluded",
+              "timing_status": "ANOMALY",
+              "variant": "real",
+              "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+              "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a",
+              "worker_alive_after_cleanup": false,
+              "worker_exitcode": 23,
+              "worker_pid": 545
+            },
+            "ts_state_receive_count": 0
+          },
+          "driver_pid": 522,
+          "driver_rc": 0,
+          "module": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_backend/dds.py",
+          "observation_topic": "/planning_execution_observation",
+          "request": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "canonical_instance_index": 116,
+            "execution_identity": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-645f9be8058ee0b1",
+            "execution_index": 348,
+            "expected_initial_S0": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "formal_campaign": false,
+            "instance_id": "C2-T3",
+            "method": "FULL",
+            "method_order_position": 0,
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "population": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualification_id": "CMR_V6_DEFAULT_ACCEPTANCE_20261012",
+            "request_id": "cmr-v2-recovery-dds-crash",
+            "source_cell_id": "be9c2acd506d5dc835b08a3264c7b82c73397b4286eef412a90adf3938907ca3",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+            "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+          },
+          "request_topic": "/cmr_smoke/request",
+          "result_topic": "/cmr_smoke/result",
+          "ros_localhost_only": true,
+          "schema": "cmr-ros2-v6-dds-case-v1",
+          "server": {
+            "events": [
+              {
+                "event": "server_ready",
+                "module": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_backend/dds.py",
+                "pid": 521,
+                "time_ns": 2721641992171
+              },
+              {
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "request_received",
+                "request_id": "cmr-v2-recovery-dds-crash",
+                "time_ns": 2721831285962,
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25"
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "cmr_solver_started",
+                "time_ns": 2721831293262
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "cmr_solver_completed",
+                "status": "INFRASTRUCTURE_FAILURE",
+                "time_ns": 2747701187562
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "result_published",
+                "status": "INFRASTRUCTURE_FAILURE",
+                "time_ns": 2747701558062
+              }
+            ],
+            "pid": 521
+          },
+          "server_pid": 521,
+          "server_rc": 0,
+          "snapshot_service": "/get_planning_graph_snapshot",
+          "status": "RUNNING",
+          "ts_topic": "/ts_state"
+        },
+        "kind": "dds",
+        "mode": "crash",
+        "status": "PASSED",
+        "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+        "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+      },
+      "source": "RECOVERY",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+      "version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a"
+    },
+    {
+      "kind": "dds",
+      "mode": "server_error",
+      "original_status": "PASSED",
+      "record": {
+        "artifact": {
+          "command_topic": "/next_move_cmd",
+          "descriptor": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "domain_id": 219,
+          "driver": {
+            "abstraction_feedback_count": 0,
+            "abstraction_feedback_states": [],
+            "commands": [],
+            "commands_match": null,
+            "completion_count": 0,
+            "events": [
+              {
+                "event": "driver_ready",
+                "execution_module": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+                "pid": 1737,
+                "time_ns": 1966012377536
+              },
+              {
+                "event": "request_published",
+                "request_id": "cmr-v2-fault-server_error",
+                "time_ns": 1966012530236
+              },
+              {
+                "event": "result_received",
+                "status": "ERROR",
+                "time_ns": 1967277031126
+              }
+            ],
+            "execution_counts_match": null,
+            "expected_actions": null,
+            "expected_sources": null,
+            "expected_targets": null,
+            "module_identity_match": true,
+            "module_paths": {
+              "execution_models": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/models.py",
+              "execution_node": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "fake_runtime": "/tmp/ltl_ros2_combo_bd75495/build/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+            },
+            "module_resolved_paths": {
+              "execution_models": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/models.py",
+              "execution_node": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "fake_runtime": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+            },
+            "module_sha256": {
+              "execution_models": "c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371",
+              "execution_node": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+              "fake_runtime": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+            },
+            "observed_ts_states": [],
+            "observer_feedback_count": 0,
+            "observer_feedback_states": [],
+            "pid": 1737,
+            "result": {
+              "backend": "ros2-v6",
+              "backend_binding": {
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+                "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+              },
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+              "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+              "certificate_valid_for_terminal": false,
+              "certificate_verifier_status": "NOT_AVAILABLE",
+              "concrete_lasso": null,
+              "error": "RuntimeError('qualification-injected DDS server failure; no solver dispatched')",
+              "instance_id": "C2-T3",
+              "method": "FULL",
+              "objective": null,
+              "population": "CMR_V6_DEFAULT_ACCEPTANCE",
+              "request_id": "cmr-v2-fault-server_error",
+              "right_censored": false,
+              "schema": "cmr-ros2-integration-result-v1",
+              "terminal_status": "ERROR",
+              "variant": "real",
+              "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+              "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+            },
+            "ts_state_receive_count": 0
+          },
+          "driver_pid": 1737,
+          "driver_rc": 0,
+          "module": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_backend/dds.py",
+          "observation_topic": "/planning_execution_observation",
+          "request": {
+            "backend": "ros2-v6",
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+            "backend_sha256": "515d4aa636dd545a4f2a9ec33d9db45856be69f4bd7f542a493eeabf1e59bd9a",
+            "canonical_instance_index": 116,
+            "execution_identity": "a920af8d3930637c304533f3f77f595a0c5f20ab+cmr-unified-6da857dae4dd3db1",
+            "execution_index": 348,
+            "expected_initial_S0": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "formal_campaign": false,
+            "instance_id": "C2-T3",
+            "method": "FULL",
+            "method_order_position": 0,
+            "outer_watchdog_seconds": 195,
+            "planner_budget_seconds": 180,
+            "population": "CMR_V6_DEFAULT_ACCEPTANCE",
+            "qualification_id": "CMR_V6_DEFAULT_ACCEPTANCE_20261012",
+            "request_id": "cmr-v2-fault-server_error",
+            "source_cell_id": "be9c2acd506d5dc835b08a3264c7b82c73397b4286eef412a90adf3938907ca3",
+            "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+            "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+          },
+          "request_topic": "/cmr_smoke/request",
+          "result_topic": "/cmr_smoke/result",
+          "ros_localhost_only": true,
+          "schema": "cmr-ros2-v6-dds-case-v1",
+          "server": {
+            "events": [
+              {
+                "event": "server_ready",
+                "module": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_backend/dds.py",
+                "pid": 1736,
+                "time_ns": 1965807948722
+              },
+              {
+                "backend": "ros2-v6",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "request_received",
+                "request_id": "cmr-v2-fault-server_error",
+                "time_ns": 1966012819236,
+                "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6"
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "cmr_solver_started",
+                "time_ns": 1966012823636
+              },
+              {
+                "event": "cmr_solver_completed",
+                "status": "ERROR",
+                "time_ns": 1967276047926
+              },
+              {
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6",
+                "event": "result_published",
+                "status": "ERROR",
+                "time_ns": 1967276251426
+              }
+            ],
+            "pid": 1736
+          },
+          "server_pid": 1736,
+          "server_rc": 0,
+          "snapshot_service": "/get_planning_graph_snapshot",
+          "status": "RUNNING",
+          "ts_topic": "/ts_state"
+        },
+        "mode": "server_error",
+        "status": "PASSED"
+      },
+      "source": "ORIGINAL",
+      "version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+      "version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f"
+    }
+  ],
+  "formal_campaign_workers": 0,
+  "frozen_inputs_equal": true,
+  "new_version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+  "new_version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a",
+  "old_version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+  "old_version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f",
+  "original_output": "/tmp/cmr_v6_acceptance_a920af8_20261012_r2",
+  "original_records_preserved": true,
+  "provider_calls": 0,
+  "recovery_output": "/tmp/cmr_v6_acceptance_a920af8_20261012_r3",
+  "schema": "cmr-v6-qualified-recovery-v1",
+  "source_guard": {
+    "approved_guard_count": 2,
+    "approved_guards": true,
+    "closure_diff": {
+      "experiments/cmr_ros2_backend/lifecycle.py": [
+        "fb932bc934fda763bbe4cdcc07f6f41694a775bd6c4dd7c1396365a0823dd6dd",
+        "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87"
+      ]
+    },
+    "current_path": "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_backend/lifecycle.py",
+    "current_sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+    "old_path": "/tmp/cmr_v6_acceptance_a920af8_20261012_r2/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py",
+    "old_sha256": "fb932bc934fda763bbe4cdcc07f6f41694a775bd6c4dd7c1396365a0823dd6dd",
+    "outside_popen_ast_equal": true
+  },
+  "status": "PASSED",
+  "successful_modes_rerun": []
+}

@@ -1,5 +1,8 @@
 """Validate the generated ROS 2 planning contract types."""
 
+from rclpy.serialization import deserialize_message
+from rclpy.serialization import serialize_message
+
 from ltl_automaton_msgs.action import PlanLTL
 from ltl_automaton_msgs.msg import AcceptedRunSnapshot
 from ltl_automaton_msgs.msg import BuchiGraphEdge
@@ -116,6 +119,7 @@ def test_planning_execution_observation_contract():
     observation = PlanningExecutionObservation()
     observation.planner_instance_id = "planner-A"
     observation.planning_generation = 3
+    observation.execution_step_seq = 2**40
     observation.possible_product_node_ids = []
     observation.has_next_action = False
     observation.next_action = ""
@@ -123,6 +127,7 @@ def test_planning_execution_observation_contract():
     assert list(observation.get_fields_and_field_types()) == [
         "planner_instance_id",
         "planning_generation",
+        "execution_step_seq",
         "possible_product_node_ids",
         "has_next_action",
         "next_action",
@@ -130,6 +135,9 @@ def test_planning_execution_observation_contract():
     assert list(observation.possible_product_node_ids) == []
     assert not observation.has_next_action
     assert observation.next_action == ""
+    assert observation.get_fields_and_field_types()["execution_step_seq"] == "uint64"
+    restored = deserialize_message(serialize_message(observation), PlanningExecutionObservation)
+    assert restored == observation
 
     observation.possible_product_node_ids = [3]
     assert list(observation.possible_product_node_ids) == [3]

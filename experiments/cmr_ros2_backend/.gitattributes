@@ -1,0 +1,2 @@
+*.py -text whitespace=cr-at-eol
+backend_binding.json -text whitespace=cr-at-eol
