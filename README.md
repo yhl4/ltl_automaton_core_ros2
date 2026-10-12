@@ -30,6 +30,7 @@
 [CMR refinement / 超时 / DDS](experiments/cmr_ros2_integration/README.md) ·
 [CMR 真实实例接入](experiments/cmr_ros2_real/README.md) ·
 [B/FULL 搜索优化](experiments/cmr_ros2_bfull_perf/README.md) ·
+[B/FULL 精简搜索图](experiments/cmr_ros2_bfull_compact/README.md) ·
 [验证记录](ltl_automaton_planner/docs/validation.md)
 
 面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
@@ -67,6 +68,11 @@ reference/ROS2对照通过，精确目标分别15、13、20；18份对照证书�
 从512次降至1次，三方目标均15，独立证书重放通过，180/195秒预算与验收规则不变。
 这是单实例FULL的有限优化，入口与证据见[B/FULL 搜索优化](experiments/cmr_ros2_bfull_perf/README.md)。
 默认 Planner 与冻结 CMR 结果保持，未启动正式批量实验，尚不能替换正式 campaign solver。
+
+进一步去除逐边辅助节点、用原transition映射恢复witness，并以独立起点保证接受后缀非空。
+新一轮B/FULL对照为reference1.627秒、SCC版V2 2.238秒、精简图V3 1.735秒；V3相对同轮
+V2完整耗时降低22.48%、搜索耗时降低42.68%，三方目标均15且独立证书通过。该有限对照
+仍保留全部预算、tracemalloc和验收规则，见[精简图原型与证据](experiments/cmr_ros2_bfull_compact/README.md)。
 
 ---
 

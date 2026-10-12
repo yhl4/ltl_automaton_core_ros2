@@ -7987,3 +7987,62 @@ reader各版本与失败。ZIP为142298 bytes、SHA256
 `7780fd2bd9d69559ebafffbbf12faf8959228b02ca37580790829a42a7565831`，全部成员SHA读回匹配。
 生产Planner、冻结CMR结果和§11.176资格保持；不重新运行136/754历史测试，不替换正式
 campaign solver。用户要求的有限B/FULL性能优化在本次验证后结束。
+
+### 11.178 B/FULL 原节点图与非空后缀起点的继续优化（2026-10-12）
+
+按继续优化性能的目标，沿用B-D-BRANCH-S1/FULL隔离范围。当前基线
+`0f54c058f9d2057ed7cd37c475e74211e684a427`，新原型
+`experiments/cmr_ros2_bfull_compact`。读取§11.177真实记录：V2搜索0.923917679秒，
+distance/restore helper约0.326954秒，其余约0.596964秒在图构造及Python处理。
+不重跑93秒的旧逐入口基线；新三臂固定为reference、已资格的SCC版V2、新精简图V3，
+独立worker各一次。V2 source closure先与§11.177 archive中plan逐字节绑定。
+正式局部计划和最终源码在执行前冻结，180/195秒预算及原runner全部验收保持。
+
+V3直接在原节点DiGraph上做prefix距离，平行端点保留最低Fraction cost的canonical第一份
+原transition。接受性依赖端点Product/Büchi状态，同端点高代价弧不能改善接受闭环目标；
+被选action及witness仍是原输入对象。prefix与suffix恢复从显式arc对象映射取回，
+没有造新witness。后缀使用仅原节点的seen_accept双层图，另加一个无入边dummy source，
+其出弧复制入口实际出弧。dummy与(entry,True)目标不同，故即使入口接受，距离为0的
+自环也仍需一条真实转移。全入口SCC、下界公式、排序、剪枝与gamma10保持V2语义，
+继续复用生产ROS2 distance/tight-path helpers，没有改科学源或用参考solver代替ROS。
+
+最终13项定向验证：原7项语义案例+3项并行tie原对象、多initial、接受入口无selfloop案例，
+各与unpruned参考及V2对照、断言手算目标，并独立核对adjacency、prefix/suffix接点、
+原edge identity、精确成本及非空接受闭合。另3项None/float/负代价拒绝。
+松下界案例仍需2次精确入口搜索，非接受最优入口保留。最终suite在冻结源码后rc0；
+此前10项preliminary只留作探索证据，不混作最终源码资格。
+
+| 同轮B/FULL worker | 完整方法秒 | 搜索秒 | 精确目标 |
+| --- | ---: | ---: | ---: |
+| 原求解器 | 1.626859833 | 0.320487734 | 15 |
+| SCC V2 | 2.237633583 | 1.102624648 | 15 |
+| 精简图V3 | 1.734620945 | 0.632011194 | 15 |
+
+V3相对同轮V2完整耗时降低22.48%、搜索降低42.68%。当前参考也慢于前轮1.245秒，
+故不跨轮拼接加速比；单次单实例观察，无稳定或跨实例性能结论。V3仍慢于原求解器。
+原Product仍512状态/5808转移，prefix辅助图由6320节点降至512，suffix由12640节点降至
+1025节点/11635边。V3 heap push/pop各2241，V2各13856；settled为prefix512、
+lower-bound1024、suffix513（含dummy），与reference的suffix7保留各自basis。
+三臂均精确搜索1个入口、剪掉511个，完整精度一轮OPTIMALITY_CERTIFIED。
+原tracemalloc、heap插桩、完整输入/构造/具体化/证书/交付均保留，不改deadline或验收。
+
+新caller复用V2实验driver函数，内存加载为独立module，仅替换本轮backend、schema和
+固定目录；旧module及冻结科学runner不修改。实际source closure包含V2 caller/backend/
+fixtures和V3源码，原loop/local code对象相同。新后端
+`ROS2-DISCRETE-PLAN-CMR-COMPACT-V3`的SHA绑定实际生产helper、旧witness适配器、
+V2 caller/backend及V3 caller/backend。执行身份为
+`0f54c058f9d2057ed7cd37c475e74211e684a427+cmr-bfull-b10f9518f6bb6526`。
+P2c specialization仍只改backend SHA常量和schema ID；原终端、proof、精确代价、
+witness、计时约束不动。三份落盘证书在原run_one及额外独立P2e/verifier重放PASS。
+
+55份原冻结输入before/after及Native读回逐字节一致，40行科学映射与8+6实际导入匹配。
+Native仅标准库验证JSON/Fraction、闭环、paired目标/初始精度、source closure与源副本、
+唯一schema绑定差异、结果/证书hash、阶段统计及三个worker退出。driver、fixture、WSL
+wrapper、Native reader及三worker的实际rc均0。本次用保存的bash脚本执行，未重现前轮
+外层命令行转义问题；无求解重试或丢弃失败。
+
+[`完整原始记录与读回`](../../experiments/cmr_ros2_bfull_compact/evidence/20261012/index.json)
+归档66项，ZIP137987 bytes、SHA256
+`cd8d4e037199a743a0aad6451bb5adec636c56e6fe78c5185fadcb6203ac3a48`；全部成员读回SHA一致。
+README同步新入口、算法约束、同轮耗时及复现命令。生产模块、旧资格及冻结CMR数据/
+结果保持；未扩展其他实例/方法、DDS、provider、正式批量实验或136/754历史测试。

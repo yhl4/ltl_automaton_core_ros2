@@ -1,0 +1,51 @@
+{
+  "schema": "cmr-bfull-compact-evidence-index-v1",
+  "status": "PASSED",
+  "scope": "SINGLE_INSTANCE_PERFORMANCE_REGRESSION",
+  "instance_id": "B-D-BRANCH-S1",
+  "method": "FULL",
+  "source_head": "0f54c058f9d2057ed7cd37c475e74211e684a427",
+  "execution_identity": "0f54c058f9d2057ed7cd37c475e74211e684a427+cmr-bfull-b10f9518f6bb6526",
+  "arms": [
+    "reference",
+    "qualified_scc_v2",
+    "compact_v3"
+  ],
+  "attempts_per_arm": 1,
+  "method_workers": 3,
+  "certificates": 3,
+  "semantic_fixtures": 10,
+  "invalid_cost_fixtures": 3,
+  "frozen_inputs": 55,
+  "planner_budget_seconds": 180,
+  "outer_watchdog_seconds": 195,
+  "formal_campaign": false,
+  "provider_calls": 0,
+  "dds_runs": 0,
+  "driver_rc": 0,
+  "wsl_rc": 0,
+  "native_reader_rc": 0,
+  "archive_members": 66,
+  "notes": [
+    "Same-turn fixed triple; retained original tracemalloc, heap instrumentation, budgets, original full runner and certificate acceptance.",
+    "Qualified V2 source closure is pinned to its previous evidence archive; V3 uses original node arcs and a dummy start to preserve nonempty suffixes, including accepting entries and zero-cost cycles.",
+    "Three workers and three independent persisted certificate replays passed exact objective15. No method retries.",
+    "Native reader uses standard-library JSON/Fraction/hash checks, with original graph versus acceptance-memory counter bases explicit.",
+    "Preliminary fixtures are exploratory only; formal isolated plan freezes final source bytes before the13-case suite and real comparison.",
+    "Frozen CMR scientific inputs, production code and prior qualifications are unchanged; no formal campaign."
+  ],
+  "files": {
+    "raw_attempts.zip": {
+      "size": 137987,
+      "sha256": "cd8d4e037199a743a0aad6451bb5adec636c56e6fe78c5185fadcb6203ac3a48"
+    },
+    "archive_manifest.json": {
+      "size": 11235,
+      "sha256": "79a141cbd4937e274f32970df0487c6569a44a2bfe5144bea4ea27758e81f82c"
+    },
+    "native_readback.json": {
+      "size": 1570,
+      "sha256": "742a1253aeeb4ed4000a9b87bd8e8e11ed332b8ac86415fe2f8c4159cdba3d3d"
+    }
+  }
+}
