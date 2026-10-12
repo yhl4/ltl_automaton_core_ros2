@@ -8329,3 +8329,36 @@ V6算法ID/SHA、原INITIAL_LABEL_V1、Fraction/gamma10、非空接受后缀、�
 [补验与复现](../../experiments/cmr_ros2_backend/README_acceptance.md)、
 [全部15格计时](../../experiments/cmr_ros2_backend/acceptance_timings.md)、
 [证据与独立读回](../../experiments/cmr_ros2_backend/evidence/20261012_acceptance/index.json)。
+
+### 11.184 V7 精确整数搜索与单次入口复用（2026-10-12）
+
+仅按既定 A/FULL、B-D-BRANCH-S2/FULL、C3-T4/AP-D 三格做隔离性能对照，不启动
+正式170×3。私有 compact 图的分母为1的 Fraction 权重使用精确整数，其余保留 Fraction；
+原 abstract/witness、接受层、Dijkstra、最短距离确定后停止、剪枝与恢复逻辑不改。
+返回成本仍为Fraction。单次worker/parent入口复用已验证descriptor/schema，交付前再次
+核对binding字节和完整source closure；不同attempt/模型/轮次不共享缓存。原run_one、
+预算内preflight和模型加载不改；未以预加载移走计时工作，tracemalloc保持。
+
+14项定向代价/witness检查通过，涵盖非整数、零环、并行tie、非法代价和2^80以上整数。
+入口离线检查拒绝版本hash/identity、request、receipt及release前源码/绑定变更。
+三臂原求解器/V6/V7共9个合格结果、24轮完整构造、9份证书独立重放PASS，目标
+12/15/12、initial precision一致。V6/V7全部规范化round字段、heap/settlement/pruning
+计数及完整concrete lasso一致。完整方法V6→V7：A 2.219885→2.087386秒，
+B 2.729630→2.314885秒，C 1.470336→1.442596秒；搜索分别下降19.86%/36.81%/20.46%。
+C候选仍慢于原求解器；B交付和T_other增加。全部单次观测保留，不称普遍稳定加速。
+由原timestamps分别记录method前startup与raw formal完成后delivery；原输入预处理
+未改善，不把VerifiedEntry局部计数当成整个preflight总计。
+
+首次组合因schema facade参数顺序错误使A候选交付成为INFRASTRUCTURE_FAILURE，
+原worker的certified raw结果排除于资格计数，失败完整保留。修正后独立绑定
+CMR_SEARCH_ENTRY_V1-fc03c25f03e4e809；两份已成功reference/V6 control逐文件hash核对后
+原样续用、原version/execution身份保持，7个新worker完成其余格。跨两命名空间实际10次
+method尝试，含首次被拒candidate；合格计数为9。原V6入口与绑定字节保持。
+
+180/195预算、INITIAL_LABEL_V1、非空suffix、每轮full TS rebuild/refinement和原证书
+验收规则保持。V7只作显式隔离候选，未重复完整DDS/失败/default资格，不切换正式默认。
+标准库独立字节读回、source/frozen input前后核对及owned worker清理读回随原始证据保存。
+本轮未运行正式批量、provider、DDS或实机，也未重跑历史全套测试。
+
+[范围、全部计时与复现](../../experiments/cmr_ros2_search_entry/README.md)、
+[原始失败与合格续验](../../experiments/cmr_ros2_search_entry/evidence/20261012/index.json)。

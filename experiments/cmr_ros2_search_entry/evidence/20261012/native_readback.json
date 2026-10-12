@@ -1,0 +1,15 @@
+{
+  "accepted_rebuild_rounds": 24,
+  "cells": 3,
+  "certificate_replays": 9,
+  "continued_controls": 2,
+  "frozen_inputs": 60,
+  "new_workers": 7,
+  "planner_imported": false,
+  "qualified_rows": 9,
+  "schema": "cmr-search-entry-native-readback-v1",
+  "status": "PASSED",
+  "version_binding_id": "CMR_SEARCH_ENTRY_V1-fc03c25f03e4e809",
+  "version_binding_sha256": "741acdfcfe5f4aa0de31c74e09f834a89a37c47179a76710e4021d08fbdce82d",
+  "workers": 9
+}

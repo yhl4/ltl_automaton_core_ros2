@@ -35,6 +35,7 @@
 [B/FULL 闭环目标确定后停止](experiments/cmr_ros2_bfull_target/README.md) ·
 [CMR Product 构造与 refinement 对照](experiments/cmr_ros2_product_perf/README.md) ·
 [CMR 统一 backend / V6 DDS](experiments/cmr_ros2_backend/README.md) ·
+[CMR V7 搜索与入口优化](experiments/cmr_ros2_search_entry/README.md) ·
 [验证记录](ltl_automaton_planner/docs/validation.md)
 
 面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
@@ -113,6 +114,16 @@ V6 默认资格的三项补验已完成：元数据预选 A/EXT/S2-B/两个 C �
 问题及故障脚本拦截git的失败均保留，仅续验6个失败项，成功方法不重跑，60份冻结输入
 保持。V6具备在下一版独立绑定的CMR中设为默认backend的资格；当前冻结正式实验
 默认与结果身份未改，无正式批量/provider/实机运行。见 [默认资格、范围与完整证据](experiments/cmr_ros2_backend/README_acceptance.md)。
+
+新增 V7 隔离候选，将私有搜索图中的整数 Fraction 权重改用精确整数运算，并在单次
+worker/父进程 attempt 内复用已验证的入口描述与 schema，交付前重新核对绑定和完整
+源码闭包。原输入 preflight、模型加载、refinement、tracemalloc、180/195 秒预算和
+证书规则保持。A/FULL、B-S2/FULL、C3/AP-D 与原求解器和未改动 V6 的三臂对照通过，
+9份证书独立重放通过、24轮完整构造；V6/V7 逐轮科学字段及完整 lasso 一致。
+同轮搜索分别下降约20%/37%/20%，完整方法下降约6%/15%/2%；B 的交付开销反而增加，
+不宣称入口或输入处理普遍加速。首次 schema 适配参数错误保留，两份成功 control 原样
+续用、仅补跑7个worker。V7尚未重复完整DDS/默认资格验证，不切换正式默认、不启动
+正式批量。范围、全部计时与复现见 [V7 搜索与入口优化](experiments/cmr_ros2_search_entry/README.md)。
 
 ---
 
