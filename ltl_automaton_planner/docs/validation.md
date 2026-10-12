@@ -7924,3 +7924,66 @@ raw_attempts.zip为854882 bytes、SHA256
 Gazebo、Jazzy、实机或新增IRL科学效果验证。入口有意限定三个已选择实例，并需要本地
 匹配的冻结CMR源码/数据；默认PlannerNode仍保留原语义。不是正式campaign solver替换
 资格。此前136/754项资格及25项优化保留历史范围，本轮未重跑该测试集。
+
+### 11.177 B-D-BRANCH-S1 FULL 搜索热点的隔离优化（2026-10-12）
+
+按用户授权，仅处理§11.176中B/FULL由reference约1.25秒变为ROS2约98秒的问题。
+基线提交`1997db4bf4d8f676c3670530beb3ea3c9acc57d9`；新增
+`experiments/cmr_ros2_bfull_perf`，旧三实例资格源码与证据、生产距离helper及冻结CMR源均不改。
+执行前冻结单实例FULL、reference/baseline/optimized三个独立worker各一次、源闭包及
+原180秒方法/195秒watchdog预算。范围为`SINGLE_INSTANCE_PERFORMANCE_REGRESSION`，
+不采正式Core结果，不启动其余实例、其他方法、DDS、provider或正式批量实验。
+
+旧归档中双方Product均512状态/5808转移；reference搜索0.1988114秒、精确入口1次，
+ROS2搜索97.193940116秒、精确入口512次。ROS2每次对12640节点/23232边的接受性辅助图
+做distance搜索，suffix累计settled3964928，heap push/pop各3971248次。
+这是主要耗时来源；TS构造与Product规模没有解释约97秒的搜索差距。
+
+优化保留Fraction、INITIAL_LABEL_V1、`prefix + 10 × suffix`、非空接受闭环及全部入口
+语义。仅对prefix可达的原节点构建SCC拓扑；后缀限制在含接受节点且有环的SCC。
+最小平行代价只用于距离下界，实际action/witness仍保存在edge-node原对象中。
+入口下界为prefix距离加10倍`max(到接受距离+从接受距离, SCC内部最小出边代价)`。
+任意接受闭环必须访问接受节点、回到入口并至少走一条出边，故该值不超过真实最优值。
+按下界、prefix距离、canonical入口排序；下界≥当前可行目标时剪掉余下入口。
+允许等目标合法witness不同，不将候选限制到接受入口，不删除零成本环/自环。
+仍调用原ROS2距离与tight-path恢复helper；没有用原求解器充当ROS2实现。
+
+7个固定语义夹具与unpruned参考解及旧ROS2比较，并断言手算目标；覆盖非接受最优入口、
+零成本自环/环、Fraction平行witness、不可达接受SCC、无接受环、松下界后继续改善最优值。
+松下界例首入口LB10但真实目标1010，第二入口得到21，实际精确搜索2次。
+另3项None/float/负代价拒绝检查通过。此后只运行预定真实三臂，无求解重试。
+
+| B/FULL fresh worker | 完整方法秒 | 搜索秒 | 精确入口 / 剪枝 | Fraction目标 |
+| --- | ---: | ---: | ---: | ---: |
+| 原求解器 | 1.244840724 | 0.191973312 | 1 / 511 | 15 |
+| 旧ROS2 | 93.345968209 | 92.313485103 | 512 / 0 | 15 |
+| 优化ROS2 | 1.989992554 | 0.923917679 | 1 / 511 | 15 |
+
+本次完整方法旧/新ROS2比为46.9077，搜索比99.9153；一次单实例对照，不作跨实例或稳定
+加速结论。优化臂heap push/pop各13856，settled为prefix6320、lower-bound1024、suffix6320；
+原求解器suffix7为原图计数，与ROS2辅助图计数basis不同。优化臂仍构造edge-node图并在
+选中SCC内完整计算距离，故仍慢于reference。原runner tracemalloc与ROS2插桩保持启用，
+完整输入、构造、具体化、证书和交付均计入原方法起点的测量，没有跳过失败阶段或缩预算。
+
+三方OPTIMALITY_CERTIFIED，完整精度一轮、精确目标15。原runner的loop/local code对象
+保持，只在克隆globals中替换solver。新后端`ROS2-DISCRETE-PLAN-CMR-SCC-BOUND-V2`
+SHA绑定生产helper、旧witness适配器、新backend和插桩caller；执行身份为
+`1997db4bf4d8f676c3670530beb3ea3c9acc57d9+cmr-bfull-d961ad480af2f283`。
+P2c新版本绑定只替换backend SHA常量和schema ID，其他字段、计时、proof、终端及证书
+验收规则不变。三份落盘证书分别在原run_one及额外独立P2e/verifier重放通过；该验证器
+重放权威转移、Fraction、接受性和word，不再次搜索最优解。
+
+55份原输入before/after一致，各worker的40行科学源映射、8+6实际导入路径/SHA匹配。
+独立Native reader仅用标准库，不导入planner，核对源闭包及冻结副本、精确代价/闭环、
+paired目标/精度、结果hash、证书bytes、schema唯一差异和三个worker rc0/退出。
+外层WSL shell因命令行转义丢失退出码变量，完成三臂后返回2，run.rc为空；Python父driver
+退出码没有直接观测，不冒称0。科学comparison为PASSED、各worker rc0及三份独立重放
+均已落盘。Native reader首版和第一次修正分别因证书代价位置、transport状态编码失败，
+脚本与错误均保留；按实际已绑定编码修正后rc0。没有重跑求解或改变验收。
+
+[`原始尝试及读回索引`](../../experiments/cmr_ros2_bfull_perf/evidence/20261012/index.json)
+按字节归档68项，含计划、源快照、raw/delivery结果、schema、证书、日志、退出码、
+reader各版本与失败。ZIP为142298 bytes、SHA256
+`7780fd2bd9d69559ebafffbbf12faf8959228b02ca37580790829a42a7565831`，全部成员SHA读回匹配。
+生产Planner、冻结CMR结果和§11.176资格保持；不重新运行136/754历史测试，不替换正式
+campaign solver。用户要求的有限B/FULL性能优化在本次验证后结束。

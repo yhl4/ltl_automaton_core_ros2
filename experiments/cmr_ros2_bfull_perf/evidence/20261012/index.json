@@ -1,0 +1,45 @@
+{
+  "schema": "cmr-bfull-perf-evidence-index-v1",
+  "status": "PASSED",
+  "scope": "SINGLE_INSTANCE_PERFORMANCE_REGRESSION",
+  "instance_id": "B-D-BRANCH-S1",
+  "method": "FULL",
+  "source_head": "1997db4bf4d8f676c3670530beb3ea3c9acc57d9",
+  "execution_identity": "1997db4bf4d8f676c3670530beb3ea3c9acc57d9+cmr-bfull-d961ad480af2f283",
+  "arms": [
+    "reference",
+    "baseline",
+    "optimized"
+  ],
+  "attempts_per_arm": 1,
+  "certificates": 3,
+  "fixtures": 10,
+  "frozen_inputs": 55,
+  "planner_budget_seconds": 180,
+  "outer_watchdog_seconds": 195,
+  "formal_campaign": false,
+  "provider_calls": 0,
+  "dds_runs": 0,
+  "archive_members": 68,
+  "notes": [
+    "All three original-runner workers returned0 and independently certified exact objective15. No method retry.",
+    "Timing includes original tracemalloc, complete model/runner/certificate handling and ROS2 heap instrumentation. One triple only; auxiliary counters differ from original Product counters.",
+    "Outer shell rc2 and empty run.rc preserved: quoting lost shell return-code variable after completed scientific comparison. Root Python rc was not directly observed.",
+    "Initial and first-repair native readers failed on two documented certificate/transport layout differences; their bytes/errors retained. Corrected standard-library reader returned0.",
+    "Frozen CMR/production sources and old evidence unchanged. P2c schema specialization changes only backend SHA constant and schema ID."
+  ],
+  "files": {
+    "raw_attempts.zip": {
+      "size": 142298,
+      "sha256": "7780fd2bd9d69559ebafffbbf12faf8959228b02ca37580790829a42a7565831"
+    },
+    "archive_manifest.json": {
+      "size": 11493,
+      "sha256": "9bac847a40818a25e3ef55f74c98f30ad5a731e0c5e03180555b13c8df9002c0"
+    },
+    "native_readback.json": {
+      "size": 1571,
+      "sha256": "73038dcc56fc0b1a63585478c63b9d49853ff90bedd81235943c37c91b1226e7"
+    }
+  }
+}

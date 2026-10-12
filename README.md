@@ -29,6 +29,7 @@
 [CMR 接入 smoke](experiments/cmr_ros2_smoke/README.md) ·
 [CMR refinement / 超时 / DDS](experiments/cmr_ros2_integration/README.md) ·
 [CMR 真实实例接入](experiments/cmr_ros2_real/README.md) ·
+[B/FULL 搜索优化](experiments/cmr_ros2_bfull_perf/README.md) ·
 [验证记录](ltl_automaton_planner/docs/validation.md)
 
 面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
@@ -60,9 +61,12 @@ reference/ROS2对照通过，精确目标分别15、13、20；18份对照证书�
 新记录标为 `CORE_SUBSET_QUALIFICATION`，原始失败与修正证据见
 [真实实例读回与归档](experiments/cmr_ros2_real/evidence/20261012/index.json)。
 入口目前限定上述三个实例，并依赖本地匹配的 CMR 冻结源码和数据。
-本轮 B/FULL 的 ROS2 资格计时为98.31秒，reference为1.25秒，包含插桩与tracemalloc；
-接入通过不代表性能达标。默认 Planner 与冻结 CMR 结果保持，未启动正式批量实验，
-尚不能替换正式 campaign solver。
+此前 B/FULL 的 ROS2 资格计时为98.31秒，reference为1.25秒。已定位到旧适配器对512个
+入口重复搜索接受性辅助图；新增隔离的SCC与入口下界剪枝后，同次三臂对照为：原求解器
+1.245秒、旧ROS2 93.346秒、优化ROS2 1.990秒，均含插桩与原tracemalloc。精确入口搜索
+从512次降至1次，三方目标均15，独立证书重放通过，180/195秒预算与验收规则不变。
+这是单实例FULL的有限优化，入口与证据见[B/FULL 搜索优化](experiments/cmr_ros2_bfull_perf/README.md)。
+默认 Planner 与冻结 CMR 结果保持，未启动正式批量实验，尚不能替换正式 campaign solver。
 
 ---
 

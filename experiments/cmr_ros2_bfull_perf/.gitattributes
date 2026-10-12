@@ -1,0 +1,2 @@
+*.py -text whitespace=cr-at-eol
+plan.json -text whitespace=cr-at-eol
