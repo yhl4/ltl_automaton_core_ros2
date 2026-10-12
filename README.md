@@ -125,6 +125,12 @@ worker/父进程 attempt 内复用已验证的入口描述与 schema，交付前
 续用、仅补跑7个worker。V7尚未重复完整DDS/默认资格验证，不切换正式默认、不启动
 正式批量。范围、全部计时与复现见 [V7 搜索与入口优化](experiments/cmr_ros2_search_entry/README.md)。
 
+审计修复前对照基线已固定为 `00fc5a9`，本地标签 `cmr-v7-baseline-00fc5a9`。
+38份源码闭包、V7归档306个成员及V6验收归档796个成员的字节/hash核验通过，原结果身份
+保持。独立分支已准备；最终补丁标识与应用顺序尚待交接，预计基于 `2934ec7`，须先检查
+与V7改动的冲突。循环重复入口、过期/重复反馈、整数/Fraction精确代价及零成本接受性
+的修复前后DDS回归均未启动。详见 [基线固定与待验收范围](experiments/cmr_ros2_search_entry/README.md#pinned-audit-control-baseline-2026-10-12)。
+
 ---
 
 ## 1. 当前支持范围

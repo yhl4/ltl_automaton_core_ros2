@@ -8,6 +8,49 @@ suffix, every-round full TS rebuild/refinement, tracemalloc, 180 s method budget
 The production planner and frozen CMR default are unchanged. No formal campaign,
 DDS run, provider call or hardware execution was started in this qualification.
 
+## Pinned audit control baseline (2026-10-12)
+
+The repair-control baseline is commit
+[`00fc5a91383b24f85d33aa81682af22e531234cf`](https://github.com/yhl4/ltl_automaton_core_ros2/commit/00fc5a91383b24f85d33aa81682af22e531234cf),
+pinned locally as `cmr-v7-baseline-00fc5a9`. An independent worktree on
+`codex/v7-audit-dds-regression` is prepared at that same commit. The final audit
+patch branch, full commit, patch path and application order are **pending**;
+no patch has been applied and no new comparison or DDS regression has started.
+
+Baseline byte verification passed for all 38 files in the V7 source closure,
+the V7 archive's 306 members and the V6 acceptance archive's 796 members.
+Archive members were checked by size and SHA256 against their manifests;
+the corresponding evidence files also match the pinned Git blobs.
+
+| Preserved archive | Bytes | SHA256 |
+| --- | ---: | --- |
+| [V7 evidence](evidence/20261012/index.json) | 937685 | `399653ff5db57d8aed078f327e35671ddd0255385a500e1ad63ad6f6febea1a6` |
+| [V6 acceptance evidence](../cmr_ros2_backend/evidence/20261012_acceptance/index.json) | 2216897 | `2e393d8a55c91c0eaab550f4adc355b9e3a4df9d65c5ee798a4f4bf5a82b8d92` |
+
+All existing results, failures, certificates and bindings retain their original
+bytes and identities. In particular, the historical V7 execution identity is
+`2934ec788e3b662111d378fd4b1a12ce6a459eee+cmr-search-entry-2135437e8cbf9959`;
+pinning commit `00fc5a9` does not relabel those records or constitute another
+solver/certificate run. The nine qualified results and certificate replays
+below remain the earlier qualification.
+
+The expected repair base is `2934ec7`. Once its exact handoff is available,
+first check the patch against `2934ec7..00fc5a9` for conflicts with the V7
+changes, then apply it only in the independent branch with a new source/version
+binding. The pending acceptance checks are:
+
+- Repeated cycle-entry occurrences remain in the complete execution sequence.
+- Expired and duplicate feedback cannot advance execution or dispatch again.
+- Integer and Fraction paths retain the same exact objective and witness costs.
+- Legal zero-cost outcomes are accepted without a truthiness-based rejection.
+
+After patch identity and conflicts are resolved, prefer a small actual DDS
+regression using the existing ROS2/WSL environment and compare pre-repair versus
+repaired verdicts, exact costs and independent persisted-certificate replay.
+These checks are **NOT_RUN**. Keep INITIAL_LABEL_V1, 180/195 s budgets and the
+original certificate rules; do not switch defaults, merge the PR or start the
+formal campaign.
+
 ## Changes and boundaries
 
 `backend.py` changes only the numeric representation of weights on a fresh,
