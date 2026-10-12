@@ -1,0 +1,32 @@
+{
+  "schema": "cmr-v6-default-qualification-decision-v1",
+  "status": "PASSED",
+  "recommended_default_backend": "ros2-v6",
+  "eligible_for_next_separately_bound_cmr_version": true,
+  "existing_frozen_campaign_default_changed": false,
+  "formal_campaign_authorized": false,
+  "formal_campaign_workers": 0,
+  "provider_calls": 0,
+  "qualification_scope": "fixed real subset, unchanged qualified deterministic CMR models/semantics and acceptance",
+  "current_version_binding_id": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25",
+  "current_version_binding_sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a",
+  "original_real_method_version_binding_id": "CMR_UNIFIED_BACKENDS_V2-4764d580552d36d6",
+  "original_real_method_version_binding_sha256": "c298e943355a818cebcee84938c6a9556a2e782361ea29ded123079bd896515f",
+  "prerequisites": {
+    "unified_failure_paths": "PASSED",
+    "fixed_real_subset": "PASSED",
+    "offline_formal_result_chain": "PASSED"
+  },
+  "performance_claim": "single paired observations only; no universal or stable speedup claim",
+  "deployment_boundary": "new default configuration requires its own execution binding; frozen results are never relabeled",
+  "normal_worker_repeats": 0,
+  "method_pairs": 15,
+  "feasible_certificate_replays": 31,
+  "live_campaign_constructor_and_dispatch": "NOT_RUN_BY_DESIGN",
+  "original_failures_preserved": true,
+  "evidence_hashes": {
+    "native": "7fc78746dee7e3918dc045477835c96bc5413489abf0f91574b261c1fce97982",
+    "formal_gate": "d8b0d6b0998f2d2f5e51676f325ec1541c0cf4e8faab8a3b51891e6e4118bf05",
+    "recovery": "691925324570fcff2815e1a03e5a3f74a838b2fb38fc7ab14570996ed5010f2e"
+  }
+}

@@ -1,0 +1,187 @@
+{
+  "status": "PASSED",
+  "paired_cells": 15,
+  "method_workers": 30,
+  "build_rounds": 79,
+  "feasible_certificates_replayed": 31,
+  "exact_empty_outcomes": 0,
+  "lifecycle_paths": 9,
+  "dds_cases": 4,
+  "boundary_checks": 11,
+  "offline_cells": 510,
+  "formal_campaign_workers": 0,
+  "provider_calls": 0,
+  "frozen_inputs": 60,
+  "timings": [
+    {
+      "instance": "A-T1-M0-A-S-BRANCH",
+      "method": "FULL",
+      "objective": "12",
+      "reference": 3.067666899,
+      "v6": 2.220773476,
+      "rounds": [
+        1,
+        1
+      ]
+    },
+    {
+      "instance": "A-T1-M0-A-S-BRANCH",
+      "method": "AP-D",
+      "objective": "12",
+      "reference": 1.652547763,
+      "v6": 1.844049205,
+      "rounds": [
+        2,
+        2
+      ]
+    },
+    {
+      "instance": "A-T1-M0-A-S-BRANCH",
+      "method": "DEP-D",
+      "objective": "12",
+      "reference": 1.6149334,
+      "v6": 1.742914813,
+      "rounds": [
+        2,
+        2
+      ]
+    },
+    {
+      "instance": "EXT-L2L-G01",
+      "method": "FULL",
+      "objective": "11",
+      "reference": 1.062106246,
+      "v6": 1.303881182,
+      "rounds": [
+        1,
+        1
+      ]
+    },
+    {
+      "instance": "EXT-L2L-G01",
+      "method": "AP-D",
+      "objective": "11",
+      "reference": 1.321636218,
+      "v6": 1.539556242,
+      "rounds": [
+        3,
+        3
+      ]
+    },
+    {
+      "instance": "EXT-L2L-G01",
+      "method": "DEP-D",
+      "objective": "11",
+      "reference": 1.648099078,
+      "v6": 1.419520144,
+      "rounds": [
+        3,
+        3
+      ]
+    },
+    {
+      "instance": "B-D-BRANCH-S2",
+      "method": "FULL",
+      "objective": "15",
+      "reference": 5.834784634,
+      "v6": 3.595917992,
+      "rounds": [
+        1,
+        1
+      ]
+    },
+    {
+      "instance": "B-D-BRANCH-S2",
+      "method": "AP-D",
+      "objective": "15",
+      "reference": 3.812963904,
+      "v6": 3.762053069,
+      "rounds": [
+        4,
+        4
+      ]
+    },
+    {
+      "instance": "B-D-BRANCH-S2",
+      "method": "DEP-D",
+      "objective": "15",
+      "reference": 2.431940383,
+      "v6": 2.232786945,
+      "rounds": [
+        1,
+        1
+      ]
+    },
+    {
+      "instance": "C2-T3",
+      "method": "FULL",
+      "objective": "13",
+      "reference": 1.299889647,
+      "v6": 1.600177533,
+      "rounds": [
+        1,
+        1
+      ]
+    },
+    {
+      "instance": "C2-T3",
+      "method": "AP-D",
+      "objective": "13",
+      "reference": 1.475697371,
+      "v6": 1.650808474,
+      "rounds": [
+        5,
+        5
+      ]
+    },
+    {
+      "instance": "C2-T3",
+      "method": "DEP-D",
+      "objective": "13",
+      "reference": 1.441342822,
+      "v6": 1.683136031,
+      "rounds": [
+        3,
+        3
+      ]
+    },
+    {
+      "instance": "C3-T4",
+      "method": "FULL",
+      "objective": "12",
+      "reference": 1.759829137,
+      "v6": 1.611923238,
+      "rounds": [
+        1,
+        1
+      ]
+    },
+    {
+      "instance": "C3-T4",
+      "method": "AP-D",
+      "objective": "12",
+      "reference": 1.9648788,
+      "v6": 2.213444087,
+      "rounds": [
+        6,
+        6
+      ]
+    },
+    {
+      "instance": "C3-T4",
+      "method": "DEP-D",
+      "objective": "12",
+      "reference": 2.239575865,
+      "v6": 1.880017089,
+      "rounds": [
+        5,
+        5
+      ]
+    }
+  ],
+  "original_status": "FAILED",
+  "narrow_recovery_status": "PASSED",
+  "successful_method_workers_repeated": 0,
+  "recovery_cases": 6,
+  "formal_gate_rows": 3
+}

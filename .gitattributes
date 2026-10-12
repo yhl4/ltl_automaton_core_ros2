@@ -1,0 +1,4 @@
+# Version records bind their exact serialized bytes.
+experiments/cmr_ros2_backend/*binding.json -text
+# Qualified source hashes include line endings.
+*.py -text

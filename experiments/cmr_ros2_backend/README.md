@@ -1,5 +1,13 @@
 # CMR selectable reference / ROS2 V6 backend
 
+**Current interface: V2.** The three default-qualification prerequisites have
+passed; see [V6 default qualification](README_acceptance.md) and the current
+[`acceptance_binding.json`](acceptance_binding.json). The V1 results and binding
+below are immutable historical evidence. Current code rejects stale V1
+bindings; reproduce V1 from commit `a920af8d3930637c304533f3f77f595a0c5f20ab`.
+V2 accepts the original 12-cell qualification plan or the new 15-cell plan;
+both keep formal execution disabled. The existing formal default is unchanged.
+
 CMR now has one explicit backend interface: `reference` or `ros2-v6`.
 `backends.configure(fresh_bound_runner, backend, version_binding_path)` selects
 the implementation; `runner.py --backend ...` provides the same bounded worker

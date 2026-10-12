@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT))
 from experiments.cmr_ros2_product_perf import compare as v6
 
 NAMES = ('reference', 'ros2-v6')
-VERSION = 'CMR_UNIFIED_BACKENDS_V1'
+VERSION = 'CMR_UNIFIED_BACKENDS_V2'
 QUALIFIED_V6_ARCHIVE_SHA = 'fe4b6759890a4a6f8175792e8d5dab13c8d60dd37a7e56e5efe5769f01333f44'
 digest = v6.real.digest
 canonical = lambda value: json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
@@ -27,7 +27,7 @@ def source_closure():
         expected = json.loads(zipped.read('plan.json'))['source_closure']
     if closure != expected:
         raise ValueError('qualified V6 source bytes changed')
-    for name in ('backends.py', 'runner.py'):
+    for name in ('backends.py', 'runner.py', 'acceptance.py', 'lifecycle.py', 'offline_chain.py'):
         path = HERE / name
         closure[str(path.relative_to(ROOT))] = digest(path)
     return closure
@@ -39,7 +39,7 @@ def create_binding(receipt_path):
     authority = v6.real.load_selection()
     if digest(receipt_path) != authority['receipt_sha256']:
         raise ValueError('qualified authority receipt mismatch')
-    content = dict(schema='cmr-unified-backend-binding-v1', version=VERSION,
+    content = dict(schema='cmr-unified-backend-binding-v2', version=VERSION,
         qualification_only=True, formal_campaign=False,
         semantic_contract_id='INITIAL_LABEL_V1', objective='prefix_cost + 10*suffix_cost',
         nonempty_accepting_suffix=True, full_ts_rebuild_every_round=True,
@@ -65,7 +65,7 @@ def load_binding(path, expected_sha256=None):
     binding_id = content.pop('binding_id')
     if binding_id != VERSION + '-' + hashlib.sha256(canonical(content).encode()).hexdigest()[:16]:
         raise ValueError('backend version binding identity mismatch')
-    if (value['schema'] != 'cmr-unified-backend-binding-v1' or value['version'] != VERSION
+    if (value['schema'] != 'cmr-unified-backend-binding-v2' or value['version'] != VERSION
             or value['source_closure'] != source_closure()
             or value['methods'] != ['FULL', 'AP-D', 'DEP-D']
             or value['semantic_contract_id'] != 'INITIAL_LABEL_V1'

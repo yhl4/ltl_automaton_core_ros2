@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import signal
 from pathlib import Path
 import subprocess
 import sys
@@ -21,11 +22,16 @@ SCOPE = 'CMR_UNIFIED_BACKEND_SUBSET_QUALIFICATION'
 
 def load_plan(path):
     plan = json.loads(Path(path).read_bytes())
-    from experiments.cmr_ros2_backend.qualification import selection
-    if (plan['schema'] != 'cmr-unified-backend-plan-v1' or plan['scope'] != SCOPE
+    if plan['schema'] == 'cmr-unified-backend-acceptance-plan-v2':
+        from experiments.cmr_ros2_backend.acceptance import selection
+        expected_scope, expected_workers = 'CMR_V6_DEFAULT_ACCEPTANCE', 30
+    else:
+        from experiments.cmr_ros2_backend.qualification import selection
+        expected_scope, expected_workers = SCOPE, 24
+    if (plan['schema'] not in ('cmr-unified-backend-plan-v1', 'cmr-unified-backend-acceptance-plan-v2') or plan['scope'] != expected_scope
             or plan['formal_campaign'] is not False or plan['planner_budget_seconds'] != 180
             or plan['outer_watchdog_seconds'] != 195 or plan['attempts_per_cell_backend'] != 1
-            or plan['backends'] != list(backends.NAMES) or plan['expected_method_workers'] != 24):
+            or plan['backends'] != list(backends.NAMES) or plan['expected_method_workers'] != expected_workers):
         raise ValueError('unsupported execution scope or budget')
     binding = backends.load_binding(plan['version_binding_path'], plan['version_binding_sha256'])
     if binding['binding_id'] != plan['version_binding_id']:
@@ -79,13 +85,23 @@ def make_request(plan, instance_id, method, backend):
         raise ValueError('cell outside frozen small qualification scope')
     descriptor = backends.describe(plan['version_binding_path'], backend)
     return dict(found[0], **descriptor, qualification_id=plan['qualification_id'],
-                population=SCOPE, formal_campaign=False, execution_identity=plan['execution_identity'],
+                population=plan['scope'], formal_campaign=False, execution_identity=plan['execution_identity'],
                 planner_budget_seconds=180, outer_watchdog_seconds=195)
 
 
 def validate_request(plan, request, backend):
     if request != make_request(plan, request['instance_id'], request['method'], backend):
         raise ValueError('request/backend differs from the frozen version binding')
+
+
+def terminal_delivery(row, completion, *, outer_start, forced_timeout=False):
+    # Original timeout/infrastructure serialization has unknown phase intervals
+    # (None). The delivery interval itself is observed; enable its recording
+    # without inventing unavailable solver phase timings.
+    if row.get('phase_intervals_ns') is None:
+        row['phase_intervals_ns'] = {}
+    return real.terminal_delivery(row, completion, outer_start=outer_start,
+                                  forced_timeout=forced_timeout)
 
 
 def worker(args):
@@ -106,7 +122,7 @@ def worker(args):
     if row['initial_S0'] != bound['expected_initialization'][request['instance_id']][request['method']]:
         raise ValueError('initial precision differs from original binding')
     descriptor = capture['backend_binding']
-    row.update(qualification_scope=SCOPE, formal_campaign=False,
+    row.update(qualification_scope=plan['scope'], formal_campaign=False,
                search_counter_basis=capture['counter_basis'], **descriptor)
     for round_row in row.get('rounds') or []:
         round_row.update(**descriptor)
@@ -152,43 +168,65 @@ def run_isolated(request, receipt, kernel_root, version_binding_path, plan_path,
         '--version-binding', str(version_binding_path), '--plan', str(plan_path), '--output', str(output)]
     killed = False
     with (output / 'stdout.txt').open('w') as stdout, (output / 'stderr.txt').open('w') as stderr:
-        process = subprocess.Popen(command, stdout=stdout, stderr=stderr)
+        process = subprocess.Popen(command, stdout=stdout, stderr=stderr, start_new_session=True)
         try:
             process.wait(timeout=max(0, 195 - (time.perf_counter_ns() - start) / 1e9))
         except subprocess.TimeoutExpired:
             killed = True
-            process.terminate()
+            os.killpg(process.pid, signal.SIGTERM)
             try:
                 process.wait(timeout=1)
             except subprocess.TimeoutExpired:
-                process.kill()
+                os.killpg(process.pid, signal.SIGKILL)
                 process.wait(timeout=1)
     (output / 'worker.rc').write_text(str(process.returncode) + '\n')
-    if process.returncode != 0 and not killed:
-        raise RuntimeError('unified worker failed; retain ' + str(output / 'stderr.txt'))
     delivered = output / 'worker_result.json'
-    if delivered.exists():
-        value = json.loads(delivered.read_bytes())
-    elif killed:
+    # A nonzero exit never authorizes even a previously written result. Keep
+    # its bytes for diagnosis, and serialize the original infrastructure rule.
+    failure = None
+    if process.returncode == 0 and delivered.exists() and not killed:
+        try:
+            value = json.loads(delivered.read_bytes())
+            if value['backend_binding'] != backends.describe(version_binding_path, request['backend']):
+                raise ValueError('worker result backend/version mismatch')
+            if value['row']['execution_commit'] != plan['execution_identity']:
+                raise ValueError('worker result execution identity mismatch')
+            row = value['row']
+            expected_hash = row.get('result_hash')
+            if expected_hash != hashlib.sha256(backends.canonical({k: v for k, v in row.items() if k != 'result_hash'}).encode()).hexdigest():
+                raise ValueError('worker result hash mismatch')
+            descriptor = value['backend_binding']
+            if (row['instance_id'] != request['instance_id'] or row['method'] != request['method']
+                    or any(row.get(k) != v for k, v in descriptor.items())
+                    or any(any(r.get(k) != v for k, v in descriptor.items()) for r in row.get('rounds') or [])):
+                raise ValueError('worker result cell/round provenance mismatch')
+            backends.schema_for(json.loads(adapter._native_path(receipt).read_bytes()), request['backend']).validate_result(value['row'])
+        except (ValueError, KeyError, TypeError) as error:
+            failure = repr(error)
+    else:
+        failure = 'watchdog' if killed else 'worker exit or missing result: ' + str(process.returncode)
+    if failure is not None:
         formal, _, _, _ = authority(plan, receipt, kernel_root)
         backends.configure(formal, request['backend'], version_binding_path)
-        value = dict(row=formal.timeout_serialization(request, 'outer_watchdog',
+        value = dict(row=formal.timeout_serialization(request, 'outer_watchdog' if killed else 'infrastructure',
             method_start_ns=start, terminal_completion_ns=time.perf_counter_ns()),
             transport=None, search_work=[], build_work=[],
             backend_binding=backends.describe(version_binding_path, request['backend']))
         value['row'].update(**value['backend_binding'])
-    else:
-        raise RuntimeError('worker exited without result')
+        value['row'].update(error=failure, execution_commit=plan['execution_identity'],
+                            qualification_scope=plan['scope'], formal_campaign=False,
+                            certificate_path='NOT_AVAILABLE', certificate_hash='NOT_AVAILABLE',
+                            certificate_schema='NOT_AVAILABLE', certificate_objective=None)
     value.update(worker_pid=process.pid, worker_exitcode=process.returncode,
                  worker_alive_after_cleanup=process.poll() is None, outer_start_ns=start)
     write(output / 'delivered_attempt.json', value)
-    real.terminal_delivery(value['row'], time.perf_counter_ns(), outer_start=start, forced_timeout=killed)
+    terminal_delivery(value['row'], time.perf_counter_ns(), outer_start=start, forced_timeout=killed)
     if not value['row']['certificate_valid_for_terminal']:
         value['transport'] = None
     write(output / 'result.json', value)
     completion = time.perf_counter_ns()
     if completion >= value['row']['method_start_ns'] + 180_000_000_000 and value['row']['terminal_status'] != 'TIMEOUT':
-        real.terminal_delivery(value['row'], completion, outer_start=start)
+        terminal_delivery(value['row'], completion, outer_start=start)
         value['transport'] = None
         write(output / 'result.json', value)
     schema = backends.schema_for(json.loads(adapter._native_path(receipt).read_bytes()), request['backend'])

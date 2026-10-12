@@ -128,6 +128,7 @@ class V6Server(transport._Server):
                    backend_id=descriptor.get("backend_id"))
         except Exception as error:
             details = traceback.format_exc()
+            descriptor = _descriptor(self.version_binding)
             self.result = {
                 "schema": SCHEMA, "population": request["population"],
                 "request_id": request["request_id"],
@@ -135,7 +136,10 @@ class V6Server(transport._Server):
                 "backend": request.get("backend"), "variant": "real",
                 "terminal_status": "ERROR", "objective": None,
                 "concrete_lasso": None, "error": repr(error),
-                "backend_binding": request,
+                "backend_binding": descriptor, **descriptor,
+                "certificate_valid_for_terminal": False,
+                "certificate_verifier_status": "NOT_AVAILABLE",
+                "right_censored": False,
             }
             (self.work_dir / "server_traceback.txt").write_text(details, encoding="utf-8")
             sys.stderr.write(details)
@@ -264,10 +268,11 @@ def _validate_case(
     server_pid = artifact.get("server_pid")
     driver_pid = artifact.get("driver_pid")
     worker_pid = result.get("worker_pid") if isinstance(result, dict) else None
-    if not all(isinstance(pid, int) and pid > 0 for pid in
-               (server_pid, driver_pid, worker_pid)):
+    error_case = request["expected_terminal"] == "ERROR"
+    pids = (server_pid, driver_pid) if error_case else (server_pid, driver_pid, worker_pid)
+    if not all(isinstance(pid, int) and pid > 0 for pid in pids):
         raise AssertionError("server, driver, and worker PIDs are required")
-    if len({server_pid, driver_pid, worker_pid}) != 3:
+    if len(set(pids)) != len(pids):
         raise AssertionError("server, driver, and worker PIDs must be distinct")
     if not isinstance(result, dict):
         raise AssertionError("DDS result missing")
@@ -279,8 +284,9 @@ def _validate_case(
         raise AssertionError("real population mismatch")
     if result.get("backend_binding") != descriptor:
         raise AssertionError("result backend identity mismatch")
-    if (result.get("worker_exitcode") != 0
-            or result.get("worker_alive_after_cleanup") is not False):
+    expected_exitcode = 23 if request["expected_terminal"] == "INFRASTRUCTURE_FAILURE" else 0
+    if (not error_case and (result.get("worker_exitcode") != expected_exitcode
+            or result.get("worker_alive_after_cleanup") is not False)):
         raise AssertionError("worker did not terminate cleanly")
     server_events = server.get("events", [])
     names = [event.get("event") for event in server_events]
@@ -359,13 +365,21 @@ def _validate_case(
         if (not observations or observations[-1].get("has_next_action")
                 or observations[-1].get("step") != len(expected)):
             raise AssertionError("final no-action observation mismatch")
-    elif request["expected_terminal"] == "INFEASIBLE_CERTIFIED":
-        if result.get("terminal_status") != "INFEASIBLE_CERTIFIED":
-            raise AssertionError("infeasible status mismatch")
+    elif request["expected_terminal"] in ("INFEASIBLE_CERTIFIED", "TIMEOUT", "INFRASTRUCTURE_FAILURE", "ERROR"):
+        if result.get("terminal_status") != request["expected_terminal"]:
+            raise AssertionError("non-executable terminal status mismatch")
         if result.get("objective") is not None or result.get("concrete_lasso") is not None:
             raise AssertionError("infeasible result contains an executable payload")
-        if result.get("infeasibility_certificate_type") != "REDUCED_PRODUCT_EXACT_EMPTY":
+        if (request["expected_terminal"] == "INFEASIBLE_CERTIFIED"
+                and result.get("infeasibility_certificate_type") != "REDUCED_PRODUCT_EXACT_EMPTY"):
             raise AssertionError("infeasible proof type mismatch")
+        if request["expected_terminal"] != "INFEASIBLE_CERTIFIED":
+            if any(result.get(k) is not None for k in runner_proof_fields()):
+                raise AssertionError("failure retained exact-empty proof claims")
+            if result.get("certificate_valid_for_terminal") is not False:
+                raise AssertionError("failure authorized a certificate")
+            if result.get("right_censored") != (request["expected_terminal"] == "TIMEOUT"):
+                raise AssertionError("failure censoring rule changed")
         if result.get("certificate_verifier_status") != "NOT_AVAILABLE":
             raise AssertionError("infeasible certificate status changed")
         if result.get("transport") is not None:
@@ -375,7 +389,8 @@ def _validate_case(
         if (driver.get("observer_feedback_count") != 0
                 or driver.get("abstraction_feedback_count") != 0):
             raise AssertionError("infeasible case produced execution feedback")
-        if driver.get("ts_state_receive_count") != 0:
+        late = 1 if request["expected_terminal"] == "TIMEOUT" else 0
+        if driver.get("ts_state_receive_count") != late:
             raise AssertionError("infeasible case received TS feedback")
         if any(event.get("event") == "observation_received"
                for event in driver.get("events", [])):
@@ -384,6 +399,11 @@ def _validate_case(
             raise AssertionError("infeasible case served a snapshot")
     else:
         raise ValueError("unknown expected terminal status")
+
+
+def runner_proof_fields():
+    return ("infeasibility_certificate_type", "infeasibility_proof_basis",
+            "infeasibility_precision", "lower_precision_infeasibility")
 
 
 def run_dds(args, plan: dict[str, Any], output: Path) -> dict[str, Any]:

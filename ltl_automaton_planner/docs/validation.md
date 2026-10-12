@@ -8280,3 +8280,52 @@ schema唯一差异/hash/精确lasso/重建cache计数/DDS反馈、旧观测忽�
 README同步统一backend/版本/API/CLI/DDS、选择范围、失败和修正及全部结果。原科学源、
 旧资格、生产默认Planner及正式CMR默认求解器保持；无170×3正式实验、provider、实机
 或136/754历史测试重跑。已提供可显式选择V6的隔离入口，正式切换仍需独立授权执行绑定。
+
+### 11.183 V6 默认资格补验：失败路径、A/EXT/较大 B/C 与正式链离线检查（2026-10-12）
+
+仅补三项已授权资格，不启动正式170×3。固定元数据预选A-T1-M0-A-S-BRANCH、
+EXT-L2L-G01、B-D-BRANCH-S2、C2-T3、C3-T4；B的静态规模1024为S1的4倍，
+C扩展场景/任务族而非规模。每实例FULL/AP-D/DEP-D对reference/V6各一次，
+15组、30worker、78完整构造/refinement轮；精确目标分别12/11/15/13/12，
+判定/原initial S0及全部可行证书重放一致。完整15格计时含退化保留，不称普遍提速。
+
+11项离线边界覆盖180秒前/等号/之后及原planner/watchdog/infrastructure序列化。
+4种实际worker迟到阶段以显式offset clock检查固定谓词，计时为模拟；另验证crash、
+缺结果、坏JSON、写证书后crash和非合作worker。原195秒watchdog实际等待并通过
+SIGTERM/SIGKILL退出-9、reap；清理/来源核对/交付后的最终观测T_total
+205.525632222秒，真实harness墙时206.274735121秒，按RIGHT_CENSORED记录。
+目标/证书效力/不可行证明/可执行lasso清除；不将基础设施失败改称规划TIMEOUT。
+入口补齐原INFRASTRUCTURE_FAILURE序列化、结果hash/cell/round/version校验与
+独立process group终止，保留坏worker原字节；production planner和V6算法字节不改。
+
+实际localhost DDS219覆盖成功、late-delivery TIMEOUT、worker crash和server ERROR。
+成功执行完整prefix+一个闭合suffix，独立TS反馈与额外证书重放PASS；失败均零派发/
+完成/observer/abstraction，无snapshot，timeout刻意晚TS收到后被忽略。合计31份
+独立可行证书与79合格构造轮；被清除的迟到/crash证书尝试不计入此数。60份冻结输入
+一致，/proc精确argv读回无owned worker/DDS残留，非实机资格。
+
+Core170固定FULL/AP-D/DEP-D完整510唯一有序格、每方法分母170：明确synthetic的
+510行经过原冻结分析程序validation-only，16表；schema仅换backend SHA。
+离线原子ledger拒绝重复/未决中断/陈旧身份/错cell/payload/round、损坏ledger。
+原P2c checked_record/publication/receipt及原R2 checked code对象/P2e证书门/
+restore_receipts对两份真实V6可行结果和一份TIMEOUT回放PASS，篡改证书bytes和
+round backend拒绝；10-file publication、canonical cert和ledger hashes保留。
+未进入全量Campaign构造或dispatch，没有将synthetic送入真实结果。
+
+首个preflight在0真实worker时暴露null phase intervals写交付区间异常，失败快照保留；
+仅统一交付wrapper处理未知区间。主轮所有15组成功，但fault harness误拦截git preflight
+导致crash/watchdog路径失败，原acceptance/lifecycle仍FAILED。只增加两个Popen
+forward guard，除guard外AST完全相同，worker/solver/transport字节不变；新独立
+binding下只续验5direct+1DDS失败项，0成功方法/成功fault/DDS重跑。补充recovery和
+独立标准库Native读回PASSED。离线gate启动/包络归一化失败及零worker修正回放保留。
+
+当前独立binding CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25，文件SHA256
+b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a。
+V6算法ID/SHA、原INITIAL_LABEL_V1、Fraction/gamma10、非空接受后缀、每轮完整重建、
+180/195预算和独立证书验收不变。判断：具备在下一版独立执行绑定CMR中设为默认backend
+的资格；当前仍显式--backend，qualification-only，冻结正式默认/数据/结果身份不改。
+不把旧solver结果标为V6；没有正式批量、provider、实机或136/754历史测试重跑。
+
+[补验与复现](../../experiments/cmr_ros2_backend/README_acceptance.md)、
+[全部15格计时](../../experiments/cmr_ros2_backend/acceptance_timings.md)、
+[证据与独立读回](../../experiments/cmr_ros2_backend/evidence/20261012_acceptance/index.json)。

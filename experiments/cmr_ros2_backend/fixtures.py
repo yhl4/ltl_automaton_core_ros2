@@ -34,7 +34,7 @@ def run(plan_path, receipt, kernel_root, output):
         for cell in plan['cells']:
             request = runner.make_request(plan, cell['instance_id'], cell['method'], backend)
             runner.validate_request(plan, request, backend)
-        checks.append(dict(name=backend + '_twelve_explicit_requests', status='PASSED'))
+        checks.append(dict(name=backend + '_explicit_selected_requests', count=len(plan['cells']), status='PASSED'))
     rejected('unknown_backend', lambda: backends.describe(binding_path, 'auto'), checks)
     rejected('version_file_hash_mismatch', lambda: backends.load_binding(binding_path, '0' * 64), checks)
     mutated_path = output.parent / 'fixture_mutated_binding.json'
