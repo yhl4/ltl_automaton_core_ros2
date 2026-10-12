@@ -8099,3 +8099,58 @@ driver、WSL wrapper、fixture、Native reader及三worker实际rc均0。
 `d62faef8c5e9a77f1c02e5fbf47037b1d35eb04688148b88757952e8a569bcef`，全部成员SHA读回匹配。
 README同步原型、复现命令和有限结论。默认Planner、旧资格和冻结CMR数据/结果保持；
 未启动正式campaign、额外DDS/provider/实机，也未重跑136/754历史测试。
+
+### 11.180 B/FULL 后缀闭环目标正式确定后的精确停止（2026-10-12）
+
+按用户授权仅做第三项后缀搜索停止条件优化，基线
+`a58fce3f82461d6a1ccf6c01d01737e70c6d11e6`；新增隔离原型
+`experiments/cmr_ros2_bfull_target`。当前V4源闭包与§11.179归档plan逐字节绑定。
+执行前冻结B-D-BRANCH-S1/FULL、reference/current V4/candidate V5各一个fresh worker、
+18项检查、新源码闭包和原180/195秒预算。没有追加其他实例、方法或正式性能campaign。
+
+V5适配生产component-distance Dijkstra循环，保留完整BSD/NetworkX版权notice。
+目标仅在非stale heap项被pop、写入settled distances之后正式确定，此时才break。
+首次发现/enqueue不停止；不可达目标仍耗尽heap。原V4 canonical rows在构图前整图
+校验精确非负代价，故Dijkstra最小pop确定最短距离。返回只含settled距离，目标至少
+有一条经已settled前驱的tight路径；零代价环或其他等距节点未pop不影响有限恢复。
+原dummy与entry目标不同且无入边，接受/nonaccept入口及零成本非空后缀保持。
+每次solve通过FunctionType克隆V4相同code/globals，只用局部lift→finish登记与suffix
+phase hook替换helper；无全局登记或跨solve缓存。原V4、生产helper、冻结CMR源不改。
+图复用/SCC/LB/entry排序剪枝、prefix/lower-bound完整距离与原witness恢复保持。
+
+最终18项为10个手算lasso、3项None/float/负代价拒绝、2项图/view结构和3项目标检查。
+先发现cost10后优化为2，必须在settled2停止且保留stale heap项；零代价路径经zero-cycle
+节点，目标先于另一个同cost节点确定仍能由生产tight-path恢复；不可达目标返回与完整
+helper相同distances并fringe_exhausted。沿用原edge/witness identity、input不变、非接受
+入口、零环和松下界继续搜索检查。冻结源码后suite rc0；真实三臂各一次，无求解重试。
+
+| 同轮B/FULL worker | 完整方法秒 | 搜索秒 | Fraction目标 |
+| --- | ---: | ---: | ---: |
+| 原求解器 | 1.161949800 | 0.200860200 | 15 |
+| 当前V4 | 1.435035192 | 0.352131340 | 15 |
+| 目标确定V5 | 1.434955907 | 0.318007381 | 15 |
+
+本次搜索时间降低9.69%，完整耗时约1.435秒基本持平，差仅0.079ms，不称为端到端加速。
+候选Product阶段0.403331474秒、V4为0.377300229秒，其他阶段也有波动；不重跑挑选
+更快结果，不跨轮拼接或推广稳定性能。V5仍慢于reference。原Product仍512/5808，
+suffix graph仍513/5827；V5实际settled11、discovered51，在精确suffix距离1确定时
+fringe_remaining40、stop_reason=target_finalized。V4 suffix settled513；prefix512、
+lower-bound1024均保持。整体heap push/pop从2241/2241到1779/1739；两ROS臂仍精确
+搜索1 entry、剪掉511，其原图/辅助图计数与reference suffix7分别标basis。
+
+三方全精度一轮OPTIMALITY_CERTIFIED、目标15，原run_one及额外独立P2e/verifier落盘
+证书重放PASS。原loop/local code对象、完整输入/构造/具体化/交付、tracemalloc和heap
+插桩、180/195秒deadline/watchdog及原证书/word接受性规则不变。后端
+`ROS2-DISCRETE-PLAN-CMR-SETTLED-TARGET-V5` SHA绑定生产helper、各复用adapter/caller
+与新目标helper；P2c只更换backend SHA常量与schema ID。执行身份为
+`a58fce3f82461d6a1ccf6c01d01737e70c6d11e6+cmr-bfull-8cb9072c961e902f`。
+
+55份冻结输入before/after和Native字节核对一致，每worker的40行科学映射与8+6实际
+导入匹配。标准库Native reader检查源副本、paired目标/精度、准确target距离与证书suffix
+cost相等、settled会计、正剩余fringe、tight闭环、schema唯一差异、行/证书hash及worker
+退出。driver、WSL wrapper、suite、Native与三个worker实际rc均0。
+[`完整尝试与独立读回`](../../experiments/cmr_ros2_bfull_target/evidence/20261012/index.json)
+归档71项，ZIP154695 bytes，SHA256
+`815e1dabe2087d7bc1ee75b8079f3e2310643eb1547ede1cfec054be9a6e56f2`，所有成员SHA读回一致。
+README同步复现、停止条件证明和整体耗时持平结论。默认Planner、旧资格和冻结CMR
+数据/结果保持；无正式批量实验、额外DDS/provider/实机或136/754历史测试重跑。

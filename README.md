@@ -32,6 +32,7 @@
 [B/FULL 搜索优化](experiments/cmr_ros2_bfull_perf/README.md) ·
 [B/FULL 精简搜索图](experiments/cmr_ros2_bfull_compact/README.md) ·
 [B/FULL 图复用与接受层精简](experiments/cmr_ros2_bfull_reuse/README.md) ·
+[B/FULL 闭环目标确定后停止](experiments/cmr_ros2_bfull_target/README.md) ·
 [验证记录](ltl_automaton_planner/docs/validation.md)
 
 面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
@@ -79,6 +80,11 @@ V2完整耗时降低22.48%、搜索耗时降低42.68%，三方目标均15且独�
 后缀图从1025节点/11635边降至513节点/5827边。新同轮reference/V3/V4完整耗时分别为
 1.149/1.606/1.407秒，V4相对当前V3降低12.36%，搜索降低25.59%；15项定向检查和三份
 独立证书重放通过，原180/195秒预算与CMR验收不变。范围见[图复用原型](experiments/cmr_ros2_bfull_reuse/README.md)。
+
+后缀搜索进一步在闭环目标从堆中取出、最短距离正式确定后停止。B/FULL后缀settled从
+V4的513降到V5的11，精确距离1确定时堆仍有40项；同轮搜索耗时0.352→0.318秒，降低
+9.69%，完整耗时均约1.435秒、基本持平。三方目标15，18项检查及独立证书重放通过，
+预算与验收保持；未重跑挑选更快结果，见[目标确定原型与证据](experiments/cmr_ros2_bfull_target/README.md)。
 
 ---
 

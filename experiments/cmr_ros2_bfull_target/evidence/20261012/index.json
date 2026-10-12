@@ -1,0 +1,64 @@
+{
+  "schema": "cmr-bfull-target-evidence-index-v1",
+  "status": "PASSED",
+  "scope": "SINGLE_INSTANCE_PERFORMANCE_REGRESSION",
+  "instance_id": "B-D-BRANCH-S1",
+  "method": "FULL",
+  "source_head": "a58fce3f82461d6a1ccf6c01d01737e70c6d11e6",
+  "execution_identity": "a58fce3f82461d6a1ccf6c01d01737e70c6d11e6+cmr-bfull-8cb9072c961e902f",
+  "arms": [
+    "reference",
+    "current_v4",
+    "settled_target_v5"
+  ],
+  "attempts_per_arm": 1,
+  "method_workers": 3,
+  "certificates": 3,
+  "semantic_fixtures": 10,
+  "invalid_cost_fixtures": 3,
+  "structural_checks": 2,
+  "target_checks": 3,
+  "total_checks": 18,
+  "frozen_inputs": 55,
+  "planner_budget_seconds": 180,
+  "outer_watchdog_seconds": 195,
+  "formal_campaign": false,
+  "provider_calls": 0,
+  "dds_runs": 0,
+  "driver_rc": 0,
+  "wsl_rc": 0,
+  "native_reader_rc": 0,
+  "archive_members": 71,
+  "target_searches": [
+    {
+      "target_settled": true,
+      "settled_nodes": 11,
+      "discovered_nodes": 51,
+      "fringe_remaining": 40,
+      "stop_reason": "target_finalized",
+      "target_distance": "1"
+    }
+  ],
+  "notes": [
+    "Only suffix distance stopping after target is popped and its distance finalized; V4 global entry/SCC/lower-bound/graph/witness behavior unchanged.",
+    "Exact nonnegative abstract costs are validated globally before search. Partial settled distances retain a finite tight path, including zero-cost cycles. No tentative/discovery stopping.",
+    "Current V4 pinned to qualified archive; reference/V4/V5 each ran once under original full runner, tracemalloc, instrumentation, 180/195s budgets and independent persisted-certificate replay.",
+    "All three exact objectives15, independent replayPASS, worker0 exits and no retry. Native reader checks exact target cost and positive remaining fringe.",
+    "Suffix settled work513 to11, search time decreases9.69 percent in this triple; complete method times are effectively equal at1.435s. No end-to-end or general speed claim.",
+    "55 scientific/production frozen inputs and all prior qualifications unchanged; no additional instances, methods, formal batch, DDS or providers."
+  ],
+  "files": {
+    "raw_attempts.zip": {
+      "size": 154695,
+      "sha256": "815e1dabe2087d7bc1ee75b8079f3e2310643eb1547ede1cfec054be9a6e56f2"
+    },
+    "archive_manifest.json": {
+      "size": 12258,
+      "sha256": "2050c82889f306fd5a344a2431db4ec9f6f88b12dd9fa8059a868d59bcc574b3"
+    },
+    "native_readback.json": {
+      "size": 1633,
+      "sha256": "6773914c269fcb08919231d2a8c9dc566b3b4c861a1b320681258f54fa2fe89a"
+    }
+  }
+}
