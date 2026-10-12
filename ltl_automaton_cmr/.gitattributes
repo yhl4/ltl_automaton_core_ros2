@@ -1,0 +1,6 @@
+* text=auto eol=lf
+# Preserve upstream Git blob bytes, independent of Windows autocrlf.
+ltl_automaton_cmr/vendor/ecc_p1/*.py -text
+ltl_automaton_cmr/vendor/office_monitor_dsl.py -text
+ltl_automaton_cmr/assets/*.json -text
+LICENSE -text

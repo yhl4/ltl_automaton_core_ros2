@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>ltl_automaton_cmr</name>
+  <version>0.1.0</version>
+  <description>Independent exact CMR engine with a certified ROS 2 execution boundary.</description>
+  <maintainer email="1209634202@qq.com">yuhling</maintainer>
+  <license>MIT</license>
+
+  <depend>rclpy</depend>
+  <depend>rcl_interfaces</depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <depend>std_msgs</depend>
+  <depend>ltl_automaton_msgs</depend>
+  <depend>ltl_automaton_execution</depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

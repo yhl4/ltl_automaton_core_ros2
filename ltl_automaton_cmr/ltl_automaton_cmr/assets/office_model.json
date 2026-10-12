@@ -1,0 +1,1850 @@
+{
+  "schema": "office10-flat-guards-v1",
+  "source_version": "design-v2-static-2026-10-02",
+  "source_sha256": "bd8cbccf9fdefcada1a3308193862a3caea23818bd7dfe5cefae46928f1bdcd6",
+  "factor_order": [
+    "r",
+    "p",
+    "d",
+    "b",
+    "f",
+    "l",
+    "c",
+    "w",
+    "j",
+    "s"
+  ],
+  "factors": [
+    {
+      "id": "r",
+      "meaning": "robot position",
+      "domain": [
+        "R",
+        "H",
+        "M",
+        "W",
+        "E",
+        "U",
+        "P"
+      ],
+      "initial": "R"
+    },
+    {
+      "id": "p",
+      "meaning": "single parcel position; carried means colocated with the robot",
+      "domain": [
+        "R",
+        "H",
+        "M",
+        "W",
+        "E",
+        "U",
+        "P",
+        "carried"
+      ],
+      "initial": "M"
+    },
+    {
+      "id": "d",
+      "meaning": "secure door",
+      "domain": [
+        "closed",
+        "open"
+      ],
+      "initial": "closed"
+    },
+    {
+      "id": "b",
+      "meaning": "temporary badge location; pocket credential uses no manipulator capacity",
+      "domain": [
+        "desk",
+        "robot"
+      ],
+      "initial": "desk"
+    },
+    {
+      "id": "f",
+      "meaning": "studio service floor",
+      "domain": [
+        "dirty",
+        "wet",
+        "clean"
+      ],
+      "initial": "dirty"
+    },
+    {
+      "id": "l",
+      "meaning": "studio lights",
+      "domain": [
+        "off",
+        "on"
+      ],
+      "initial": "off"
+    },
+    {
+      "id": "c",
+      "meaning": "studio HVAC mode",
+      "domain": [
+        "off",
+        "vent",
+        "comfort"
+      ],
+      "initial": "off"
+    },
+    {
+      "id": "w",
+      "meaning": "cleaning reservoir; one service-area wash capacity",
+      "domain": [
+        "empty",
+        "full"
+      ],
+      "initial": "empty"
+    },
+    {
+      "id": "j",
+      "meaning": "printer job/output lifecycle",
+      "domain": [
+        "idle",
+        "queued",
+        "ready"
+      ],
+      "initial": "queued"
+    },
+    {
+      "id": "s",
+      "meaning": "paper tray; sufficient stock for one modeled job",
+      "domain": [
+        "empty",
+        "loaded"
+      ],
+      "initial": "empty"
+    }
+  ],
+  "initial_state": {
+    "r": "R",
+    "p": "M",
+    "d": "closed",
+    "b": "desk",
+    "f": "dirty",
+    "l": "off",
+    "c": "off",
+    "w": "empty",
+    "j": "queued",
+    "s": "empty"
+  },
+  "actions": [
+    {
+      "id": "clear_output",
+      "schema": "clear_output",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "P"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "l",
+          "on"
+        ],
+        [
+          "ne",
+          "f",
+          "wet"
+        ],
+        [
+          "eq",
+          "j",
+          "ready"
+        ]
+      ],
+      "assignments": {
+        "j": "idle"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p",
+        "f",
+        "l",
+        "j"
+      ],
+      "Write": [
+        "j"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "f",
+        "l",
+        "j"
+      ]
+    },
+    {
+      "id": "close_door",
+      "schema": "close_door",
+      "guard": [
+        "and",
+        [
+          "in",
+          "r",
+          [
+            "H",
+            "E"
+          ]
+        ],
+        [
+          "eq",
+          "d",
+          "open"
+        ]
+      ],
+      "assignments": {
+        "d": "closed"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "d"
+      ],
+      "Write": [
+        "d"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "d"
+      ]
+    },
+    {
+      "id": "load_paper",
+      "schema": "load_paper",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "P"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "l",
+          "on"
+        ],
+        [
+          "ne",
+          "f",
+          "wet"
+        ],
+        [
+          "eq",
+          "s",
+          "empty"
+        ]
+      ],
+      "assignments": {
+        "s": "loaded"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p",
+        "f",
+        "l",
+        "s"
+      ],
+      "Write": [
+        "s"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "f",
+        "l",
+        "s"
+      ]
+    },
+    {
+      "id": "move[E,H]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "E"
+        ],
+        [
+          "eq",
+          "d",
+          "open"
+        ]
+      ],
+      "assignments": {
+        "r": "H"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "d"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "d"
+      ]
+    },
+    {
+      "id": "move[H,E]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "H"
+        ],
+        [
+          "eq",
+          "d",
+          "open"
+        ]
+      ],
+      "assignments": {
+        "r": "E"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "d"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "d"
+      ]
+    },
+    {
+      "id": "move[H,M]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "H"
+        ]
+      ],
+      "assignments": {
+        "r": "M"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "move[H,R]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "H"
+        ]
+      ],
+      "assignments": {
+        "r": "R"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "move[H,U]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "H"
+        ]
+      ],
+      "assignments": {
+        "r": "U"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "move[H,W]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "H"
+        ]
+      ],
+      "assignments": {
+        "r": "W"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "move[M,H]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "M"
+        ]
+      ],
+      "assignments": {
+        "r": "H"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "move[P,U]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "P"
+        ]
+      ],
+      "assignments": {
+        "r": "U"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "move[R,H]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "R"
+        ]
+      ],
+      "assignments": {
+        "r": "H"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "move[U,H]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ]
+      ],
+      "assignments": {
+        "r": "H"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "move[U,P]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ]
+      ],
+      "assignments": {
+        "r": "P"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "move[W,H]",
+      "schema": "move",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "W"
+        ]
+      ],
+      "assignments": {
+        "r": "H"
+      },
+      "cost": 1,
+      "Read": [
+        "r"
+      ],
+      "Write": [
+        "r"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r"
+      ]
+    },
+    {
+      "id": "open_door_from_east",
+      "schema": "open_door_from_east",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "E"
+        ],
+        [
+          "eq",
+          "d",
+          "closed"
+        ]
+      ],
+      "assignments": {
+        "d": "open"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "d"
+      ],
+      "Write": [
+        "d"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "d"
+      ]
+    },
+    {
+      "id": "open_door_from_hub",
+      "schema": "open_door_from_hub",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "H"
+        ],
+        [
+          "eq",
+          "d",
+          "closed"
+        ],
+        [
+          "eq",
+          "b",
+          "robot"
+        ]
+      ],
+      "assignments": {
+        "d": "open"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "d",
+        "b"
+      ],
+      "Write": [
+        "d"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "d",
+        "b"
+      ]
+    },
+    {
+      "id": "pick_parcel[E]",
+      "schema": "pick_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "E"
+        ],
+        [
+          "eq",
+          "p",
+          "E"
+        ]
+      ],
+      "assignments": {
+        "p": "carried"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "pick_parcel[H]",
+      "schema": "pick_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "H"
+        ],
+        [
+          "eq",
+          "p",
+          "H"
+        ]
+      ],
+      "assignments": {
+        "p": "carried"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "pick_parcel[M]",
+      "schema": "pick_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "M"
+        ],
+        [
+          "eq",
+          "p",
+          "M"
+        ]
+      ],
+      "assignments": {
+        "p": "carried"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "pick_parcel[P]",
+      "schema": "pick_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "P"
+        ],
+        [
+          "eq",
+          "p",
+          "P"
+        ]
+      ],
+      "assignments": {
+        "p": "carried"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "pick_parcel[R]",
+      "schema": "pick_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "R"
+        ],
+        [
+          "eq",
+          "p",
+          "R"
+        ]
+      ],
+      "assignments": {
+        "p": "carried"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "pick_parcel[U]",
+      "schema": "pick_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ],
+        [
+          "eq",
+          "p",
+          "U"
+        ]
+      ],
+      "assignments": {
+        "p": "carried"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "pick_parcel[W]",
+      "schema": "pick_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "W"
+        ],
+        [
+          "eq",
+          "p",
+          "W"
+        ]
+      ],
+      "assignments": {
+        "p": "carried"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "place_parcel[E]",
+      "schema": "place_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "E"
+        ],
+        [
+          "eq",
+          "p",
+          "carried"
+        ]
+      ],
+      "assignments": {
+        "p": "E"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "place_parcel[H]",
+      "schema": "place_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "H"
+        ],
+        [
+          "eq",
+          "p",
+          "carried"
+        ]
+      ],
+      "assignments": {
+        "p": "H"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "place_parcel[M]",
+      "schema": "place_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "M"
+        ],
+        [
+          "eq",
+          "p",
+          "carried"
+        ]
+      ],
+      "assignments": {
+        "p": "M"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "place_parcel[P]",
+      "schema": "place_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "P"
+        ],
+        [
+          "eq",
+          "p",
+          "carried"
+        ]
+      ],
+      "assignments": {
+        "p": "P"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "place_parcel[R]",
+      "schema": "place_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "R"
+        ],
+        [
+          "eq",
+          "p",
+          "carried"
+        ]
+      ],
+      "assignments": {
+        "p": "R"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "place_parcel[U]",
+      "schema": "place_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ],
+        [
+          "eq",
+          "p",
+          "carried"
+        ]
+      ],
+      "assignments": {
+        "p": "U"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "place_parcel[W]",
+      "schema": "place_parcel",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "W"
+        ],
+        [
+          "eq",
+          "p",
+          "carried"
+        ]
+      ],
+      "assignments": {
+        "p": "W"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p"
+      ],
+      "Write": [
+        "p"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p"
+      ]
+    },
+    {
+      "id": "print_job",
+      "schema": "print_job",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "P"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "j",
+          "queued"
+        ],
+        [
+          "eq",
+          "s",
+          "loaded"
+        ]
+      ],
+      "assignments": {
+        "j": "ready",
+        "s": "empty"
+      },
+      "cost": 3,
+      "Read": [
+        "r",
+        "p",
+        "j",
+        "s"
+      ],
+      "Write": [
+        "j",
+        "s"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "j",
+        "s"
+      ]
+    },
+    {
+      "id": "refill_water",
+      "schema": "refill_water",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "w",
+          "empty"
+        ]
+      ],
+      "assignments": {
+        "w": "full"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p",
+        "w"
+      ],
+      "Write": [
+        "w"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "w"
+      ]
+    },
+    {
+      "id": "return_badge",
+      "schema": "return_badge",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "R"
+        ],
+        [
+          "eq",
+          "b",
+          "robot"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ]
+      ],
+      "assignments": {
+        "b": "desk"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "p",
+        "b"
+      ],
+      "Write": [
+        "b"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "b"
+      ]
+    },
+    {
+      "id": "set_hvac[comfort,off]",
+      "schema": "set_hvac",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "b",
+          "robot"
+        ],
+        [
+          "eq",
+          "c",
+          "comfort"
+        ]
+      ],
+      "assignments": {
+        "c": "off"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ],
+      "Write": [
+        "c"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ]
+    },
+    {
+      "id": "set_hvac[comfort,vent]",
+      "schema": "set_hvac",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "b",
+          "robot"
+        ],
+        [
+          "eq",
+          "c",
+          "comfort"
+        ]
+      ],
+      "assignments": {
+        "c": "vent"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ],
+      "Write": [
+        "c"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ]
+    },
+    {
+      "id": "set_hvac[off,comfort]",
+      "schema": "set_hvac",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "b",
+          "robot"
+        ],
+        [
+          "eq",
+          "c",
+          "off"
+        ]
+      ],
+      "assignments": {
+        "c": "comfort"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ],
+      "Write": [
+        "c"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ]
+    },
+    {
+      "id": "set_hvac[off,vent]",
+      "schema": "set_hvac",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "b",
+          "robot"
+        ],
+        [
+          "eq",
+          "c",
+          "off"
+        ]
+      ],
+      "assignments": {
+        "c": "vent"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ],
+      "Write": [
+        "c"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ]
+    },
+    {
+      "id": "set_hvac[vent,comfort]",
+      "schema": "set_hvac",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "b",
+          "robot"
+        ],
+        [
+          "eq",
+          "c",
+          "vent"
+        ]
+      ],
+      "assignments": {
+        "c": "comfort"
+      },
+      "cost": 2,
+      "Read": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ],
+      "Write": [
+        "c"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ]
+    },
+    {
+      "id": "set_hvac[vent,off]",
+      "schema": "set_hvac",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "U"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "b",
+          "robot"
+        ],
+        [
+          "eq",
+          "c",
+          "vent"
+        ]
+      ],
+      "assignments": {
+        "c": "off"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ],
+      "Write": [
+        "c"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "b",
+        "c"
+      ]
+    },
+    {
+      "id": "set_light[off,on]",
+      "schema": "set_light",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "P"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "l",
+          "off"
+        ]
+      ],
+      "assignments": {
+        "l": "on"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "p",
+        "l"
+      ],
+      "Write": [
+        "l"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "l"
+      ]
+    },
+    {
+      "id": "set_light[on,off]",
+      "schema": "set_light",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "P"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "l",
+          "on"
+        ]
+      ],
+      "assignments": {
+        "l": "off"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "p",
+        "l"
+      ],
+      "Write": [
+        "l"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "l"
+      ]
+    },
+    {
+      "id": "standby",
+      "schema": "standby",
+      "guard": [
+        "true"
+      ],
+      "assignments": {},
+      "cost": 1,
+      "Read": [],
+      "Write": [],
+      "CostSupp": [],
+      "K": []
+    },
+    {
+      "id": "submit_job",
+      "schema": "submit_job",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "R"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "j",
+          "idle"
+        ]
+      ],
+      "assignments": {
+        "j": "queued"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "p",
+        "j"
+      ],
+      "Write": [
+        "j"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "j"
+      ]
+    },
+    {
+      "id": "take_badge",
+      "schema": "take_badge",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "R"
+        ],
+        [
+          "eq",
+          "b",
+          "desk"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ]
+      ],
+      "assignments": {
+        "b": "robot"
+      },
+      "cost": 1,
+      "Read": [
+        "r",
+        "p",
+        "b"
+      ],
+      "Write": [
+        "b"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "b"
+      ]
+    },
+    {
+      "id": "wait_dry_comfort",
+      "schema": "wait_dry_comfort",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "f",
+          "wet"
+        ],
+        [
+          "eq",
+          "c",
+          "comfort"
+        ]
+      ],
+      "assignments": {
+        "f": "clean"
+      },
+      "cost": 3,
+      "Read": [
+        "f",
+        "c"
+      ],
+      "Write": [
+        "f"
+      ],
+      "CostSupp": [],
+      "K": [
+        "f",
+        "c"
+      ]
+    },
+    {
+      "id": "wait_dry_vent",
+      "schema": "wait_dry_vent",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "f",
+          "wet"
+        ],
+        [
+          "eq",
+          "c",
+          "vent"
+        ]
+      ],
+      "assignments": {
+        "f": "clean"
+      },
+      "cost": 6,
+      "Read": [
+        "f",
+        "c"
+      ],
+      "Write": [
+        "f"
+      ],
+      "CostSupp": [],
+      "K": [
+        "f",
+        "c"
+      ]
+    },
+    {
+      "id": "wash_floor",
+      "schema": "wash_floor",
+      "guard": [
+        "and",
+        [
+          "eq",
+          "r",
+          "P"
+        ],
+        [
+          "ne",
+          "p",
+          "carried"
+        ],
+        [
+          "eq",
+          "f",
+          "dirty"
+        ],
+        [
+          "eq",
+          "l",
+          "on"
+        ],
+        [
+          "eq",
+          "w",
+          "full"
+        ]
+      ],
+      "assignments": {
+        "f": "wet",
+        "w": "empty"
+      },
+      "cost": 3,
+      "Read": [
+        "r",
+        "p",
+        "f",
+        "l",
+        "w"
+      ],
+      "Write": [
+        "f",
+        "w"
+      ],
+      "CostSupp": [],
+      "K": [
+        "r",
+        "p",
+        "f",
+        "l",
+        "w"
+      ]
+    }
+  ],
+  "validity_constraints": [],
+  "nominal_states": 48384
+}
