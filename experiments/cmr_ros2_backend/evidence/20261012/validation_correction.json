@@ -1,0 +1,17 @@
+{
+  "schema": "cmr-dds-validator-correction-v1",
+  "status": "PASSED",
+  "original_qualification_sha256": "8d6b29626f2ba0d1cb522c93a48cfe844377bff92a909cb5094a96370dde2d09",
+  "original_dds_report_sha256": "91d3e52c6d5d5201ba8ec66d763ce23e2c9327a03a5d170a2dc8979bb28b0281",
+  "original_status": "FAILED",
+  "reason": "existing driver deliberately emits stale generation 0 after accepted dispatch",
+  "acceptance": "original rule: stale observation received but ignored; complete unique dispatch and independent TS feedback retained",
+  "execution_identity": "ed015febed55455fb3b311576af70f4d40c3ad86+cmr-unified-22fec8e176709683",
+  "version_binding_id": "CMR_UNIFIED_BACKENDS_V1-491909e686b46c61",
+  "original_dds_sha256": "54269d6b3ea4c1dbac07e3cc0690f025582105969913aefc207b8c49bf38ccc5",
+  "corrected_dds_sha256": "4a75f373b1bb44d7b2c07a9c534f019adec4de788443a35b89f6075a01c35665",
+  "outside_validator_ast_unchanged": true,
+  "additional_solver_workers": 0,
+  "additional_dds_runs": 0,
+  "validation_replay_only": true
+}

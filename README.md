@@ -34,6 +34,7 @@
 [B/FULL 图复用与接受层精简](experiments/cmr_ros2_bfull_reuse/README.md) ·
 [B/FULL 闭环目标确定后停止](experiments/cmr_ros2_bfull_target/README.md) ·
 [CMR Product 构造与 refinement 对照](experiments/cmr_ros2_product_perf/README.md) ·
+[CMR 统一 backend / V6 DDS](experiments/cmr_ros2_backend/README.md) ·
 [验证记录](ltl_automaton_planner/docs/validation.md)
 
 面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
@@ -94,6 +95,15 @@ V5/V6 逐轮科学字段一致。B/FULL 构造 0.341→0.027 秒、降低 92.09%
 1.300→0.997 秒、降低 23.34%；B/DEP-D、D/AP-D 的完整耗时反而增加，D/AP-D
 构造也略增，不推广为普遍加速。180/195 秒预算与验收不变，未启动正式批量实验；
 完整九组结果见 [Product 与 refinement 原型](experiments/cmr_ros2_product_perf/README.md)。
+
+CMR 现有统一可选入口 `reference / ros2-v6` 和独立源码/语义版本绑定。新增三个静态
+预选实例 B-D-CHAIN-S1、C1-T2、D1-1，加三个旧接入锚点，共12组、24个方法worker
+与原求解器对照通过；V6两次真实DDS请求额外启动2个worker，成功案例执行完整四步
+闭环并忽略旧generation，不可行案例零派发。共19份可行证书独立重放通过、7次不可行
+保留原exact-empty证明口径，58份冻结输入保持。初次DDS验收误拒绝刻意注入的旧观测，
+只修正验收并重放原记录，0额外求解/DDS，失败完整保留。原180/195秒预算、接受性与
+证书规则不变；目前可显式选择V6运行绑定小样本，正式170×3和生产默认未切换。
+入口、独立绑定、全部结果与复现见 [统一 backend 文档](experiments/cmr_ros2_backend/README.md)。
 
 ---
 

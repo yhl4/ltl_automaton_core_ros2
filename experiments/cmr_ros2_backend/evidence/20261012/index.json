@@ -1,0 +1,226 @@
+{
+  "schema": "cmr-unified-evidence-index-v1",
+  "status": "PASSED",
+  "scope": "CMR_UNIFIED_BACKEND_SUBSET_QUALIFICATION",
+  "source_head": "ed015febed55455fb3b311576af70f4d40c3ad86",
+  "execution_identity": "ed015febed55455fb3b311576af70f4d40c3ad86+cmr-unified-22fec8e176709683",
+  "version_binding_id": "CMR_UNIFIED_BACKENDS_V1-491909e686b46c61",
+  "version_binding_sha256": "273bb7c1752cd2e5302dd778927e76bff22d78877183a29d729c9b9b0ad668c8",
+  "instances": [
+    "B-D-BRANCH-S1",
+    "C1-T1",
+    "D3-1",
+    "B-D-CHAIN-S1",
+    "C1-T2",
+    "D1-1"
+  ],
+  "cells": [
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "FULL",
+      "source_cell_id": "833aa50d065f3a35bb660055dedac1c2c78ce7d4693e77646e48375e0817766b",
+      "canonical_instance_index": 95,
+      "execution_index": 285,
+      "method_order_position": 0,
+      "expected_initial_S0": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "AP-D",
+      "source_cell_id": "2c316cf8ca1381f9ef60ad57ddbb7108aea9962b8d9faaf8320e8d167f2aa453",
+      "canonical_instance_index": 110,
+      "execution_index": 331,
+      "method_order_position": 1,
+      "expected_initial_S0": [
+        2
+      ]
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "FULL",
+      "source_cell_id": "9d0f8cb1e8fd6cd77f9588228bdc6dffebfd05d2f9049dcec8bbeac117e47f4d",
+      "canonical_instance_index": 142,
+      "execution_index": 426,
+      "method_order_position": 0,
+      "expected_initial_S0": [
+        0
+      ]
+    },
+    {
+      "instance_id": "B-D-CHAIN-S1",
+      "method": "FULL",
+      "source_cell_id": "708f75612955b3f5fb97581863d4ace1fb5d0cb3cbf441ca6d71228d80de69ec",
+      "canonical_instance_index": 90,
+      "execution_index": 270,
+      "method_order_position": 0,
+      "expected_initial_S0": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "instance_id": "B-D-CHAIN-S1",
+      "method": "AP-D",
+      "source_cell_id": "ce690adf84179685ae4d02ca3c703c68e7790cb548d40bbe293b634df9bfef42",
+      "canonical_instance_index": 90,
+      "execution_index": 271,
+      "method_order_position": 1,
+      "expected_initial_S0": [
+        0
+      ]
+    },
+    {
+      "instance_id": "B-D-CHAIN-S1",
+      "method": "DEP-D",
+      "source_cell_id": "477b7579da3037e1274771d75444049a5cc0554ba6c9730b47d4b14f82567cf2",
+      "canonical_instance_index": 90,
+      "execution_index": 272,
+      "method_order_position": 2,
+      "expected_initial_S0": [
+        0,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "instance_id": "C1-T2",
+      "method": "FULL",
+      "source_cell_id": "70805b8ce2674611e943d0c07d6d20b40744cc7730531b837ffe01c90ca9a6c7",
+      "canonical_instance_index": 111,
+      "execution_index": 333,
+      "method_order_position": 0,
+      "expected_initial_S0": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "instance_id": "C1-T2",
+      "method": "AP-D",
+      "source_cell_id": "fc3ac826b4e0b548e850d7768210134ebc920d548f853678fe22cbd0d107cfb2",
+      "canonical_instance_index": 111,
+      "execution_index": 334,
+      "method_order_position": 1,
+      "expected_initial_S0": [
+        0,
+        2
+      ]
+    },
+    {
+      "instance_id": "C1-T2",
+      "method": "DEP-D",
+      "source_cell_id": "be0567c74a5257f5863bacccdeb7b1ef177e657151415d25aca3eb9ec7e69265",
+      "canonical_instance_index": 111,
+      "execution_index": 335,
+      "method_order_position": 2,
+      "expected_initial_S0": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "instance_id": "D1-1",
+      "method": "FULL",
+      "source_cell_id": "0088196068f453aa3bcf1dde4d8bbdb553034fadf3c52695168755a7019fd07d",
+      "canonical_instance_index": 134,
+      "execution_index": 402,
+      "method_order_position": 0,
+      "expected_initial_S0": [
+        0
+      ]
+    },
+    {
+      "instance_id": "D1-1",
+      "method": "AP-D",
+      "source_cell_id": "90e1d53d881018c4d880c4ca1fbd5a03d3031f9a23c129af422bc6bf5263b148",
+      "canonical_instance_index": 134,
+      "execution_index": 403,
+      "method_order_position": 1,
+      "expected_initial_S0": [
+        0
+      ]
+    },
+    {
+      "instance_id": "D1-1",
+      "method": "DEP-D",
+      "source_cell_id": "91376ecfd764279868064d41ab6d9d88d75bba2f5b8c225d1c7b0a41ccb9f46a",
+      "canonical_instance_index": 134,
+      "execution_index": 404,
+      "method_order_position": 2,
+      "expected_initial_S0": [
+        0
+      ]
+    }
+  ],
+  "backends": [
+    "reference",
+    "ros2-v6"
+  ],
+  "attempts_per_cell_backend": 1,
+  "method_workers": 24,
+  "dds_workers": 2,
+  "independent_feasible_certificate_replays": 19,
+  "exact_empty_outcomes": 7,
+  "total_build_rounds": 61,
+  "frozen_inputs": 58,
+  "offline_checks": 16,
+  "planner_budget_seconds": 180,
+  "outer_watchdog_seconds": 195,
+  "formal_campaign": false,
+  "provider_calls": 0,
+  "dds_runs": 2,
+  "original_driver_rc": 1,
+  "original_wsl_rc": 1,
+  "original_qualification_status": "FAILED",
+  "assertion_replay_rc": 0,
+  "assertion_replay_wsl_rc": 0,
+  "native_reader_rc": 0,
+  "additional_solver_workers": 0,
+  "additional_dds_runs": 0,
+  "archive_members": 364,
+  "notes": [
+    "One selectable reference/ros2-v6 frontend; separate canonical source/algorithm/authority version binding. V6 algorithm and original science files remain qualified bytes.",
+    "Three old anchors and three metadata-only extensions, 12 paired cells/24 workers, plus exactly two actual DDS V6 worker requests. No retries or formal ledger writes.",
+    "All 26 workers and four DDS nodes exit0. 19 feasible persisted certificates independently replay PASS. Seven original exact-empty outcomes have no feasible-lasso certificate or execution payload; do not count them as independent certificate replays.",
+    "Original DDS success was falsely rejected because validator disallowed deliberate stale generation0 reception. Original FAILED reports/driver and WSL rc1 remain. Corrected assertion-only replay requires unique stale injection after generation1 authority, current step progression and no extra dispatch.",
+    "Only _validate_case AST changes; transport, backend, workers and all other executed source bytes remain. Supplemental validation uses original raw records and pending certificate replay, zero new solver/DDS execution.",
+    "DDS success executes full three-step prefix and one-step closed suffix with independent TS feedback; infeasible case publishes result with zero dispatch/feedback/snapshot.",
+    "Original INITIAL_LABEL_V1, Fraction/gamma10, full rebuild/refinement, 180/195 budgets, P2c/P2e/verifier and right-censoring/terminal delivery retained.",
+    "Current default production planner, frozen formal CMR solver/170x3 campaign and old qualifications unchanged; no providers, physical robot, or historical136/754 test reruns."
+  ],
+  "files": {
+    "raw_attempts.zip": {
+      "size": 910785,
+      "sha256": "3df72515303b01ff95a31070f053d3547a8bcb7b878d322b401739c8ef385022"
+    },
+    "archive_manifest.json": {
+      "size": 59381,
+      "sha256": "866833354eea0236948148b85390303f7a387732948ff992fb720a8c30ab1a6c"
+    },
+    "native_readback.json": {
+      "size": 10202,
+      "sha256": "d61ab6a2152b070799645f6394c73a53a7bee140c2530b0c4b8034d174fe1a64"
+    },
+    "validation_correction.json": {
+      "size": 1026,
+      "sha256": "2dce778ac5376aeb39f650287589658e2c70319ad530f943e92606500bb60114"
+    }
+  }
+}

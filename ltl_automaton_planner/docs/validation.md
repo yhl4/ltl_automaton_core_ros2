@@ -8222,3 +8222,61 @@ source closure/冻结副本及实际退出；driver、WSL wrapper、fixture、Na
 README同步九组完整结果、模型纯函数适用条件、复现与负收益。没有正式170×3实验、
 新DDS/provider/实机或136/754历史测试重跑；默认Planner、旧DDS worker、正式solver
 和原始CMR数据/结果没有切换。
+
+### 11.182 CMR 可选择统一 backend、独立版本绑定与扩展 DDS 资格（2026-10-12）
+
+在 `ed015febed55455fb3b311576af70f4d40c3ad86` 基础上新增
+`experiments/cmr_ros2_backend`，统一backend API/CLI显式选择 `reference / ros2-v6`。
+V6仍使用§11.181已资格builder/search字节及原算法ID/SHA；新selector/worker独立绑定
+为 `CMR_UNIFIED_BACKENDS_V1-491909e686b46c61`，文件SHA256
+`273bb7c1752cd2e5302dd778927e76bff22d78877183a29d729c9b9b0ad668c8`。
+绑定完整V6源链、共同入口、两后端身份、原receipt/binding/manifest、INITIAL_LABEL_V1、
+精确prefix+10×suffix、非空接受后缀、full rebuild及180/195预算。未知backend、过期
+绑定hash、伪造算法和改预算拒绝，无静默fallback。request/result/round均携带版本身份；
+证书原execution_identity绑定版本文件和源/selection，原P2c/P2e/verifier规则不修改。
+
+backend选择与执行授权selection分离。入口本轮plan限制12格，formal_campaign=false。
+保留B-D-BRANCH-S1/FULL、C1-T1/AP-D、D3-1/FULL三个旧接入锚点；静态manifest按
+min(笛卡尔规模,instance_id)增加B不同实例、C不同temporal family、声明INFEASIBLE的D，
+固定B-D-CHAIN-S1、C1-T2、D1-1各FULL/AP-D/DEP-D。求解前冻结selection/source/
+版本/全部12格，各reference/V6一次fresh worker，共24次，无方法重试或正式ledger写入。
+
+16项offline binding/request/schema/configure检查通过，planner/DDS调用均0。24方法
+全部原/V6 verdict、initial precision、exact objective一致：B目标15、C目标13、旧D目标20，
+新增D1-1三方法均INFEASIBLE_CERTIFIED、objective=null。18份可行证书独立replay PASS；
+六次方法不可行保留原REDUCED_PRODUCT_EXACT_EMPTY及相同proof metadata，不写可行
+lasso证书、replay NOT_APPLICABLE，不新增不可行验收规则。新B build轮数1/4/1、新C
+1/5/4、新D1/1/1，两臂相同；全量12格计时表见新README，各较慢格原样保留，未作加速
+普遍性结论。示例新B/FULL reference1.450930505/V6 1.607757884秒，新C/AP-D
+0.988904906/0.902131106秒；资格范围不因性能高低改变。
+
+DDS在localhost domain219依次发送两个实际带backend/version/execution身份的请求，
+通过同一个runner API收到请求后才启动独立V6 worker，没有转发预制结果。C1-T1/AP-D
+目标13、独立证书重放PASS，完整三步prefix+一步闭合suffix执行change_robot_location、
+change_gripper_state、change_object_location、wait；dispatch/completion/observer/
+abstraction/TS各4次，terminal observation step4/no-action。旧driver在首次generation1
+真实dispatch后刻意注入generation0，实际旧观测收到但被忽略，未增加派发。D1-1/FULL
+原exact-empty不可行，result已发布，零dispatch/反馈/observation、无执行snapshot或lasso。
+为symbolic/FakePlant闭环资格，不宣称实机验证；205秒node/210秒DDS收集窗口单列。
+
+首次新DDS validator错误要求全部收到的observation generation==1，误拒绝刻意旧观测。
+原qualification.json/dds_report.json保留FAILED，原driver/WSL rc1；所有26方法worker与
+4个DDS node实际均rc0，不可行DDScase原已PASS。仅_validate_case断言恢复原验收：
+唯一旧generation注入在已接受dispatch之后、唯一stale reception、current steps0..N、
+完整唯一dispatch及独立TS反馈。module去除此函数后AST逐项相同，transport/worker/
+solver未改变。仅重放已落盘原始记录和之前尚未做的一份可行DDS独立证书；0新增solver/
+DDS，不覆盖原失败。补充qualified_replay.json PASSED、validation/native rc0。
+
+合计26 worker、61 build轮、19份独立可行证书重放PASS及7次原exact-empty结果；不能把
+后者计入独立可行证书数量。58份冻结输入before/after及Native字节核对一致；各worker
+40行科学映射与8+6实际导入匹配。标准库Native核对源副本/独立版本/请求与结果/预算/
+schema唯一差异/hash/精确lasso/重建cache计数/DDS反馈、旧观测忽略、原失败及validator
+唯一AST差异。执行身份
+`ed015febed55455fb3b311576af70f4d40c3ad86+cmr-unified-22fec8e176709683`。
+
+[`完整记录与独立读回`](../../experiments/cmr_ros2_backend/evidence/20261012/index.json)
+归档364项，ZIP910785 bytes，SHA256
+`3df72515303b01ff95a31070f053d3547a8bcb7b878d322b401739c8ef385022`，全部成员SHA读回一致。
+README同步统一backend/版本/API/CLI/DDS、选择范围、失败和修正及全部结果。原科学源、
+旧资格、生产默认Planner及正式CMR默认求解器保持；无170×3正式实验、provider、实机
+或136/754历史测试重跑。已提供可显式选择V6的隔离入口，正式切换仍需独立授权执行绑定。
