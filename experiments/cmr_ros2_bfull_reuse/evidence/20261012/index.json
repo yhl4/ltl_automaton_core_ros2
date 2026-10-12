@@ -1,0 +1,67 @@
+{
+  "schema": "cmr-bfull-reuse-evidence-index-v1",
+  "status": "PASSED",
+  "scope": "SINGLE_INSTANCE_PERFORMANCE_REGRESSION",
+  "instance_id": "B-D-BRANCH-S1",
+  "method": "FULL",
+  "source_head": "b39c664c4934e602a6f80b6399aa2c381e10c245",
+  "execution_identity": "b39c664c4934e602a6f80b6399aa2c381e10c245+cmr-bfull-a5f0f85b5ed0daaa",
+  "arms": [
+    "reference",
+    "current_compact_v3",
+    "graph_reuse_v4"
+  ],
+  "attempts_per_arm": 1,
+  "method_workers": 3,
+  "certificates": 3,
+  "semantic_fixtures": 10,
+  "invalid_cost_fixtures": 3,
+  "structural_checks": 2,
+  "total_checks": 15,
+  "frozen_inputs": 55,
+  "planner_budget_seconds": 180,
+  "outer_watchdog_seconds": 195,
+  "formal_campaign": false,
+  "provider_calls": 0,
+  "dds_runs": 0,
+  "driver_rc": 0,
+  "wsl_rc": 0,
+  "native_reader_rc": 0,
+  "archive_members": 68,
+  "structure": {
+    "graph_reuses": 2,
+    "subgraph_copies": 0,
+    "reverse_views": 1,
+    "suffix_lifts": [
+      {
+        "entry": 101,
+        "entry_accepting": true,
+        "layers": 1,
+        "nodes": 513,
+        "edges": 5827
+      }
+    ]
+  },
+  "notes": [
+    "Only within-solve graph-copy reduction and accepting-entry layer simplification; no target early-stop or Product/refinement changes.",
+    "Reference/current V3/candidate V4 each ran once with original full runner, tracemalloc, 180/195s budgets and independent persisted-certificate replay. No method retries.",
+    "Current V3 source closure pinned to qualified archive. Private full graphs reused only when all nodes are included; subsets retain copies. Reverse view shares native predecessor/successor maps and helpers remain read-only.",
+    "Accepting entries use one True layer; nonaccepting entries retain two layers. Dummy source keeps suffix nonempty, including zero-cost cycles.",
+    "Source snapshots, contracts, raw/delivered rows, schemas, certificates, actual return codes and native reader included; all55 scientific/production frozen inputs unchanged.",
+    "One B/FULL triple only; no cross-run speed comparison or general benchmark claim."
+  ],
+  "files": {
+    "raw_attempts.zip": {
+      "size": 145662,
+      "sha256": "d62faef8c5e9a77f1c02e5fbf47037b1d35eb04688148b88757952e8a569bcef"
+    },
+    "archive_manifest.json": {
+      "size": 11660,
+      "sha256": "2dea54fdfe73dbfae544475b81de78318efcb4219c30d8d0ef3edd40529e2bb4"
+    },
+    "native_readback.json": {
+      "size": 1615,
+      "sha256": "a387f867e79c37da14826b315d5f6003a5176b8a42d234ed66c6e09c1e8398fd"
+    }
+  }
+}

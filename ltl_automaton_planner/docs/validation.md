@@ -8046,3 +8046,56 @@ wrapper、Native reader及三worker的实际rc均0。本次用保存的bash脚�
 `cd8d4e037199a743a0aad6451bb5adec636c56e6fe78c5185fadcb6203ac3a48`；全部成员读回SHA一致。
 README同步新入口、算法约束、同轮耗时及复现命令。生产模块、旧资格及冻结CMR数据/
 结果保持；未扩展其他实例/方法、DDS、provider、正式批量实验或136/754历史测试。
+
+### 11.179 B/FULL 图复用与已接受入口的单层图（2026-10-12）
+
+按用户限定仅做两项优化：减少单次搜索中的图复制，精简已接受入口的接受性图。
+基线`b39c664c4934e602a6f80b6399aa2c381e10c245`，新隔离原型
+`experiments/cmr_ros2_bfull_reuse`；当前V3的source closure与§11.178归档plan逐字节绑定。
+执行前固定B-D-BRANCH-S1/FULL，reference、current V3、candidate V4独立worker各一次，
+冻结新source closure、15项定向检查及原180/195秒预算。没有加入target早停、Product
+构造或refinement优化，没有扩展其他实例/方法或正式批量实验。
+
+可达节点或SCC覆盖整张私有DiGraph时直接复用，否则仍按原方式复制部分子图。
+反向距离使用reverse(copy=False)，原生DiGraph视图交换共享_succ/_pred；生产距离和
+path helper只读，不改变图或输入。无跨搜索/跨round缓存。入口已接受时seen_accept
+已为True且只能保持True，因此仅构造True层；非接受入口仍保留False/True双层。
+dummy起点保持无入边，目标仍为原entry，至少走一条原transition后才能闭合；零代价
+selfloop/环与非接受最优入口保留。全入口SCC、LB排序/剪枝、Fraction、gamma10及原
+action/witness对象和恢复流程保持V3。生产helper和冻结CMR科学源完全不改。
+
+最终15项：10个手算语义case、3项None/float/负代价拒绝、2个结构检查。覆盖proper
+reachable/SCC subset实际复制2次；reverse view原生类型、邻接identity、无multigraph
+override及与复制反向图的ROS距离相等；原图/abstract结构、edge/witness对象不变；
+单双层节点/边、dummy无入边、零成本非空环与松下界需搜2个entry。suite在冻结源码后
+rc0，真实三臂只运行一次，无求解重试或验收放宽。
+
+| 同轮B/FULL worker | 完整方法秒 | 搜索秒 | Fraction目标 |
+| --- | ---: | ---: | ---: |
+| 原求解器 | 1.149286706 | 0.201930201 | 15 |
+| 当前精简图V3 | 1.605544117 | 0.510543337 | 15 |
+| 图复用/单层V4 | 1.407112306 | 0.379907402 | 15 |
+
+V4相对同轮V3完整耗时降低12.36%、搜索降低25.59%，仍慢于reference；单次单实例观察，
+不跨轮拼接加速比，不推广到其他数据。原Product仍512状态/5808转移，prefix图保持512
+节点；后缀图1025节点/11635边降至513节点/5827边。V4实际graph_reuses=2、
+subgraph_copies=0、reverse_views=1，唯一suffix入口接受且layers=1。两ROS臂heap
+push/pop均2241，settled均prefix512、lower-bound1024、suffix513，搜索1入口/剪枝511；
+本轮减少的是图准备工作，不把它描述成heap搜索减少。计数与reference suffix7保留basis。
+
+三臂均全精度一轮OPTIMALITY_CERTIFIED、目标15，原run_one及额外独立P2e/verifier
+落盘证书重放均PASS。原loop/local code对象、完整输入/构造/具体化/交付、tracemalloc、
+heap插桩、180/195秒deadline/watchdog、证书接受性和word oracle保持。新后端
+`ROS2-DISCRETE-PLAN-CMR-GRAPH-REUSE-V4` SHA绑定实际helper及各复用adapter/caller，
+P2c仍只更换明确backend SHA常量与schema ID；其他计时、proof、字段和科学约束不变。
+执行身份为`b39c664c4934e602a6f80b6399aa2c381e10c245+cmr-bfull-a5f0f85b5ed0daaa`。
+
+55份冻结输入before/after与Native读回字节一致；每worker的40行科学源映射、8+6实际
+导入身份匹配。标准库Native reader核对源闭包/冻结副本、精确成本/闭环、paired目标/
+初始精度、schema唯一差异、行/证书hash、实际结构计数、helper统计与worker退出。
+driver、WSL wrapper、fixture、Native reader及三worker实际rc均0。
+[`原始记录与独立读回`](../../experiments/cmr_ros2_bfull_reuse/evidence/20261012/index.json)
+归档68项，ZIP145662 bytes，SHA256
+`d62faef8c5e9a77f1c02e5fbf47037b1d35eb04688148b88757952e8a569bcef`，全部成员SHA读回匹配。
+README同步原型、复现命令和有限结论。默认Planner、旧资格和冻结CMR数据/结果保持；
+未启动正式campaign、额外DDS/provider/实机，也未重跑136/754历史测试。

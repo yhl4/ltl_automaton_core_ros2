@@ -31,6 +31,7 @@
 [CMR 真实实例接入](experiments/cmr_ros2_real/README.md) ·
 [B/FULL 搜索优化](experiments/cmr_ros2_bfull_perf/README.md) ·
 [B/FULL 精简搜索图](experiments/cmr_ros2_bfull_compact/README.md) ·
+[B/FULL 图复用与接受层精简](experiments/cmr_ros2_bfull_reuse/README.md) ·
 [验证记录](ltl_automaton_planner/docs/validation.md)
 
 面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
@@ -73,6 +74,11 @@ reference/ROS2对照通过，精确目标分别15、13、20；18份对照证书�
 新一轮B/FULL对照为reference1.627秒、SCC版V2 2.238秒、精简图V3 1.735秒；V3相对同轮
 V2完整耗时降低22.48%、搜索耗时降低42.68%，三方目标均15且独立证书通过。该有限对照
 仍保留全部预算、tracemalloc和验收规则，见[精简图原型与证据](experiments/cmr_ros2_bfull_compact/README.md)。
+
+后续仅减少图复制并精简已接受入口的层图：B/FULL实际复用两处私有图与一个反向视图，
+后缀图从1025节点/11635边降至513节点/5827边。新同轮reference/V3/V4完整耗时分别为
+1.149/1.606/1.407秒，V4相对当前V3降低12.36%，搜索降低25.59%；15项定向检查和三份
+独立证书重放通过，原180/195秒预算与CMR验收不变。范围见[图复用原型](experiments/cmr_ros2_bfull_reuse/README.md)。
 
 ---
 
