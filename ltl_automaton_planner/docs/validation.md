@@ -8154,3 +8154,71 @@ cost相等、settled会计、正剩余fringe、tight闭环、schema唯一差异�
 `815e1dabe2087d7bc1ee75b8079f3e2310643eb1547ede1cfec054be9a6e56f2`，所有成员SHA读回一致。
 README同步复现、停止条件证明和整体耗时持平结论。默认Planner、旧资格和冻结CMR
 数据/结果保持；无正式批量实验、额外DDS/provider/实机或136/754历史测试重跑。
+
+### 11.181 单次 Product 构造优化与固定子集 refinement 对照（2026-10-12）
+
+按第四项授权，在 `1c172e1d8a1d28fe2740e51b09af0ff78ed6cfbf` 基础上新增隔离
+`experiments/cmr_ros2_product_perf`。沿用原 outcome-blind B/C/D 三实例和
+FULL/AP-D/DEP-D 九格，预先冻结全部 cell plan、source closure、原180/195秒预算，
+每格 reference/current V5/candidate V6 各一个fresh worker，共27次，未进入正式ledger。
+V5源字节与§11.180资格归档绑定，所有旧原型和冻结科学源保持。
+
+复制原 grouped builder，仅 Product 改为deque FIFO和单次build局部(q, task_label)
+后继缓存，初始标签消费也经此缓存。每次仍调用原完整 `_reachable_full_ts`，再完整
+reduction和Product；无跨轮/跨模型缓存、增量TS或精度跳步。原标签一致性守卫、分桶、
+action/并行边、Fraction、完整ordered witnesses、supports/result constructor、最终排序
+及计时键/区间保持；计数在独立work中，不混入timing或改原统计字段词汇。
+
+qualified `e2_2_runner.py` SHA ec1ad7ca8df827ad339cd253f3841ebfe56d91ef5e2aeb37acb79fe57f7179ac
+的475–508行后继由state/label确定；507行accepting.add为幂等写入，512–529行在返回
+模型前枚举全部formula AP valuations完成接受集合闭包。只对这些绑定模型采用缓存，
+不外推到任意有状态callback。真实结构夹具核对接受集合前后相同。Search完全复用V5。
+
+10项定向检查通过：初始标签、重复/空后继、多初始、Fraction/action、不可达Buchi、
+label disagreement、同形状不同模型及重复build的新缓存。另5次real Product结构
+old/new逐字段比较覆盖各模型S_phi/full（D两精度相同），包含完整witness顺序且每个
+witness属于自身完整TS构造的原edge对象。AST核对Product前段、完整result构造和
+timing写入block；实际TS调用每build一次，原transition调用等于query，候选实际调用
+等于cache misses。全部在任何真实方法执行前通过，suite rc0。
+
+| 同轮实例/方法 | reference完整秒 | V5完整秒 | V6完整秒 | V5 Product秒 | V6 Product秒 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| B-D-BRANCH-S1/FULL | 1.087880299 | 1.300303707 | 0.996779207 | 0.341229402 | 0.026989001 |
+| B-D-BRANCH-S1/AP-D | 0.973507502 | 1.116969705 | 1.031928010 | 0.131141900 | 0.012071200 |
+| B-D-BRANCH-S1/DEP-D | 0.824129508 | 0.778020925 | 0.803913717 | 0.088876702 | 0.010613400 |
+| C1-T1/FULL | 0.615746405 | 0.780816406 | 0.698797405 | 0.047025100 | 0.004632400 |
+| C1-T1/AP-D | 1.084072407 | 0.890709405 | 0.817043904 | 0.084250100 | 0.010731300 |
+| C1-T1/DEP-D | 0.747471504 | 0.877738106 | 0.758886604 | 0.077566600 | 0.010190400 |
+| D3-1/FULL | 0.540596550 | 0.610154208 | 0.598036700 | 0.001157000 | 0.001087200 |
+| D3-1/AP-D | 0.550333503 | 0.591987095 | 0.740679700 | 0.001048700 | 0.001135400 |
+| D3-1/DEP-D | 0.694464595 | 0.707858024 | 0.637544099 | 0.001253199 | 0.000858900 |
+
+B/FULL Product降低92.09%、完整耗时降低23.34%；2593后继query仅实际求值7次、
+命中2586次，原Product仍512/5808。两个改动一起验证，未做单独消融。六个B/C格和
+两个D格构造降低；D/AP-D构造1.049→1.135ms略增。完整方法在B/DEP-D增3.33%、
+D/AP-D增25.12%，保留这些负收益，不把构造收益等同全部方法加速。所有值均每臂一
+次测量，不重跑筛选、不跨轮拼接，不作稳定/总体性能推断。新后端仍有格慢于reference。
+
+27次全部OPTIMALITY_CERTIFIED，目标B15/C13/D20；原run_one验证及额外27份独立
+落盘P2e/verifier replay均PASS。三方法build轮数各臂B1/4/1、C1/6/4、D1/1/1，共60轮。
+V5/V6每轮仅剔除backend身份和计时后全部科学字段完全相同，含S、LB/UB、具体化、
+refinement、actions、Product/TS计数和heap/target决策。reference保持独立counter basis。
+原loop/local code对象保持，通过克隆globals局部替换solver/builder，原runner builder
+global仍是qualified函数。180秒method deadline、195秒外层watchdog、tracemalloc、
+INITIAL_LABEL_V1、非空接受后缀、Fraction/gamma10、具体化与独立证书验收不变。
+worker启动/preflight先于原method_start；交付/logging计入完整方法。V6后端
+`ROS2-DISCRETE-PLAN-CMR-PRODUCT-V6` SHA绑定完整V5链、原builder SHA和新builder/
+caller，P2c只替换backend SHA常量与schema ID。
+
+执行身份 `1c172e1d8a1d28fe2740e51b09af0ff78ed6cfbf+cmr-product-a946d9f936b719e7`。
+55份输入before/after字节相同；各worker40行科学映射与8+6实际导入匹配。标准库Native
+reader独立核对27行、精确lasso、完整trace、身份/hash/schema、逐轮cache/重建统计、
+source closure/冻结副本及实际退出；driver、WSL wrapper、fixture、Native和27worker
+实际rc均0，无方法重试。
+
+[`全部原始记录与独立读回`](../../experiments/cmr_ros2_product_perf/evidence/20261012/index.json)
+归档350项，ZIP793294 bytes，SHA256
+`fe4b6759890a4a6f8175792e8d5dab13c8d60dd37a7e56e5efe5769f01333f44`，全部成员SHA读回匹配。
+README同步九组完整结果、模型纯函数适用条件、复现与负收益。没有正式170×3实验、
+新DDS/provider/实机或136/754历史测试重跑；默认Planner、旧DDS worker、正式solver
+和原始CMR数据/结果没有切换。

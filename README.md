@@ -33,6 +33,7 @@
 [B/FULL 精简搜索图](experiments/cmr_ros2_bfull_compact/README.md) ·
 [B/FULL 图复用与接受层精简](experiments/cmr_ros2_bfull_reuse/README.md) ·
 [B/FULL 闭环目标确定后停止](experiments/cmr_ros2_bfull_target/README.md) ·
+[CMR Product 构造与 refinement 对照](experiments/cmr_ros2_product_perf/README.md) ·
 [验证记录](ltl_automaton_planner/docs/validation.md)
 
 面向 CMR Experiment A 的隔离接入原型已完成：复用本包的距离搜索与路径恢复，
@@ -85,6 +86,14 @@ V2完整耗时降低22.48%、搜索耗时降低42.68%，三方目标均15且独�
 V4的513降到V5的11，精确距离1确定时堆仍有40项；同轮搜索耗时0.352→0.318秒，降低
 9.69%，完整耗时均约1.435秒、基本持平。三方目标15，18项检查及独立证书重放通过，
 预算与验收保持；未重跑挑选更快结果，见[目标确定原型与证据](experiments/cmr_ros2_bfull_target/README.md)。
+
+第四项为单次 Product 内的 Büchi 后继缓存和 FIFO 队列优化，每轮仍完整重建 TS、
+抽象与 Product。既定 B/C/D 三实例 × FULL/AP-D/DEP-D，与原求解器和当前 V5 各一次
+隔离对照：27 个 worker、60 轮构造、27 份独立证书重放通过，目标分别保持 15/13/20，
+V5/V6 逐轮科学字段一致。B/FULL 构造 0.341→0.027 秒、降低 92.09%，完整方法
+1.300→0.997 秒、降低 23.34%；B/DEP-D、D/AP-D 的完整耗时反而增加，D/AP-D
+构造也略增，不推广为普遍加速。180/195 秒预算与验收不变，未启动正式批量实验；
+完整九组结果见 [Product 与 refinement 原型](experiments/cmr_ros2_product_perf/README.md)。
 
 ---
 

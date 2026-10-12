@@ -1,0 +1,125 @@
+{
+  "schema": "cmr-product-evidence-index-v1",
+  "status": "PASSED",
+  "scope": "FIXED_SUBSET_PRODUCT_REFINEMENT_QUALIFICATION",
+  "source_head": "1c172e1d8a1d28fe2740e51b09af0ff78ed6cfbf",
+  "execution_identity": "1c172e1d8a1d28fe2740e51b09af0ff78ed6cfbf+cmr-product-a946d9f936b719e7",
+  "cells": [
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "FULL",
+      "canonical_instance_index": 95,
+      "execution_index": 285,
+      "method_order_position": 0,
+      "cell_id": "833aa50d065f3a35bb660055dedac1c2c78ce7d4693e77646e48375e0817766b"
+    },
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "AP-D",
+      "canonical_instance_index": 95,
+      "execution_index": 286,
+      "method_order_position": 1,
+      "cell_id": "d7caa8989ff9910f1e5c96125e0867d6480e4afd25651052d9c546de6b74dbad"
+    },
+    {
+      "instance_id": "B-D-BRANCH-S1",
+      "method": "DEP-D",
+      "canonical_instance_index": 95,
+      "execution_index": 287,
+      "method_order_position": 2,
+      "cell_id": "6f5596a2f363ac8d9765c9473559428d16fed6d3d72fcbe4a2d2e3c16a0bd702"
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "FULL",
+      "canonical_instance_index": 110,
+      "execution_index": 330,
+      "method_order_position": 0,
+      "cell_id": "6e1a23d618fb0d7d17bddae5759e290b893405e0b72101d18b6fbe7e26266f65"
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "AP-D",
+      "canonical_instance_index": 110,
+      "execution_index": 331,
+      "method_order_position": 1,
+      "cell_id": "2c316cf8ca1381f9ef60ad57ddbb7108aea9962b8d9faaf8320e8d167f2aa453"
+    },
+    {
+      "instance_id": "C1-T1",
+      "method": "DEP-D",
+      "canonical_instance_index": 110,
+      "execution_index": 332,
+      "method_order_position": 2,
+      "cell_id": "49dc8756a04f27b819ff2d3c8987d38be1e0e0c97468b535515e22a069b5135f"
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "FULL",
+      "canonical_instance_index": 142,
+      "execution_index": 426,
+      "method_order_position": 0,
+      "cell_id": "9d0f8cb1e8fd6cd77f9588228bdc6dffebfd05d2f9049dcec8bbeac117e47f4d"
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "AP-D",
+      "canonical_instance_index": 142,
+      "execution_index": 427,
+      "method_order_position": 1,
+      "cell_id": "be130fb5dc7da6529ac0ccbaf0f0357a08b45a9f5b1385883f7cc1082141b76f"
+    },
+    {
+      "instance_id": "D3-1",
+      "method": "DEP-D",
+      "canonical_instance_index": 142,
+      "execution_index": 428,
+      "method_order_position": 2,
+      "cell_id": "4fe248025b5a21913e052073b7f999095b81d5bcc10e1c7cd7e0e11a15219963"
+    }
+  ],
+  "arms": [
+    "reference",
+    "current_v5",
+    "product_v6"
+  ],
+  "attempts_per_arm": 1,
+  "method_workers": 27,
+  "independent_certificate_replays": 27,
+  "total_build_rounds": 60,
+  "directed_fixtures": 10,
+  "real_product_checks": 5,
+  "frozen_inputs": 55,
+  "planner_budget_seconds": 180,
+  "outer_watchdog_seconds": 195,
+  "formal_campaign": false,
+  "provider_calls": 0,
+  "dds_runs": 0,
+  "driver_rc": 0,
+  "wsl_rc": 0,
+  "native_reader_rc": 0,
+  "archive_members": 350,
+  "notes": [
+    "Fixed previously selected B/C/D instances and FULL/AP-D/DEP-D, one fresh reference/V5/V6 worker per cell; no method retries.",
+    "Only deque FIFO and per-build Buchi successor caching. Full reachable TS, reduction, model and Product rebuilt every round. No cross-round cache.",
+    "Qualified compiled monitor returns deterministic successors and completes accepting membership before Product construction; arbitrary stateful callbacks are outside scope.",
+    "All objectives and original independent persisted certificate replays pass; every V5/V6 scientific round field and target/heap decision agrees apart from backend metadata and time.",
+    "Measurements are one attempt per arm/cell. Report every cell including slower complete methods; no pooled or stable speed claims.",
+    "Original budgets, INITIAL_LABEL_V1, Fraction costs, gamma10, P2c/P2e/verifier, source authority, tracemalloc and terminal delivery remain.",
+    "Prior qualifications, production planner and 55 frozen inputs unchanged; no formal campaign, DDS, providers or historical suite reruns."
+  ],
+  "files": {
+    "raw_attempts.zip": {
+      "size": 793294,
+      "sha256": "fe4b6759890a4a6f8175792e8d5dab13c8d60dd37a7e56e5efe5769f01333f44"
+    },
+    "archive_manifest.json": {
+      "size": 57073,
+      "sha256": "87e93c2749d77512fc2816a84183c0327b4a201c23e432da1ab625b77f96d271"
+    },
+    "native_readback.json": {
+      "size": 19966,
+      "sha256": "cd2b2f486a07268cbf6abca354b0d2948f9103bef0922d0c8680ce106f469ec2"
+    }
+  }
+}
