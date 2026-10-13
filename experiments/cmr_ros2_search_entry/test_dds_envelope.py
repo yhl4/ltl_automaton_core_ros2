@@ -37,6 +37,19 @@ class V7EnvelopeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             dds._request_cell(plan, {"instance_id": "D1-1", "method": "FULL"})
 
+    def test_failure_profile_admits_only_its_two_fixed_cells(self):
+        plan = dict(scope=dds.FAILURE_SCOPE,
+                    cells=[dict(instance_id=name, method=method)
+                           for name, method in dds.FAILURE_TARGETS],
+                    formal_campaign=False, planner_budget_seconds=180,
+                    outer_watchdog_seconds=195)
+        self.assertEqual(dds._request_cell(plan, dict(instance_id='D1-1',method='FULL')),
+                         plan['cells'][1])
+        with self.assertRaises(ValueError):
+            dds._request_cell(plan, dict(instance_id='B-D-BRANCH-S2',method='FULL'))
+        with self.assertRaises(ValueError):
+            dds._fixed_cells(dict(plan, outer_watchdog_seconds=194))
+
 
 if __name__ == "__main__":
     unittest.main()

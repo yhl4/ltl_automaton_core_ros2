@@ -36,6 +36,8 @@ TARGETS = (
     ("C3-T4", "AP-D"),
 )
 EXPECTED_TERMINAL = {target: "OPTIMALITY_CERTIFIED" for target in TARGETS}
+FAILURE_SCOPE = 'CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION'
+FAILURE_TARGETS = (('A-T1-M0-A-S-BRANCH', 'FULL'), ('D1-1', 'FULL'))
 
 
 def _sha256(path: Path) -> str:
@@ -57,11 +59,12 @@ def _event(events: list[dict[str, Any]], name: str, **fields: Any) -> None:
 
 
 def _fixed_cells(plan: Mapping[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+    targets = FAILURE_TARGETS if plan.get('scope') == FAILURE_SCOPE else TARGETS
     cells = plan.get("cells")
     observed = ([(cell.get("instance_id"), cell.get("method")) for cell in cells]
                 if isinstance(cells, list) else None)
-    if observed != list(TARGETS):
-        raise ValueError("V7 DDS plan cells differ from the fixed three-cell scope")
+    if observed != list(targets):
+        raise ValueError("V7 DDS plan cells differ from its fixed qualification scope")
     if (plan.get("formal_campaign") is not False
             or plan.get("planner_budget_seconds") != 180
             or plan.get("outer_watchdog_seconds") != 195):
@@ -284,6 +287,8 @@ def run_dds(args, plan: dict[str, Any], output: Path) -> dict[str, Any]:
     """Run only the fixed V7 DDS cases, retaining every failure artifact."""
     runner = importlib.import_module("experiments.cmr_ros2_search_entry.runner")
     plan = runner.load_plan(args.plan)
+    if plan['scope'] != runner.SCOPE:
+        raise ValueError('failure plans use the dedicated failure_dds harness')
     if _sha256(Path(args.version_binding).resolve()) != plan["version_binding_sha256"]:
         raise ValueError("V7 version binding argument differs from the frozen plan")
     cells = _fixed_cells(plan)

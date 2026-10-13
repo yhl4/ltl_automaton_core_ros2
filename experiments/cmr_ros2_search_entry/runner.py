@@ -32,6 +32,8 @@ NAMES = ('reference', 'ros2-v6', 'ros2-v7')
 TARGETS = (('A-T1-M0-A-S-BRANCH', 'FULL'),
            ('B-D-BRANCH-S2', 'FULL'), ('C3-T4', 'AP-D'))
 SCOPE = 'CMR_SEARCH_ENTRY_ISOLATED_QUALIFICATION'
+DDS_FAILURE_SCOPE = 'CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION'
+DDS_FAILURE_TARGETS = (('A-T1-M0-A-S-BRANCH', 'FULL'), ('D1-1', 'FULL'))
 canonical = old_backends.canonical
 digest = old_backends.digest
 
@@ -73,14 +75,36 @@ def implementations():
            'ros2-v7': {'backend_id': ID, 'backend_sha256': identity()}})
 
 
+def failure_selection(current):
+    """Fixed A anchor plus the metadata-selected exact-empty D control."""
+    prior = qualification.selection(current['authority_receipt'])
+    records = {row['instance_id']: row for row in current['records'] + prior['records']}
+    cells = {(row['instance_id'], row['method']): row
+             for row in current['cells'] + prior['cells']}
+    if records['D1-1']['feasibility_class'] != 'INFEASIBLE':
+        raise ValueError('static infeasible control metadata changed')
+    # Retain the original five metadata/input bindings and add the D control.
+    chosen = list(current['records']) + [records['D1-1']]
+    return chosen, [cells[key] for key in DDS_FAILURE_TARGETS]
+
+
 def load_plan(path):
     plan = json.loads(Path(path).read_bytes())
     current = old_runner.load_plan(plan['current_plan_path'])
-    selected = [c for c in current['cells']
-                if (c['instance_id'], c['method']) in TARGETS]
-    if (plan['schema'] != 'cmr-search-entry-plan-v1' or plan['scope'] != SCOPE
-            or plan['cells'] != selected or plan['records'] != current['records']
-            or plan['backends'] != list(NAMES) or plan['expected_method_workers'] != 9
+    if plan.get('scope') == DDS_FAILURE_SCOPE:
+        records, selected = failure_selection(current)
+        expected_workers = 4  # D reference + D DDS + two A fault workers.
+    elif plan.get('scope') == SCOPE:
+        records = current['records']
+        selected = [c for c in current['cells']
+                    if (c['instance_id'], c['method']) in TARGETS]
+        expected_workers = 9
+    else:
+        raise ValueError('unknown isolated qualification scope')
+    if (plan['schema'] != 'cmr-search-entry-plan-v1'
+            or plan['scope'] not in (SCOPE, DDS_FAILURE_SCOPE)
+            or plan['cells'] != selected or plan['records'] != records
+            or plan['backends'] != list(NAMES) or plan['expected_method_workers'] != expected_workers
             or plan['attempts_per_cell_backend'] != 1 or plan['formal_campaign'] is not False
             or plan['planner_budget_seconds'] != 180 or plan['outer_watchdog_seconds'] != 195
             or plan['source_closure'] != source_closure()):
@@ -175,9 +199,9 @@ def worker(args):
             'original_builder_global_preserved')}))
 
 
-def candidate_isolated(args, plan, cell, output):
+def candidate_isolated(args, plan, cell, output, *, backend_name='ros2-v7'):
     entry = VerifiedEntry(plan, source_closure, schema_for)
-    request = request_for(plan, entry, cell, 'ros2-v7')
+    request = request_for(plan, entry, cell, backend_name)
     def describe(path, name):
         if Path(path).resolve() != Path(plan['version_binding_path']).resolve():
             raise ValueError('binding path mismatch')
@@ -212,6 +236,12 @@ def prepare(args):
     args.output.mkdir(parents=True, exist_ok=False)
     acceptance.prepare(SimpleNamespace(**dict(vars(args), output=args.output / 'current')))
     current = old_runner.load_plan(args.output / 'current/plan.json')
+    failures = getattr(args, 'qualification_profile', 'search') == 'dds-failures'
+    if failures and args.continue_from is not None:
+        raise ValueError('DDS failure qualification cannot carry earlier controls')
+    records, cells = (failure_selection(current) if failures else
+                     (current['records'], [c for c in current['cells']
+                       if (c['instance_id'], c['method']) in TARGETS]))
     content = dict(schema='cmr-search-entry-binding-v1', source_closure=source_closure(),
         semantic_contract_id='INITIAL_LABEL_V1', objective='prefix_cost + 10*suffix_cost',
         nonempty_accepting_suffix=True, full_ts_rebuild_every_round=True,
@@ -221,13 +251,13 @@ def prepare(args):
     content['binding_id'] = 'CMR_SEARCH_ENTRY_V1-' + hashlib.sha256(canonical(content).encode()).hexdigest()[:16]
     version_path = args.output / 'backend_binding.json'
     write(version_path, content)
-    plan = dict(schema='cmr-search-entry-plan-v1', scope=SCOPE,
+    plan = dict(schema='cmr-search-entry-plan-v1', scope=DDS_FAILURE_SCOPE if failures else SCOPE,
         qualification_id='CMR_SEARCH_ENTRY_AUDIT_REPAIR_20261013', source_head=current['source_head'],
         current_plan_path=str(args.output / 'current/plan.json'),
-        source_closure=source_closure(), records=current['records'],
-        cells=[c for c in current['cells'] if (c['instance_id'], c['method']) in TARGETS],
-        selection_rule='Fixed A minimum/FULL, B branch scale S2/FULL, C3-T4/AP-D; no candidate outcomes used.',
-        backends=list(NAMES), expected_method_workers=9, attempts_per_cell_backend=1,
+        source_closure=source_closure(), records=records, cells=cells,
+        selection_rule=('Fixed A/FULL anchor and prior metadata-selected infeasible D1-1/FULL; no candidate outcomes used.'
+                        if failures else 'Fixed A minimum/FULL, B branch scale S2/FULL, C3-T4/AP-D; no candidate outcomes used.'),
+        backends=list(NAMES), expected_method_workers=4 if failures else 9, attempts_per_cell_backend=1,
         planner_budget_seconds=180, outer_watchdog_seconds=195, formal_campaign=False,
         version_binding_path=str(version_path), version_binding_sha256=digest(version_path),
         version_binding_id=content['binding_id'],
@@ -266,7 +296,8 @@ def prepare(args):
         destination = args.output / 'frozen_adapter' / name
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / name, destination)
-    print(json.dumps(dict(prepared=True, workers=9, version_binding=content['binding_id'])), flush=True)
+    print(json.dumps(dict(prepared=True, workers=plan['expected_method_workers'],
+                         scope=plan['scope'], version_binding=content['binding_id'])), flush=True)
 
 
 def normalized(value):
@@ -284,6 +315,8 @@ def normalized(value):
 
 def run(args):
     plan = load_plan(args.output / 'plan.json')
+    if plan['scope'] != SCOPE:
+        raise ValueError('DDS failure plans use the dedicated failure_dds harness')
     from experiments.cmr_ros2_search_entry import fixtures, entry_fixtures
     write(args.output / 'search_fixtures.json', fixtures.run())
     write(args.output / 'entry_fixtures.json', entry_fixtures.run_fixtures())
@@ -356,6 +389,7 @@ def run(args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--prepare', action='store_true')
+    parser.add_argument('--qualification-profile', choices=('search', 'dds-failures'), default='search')
     parser.add_argument('--worker', action='store_true')
     parser.add_argument('--backend', choices=NAMES)
     parser.add_argument('--request', type=Path)
