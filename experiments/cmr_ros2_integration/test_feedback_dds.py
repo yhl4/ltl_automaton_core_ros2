@@ -64,7 +64,7 @@ def test_dds_repeated_targets_reject_replayed_feedback(tmp_path, repeated_entry)
                  and execution._snapshot_client.service_is_ready())
         server._publish_observation()
         wait_for(lambda: len(calls) == 1)
-        assert server.snapshot.accepted_run.suffix_product_node_ids == [
+        assert list(server.snapshot.accepted_run.suffix_product_node_ids) == [
             server.state_ids[p], server.state_ids[q]]
         assert Fraction(str(server.snapshot.accepted_run.total_cost)) == 0
         first = TransitionSystemStateStamped()
