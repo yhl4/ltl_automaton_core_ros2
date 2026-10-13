@@ -5,12 +5,14 @@ gate. This is a bounded implementation experiment outside the formal ledger.
 """
 
 import argparse
+import copy
 import hashlib
 import json
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 from types import SimpleNamespace
 
 HERE = Path(__file__).resolve().parent
@@ -127,12 +129,154 @@ def validate_request(plan, request, name):
         raise ValueError('request is not the fixed C3/AP-D instance and backend')
 
 
-proxy = SimpleNamespace(**dict(vars(v7.old_backends), NAMES=NAMES,
-    describe=describe, configure=configure, schema_for=schema_for))
-worker = adapter._clone_function(original.worker, dict(load_plan=load_plan,
-    validate_request=validate_request, backends=proxy))
-isolated = adapter._clone_function(original.run_isolated, dict(HERE=HERE,
-    load_plan=load_plan, validate_request=validate_request, backends=proxy))
+def timed(function, records, name):
+    """Diagnostic-only wall time, with the original call/exception preserved."""
+    def call(*args, **kwargs):
+        started = time.perf_counter_ns()
+        try:
+            return function(*args, **kwargs)
+        finally:
+            row = records.setdefault(name, dict(calls=0, elapsed_ns=0))
+            row['calls'] += 1
+            row['elapsed_ns'] += time.perf_counter_ns() - started
+    return call
+
+
+class AttemptEntry:
+    """Binding/schema reuse within one parent or worker attempt only."""
+
+    def __init__(self, path):
+        self.path = Path(path).resolve()
+        self.plan = copy.deepcopy(load_plan(self.path))
+        self.binding_path = Path(self.plan['version_binding_path']).resolve()
+        self.binding_bytes = self.binding_path.read_bytes()
+        if hashlib.sha256(self.binding_bytes).hexdigest() != self.plan['version_binding_sha256']:
+            raise ValueError('binding changed during entry construction')
+        self.binding = json.loads(self.binding_bytes)
+        self.descriptors = {name: dict(backend=name, **self.binding['backends'][name],
+            version_binding_id=self.plan['version_binding_id'],
+            version_binding_sha256=self.plan['version_binding_sha256']) for name in NAMES}
+        self.schemas = {}
+        self.receipt_identity = None
+        self.metrics = dict(binding_reads=1, schema_builds=0, descriptor_requests=0,
+                            release_checks=0, schema_requests=0)
+        self.timing = {}
+        self.core_timing = {}
+
+    def describe(self, path, name):
+        if Path(path).resolve() != self.binding_path or name not in NAMES:
+            raise ValueError('entry binding path/backend differs')
+        self.metrics['descriptor_requests'] += 1
+        return dict(self.descriptors[name])
+
+    def request(self, name):
+        return dict(copy.deepcopy(self.plan['cells'][0]),
+            instance_sha256=self.plan['records'][0]['instance_sha256'],
+            **self.describe(self.binding_path, name), qualification_id=self.plan['qualification_id'],
+            population=SCOPE, formal_campaign=False, execution_identity=self.plan['execution_identity'],
+            planner_budget_seconds=180, outer_watchdog_seconds=195)
+
+    def validate(self, plan, request, name):
+        if plan != self.plan or request != self.request(name):
+            raise ValueError('entry request/plan changed')
+
+    def schema(self, receipt, name):
+        identity = hashlib.sha256(v7.canonical(receipt).encode()).hexdigest()
+        if self.receipt_identity is not None and identity != self.receipt_identity:
+            raise ValueError('entry receipt changed')
+        self.receipt_identity = identity
+        if name not in self.schemas:
+            # The SHA is from this verified source snapshot. Source bytes are
+            # rechecked before publication, rather than rehashed by every factory.
+            if name == 'reference':
+                result = schema_for(receipt, name)
+            else:
+                impl = self.binding['backends'][name]
+                fn = adapter._clone_function(v7.schema_for,
+                    {'ID': impl['backend_id'], 'identity': lambda: impl['backend_sha256']})
+                result = fn(receipt, 'ros2-v7')
+                if name == 'ros2-v8':
+                    result.binding_id = 'CMR_AP_TS_REUSE_P2C_BACKEND_BINDING_V8'
+            result.validate_result = timed(result.validate_result, self.timing, 'schema_validate_result')
+            self.schemas[name] = result
+            self.metrics['schema_builds'] += 1
+        self.metrics['schema_requests'] += 1
+        return self.schemas[name]
+
+    def release_check(self):
+        if self.binding_path.read_bytes() != self.binding_bytes:
+            raise ValueError('binding changed before publication')
+        self.metrics['binding_reads'] += 1
+        if source_closure() != self.plan['source_closure']:
+            raise ValueError('source changed before publication')
+        if v7.digest(adapter._native_path(self.plan['authority_receipt'])) != self.plan['receipt_sha256']:
+            raise ValueError('authority receipt changed before publication')
+        self.metrics['release_checks'] += 1
+
+    def configure(self, formal, name, path):
+        descriptor = self.describe(path, name)
+        capture = (backend.configure(formal) if name == 'ros2-v8'
+                   else v7.configure(formal, name, descriptor))
+        if any(capture[k] != descriptor[k] for k in ('backend_id', 'backend_sha256')):
+            raise ValueError('configured backend differs from entry')
+        capture['backend_binding'] = descriptor
+        # Clone after configuration so run_one sees the selected solver/IDs.
+        instrument_formal(formal, self.core_timing)
+        return capture
+
+    def proxy(self):
+        return SimpleNamespace(**dict(vars(v7.old_backends), NAMES=NAMES,
+            describe=timed(self.describe, self.timing, 'describe'), configure=self.configure,
+            schema_for=timed(self.schema, self.timing, 'schema_for')))
+
+    def guarded_write(self, path, value):
+        if Path(path).name in ('worker_result.json', 'result.json'):
+            timed(self.release_check, self.timing, 'release_check')()
+        return timed(write, self.timing, 'write')(path, value)
+
+
+def instrument_formal(formal, records):
+    persist = formal.persist_and_verify_certificate
+    persist_globals = {'os': SimpleNamespace(**dict(vars(persist.__globals__['os']),
+        fsync=timed(persist.__globals__['os'].fsync, records, 'certificate_fsync')))}
+    for name in ('canonical_record', '_certificate_payload', 'sha256_file', 'verify_bound_certificate'):
+        persist_globals[name] = timed(persist.__globals__[name], records, 'certificate_' + name)
+    measured_persist = adapter._clone_function(persist, persist_globals)
+    replacements = {name: timed(formal.run_one.__globals__[name], records, name)
+                    for name in ('preflight', 'load_instance', '_payload_for_ai')}
+    replacements['persist_and_verify_certificate'] = timed(measured_persist, records, 'persist_and_verify_certificate')
+    original_one = formal.run_one
+    formal.run_one = adapter._clone_function(original_one, replacements)
+    records['original_function_code_preserved'] = dict(
+        run_one=formal.run_one.__code__ is original_one.__code__,
+        persist_and_verify_certificate=measured_persist.__code__ is persist.__code__)
+
+
+def worker(args):
+    entry = AttemptEntry(args.plan)
+    fn = adapter._clone_function(original.worker, dict(load_plan=lambda path: entry.plan,
+        validate_request=entry.validate, backends=entry.proxy(),
+        write=entry.guarded_write))
+    try:
+        fn(args)
+    finally:
+        write(args.output/'worker_timing.json', dict(entry_metrics=entry.metrics,
+            entry_timing=entry.timing, core_timing=entry.core_timing,
+            metrics_scope='AttemptEntry only; load_plan and frozen authority checks also execute',
+            version_binding_id=entry.plan['version_binding_id']))
+
+
+def isolated(request, receipt, kernel, binding_path, plan_path, output):
+    entry = AttemptEntry(plan_path)
+    fn = adapter._clone_function(original.run_isolated, dict(HERE=HERE,
+        load_plan=lambda path: entry.plan, validate_request=entry.validate,
+        backends=entry.proxy(), write=entry.guarded_write))
+    started = time.perf_counter_ns()
+    value = fn(request, receipt, kernel, binding_path, plan_path, output)
+    write(Path(output)/'parent_timing.json', dict(entry_metrics=entry.metrics,
+        entry_timing=entry.timing, isolated_wall_ns=time.perf_counter_ns()-started,
+        version_binding_id=entry.plan['version_binding_id']))
+    return value
 
 
 def prepare(args):
@@ -189,7 +333,11 @@ def run(args):
             value=isolated(request,args.binding,args.kernel_root,Path(plan['version_binding_path']),args.output/'plan.json',args.output/name)
             report['backends'][name]=value
             write(args.output/'comparison.json',report)
+            replay_started=time.perf_counter_ns()
             report['certificate_replays'][name]=original.replay(plan,args.binding,args.kernel_root,value,args.output/name)
+            write(args.output/name/'external_replay_timing.json',dict(
+                elapsed_ns=time.perf_counter_ns()-replay_started,
+                scope='additional independent replay after delivered T_total; outside result row'))
             print(json.dumps(dict(backend=name,status=value['row']['terminal_status'],objective=value['row']['objective'],seconds=value['row']['T_total'])),flush=True)
         ref,old,new=(report['backends'][name] for name in NAMES)
         v7.qualification.check_pair(ref,old,'AP-D'); v7.qualification.check_pair(ref,new,'AP-D')
@@ -230,8 +378,6 @@ def main():
         raise ValueError('fresh isolated output must be under /tmp/')
     if args.worker:
         worker(args)
-        if source_closure()!=load_plan(args.plan)['source_closure']:
-            raise ValueError('source changed while worker ran')
     elif args.prepare:
         prepare(args)
     else:
