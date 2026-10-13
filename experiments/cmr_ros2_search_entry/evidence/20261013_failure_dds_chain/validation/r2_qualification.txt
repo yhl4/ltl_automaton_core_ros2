@@ -1,0 +1,7 @@
+{"prepared": true, "workers": 30, "binding": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25", "execution_identity": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-unified-ffc0f5e26f2878fc"}
+{"prepared": true, "workers": 4, "scope": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION", "version_binding": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc"}
+{"source_head": "6f60801afaed3da950c8d9d0646669f7777a6623", "binding": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc", "closure": 56, "frozen_inputs": 61}
+{"mode": "late_delivery", "status": "PASSED"}
+{"mode": "crash", "status": "PASSED"}
+{"analysis_rows": 510, "cells": 510, "committed": 510, "dds_calls": 0, "live_campaign_dispatch": "NOT_RUN", "planner_calls": 0, "provider_calls": 0, "status": "PASSED"}
+{"status": "PASSED", "dds_cases": 4, "offline_synthetic_rows": 510, "formal_campaign_workers": 0, "provider_calls": 0}

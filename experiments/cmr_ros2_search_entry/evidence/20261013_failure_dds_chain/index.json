@@ -1,0 +1,260 @@
+{
+  "schema": "cmr-search-entry-v7-failure-dds-index-v1",
+  "status": "PACKAGED",
+  "archive": {
+    "path": "raw_attempts.zip",
+    "size": 1270243,
+    "sha256": "0778c0b45dd4043e1d1cf2484011a1780d0c033acf0f1d89e104674eba2c4a8c",
+    "member_count": 405
+  },
+  "namespaces": [
+    {
+      "member_prefix": "initial_failed",
+      "original_root": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_failure_dds_chain_20261013_r1",
+      "source_head": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd",
+      "execution_identity": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd+cmr-search-entry-797361d95f2a12a8",
+      "status": "FAILED",
+      "initial_recursive_hook_and_synthetic_marker_failures_preserved": true
+    },
+    {
+      "member_prefix": "qualified_continuation",
+      "original_root": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_failure_dds_chain_20261013_r2",
+      "source_head": "6f60801afaed3da950c8d9d0646669f7777a6623",
+      "execution_identity": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75",
+      "status": "PASSED",
+      "method_workers": 4,
+      "new_method_workers": 2,
+      "new_dds_cases": 2
+    }
+  ],
+  "sidecars": [
+    {
+      "path": "sidecars/failure_dds_readback.json",
+      "size": 480,
+      "sha256": "5c6ea420bccb91c80beebb99affca974532341110da93d3aa13c5f0321c1abac",
+      "zip_member": "qualified_continuation/failure_dds_readback.json",
+      "zip_member_size": 480,
+      "zip_member_sha256": "5c6ea420bccb91c80beebb99affca974532341110da93d3aa13c5f0321c1abac",
+      "matches_zip_member": true
+    },
+    {
+      "path": "sidecars/failure_dds_report.json",
+      "size": 68394,
+      "sha256": "f50df71752a81b601954f9880ab80e6f8619e9be812d62e1856305626bae97a5",
+      "zip_member": "qualified_continuation/dds_failures/failure_dds_report.json",
+      "zip_member_size": 68394,
+      "zip_member_sha256": "f50df71752a81b601954f9880ab80e6f8619e9be812d62e1856305626bae97a5",
+      "matches_zip_member": true
+    },
+    {
+      "path": "sidecars/offline_chain_evidence.json",
+      "size": 5976,
+      "sha256": "5aa300fcf12d8b489b951dd52267c78ebce8443b6c12aa8f8c55b128e2140a44",
+      "zip_member": "qualified_continuation/offline_chain/offline_chain_evidence.json",
+      "zip_member_size": 5976,
+      "zip_member_sha256": "5aa300fcf12d8b489b951dd52267c78ebce8443b6c12aa8f8c55b128e2140a44",
+      "matches_zip_member": true
+    }
+  ],
+  "validation": [
+    {
+      "path": "validation/clone.txt",
+      "size": 71,
+      "sha256": "35d370ed8572567d13832295f9282171f75c8e1214a858cbe0bdac6553c6164c"
+    },
+    {
+      "path": "validation/qualification.txt",
+      "size": 1648,
+      "sha256": "aa208556602b683469d60fdfbe92e474629e5d21ecf3fc080223f7e7f000585a"
+    },
+    {
+      "path": "validation/r2_clone.txt",
+      "size": 71,
+      "sha256": "ed821222299aa87213eea1eaafbd09771132d56c0fe33d4818c0e6f3fe3cbacd"
+    },
+    {
+      "path": "validation/r2_qualification.txt",
+      "size": 850,
+      "sha256": "858c42ba06f6a10c5f711c6d9165a6dd95dad020d61ca0736134650ecc79d922"
+    },
+    {
+      "path": "validation/readback.txt",
+      "size": 444,
+      "sha256": "2202e3dcb6a2e94be140ceda86da63cf230fa222a3982eeb6bcf61bd6e50c85b"
+    },
+    {
+      "path": "validation/run_continuation.sh",
+      "size": 3401,
+      "sha256": "745e0b77eecaab888c6496db98b6f88ef2369d14ccf977830b6203b5b67f4998"
+    },
+    {
+      "path": "validation/run_qualification.sh",
+      "size": 3323,
+      "sha256": "f563c2e5233d5e3deb581ce6e1ef33b42dbfb6451de1a45b5c47e58e2a5ac106"
+    },
+    {
+      "path": "validation/run_search_prepare.sh",
+      "size": 1621,
+      "sha256": "0ecd66605e45aea0ab8d36b5e40fd9df715f5489c7a363d32890a374834582f1"
+    },
+    {
+      "path": "validation/search_prepare.txt",
+      "size": 1418,
+      "sha256": "de9bc2a634c3787960f11bb51ec885cfd3ae760f87392c7e28b8467752717792"
+    },
+    {
+      "path": "validation/search_default_prepare.json",
+      "size": 1395,
+      "sha256": "4f7582ca3b659af6194284d2b683138abaabbbd7ccd90010fcbdc77392baf5ee"
+    },
+    {
+      "path": "validation/search_prepare_failed_fatal.json",
+      "size": 1298,
+      "sha256": "a79bae749435ee8147f1f3215db58ff54db57fc86b4e8ed8e76552705da13878"
+    }
+  ],
+  "harness_sources": [
+    {
+      "path": "harness_sources/source_8da_failure_dds.py",
+      "commit": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd",
+      "source_path": "experiments/cmr_ros2_search_entry/failure_dds.py",
+      "size": 5395,
+      "sha256": "8aec529f213e2bede76708f943a35eec3ed7859c2dd6e29e7181bf2410aa6ece"
+    },
+    {
+      "path": "harness_sources/source_8da_offline_chain_v7.py",
+      "commit": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd",
+      "source_path": "experiments/cmr_ros2_search_entry/offline_chain_v7.py",
+      "size": 19848,
+      "sha256": "9c3e7291040b48f00338b26b0ca73d078da33edd06a77a668a686b0c5db8c879"
+    },
+    {
+      "path": "harness_sources/source_8da_git_snapshot.json",
+      "commit": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd",
+      "size": 515,
+      "sha256": "4095cd0adbe484dff705e045f1c688fcc481c1e4e37abf2fc81e3ba0f6295031"
+    },
+    {
+      "path": "harness_sources/source_6f_failure_dds.py",
+      "commit": "6f60801afaed3da950c8d9d0646669f7777a6623",
+      "source_path": "experiments/cmr_ros2_search_entry/failure_dds.py",
+      "size": 7624,
+      "sha256": "7767855f8c384550a20d21a92d1ae5b7874ae96ef7c5f1daca1d8a74ab3eb2e8"
+    },
+    {
+      "path": "harness_sources/source_6f_offline_chain_v7.py",
+      "commit": "6f60801afaed3da950c8d9d0646669f7777a6623",
+      "source_path": "experiments/cmr_ros2_search_entry/offline_chain_v7.py",
+      "size": 21738,
+      "sha256": "8b0d47c3ff5ee369e8f4cdff6fc3b46ad582119fa5b08614145d610ab8fb17b2"
+    },
+    {
+      "path": "harness_sources/source_6f_git_snapshot.json",
+      "commit": "6f60801afaed3da950c8d9d0646669f7777a6623",
+      "size": 505,
+      "sha256": "ad89573d050bd12e519bb933aa867733f677fb59fd85218addbc88e83d793ec7"
+    },
+    {
+      "path": "harness_sources/current_failure_dds_readback.py",
+      "commit": "working-tree",
+      "size": 26796,
+      "sha256": "c07611c66c4c269eb051f074943b74d7e9bfcf56df53d19ddbe035bd011e408b",
+      "root_worktree_sha256": "c07611c66c4c269eb051f074943b74d7e9bfcf56df53d19ddbe035bd011e408b",
+      "matches_root_worktree": true
+    }
+  ],
+  "identity": {
+    "binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+    "binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+    "old_source_head": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd",
+    "new_source_head": "6f60801afaed3da950c8d9d0646669f7777a6623",
+    "old_execution_identity": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd+cmr-search-entry-797361d95f2a12a8",
+    "new_execution_identity": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75",
+    "source_closure_files": 56,
+    "old_new_source_closure_equal": true,
+    "frozen_inputs_old": 61,
+    "frozen_inputs_new": 61,
+    "offline_runtime_source_closure": {
+      "before_after_equal": true,
+      "files": 56,
+      "sha256": "f7a2252d204b2e8e6c0e64b8fa28cec20e6299f82708115d13c2d76e56fa8d73"
+    },
+    "offline_frozen_synthetic_markers": {
+      "fixture_label": "SYNTHETIC_ANALYSIS_PIPELINE_VALIDATION_ONLY",
+      "provenance_kind": "SYNTHETIC_OFFLINE_ONLY"
+    }
+  },
+  "qualification": {
+    "status": "PASSED",
+    "actual_dds_invocations": 6,
+    "actual_method_workers": 4,
+    "r1_actual_method_workers": 2,
+    "r2_actual_method_workers": 2,
+    "r1_recursive_failed_cases_without_method_worker": [
+      "late_delivery",
+      "crash"
+    ],
+    "continued_cases": [
+      "server_error",
+      "none"
+    ],
+    "continued_reference_and_artifact_bytes_reused": true,
+    "continued_reference_rerun": false,
+    "formal_run_one_calls": 3,
+    "formal_run_one_breakdown": {
+      "D1_reference": 1,
+      "D1_v7": 1,
+      "A_late_delivery": 1,
+      "A_crash": 0
+    },
+    "D1_exact_empty_independent_feasible_certificate_replay": "NOT_APPLICABLE",
+    "offline_synthetic_rows": 510,
+    "offline_real_results": 0,
+    "offline_planner_calls": 0,
+    "offline_provider_calls": 0,
+    "offline_dds_calls": 0,
+    "offline_certificate_worker_calls": 0,
+    "formal_driver_execution": "UNRUN",
+    "publication_probe": "UNRUN",
+    "full_formal_chain": "UNVERIFIED",
+    "offline_scope": "CMR_SEARCH_ENTRY_OFFLINE_CHAIN_V7",
+    "offline_descriptor": {
+      "backend": "ros2-v7",
+      "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+      "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+      "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+      "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+    },
+    "default_search_prepare": {
+      "status": "PASSED",
+      "original_cells": 3,
+      "records": 5,
+      "expected_method_workers": 9,
+      "actual_method_workers": 0,
+      "provider_calls": 0,
+      "source_head": "6f60801afaed3da950c8d9d0646669f7777a6623",
+      "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+      "source_closure_files": 56,
+      "initial_failure": {
+        "status": "FAILED",
+        "cause": "missing PYTHONPATH before dispatch",
+        "preserved": true,
+        "algorithm_defect": false
+      },
+      "fresh_namespace_prepare": true,
+      "method_dispatch": "NOT_RUN",
+      "dds_dispatch": "NOT_RUN",
+      "validation_files": [
+        "validation/run_search_prepare.sh",
+        "validation/search_prepare.txt",
+        "validation/search_default_prepare.json",
+        "validation/search_prepare_failed_fatal.json"
+      ]
+    }
+  },
+  "limitations": [
+    "raw namespaces preserve initial r1 failures and successful r2 continuation; packaging does not rerun or replay any method",
+    "the 510-row V7 offline chain is synthetic analysis/ledger validation and is not a formal campaign result",
+    "real DDS failure/reference records and offline synthetic records are separate evidence populations"
+  ]
+}

@@ -1,0 +1,1566 @@
+{
+  "cases": [
+    {
+      "artifact": {
+        "certificate_replay": null,
+        "command_topic": "/next_move_cmd",
+        "descriptor": {
+          "backend": "ros2-v7",
+          "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+          "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+          "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+          "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+        },
+        "domain_id": 228,
+        "driver": {
+          "abstraction_feedback_count": 0,
+          "abstraction_feedback_states": [],
+          "commands": [],
+          "commands_match": null,
+          "completion_count": 0,
+          "events": [
+            {
+              "event": "driver_ready",
+              "execution_module": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "pid": 32004,
+              "time_ns": 10374673256944
+            },
+            {
+              "event": "request_published",
+              "request_id": "cmr-v7-failure-late_delivery",
+              "time_ns": 10374673403344
+            },
+            {
+              "event": "result_received",
+              "status": "TIMEOUT",
+              "time_ns": 10382014177145
+            },
+            {
+              "event": "late_state_published",
+              "time_ns": 10382014340745
+            },
+            {
+              "event": "ts_state_received",
+              "state": [
+                "0",
+                "0"
+              ],
+              "time_ns": 10382014962245
+            }
+          ],
+          "execution_counts_match": null,
+          "expected_actions": null,
+          "expected_sources": null,
+          "expected_targets": null,
+          "module_identity_match": true,
+          "module_paths": {
+            "execution_models": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/models.py",
+            "execution_node": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+            "fake_runtime": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+          },
+          "module_resolved_paths": {
+            "execution_models": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/models.py",
+            "execution_node": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+            "fake_runtime": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+          },
+          "module_sha256": {
+            "execution_models": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+            "execution_node": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+            "fake_runtime": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+          },
+          "observed_ts_states": [
+            [
+              "0",
+              "0"
+            ]
+          ],
+          "observer_feedback_count": 0,
+          "observer_feedback_states": [],
+          "pid": 32004,
+          "result": {
+            "T_certification": 0.086767151,
+            "T_concretization": 0.001523099,
+            "T_full_ts": 0.134489625,
+            "T_initialization": 5.2e-06,
+            "T_input_preprocess": 0.274130946,
+            "T_logging": 1.95e-05,
+            "T_method": 1.049164711,
+            "T_other": 180.21276158,
+            "T_plan_wall": 181.608391697,
+            "T_product": 0.111311938,
+            "T_reduction": 0.163272408,
+            "T_refinement": 0.0,
+            "T_search": 0.62411025,
+            "T_total": 181.608391697,
+            "ai_inference_latency_seconds": null,
+            "ai_selection": null,
+            "ai_selection_artifact_sha256": null,
+            "api_key_reads": 0,
+            "backend": "ros2-v7",
+            "backend_binding": {
+              "backend": "ros2-v7",
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+              "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+              "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+            },
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+            "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+            "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+            "benchmark_identity": "RACMR-Bench-v1-r1",
+            "benchmark_payload_sha256": "a3801ead07da2b74673a79b2ca09f977af4fbe7e0a837a1c0f4b6c2cbb50b846",
+            "candidate_fingerprint": "5b200b5fa9e9a12e8d8a607681baf876b673a6d9d5ed8b70a0511fa951597297",
+            "candidate_identity": {
+              "lower_bound": "12",
+              "prefix_actions": [
+                "advance_goal_register"
+              ],
+              "prefix_length": 2,
+              "suffix_actions": [
+                "wait"
+              ],
+              "suffix_length": 2
+            },
+            "canonical_status": "TIMEOUT",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "cumulative_work": {
+              "product_edges_built": 15360,
+              "product_states_built": 2048,
+              "reduced_ts_edges_built": 6144,
+              "reduced_ts_states_built": 1024,
+              "search_settled_events": 4099
+            },
+            "error": null,
+            "exact_status": "TIMEOUT",
+            "execution_commit": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "experimental_llm_calls": 0,
+            "final_precision": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "final_precision_size": 6,
+            "final_unique_graph_size": {
+              "product_edges": 15360,
+              "product_states": 2048,
+              "reduced_ts_edges": 6144,
+              "reduced_ts_states": 1024
+            },
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "initial_S0": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "initial_precision_size": 6,
+            "instance_id": "A-T1-M0-A-S-BRANCH",
+            "instance_sha256": "a3801ead07da2b74673a79b2ca09f977af4fbe7e0a837a1c0f4b6c2cbb50b846",
+            "llm_calls": 0,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 10380387494058,
+            "objective": null,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                10381800362265,
+                10561995885755
+              ],
+              "T_certification_external": [
+                10381713586714,
+                10381800337165
+              ],
+              "T_initialization": [
+                10380661625004,
+                10380661630204
+              ],
+              "T_input_preprocess": [
+                10380387494058,
+                10380661625004
+              ],
+              "T_logging": [
+                10381800338665,
+                10381800358165
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "population": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+            "post_runner_delivery_seconds": 180.19552349,
+            "prefix_actions": [
+              "advance_goal_register"
+            ],
+            "qualification_scope": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+            "qualified_runner_completion_ns": 10381800362265,
+            "refinement_rounds": 0,
+            "request_id": "cmr-v7-failure-late_delivery",
+            "result_hash": "b7dc593c3f55bc72732b5c673259329ea19ca1a1911e4b015287e4737c95603e",
+            "right_censored": true,
+            "rounds": [
+              {
+                "H_k": [],
+                "J_lb": "12",
+                "J_ub": "12",
+                "N": 6,
+                "R_k": [],
+                "S_k": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "S_k_size": 6,
+                "S_phi": [
+                  0
+                ],
+                "abstract_prefix_cost": "2",
+                "abstract_suffix_cost": "1",
+                "added_dimension": null,
+                "backend": "ros2-v7",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+                "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+                "benchmark_payload_sha256": "a3801ead07da2b74673a79b2ca09f977af4fbe7e0a837a1c0f4b6c2cbb50b846",
+                "bound_pruned_entries": 1023,
+                "candidate_entries": 1024,
+                "candidate_fingerprint": "5b200b5fa9e9a12e8d8a607681baf876b673a6d9d5ed8b70a0511fa951597297",
+                "certificate_status": "OPTIMALITY_CERTIFIED",
+                "concretization_status": "CONCRETIZABLE",
+                "ell": 0,
+                "error": null,
+                "exact_entry_searches": 1,
+                "final_precision": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "infeasibility_certificate_type": null,
+                "infeasibility_precision": null,
+                "infeasibility_proof_basis": null,
+                "initial_S0": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "instance_id": "A-T1-M0-A-S-BRANCH",
+                "instance_sha256": "a3801ead07da2b74673a79b2ca09f977af4fbe7e0a837a1c0f4b6c2cbb50b846",
+                "lower_bound_settled": 2048,
+                "lower_precision_infeasibility": null,
+                "m": 1,
+                "method": "FULL",
+                "phase_intervals_ns": {
+                  "T_certification": [
+                    10381701302521,
+                    10381701319221
+                  ],
+                  "T_concretization": [
+                    10381699777622,
+                    10381701300721
+                  ],
+                  "T_full_ts": [
+                    10380661675804,
+                    10380796165429
+                  ],
+                  "T_product": [
+                    10380959449837,
+                    10381070761775
+                  ],
+                  "T_reduction": [
+                    10380796171029,
+                    10380959443437
+                  ],
+                  "T_search": [
+                    10381075067172,
+                    10381699177422
+                  ]
+                },
+                "prefix_actions": [
+                  "advance_goal_register"
+                ],
+                "prefix_cost": "2",
+                "prefix_settled": 2048,
+                "product_unique_edges": 15360,
+                "product_unique_states": 2048,
+                "qualifying_sccs": 1,
+                "queue_pops": 4099,
+                "queue_pushes": 4107,
+                "reachable_product_nodes": 2048,
+                "reduced_ts_edges": 6144,
+                "reduced_ts_states": 1024,
+                "round_index": 0,
+                "schema_version": "cmr-p2b-round-v1",
+                "semantic_contract_id": "INITIAL_LABEL_V1",
+                "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+                "suffix_actions": [
+                  "wait"
+                ],
+                "suffix_cost": "1",
+                "suffix_entry_product_state": {
+                  "buchi_state": "[[],0,[],true]",
+                  "state": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                "suffix_settled": 3,
+                "terminal_claim_valid": false,
+                "terminal_status": "OPTIMALITY_CERTIFIED",
+                "timings": {
+                  "T_certification": 1.67e-05,
+                  "T_concretization": 0.001523099,
+                  "T_full_ts": 0.134489625,
+                  "T_product": 0.111311938,
+                  "T_reduction": 0.163272408,
+                  "T_refinement": 0.0,
+                  "T_search": 0.62411025
+                },
+                "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+                "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+              }
+            ],
+            "schema": "cmr-ros2-integration-result-v1",
+            "schema_version": "cmr-p2b-result-v1",
+            "search_counter_basis": "unchanged V5 search; within-build Buchi cache queries/hits/misses",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": [
+              "wait"
+            ],
+            "suffix_entry_product_state": {
+              "buchi_state": "[[],0,[],true]",
+              "state": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "terminal_completion_ns": 10561995885755,
+            "terminal_status": "TIMEOUT",
+            "timeout_stage": "planner",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "RIGHT_CENSORED",
+            "variant": "real",
+            "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+            "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+            "worker_alive_after_cleanup": false,
+            "worker_exitcode": 0,
+            "worker_pid": 32027
+          },
+          "ts_state_receive_count": 1
+        },
+        "driver_pid": 32004,
+        "driver_rc": 0,
+        "module": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/experiments/cmr_ros2_search_entry/dds.py",
+        "observation_topic": "/planning_execution_observation",
+        "request": {
+          "backend": "ros2-v7",
+          "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+          "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+          "canonical_instance_index": 1,
+          "execution_identity": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75",
+          "execution_index": 3,
+          "expected_initial_S0": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "formal_campaign": false,
+          "instance_id": "A-T1-M0-A-S-BRANCH",
+          "method": "FULL",
+          "method_order_position": 0,
+          "outer_watchdog_seconds": 195,
+          "planner_budget_seconds": 180,
+          "population": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+          "qualification_id": "CMR_SEARCH_ENTRY_AUDIT_REPAIR_20261013",
+          "request_id": "cmr-v7-failure-late_delivery",
+          "source_cell_id": "2de2f5e6151ece26cacd0859b1109fc4da69455e38034909744df4d633e212a1",
+          "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+          "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+        },
+        "request_topic": "/cmr_smoke/request",
+        "result_topic": "/cmr_smoke/result",
+        "ros_localhost_only": true,
+        "schema": "cmr-search-entry-v7-dds-case-v1",
+        "server": {
+          "events": [
+            {
+              "event": "server_ready",
+              "module": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/experiments/cmr_ros2_search_entry/dds.py",
+              "pid": 32003,
+              "time_ns": 10374655014843
+            },
+            {
+              "backend": "ros2-v7",
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "request_received",
+              "request_id": "cmr-v7-failure-late_delivery",
+              "time_ns": 10374673724744,
+              "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc"
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "cmr_solver_started",
+              "time_ns": 10374673730644
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "cmr_solver_completed",
+              "status": "TIMEOUT",
+              "time_ns": 10382013281946
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "result_published",
+              "status": "TIMEOUT",
+              "time_ns": 10382013505446
+            },
+            {
+              "event": "ts_state_received",
+              "state": [
+                "0",
+                "0"
+              ],
+              "step": 0,
+              "time_ns": 10382014638945
+            },
+            {
+              "event": "late_state_ignored",
+              "state": [
+                "0",
+                "0"
+              ],
+              "time_ns": 10382014640345
+            }
+          ],
+          "pid": 32003
+        },
+        "server_pid": 32003,
+        "server_rc": 0,
+        "snapshot_service": "/get_planning_graph_snapshot",
+        "status": "PASSED",
+        "ts_topic": "/ts_state"
+      },
+      "expected_terminal": "TIMEOUT",
+      "mode": "late_delivery"
+    },
+    {
+      "artifact": {
+        "certificate_replay": null,
+        "command_topic": "/next_move_cmd",
+        "descriptor": {
+          "backend": "ros2-v7",
+          "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+          "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+          "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+          "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+        },
+        "domain_id": 228,
+        "driver": {
+          "abstraction_feedback_count": 0,
+          "abstraction_feedback_states": [],
+          "commands": [],
+          "commands_match": null,
+          "completion_count": 0,
+          "events": [
+            {
+              "event": "driver_ready",
+              "execution_module": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "pid": 32035,
+              "time_ns": 10383296218025
+            },
+            {
+              "event": "request_published",
+              "request_id": "cmr-v7-failure-crash",
+              "time_ns": 10383296355925
+            },
+            {
+              "event": "result_received",
+              "status": "INFRASTRUCTURE_FAILURE",
+              "time_ns": 10393177336853
+            }
+          ],
+          "execution_counts_match": null,
+          "expected_actions": null,
+          "expected_sources": null,
+          "expected_targets": null,
+          "module_identity_match": true,
+          "module_paths": {
+            "execution_models": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/models.py",
+            "execution_node": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+            "fake_runtime": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+          },
+          "module_resolved_paths": {
+            "execution_models": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/models.py",
+            "execution_node": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+            "fake_runtime": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+          },
+          "module_sha256": {
+            "execution_models": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+            "execution_node": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+            "fake_runtime": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+          },
+          "observed_ts_states": [],
+          "observer_feedback_count": 0,
+          "observer_feedback_states": [],
+          "pid": 32035,
+          "result": {
+            "T_certification": null,
+            "T_concretization": null,
+            "T_full_ts": null,
+            "T_initialization": null,
+            "T_input_preprocess": null,
+            "T_logging": null,
+            "T_other": null,
+            "T_plan_wall": 9.387378998,
+            "T_product": null,
+            "T_reduction": null,
+            "T_refinement": null,
+            "T_search": null,
+            "T_total": 9.387378998,
+            "backend": "ros2-v7",
+            "backend_binding": {
+              "backend": "ros2-v7",
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+              "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+              "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+            },
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+            "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+            "benchmark_payload_sha256": null,
+            "candidate_fingerprint": null,
+            "candidate_identity": null,
+            "canonical_status": "INFRASTRUCTURE_FAILURE",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_objective": null,
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "error": "worker exit or missing result: 23",
+            "exact_status": "INFRASTRUCTURE_FAILURE",
+            "execution_commit": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "formal_campaign": false,
+            "infeasibility_certificate_type": null,
+            "infeasibility_precision": null,
+            "infeasibility_proof_basis": null,
+            "instance_id": "A-T1-M0-A-S-BRANCH",
+            "instance_sha256": null,
+            "lower_precision_infeasibility": null,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 10383703531297,
+            "objective": null,
+            "outer_observed_seconds": 9.386936998,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                10393090468295,
+                10393090910295
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "population": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+            "post_runner_delivery_seconds": 0.000442,
+            "prefix_actions": null,
+            "qualification_scope": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+            "qualified_runner_completion_ns": 10393090468295,
+            "refinement_rounds": null,
+            "request_id": "cmr-v7-failure-crash",
+            "result_hash": "6ef98b9738d80c72b3cdb673fd47af9c5886fe96be63bed7df4e3e3318e9da0b",
+            "right_censored": false,
+            "rounds": null,
+            "schema": "cmr-ros2-integration-result-v1",
+            "schema_version": "cmr-p2b-result-v1",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": null,
+            "suffix_entry_product_state": null,
+            "terminal_completion_ns": 10393090910295,
+            "terminal_status": "INFRASTRUCTURE_FAILURE",
+            "timeout_stage": "infrastructure",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "ANOMALY",
+            "variant": "real",
+            "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+            "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+            "worker_alive_after_cleanup": false,
+            "worker_exitcode": 23,
+            "worker_pid": 32059
+          },
+          "ts_state_receive_count": 0
+        },
+        "driver_pid": 32035,
+        "driver_rc": 0,
+        "module": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/experiments/cmr_ros2_search_entry/dds.py",
+        "observation_topic": "/planning_execution_observation",
+        "request": {
+          "backend": "ros2-v7",
+          "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+          "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+          "canonical_instance_index": 1,
+          "execution_identity": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75",
+          "execution_index": 3,
+          "expected_initial_S0": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "formal_campaign": false,
+          "instance_id": "A-T1-M0-A-S-BRANCH",
+          "method": "FULL",
+          "method_order_position": 0,
+          "outer_watchdog_seconds": 195,
+          "planner_budget_seconds": 180,
+          "population": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+          "qualification_id": "CMR_SEARCH_ENTRY_AUDIT_REPAIR_20261013",
+          "request_id": "cmr-v7-failure-crash",
+          "source_cell_id": "2de2f5e6151ece26cacd0859b1109fc4da69455e38034909744df4d633e212a1",
+          "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+          "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+        },
+        "request_topic": "/cmr_smoke/request",
+        "result_topic": "/cmr_smoke/result",
+        "ros_localhost_only": true,
+        "schema": "cmr-search-entry-v7-dds-case-v1",
+        "server": {
+          "events": [
+            {
+              "event": "server_ready",
+              "module": "/tmp/cmr_v7_failure_source_6f60801_20261013_r2/experiments/cmr_ros2_search_entry/dds.py",
+              "pid": 32034,
+              "time_ns": 10383277999336
+            },
+            {
+              "backend": "ros2-v7",
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "request_received",
+              "request_id": "cmr-v7-failure-crash",
+              "time_ns": 10383296638825,
+              "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc"
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "cmr_solver_started",
+              "time_ns": 10383296644125
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "cmr_solver_completed",
+              "status": "INFRASTRUCTURE_FAILURE",
+              "time_ns": 10393176389453
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "result_published",
+              "status": "INFRASTRUCTURE_FAILURE",
+              "time_ns": 10393176611353
+            }
+          ],
+          "pid": 32034
+        },
+        "server_pid": 32034,
+        "server_rc": 0,
+        "snapshot_service": "/get_planning_graph_snapshot",
+        "status": "PASSED",
+        "ts_topic": "/ts_state"
+      },
+      "expected_terminal": "INFRASTRUCTURE_FAILURE",
+      "mode": "crash"
+    },
+    {
+      "artifact": {
+        "certificate_replay": null,
+        "command_topic": "/next_move_cmd",
+        "descriptor": {
+          "backend": "ros2-v7",
+          "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+          "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+          "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+          "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+        },
+        "domain_id": 228,
+        "driver": {
+          "abstraction_feedback_count": 0,
+          "abstraction_feedback_states": [],
+          "commands": [],
+          "commands_match": null,
+          "completion_count": 0,
+          "events": [
+            {
+              "event": "driver_ready",
+              "execution_module": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "pid": 31674,
+              "time_ns": 9927141178692
+            },
+            {
+              "event": "request_published",
+              "request_id": "cmr-v7-failure-server_error",
+              "time_ns": 9927191634707
+            },
+            {
+              "event": "result_received",
+              "status": "ERROR",
+              "time_ns": 9927377059463
+            }
+          ],
+          "execution_counts_match": null,
+          "expected_actions": null,
+          "expected_sources": null,
+          "expected_targets": null,
+          "module_identity_match": true,
+          "module_paths": {
+            "execution_models": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/models.py",
+            "execution_node": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+            "fake_runtime": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+          },
+          "module_resolved_paths": {
+            "execution_models": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/models.py",
+            "execution_node": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+            "fake_runtime": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+          },
+          "module_sha256": {
+            "execution_models": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+            "execution_node": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+            "fake_runtime": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+          },
+          "observed_ts_states": [],
+          "observer_feedback_count": 0,
+          "observer_feedback_states": [],
+          "pid": 31674,
+          "result": {
+            "backend": "ros2-v7",
+            "backend_binding": {
+              "backend": "ros2-v7",
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+              "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+              "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+            },
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+            "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "concrete_lasso": null,
+            "error": "RuntimeError('qualification-injected V7 server error; no worker dispatched')",
+            "instance_id": "A-T1-M0-A-S-BRANCH",
+            "method": "FULL",
+            "objective": null,
+            "population": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+            "request_id": "cmr-v7-failure-server_error",
+            "right_censored": false,
+            "schema": "cmr-ros2-integration-result-v1",
+            "terminal_status": "ERROR",
+            "variant": "real",
+            "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+            "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+          },
+          "ts_state_receive_count": 0
+        },
+        "driver_pid": 31674,
+        "driver_rc": 0,
+        "module": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/experiments/cmr_ros2_search_entry/dds.py",
+        "observation_topic": "/planning_execution_observation",
+        "request": {
+          "backend": "ros2-v7",
+          "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+          "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+          "canonical_instance_index": 1,
+          "execution_identity": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd+cmr-search-entry-797361d95f2a12a8",
+          "execution_index": 3,
+          "expected_initial_S0": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "formal_campaign": false,
+          "instance_id": "A-T1-M0-A-S-BRANCH",
+          "method": "FULL",
+          "method_order_position": 0,
+          "outer_watchdog_seconds": 195,
+          "planner_budget_seconds": 180,
+          "population": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+          "qualification_id": "CMR_SEARCH_ENTRY_AUDIT_REPAIR_20261013",
+          "request_id": "cmr-v7-failure-server_error",
+          "source_cell_id": "2de2f5e6151ece26cacd0859b1109fc4da69455e38034909744df4d633e212a1",
+          "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+          "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+        },
+        "request_topic": "/cmr_smoke/request",
+        "result_topic": "/cmr_smoke/result",
+        "ros_localhost_only": true,
+        "schema": "cmr-search-entry-v7-dds-case-v1",
+        "server": {
+          "events": [
+            {
+              "event": "server_ready",
+              "module": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/experiments/cmr_ros2_search_entry/dds.py",
+              "pid": 31673,
+              "time_ns": 9927142842992
+            },
+            {
+              "backend": "ros2-v7",
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "request_received",
+              "request_id": "cmr-v7-failure-server_error",
+              "time_ns": 9927192145707,
+              "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc"
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "cmr_solver_started",
+              "time_ns": 9927192150407
+            },
+            {
+              "event": "cmr_solver_completed",
+              "status": "ERROR",
+              "time_ns": 9927375978463
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "result_published",
+              "status": "ERROR",
+              "time_ns": 9927376221863
+            }
+          ],
+          "pid": 31673
+        },
+        "server_pid": 31673,
+        "server_rc": 0,
+        "snapshot_service": "/get_planning_graph_snapshot",
+        "status": "PASSED",
+        "ts_topic": "/ts_state"
+      },
+      "expected_terminal": "ERROR",
+      "mode": "server_error"
+    },
+    {
+      "artifact": {
+        "certificate_replay": {
+          "basis": "original exact-empty proof metadata; paired reference required",
+          "status": "NOT_APPLICABLE"
+        },
+        "command_topic": "/next_move_cmd",
+        "descriptor": {
+          "backend": "ros2-v7",
+          "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+          "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+          "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+          "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+        },
+        "domain_id": 228,
+        "driver": {
+          "abstraction_feedback_count": 0,
+          "abstraction_feedback_states": [],
+          "commands": [],
+          "commands_match": null,
+          "completion_count": 0,
+          "events": [
+            {
+              "event": "driver_ready",
+              "execution_module": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+              "pid": 31699,
+              "time_ns": 9928642814178
+            },
+            {
+              "event": "request_published",
+              "request_id": "cmr-v7-failure-none",
+              "time_ns": 9928642954278
+            },
+            {
+              "event": "result_received",
+              "status": "INFEASIBLE_CERTIFIED",
+              "time_ns": 9934178715098
+            }
+          ],
+          "execution_counts_match": null,
+          "expected_actions": null,
+          "expected_sources": null,
+          "expected_targets": null,
+          "module_identity_match": true,
+          "module_paths": {
+            "execution_models": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/models.py",
+            "execution_node": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+            "fake_runtime": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+          },
+          "module_resolved_paths": {
+            "execution_models": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/models.py",
+            "execution_node": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+            "fake_runtime": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py"
+          },
+          "module_sha256": {
+            "execution_models": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+            "execution_node": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+            "fake_runtime": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+          },
+          "observed_ts_states": [],
+          "observer_feedback_count": 0,
+          "observer_feedback_states": [],
+          "pid": 31699,
+          "result": {
+            "T_certification": 0.0,
+            "T_concretization": 0.0,
+            "T_full_ts": 0.0003394,
+            "T_initialization": 4.7e-06,
+            "T_input_preprocess": 0.262238677,
+            "T_logging": 1.13e-05,
+            "T_method": 0.0011305,
+            "T_other": 0.18734478300000001,
+            "T_plan_wall": 0.45060666,
+            "T_product": 0.0001667,
+            "T_reduction": 0.0001096,
+            "T_refinement": 0.0,
+            "T_search": 0.0003915,
+            "T_total": 0.45060666,
+            "ai_inference_latency_seconds": null,
+            "ai_selection": null,
+            "ai_selection_artifact_sha256": null,
+            "api_key_reads": 0,
+            "backend": "ros2-v7",
+            "backend_binding": {
+              "backend": "ros2-v7",
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+              "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+              "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+            },
+            "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+            "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+            "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+            "benchmark_identity": "RACMR-Bench-v1-r1",
+            "benchmark_payload_sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71",
+            "candidate_fingerprint": null,
+            "candidate_identity": null,
+            "canonical_status": "INFEASIBLE_CERTIFIED",
+            "certificate_hash": "NOT_AVAILABLE",
+            "certificate_path": "NOT_AVAILABLE",
+            "certificate_schema": "NOT_AVAILABLE",
+            "certificate_valid_for_terminal": false,
+            "certificate_verifier_status": "NOT_AVAILABLE",
+            "cumulative_work": {
+              "product_edges_built": 2,
+              "product_states_built": 2,
+              "reduced_ts_edges_built": 2,
+              "reduced_ts_states_built": 2,
+              "search_settled_events": 2
+            },
+            "error": null,
+            "exact_status": "INFEASIBLE",
+            "execution_commit": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd+cmr-search-entry-797361d95f2a12a8",
+            "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+            "experimental_llm_calls": 0,
+            "final_precision": [
+              0
+            ],
+            "final_precision_size": 1,
+            "final_unique_graph_size": {
+              "product_edges": 2,
+              "product_states": 2,
+              "reduced_ts_edges": 2,
+              "reduced_ts_states": 2
+            },
+            "formal_campaign": false,
+            "infeasibility_certificate_type": "REDUCED_PRODUCT_EXACT_EMPTY",
+            "infeasibility_precision": [
+              0
+            ],
+            "infeasibility_proof_basis": "exact reduced Product emptiness under optimistic projection",
+            "initial_S0": [
+              0
+            ],
+            "initial_precision_size": 1,
+            "instance_id": "D1-1",
+            "instance_sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71",
+            "llm_calls": 0,
+            "lower_precision_infeasibility": false,
+            "method": "FULL",
+            "method_order_position": 0,
+            "method_start_ns": 9933706048639,
+            "objective": null,
+            "outer_watchdog_seconds": 195,
+            "phase_intervals_ns": {
+              "ROS_result_delivery": [
+                9933969479316,
+                9934156655299
+              ],
+              "T_initialization": [
+                9933968287316,
+                9933968292016
+              ],
+              "T_input_preprocess": [
+                9933706048639,
+                9933968287316
+              ],
+              "T_logging": [
+                9933969465416,
+                9933969476716
+              ]
+            },
+            "planner_budget_seconds": 180,
+            "population": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+            "post_runner_delivery_seconds": 0.187175983,
+            "prefix_actions": null,
+            "qualification_scope": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+            "qualified_runner_completion_ns": 9933969479316,
+            "refinement_rounds": 0,
+            "request_id": "cmr-v7-failure-none",
+            "result_hash": "3b9a93f57f3aacf62f78c7b46c89a97c26cac1e3995d8a63c41b6c3bd57b1f8a",
+            "right_censored": false,
+            "rounds": [
+              {
+                "H_k": [],
+                "J_lb": "+Infinity",
+                "J_ub": null,
+                "N": 1,
+                "R_k": [],
+                "S_k": [
+                  0
+                ],
+                "S_k_size": 1,
+                "S_phi": [
+                  0
+                ],
+                "abstract_prefix_cost": null,
+                "abstract_suffix_cost": null,
+                "backend": "ros2-v7",
+                "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+                "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+                "benchmark_payload_sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71",
+                "bound_pruned_entries": 0,
+                "candidate_entries": 0,
+                "candidate_fingerprint": null,
+                "certificate_status": "NOT_APPLICABLE",
+                "concretization_status": "NOT_RUN",
+                "ell": null,
+                "error": null,
+                "exact_entry_searches": 0,
+                "final_precision": [
+                  0
+                ],
+                "infeasibility_certificate_type": "REDUCED_PRODUCT_EXACT_EMPTY",
+                "infeasibility_precision": [
+                  0
+                ],
+                "infeasibility_proof_basis": "exact reduced Product emptiness under optimistic projection",
+                "initial_S0": [
+                  0
+                ],
+                "instance_id": "D1-1",
+                "instance_sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71",
+                "lower_bound_settled": 0,
+                "lower_precision_infeasibility": false,
+                "m": null,
+                "method": "FULL",
+                "phase_intervals_ns": {
+                  "T_full_ts": [
+                    9933968341016,
+                    9933968680416
+                  ],
+                  "T_product": [
+                    9933968793516,
+                    9933968960216
+                  ],
+                  "T_reduction": [
+                    9933968682316,
+                    9933968791916
+                  ],
+                  "T_search": [
+                    9933968975316,
+                    9933969366816
+                  ]
+                },
+                "prefix_actions": null,
+                "prefix_cost": null,
+                "prefix_settled": 2,
+                "product_unique_edges": 2,
+                "product_unique_states": 2,
+                "qualifying_sccs": 0,
+                "queue_pops": 2,
+                "queue_pushes": 2,
+                "reachable_product_nodes": 2,
+                "reduced_ts_edges": 2,
+                "reduced_ts_states": 2,
+                "round_index": 0,
+                "schema_version": "cmr-p2b-round-v1",
+                "semantic_contract_id": "INITIAL_LABEL_V1",
+                "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+                "suffix_actions": null,
+                "suffix_cost": null,
+                "suffix_entry_product_state": null,
+                "suffix_settled": 0,
+                "terminal_claim_valid": true,
+                "terminal_status": "INFEASIBLE_CERTIFIED",
+                "timings": {
+                  "T_certification": 0.0,
+                  "T_concretization": 0.0,
+                  "T_full_ts": 0.0003394,
+                  "T_product": 0.0001667,
+                  "T_reduction": 0.0001096,
+                  "T_refinement": 0.0,
+                  "T_search": 0.0003915
+                },
+                "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+                "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+              }
+            ],
+            "schema": "cmr-ros2-integration-result-v1",
+            "schema_version": "cmr-p2b-result-v1",
+            "search_counter_basis": "unchanged V5 search; within-build Buchi cache queries/hits/misses",
+            "semantic_contract_id": "INITIAL_LABEL_V1",
+            "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+            "suffix_actions": null,
+            "suffix_entry_product_state": null,
+            "terminal_completion_ns": 9934156655299,
+            "terminal_status": "INFEASIBLE_CERTIFIED",
+            "timeout_stage": "none",
+            "timing_basis": "qualified runner method start; worker startup excluded",
+            "timing_status": "UNCENSORED",
+            "variant": "real",
+            "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+            "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+            "worker_alive_after_cleanup": false,
+            "worker_exitcode": 0,
+            "worker_pid": 31723
+          },
+          "ts_state_receive_count": 0
+        },
+        "driver_pid": 31699,
+        "driver_rc": 0,
+        "module": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/experiments/cmr_ros2_search_entry/dds.py",
+        "observation_topic": "/planning_execution_observation",
+        "request": {
+          "backend": "ros2-v7",
+          "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+          "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+          "canonical_instance_index": 134,
+          "execution_identity": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd+cmr-search-entry-797361d95f2a12a8",
+          "execution_index": 402,
+          "expected_initial_S0": [
+            0
+          ],
+          "formal_campaign": false,
+          "instance_id": "D1-1",
+          "method": "FULL",
+          "method_order_position": 0,
+          "outer_watchdog_seconds": 195,
+          "planner_budget_seconds": 180,
+          "population": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+          "qualification_id": "CMR_SEARCH_ENTRY_AUDIT_REPAIR_20261013",
+          "request_id": "cmr-v7-failure-none",
+          "source_cell_id": "0088196068f453aa3bcf1dde4d8bbdb553034fadf3c52695168755a7019fd07d",
+          "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+          "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+        },
+        "request_topic": "/cmr_smoke/request",
+        "result_topic": "/cmr_smoke/result",
+        "ros_localhost_only": true,
+        "schema": "cmr-search-entry-v7-dds-case-v1",
+        "server": {
+          "events": [
+            {
+              "event": "server_ready",
+              "module": "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/experiments/cmr_ros2_search_entry/dds.py",
+              "pid": 31698,
+              "time_ns": 9928626458079
+            },
+            {
+              "backend": "ros2-v7",
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "request_received",
+              "request_id": "cmr-v7-failure-none",
+              "time_ns": 9928643263078,
+              "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc"
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "cmr_solver_started",
+              "time_ns": 9928643267278
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "cmr_solver_completed",
+              "status": "INFEASIBLE_CERTIFIED",
+              "time_ns": 9934177417898
+            },
+            {
+              "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+              "event": "result_published",
+              "status": "INFEASIBLE_CERTIFIED",
+              "time_ns": 9934177748598
+            }
+          ],
+          "pid": 31698
+        },
+        "server_pid": 31698,
+        "server_rc": 0,
+        "snapshot_service": "/get_planning_graph_snapshot",
+        "status": "PASSED",
+        "ts_topic": "/ts_state"
+      },
+      "expected_terminal": "INFEASIBLE_CERTIFIED",
+      "mode": "none"
+    }
+  ],
+  "continuation": {
+    "dds_cases": 2,
+    "files": {
+      "dds_failures/dds_none/cmr_attempt/dds_result.json": "f36cfadc7d8486c5a90a490deef74e5531805f86b3aeb96d266408c594cdab9f",
+      "dds_failures/dds_none/cmr_attempt/delivered_attempt.json": "310d73e412f9e417aa74c66aba529f9ef8038ed1400a6eff6fe775949a084b37",
+      "dds_failures/dds_none/cmr_attempt/entry_metrics.json": "2c5a6ee166ea1c2475af26bb60d52565d1bdd375ad87aa9f089b8fcec558422c",
+      "dds_failures/dds_none/cmr_attempt/preflight.json": "916efba6987320a7a901f61c2c6b1e60b69eb3efa830c47d3324d3b4e158432c",
+      "dds_failures/dds_none/cmr_attempt/request.json": "7888587023757fd12c096cf2b924ad060143715dc2f5e2b0f3fb064f60617ebc",
+      "dds_failures/dds_none/cmr_attempt/result.json": "4f7377dbeea3437fcbfcae863835b14d8277acb947d4846036777ec0a727f7ed",
+      "dds_failures/dds_none/cmr_attempt/runner_raw_result.json": "f6c21272501d54eefa47b7f8b075ec067d5ab477c2bb62eb3524aa274aa5f7d5",
+      "dds_failures/dds_none/cmr_attempt/schema_binding.json": "1c044f780c5d0c6c85195b208d62940ee57b6050c926f0857e62c6cf0c599453",
+      "dds_failures/dds_none/cmr_attempt/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/dds_none/cmr_attempt/stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/dds_none/cmr_attempt/worker.rc": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "dds_failures/dds_none/cmr_attempt/worker_result.json": "0b6e340d3e1334ef1a83e8b9242e8d5eae339669c94c0b8bd8733a813ee52e5b",
+      "dds_failures/dds_none/dds_artifact.json": "5839d87bf848d4852b486b882b48d19dc3e785fa0036cd67206445df090cb43f",
+      "dds_failures/dds_none/driver.rc": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "dds_failures/dds_none/driver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/dds_none/driver.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/dds_none/driver_events.json": "9d74da2c8e8cd8ee756b0bd7969d85743d21fb4686d10cd5679b3170aca931c3",
+      "dds_failures/dds_none/request.json": "3067bddfe264ee23613a7b0245dfd6fdbfcb3e69b8b0e929dadc26576d261c1d",
+      "dds_failures/dds_none/server.rc": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "dds_failures/dds_none/server.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/dds_none/server.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/dds_none/server_events.json": "7f7c1affbadb7db037ff16aa41c90e870477ea5760778c1224b6f3a3a3b1eafd",
+      "dds_failures/dds_server_error/dds_artifact.json": "0141b3cce112f72ab28c02b1021b912872934f30698bc164a27555510a3136e9",
+      "dds_failures/dds_server_error/driver.rc": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "dds_failures/dds_server_error/driver.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/dds_server_error/driver.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/dds_server_error/driver_events.json": "df416b085361ef386c335756d3ac6a2079288bf7dc64e7dc35770d3505a0bc72",
+      "dds_failures/dds_server_error/request.json": "54a86280efed3ac2b6e200aa661315bf37d2ce1e0ff3f7d812d4412f6189bbfd",
+      "dds_failures/dds_server_error/server.rc": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "dds_failures/dds_server_error/server.stderr": "4338b9461b13f9519bc71e5b3878bd900d0d0ecb0b0aaedaeef1f8391f3e0975",
+      "dds_failures/dds_server_error/server.stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/dds_server_error/server_events.json": "9ed7186d092a4547c08ae9371b216fcfaef80d090f8cdea3fe892115f96a3e98",
+      "dds_failures/dds_server_error/server_traceback.txt": "4338b9461b13f9519bc71e5b3878bd900d0d0ecb0b0aaedaeef1f8391f3e0975",
+      "dds_failures/reference_D1/delivered_attempt.json": "0b9dfe84b4cf31861c3c52a2b2958c615e0adc2e0fa6b23e2ff9e2393a23abb3",
+      "dds_failures/reference_D1/entry_metrics.json": "f63a06c4ee0df116272906a7ffa7fbc3b94416f028a0b8c43eac0b0308ddb70e",
+      "dds_failures/reference_D1/preflight.json": "916efba6987320a7a901f61c2c6b1e60b69eb3efa830c47d3324d3b4e158432c",
+      "dds_failures/reference_D1/request.json": "b1724f3236d4fa56170695b0b7b4cd2f9315702976c4870bc0711868581f3802",
+      "dds_failures/reference_D1/result.json": "c2ef38846a05af93dde45fe09614ca9db128be214e1afe8ca76bead00ad01a95",
+      "dds_failures/reference_D1/runner_raw_result.json": "7c84d01b6454311503012ff895186e52c07e8e942756b6255797c0f8d862c627",
+      "dds_failures/reference_D1/schema_binding.json": "2dba2daf6604bfbcbbd2cc8d27a9e2412aed0bbdd0c09f23d52565296f1617a3",
+      "dds_failures/reference_D1/stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/reference_D1/stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dds_failures/reference_D1/worker.rc": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "dds_failures/reference_D1/worker_result.json": "b7518af3d62ca584b1e0bf8bdc9c7664a5a17eafb4b5831d4af754abf70eda17"
+    },
+    "method_workers": 2,
+    "original_plan_sha256": "3c9a564b1ac2fefdfcceae126ec29c6cc69399ea512799c1019fc70bb5fb4410",
+    "original_root": "/tmp/cmr_v7_failure_dds_chain_20261013_r1"
+  },
+  "dds_cases": 4,
+  "descriptor": {
+    "backend": "ros2-v7",
+    "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+    "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+    "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+    "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+  },
+  "domain_id": 228,
+  "execution_identity": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75",
+  "expected_method_workers": 4,
+  "formal_campaign": false,
+  "harness_sha256": "7767855f8c384550a20d21a92d1ae5b7874ae96ef7c5f1daca1d8a74ab3eb2e8",
+  "lifecycle_harness_sha256": "8c608820574569b9a67d4b2ca88353c8474db2abd9ac68e01171d2664166f8e0",
+  "method_workers": 4,
+  "new_dds_cases": 2,
+  "new_method_workers": 2,
+  "outer_watchdog_seconds": 195,
+  "planner_budget_seconds": 180,
+  "provider_calls": 0,
+  "reference": {
+    "backend_binding": {
+      "backend": "reference",
+      "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+      "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+      "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+      "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+    },
+    "backend_configuration": {
+      "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+      "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+      "original_builder_global_preserved": true,
+      "original_local_code_preserved": true,
+      "original_loop_code_preserved": true
+    },
+    "build_work": [],
+    "entry_metrics": {
+      "binding_reads": 2,
+      "descriptor_requests": 2,
+      "schema_builds": 1,
+      "source_closure_checks": 2,
+      "worker_pre_method_seconds": 5.023865779
+    },
+    "harness_wall_seconds": 5.949907075,
+    "outer_start_ns": 9723330981854,
+    "parent_entry_metrics": {
+      "binding_reads": 2,
+      "descriptor_requests": 3,
+      "schema_builds": 1,
+      "source_closure_checks": 2
+    },
+    "row": {
+      "T_certification": 0.0,
+      "T_concretization": 0.0,
+      "T_full_ts": 0.0001659,
+      "T_initialization": 5.9e-06,
+      "T_input_preprocess": 0.359405398,
+      "T_logging": 1.37e-05,
+      "T_method": 0.0010878,
+      "T_other": 0.15793499899999996,
+      "T_plan_wall": 0.518340897,
+      "T_product": 0.0003229,
+      "T_reduction": 0.0003641,
+      "T_refinement": 0.0,
+      "T_search": 0.000128,
+      "T_total": 0.518340897,
+      "ai_inference_latency_seconds": null,
+      "ai_selection": null,
+      "ai_selection_artifact_sha256": null,
+      "api_key_reads": 0,
+      "backend": "reference",
+      "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+      "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+      "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+      "benchmark_identity": "RACMR-Bench-v1-r1",
+      "benchmark_payload_sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71",
+      "candidate_fingerprint": null,
+      "candidate_identity": null,
+      "canonical_status": "INFEASIBLE_CERTIFIED",
+      "certificate_hash": "NOT_AVAILABLE",
+      "certificate_path": "NOT_AVAILABLE",
+      "certificate_schema": "NOT_AVAILABLE",
+      "certificate_valid_for_terminal": false,
+      "certificate_verifier_status": "NOT_AVAILABLE",
+      "cumulative_work": {
+        "product_edges_built": 2,
+        "product_states_built": 2,
+        "reduced_ts_edges_built": 2,
+        "reduced_ts_states_built": 2,
+        "search_settled_events": 0
+      },
+      "error": null,
+      "exact_status": "INFEASIBLE",
+      "execution_commit": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd+cmr-search-entry-797361d95f2a12a8",
+      "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+      "experimental_llm_calls": 0,
+      "final_precision": [
+        0
+      ],
+      "final_precision_size": 1,
+      "final_unique_graph_size": {
+        "product_edges": 2,
+        "product_states": 2,
+        "reduced_ts_edges": 2,
+        "reduced_ts_states": 2
+      },
+      "formal_campaign": false,
+      "infeasibility_certificate_type": "REDUCED_PRODUCT_EXACT_EMPTY",
+      "infeasibility_precision": [
+        0
+      ],
+      "infeasibility_proof_basis": "exact reduced Product emptiness under optimistic projection",
+      "initial_S0": [
+        0
+      ],
+      "initial_precision_size": 1,
+      "instance_id": "D1-1",
+      "instance_sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71",
+      "llm_calls": 0,
+      "lower_precision_infeasibility": false,
+      "method": "FULL",
+      "method_order_position": 0,
+      "method_start_ns": 9728742553932,
+      "objective": null,
+      "outer_watchdog_seconds": 195,
+      "phase_intervals_ns": {
+        "ROS_result_delivery": [
+          9729103138030,
+          9729260894829
+        ],
+        "T_initialization": [
+          9729101959330,
+          9729101965230
+        ],
+        "T_input_preprocess": [
+          9728742553932,
+          9729101959330
+        ],
+        "T_logging": [
+          9729103121130,
+          9729103134830
+        ]
+      },
+      "planner_budget_seconds": 180,
+      "post_runner_delivery_seconds": 0.157756799,
+      "prefix_actions": null,
+      "qualification_scope": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION",
+      "qualified_runner_completion_ns": 9729103138030,
+      "refinement_rounds": 0,
+      "result_hash": "88daeeced6c6e03315ec4caf3286e76ce16863d9f17c5756efb6a9f33a46654a",
+      "right_censored": false,
+      "rounds": [
+        {
+          "H_k": [],
+          "J_lb": "+Infinity",
+          "J_ub": null,
+          "N": 1,
+          "R_k": [],
+          "S_k": [
+            0
+          ],
+          "S_k_size": 1,
+          "S_phi": [
+            0
+          ],
+          "abstract_prefix_cost": null,
+          "abstract_suffix_cost": null,
+          "backend": "reference",
+          "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+          "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+          "benchmark_payload_sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71",
+          "bound_pruned_entries": 0,
+          "candidate_entries": 0,
+          "candidate_fingerprint": null,
+          "certificate_status": "NOT_APPLICABLE",
+          "concretization_status": "NOT_RUN",
+          "ell": null,
+          "error": null,
+          "exact_entry_searches": 0,
+          "final_precision": [
+            0
+          ],
+          "infeasibility_certificate_type": "REDUCED_PRODUCT_EXACT_EMPTY",
+          "infeasibility_precision": [
+            0
+          ],
+          "infeasibility_proof_basis": "exact reduced Product emptiness under optimistic projection",
+          "initial_S0": [
+            0
+          ],
+          "instance_id": "D1-1",
+          "instance_sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71",
+          "lower_bound_settled": 0,
+          "lower_precision_infeasibility": false,
+          "m": null,
+          "method": "FULL",
+          "phase_intervals_ns": {
+            "T_full_ts": [
+              9729102014530,
+              9729102180430
+            ],
+            "T_product": [
+              9729102547230,
+              9729102870130
+            ],
+            "T_reduction": [
+              9729102181730,
+              9729102545830
+            ],
+            "T_search": [
+              9729102884430,
+              9729103012430
+            ]
+          },
+          "prefix_actions": null,
+          "prefix_cost": null,
+          "prefix_settled": 0,
+          "product_unique_edges": 2,
+          "product_unique_states": 2,
+          "qualifying_sccs": 0,
+          "queue_pops": 0,
+          "queue_pushes": 0,
+          "reachable_product_nodes": 2,
+          "reduced_ts_edges": 2,
+          "reduced_ts_states": 2,
+          "round_index": 0,
+          "schema_version": "cmr-p2b-round-v1",
+          "semantic_contract_id": "INITIAL_LABEL_V1",
+          "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+          "suffix_actions": null,
+          "suffix_cost": null,
+          "suffix_entry_product_state": null,
+          "suffix_settled": 0,
+          "terminal_claim_valid": true,
+          "terminal_status": "INFEASIBLE_CERTIFIED",
+          "timings": {
+            "T_certification": 0.0,
+            "T_concretization": 0.0,
+            "T_full_ts": 0.0001659,
+            "T_product": 0.0003229,
+            "T_reduction": 0.0003641,
+            "T_refinement": 0.0,
+            "T_search": 0.000128
+          },
+          "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+          "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+        }
+      ],
+      "schema_version": "cmr-p2b-result-v1",
+      "search_counter_basis": "qualified reference SearchStats",
+      "semantic_contract_id": "INITIAL_LABEL_V1",
+      "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+      "suffix_actions": null,
+      "suffix_entry_product_state": null,
+      "terminal_completion_ns": 9729260894829,
+      "terminal_status": "INFEASIBLE_CERTIFIED",
+      "timeout_stage": "none",
+      "timing_basis": "qualified runner method start; worker startup excluded",
+      "timing_status": "UNCENSORED",
+      "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+      "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+    },
+    "search_work": [],
+    "transport": null,
+    "worker_alive_after_cleanup": false,
+    "worker_exitcode": 0,
+    "worker_pid": 31562
+  },
+  "schema": "cmr-v7-failure-dds-qualification-v1",
+  "source_head": "6f60801afaed3da950c8d9d0646669f7777a6623",
+  "status": "PASSED"
+}

@@ -344,7 +344,84 @@ before using a fresh output. Offline readback dispatches no method:
 python3 -B -m experiments.cmr_ros2_search_entry.lifecycle_readback --output /tmp/cmr_v7_lifecycle_zero_20261013_r1 --zero-output /tmp/cmr_v7_zero_20261013_r3
 ```
 
-V7 still lacks its own infeasible/error/timeout DDS checks and formal result-chain
-qualification. These checks do not grant default-backend status. No new DDS run,
+At this stage, V7's infeasible/error/timeout DDS and formal result-chain checks
+were still outstanding; the subsequent checks follow below. These method-level
+checks do not grant default-backend status. No new DDS run,
 provider call, physical execution, default switch, PR merge or formal campaign
 occurred in this phase.
+
+## Failure DDS and synthetic result chain (2026-10-13)
+
+The new `--qualification-profile dds-failures` is a separate bounded scope:
+A-T1-M0-A-S-BRANCH/FULL and the previously metadata-selected infeasible
+D1-1/FULL. It keeps all five original metadata/input bindings and adds D1,
+retaining **61 frozen inputs**. The default three-cell search qualification is
+unchanged. Its ordinary CLI refuses a failure plan; the test-only
+`failure_dds.py` runs the four declared DDS cases. The explicit backend selector
+allows the D reference control through the same validated worker lifecycle;
+there is no fallback from V7 to the reference solver.
+
+| Case | Instance | Accepted terminal status | Worker / execution |
+| --- | --- | --- | --- |
+| Late delivery | A / FULL | TIMEOUT | V7 worker; no action; one injected late TS message |
+| Worker crash | A / FULL | INFRASTRUCTURE_FAILURE | V7 authority/configuration checked, then exit 23; no action |
+| Server error | A / FULL | ERROR | No method worker, timing unavailable; no action |
+| Exact empty | D1-1 / FULL | INFEASIBLE_CERTIFIED | V7 worker; no action, snapshot or execution feedback |
+
+DDS domain **228** is isolated. The inherited driver and transport acceptance
+rules check distinct server/driver/worker PIDs, process cleanup, request/result
+identity, the imported execution modules, zero dispatch/completion/observer/
+abstraction counts and zero served snapshots. The timeout's 180-second offset
+is explicitly simulated; its final 181.608391697 s is a predicate check, not a
+measured wall runtime. The actual 195-second watchdog was checked in the
+preceding method qualification and was not rerun here. Method/watchdog budgets
+remain 180/195; server/transport windows remain 205/210.
+
+D1's reference and V7 rows both retain `REDUCED_PRODUCT_EXACT_EMPTY`, with the
+same proof basis, precision and lower-precision fields. They have null objective
+and no concrete lasso. Independent feasible-certificate replay is
+`NOT_APPLICABLE` for these original exact-empty records; it is not reported as
+a verifier PASS. Timeout/infrastructure/error records clear proof and executable
+claims. A certificate produced before delayed delivery gains no terminal
+authority after timeout.
+
+The first attempt's test hook recursively called itself before dispatching the
+two A fault workers. Those DDS checks failed and are retained. Server error,
+D1 V7 and D1 reference passed. The hook was corrected and regression-tested;
+only the two failed DDS cases were continued. The reference and two successful
+DDS directories were verified and copied byte for byte with their original plan
+hashes, execution identities and complete file hashes. Across both attempts,
+there are **six actual DDS requests**, **four method workers** (two continued
+and two new), and four final qualified DDS cases. Successful methods were not
+rerun. Initial source is `8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd`; continuation
+source is `6f60801afaed3da950c8d9d0646669f7777a6623`. Both bind the same 56 runtime
+files under fresh canonical ID `CMR_SEARCH_ENTRY_V1-2325092433cf5abc`.
+The earlier V7 bindings and `00fc5a9` baseline retain their original bytes.
+
+`offline_chain_v7.py` generates **510 new synthetic rows** with the V7 descriptor
+and binding. It reuses an in-memory AST copy of the existing offline framework,
+with exactly five backend literal replacements and one scope replacement;
+source SHA and replacements are recorded. No V6 result file is reused or
+relabeled. The frozen `170 × {FULL, AP-D, DEP-D}` membership/order, analysis
+schema and validation-only checks, atomic ledger, duplicate/interruption/tamper
+guards and source hash checks remain authoritative.
+
+The first offline attempt was rejected because its V7-specific synthetic marker
+did not match the frozen analyzer's required marker. The correction preserves
+that marker and carries V7 identity in separate metadata; the frozen analyzer
+was not changed. Fresh synthetic analysis and all 510 ledger commits pass, with
+exact rational text, unchanged censoring rules and canonical result hashes.
+This data has **zero real results and zero planner/provider/DDS/certificate
+worker calls**. Frozen formal-driver source hashes are read only; actual driver
+execution and the publication probe remain `UNRUN`, and full campaign-chain
+qualification remains `UNVERIFIED`. Synthetic ledger success cannot substitute
+for that qualification.
+
+The [evidence index](evidence/20261013_failure_dds_chain/index.json) preserves
+the failed and continued namespaces, source snapshots and command logs. The
+standard-library `failure_dds_readback.py` checks original continuation bytes,
+terminal proof/transport fields, bound module hashes and synthetic ledger
+provenance without a solver or ROS import. No default switch, PR merge, formal
+campaign, provider call or physical execution occurred. Remaining default
+qualification includes the V7 formal driver/result-publication chain and broader
+instance coverage under its own binding.

@@ -1,0 +1,21 @@
+{"prepared": true, "workers": 30, "binding": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25", "execution_identity": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd+cmr-unified-ffc0f5e26f2878fc"}
+{"prepared": true, "workers": 4, "scope": "CMR_SEARCH_ENTRY_DDS_FAILURE_QUALIFICATION", "version_binding": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc"}
+{"source_head": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd", "binding": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc", "closure": 56, "frozen_inputs": 61}
+{"mode": "late_delivery", "status": "FAILED"}
+{"mode": "crash", "status": "FAILED"}
+{"mode": "server_error", "status": "PASSED"}
+{"mode": "none", "status": "PASSED"}
+Traceback (most recent call last):
+  File "<stdin>", line 20, in <module>
+  File "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/experiments/cmr_ros2_search_entry/offline_chain_v7.py", line 347, in qualify
+    module.qualify(args)
+  File "/tmp/cmr_v7_failure_source_8da048a_20261013_r1/experiments/cmr_ros2_backend/offline_chain.py", line 520, in qualify
+    tables = analyze.analyze(schedule, rows, validation_only=True)
+  File "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_experiment_a_three_method_20261002/analysis_pipeline/analyze.py", line 224, in analyze
+    expected, found = validate_inputs(schedule, rows, validation_only)
+  File "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_experiment_a_three_method_20261002/analysis_pipeline/analyze.py", line 105, in validate_inputs
+    raise AnalysisError('unlabelled synthetic row')
+analyze.AnalysisError: unlabelled synthetic row
+Traceback (most recent call last):
+  File "<stdin>", line 28, in <module>
+AssertionError

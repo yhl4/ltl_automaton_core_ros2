@@ -147,8 +147,15 @@ SIGTERM的子进程，最终观测199.568秒并保留右删失；阶段延迟另
 独立零成本合成CONTROL输入经原run_one、schema、终态交付和验证器，reference/V6/V7
 均接受精确0与非空后缀；6次验证器调用通过，目标加一/空后缀篡改被拒绝。两次求解前
 的检查脚本失败完整保留，成功故障路径未重跑，520项离线读回通过。此项不构成Core
-结果或零成本统一worker/DDS验证；V7不可行/失败DDS与正式结果链资格仍待补验。
+结果或零成本统一worker/DDS验证；后续DDS与离线结果链补验见下文。
 范围见 [方法故障与零成本证书检查](experiments/cmr_ros2_search_entry/README.md#method-failure-and-zero-cost-certificate-checks-2026-10-13)。
+
+V7新增独立、固定A/FULL与D1-1/FULL的失败资格范围，原三组性能范围保留。四类真实
+DDS终态（超时、worker崩溃、server错误、不可行）通过，均无动作派发；D1的原求解器与
+V7 exact-empty字段一致。初次测试hook递归与合成标记拒绝保留，仅续验两个失败DDS和
+离线流水线，成功对照未重跑。全新510格V7合成表通过冻结分析器及原子ledger检查；
+其real results为0，正式campaign driver/发布probe仍未执行。61份冻结输入保持，预算、
+证书规则及默认未改；见 [失败DDS与离线链范围](experiments/cmr_ros2_search_entry/README.md#failure-dds-and-synthetic-result-chain-2026-10-13)。
 
 ---
 

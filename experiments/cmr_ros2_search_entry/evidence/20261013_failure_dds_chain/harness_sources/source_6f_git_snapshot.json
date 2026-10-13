@@ -1,0 +1,15 @@
+{
+  "commit": "6f60801afaed3da950c8d9d0646669f7777a6623",
+  "label": "source_6f",
+  "subject": "Fix DDS fault-hook recursion and preserve frozen synthetic markers",
+  "blobs": {
+    "failure_dds.py": {
+      "path": "experiments/cmr_ros2_search_entry/failure_dds.py",
+      "sha256": "abe17c1b118dbe13628ccf56273516b606997bfb"
+    },
+    "offline_chain_v7.py": {
+      "path": "experiments/cmr_ros2_search_entry/offline_chain_v7.py",
+      "sha256": "48252ea817cd26b4c15e33692250f8058cdead4a"
+    }
+  }
+}

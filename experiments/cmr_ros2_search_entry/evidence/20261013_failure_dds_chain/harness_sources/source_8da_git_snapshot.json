@@ -1,0 +1,15 @@
+{
+  "commit": "8da048a6efc4061230ae8f2f0f1ee1211e6dfdbd",
+  "label": "source_8da",
+  "subject": "Add a fixed V7 failure DDS profile and independent offline chain validation",
+  "blobs": {
+    "failure_dds.py": {
+      "path": "experiments/cmr_ros2_search_entry/failure_dds.py",
+      "sha256": "31b289f422230f50863406ffb199673c6ac4a6a6"
+    },
+    "offline_chain_v7.py": {
+      "path": "experiments/cmr_ros2_search_entry/offline_chain_v7.py",
+      "sha256": "dbef53c803192c933cb80869738817b024f1e507"
+    }
+  }
+}

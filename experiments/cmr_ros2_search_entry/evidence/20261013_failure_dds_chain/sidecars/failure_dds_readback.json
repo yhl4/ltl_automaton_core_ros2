@@ -1,0 +1,13 @@
+{
+  "schema": "cmr-search-entry-v7-failure-dds-readback-v1",
+  "status": "PASSED",
+  "source_head": "6f60801afaed3da950c8d9d0646669f7777a6623",
+  "execution_identity": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75",
+  "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+  "source_closure_files": 56,
+  "frozen_inputs": 61,
+  "dds_cases": 4,
+  "offline_synthetic_rows": 510,
+  "offline_real_results": 0,
+  "provider_calls": 0
+}
