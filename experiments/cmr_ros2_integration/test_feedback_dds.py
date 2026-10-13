@@ -74,10 +74,11 @@ def test_dds_repeated_targets_reject_replayed_feedback(tmp_path, repeated_entry)
         publisher.publish(first)
         wait_for(lambda: server.cursor == 1 and len(calls) == 2)
         publisher.publish(first)
-        wait_for(lambda: any(event["event"] == "stale_ts_ignored"
-                            for event in server.events))
+        wait_for(lambda: sum(event["event"] == "ts_state_received"
+                             for event in server.events) == 2)
         assert server.cursor == 1
         assert len(calls) == 2
+        assert any(event["event"] == "stale_ts_ignored" for event in server.events)
         second = TransitionSystemStateStamped()
         second.header.stamp = publisher_node.get_clock().now().to_msg()
         second.ts_state.state_dimension_names = ["factor0"]
