@@ -5,8 +5,10 @@ solver and the unchanged V6 unified entry on three fixed cells. It keeps
 INITIAL_LABEL_V1, exact `prefix_cost + 10*suffix_cost`, the nonempty accepting
 suffix, every-round full TS rebuild/refinement, tracemalloc, 180 s method budget,
 195 s outer watchdog and the original independent certificate acceptance.
-The production planner and frozen CMR default are unchanged. No formal campaign,
-DDS run, provider call or hardware execution was started in this qualification.
+The production planner and frozen CMR default are unchanged. The 2026-10-12
+search/entry qualification did not dispatch DDS. The isolated repair and later
+three-cell DDS qualification are recorded below; neither starts a formal
+campaign, provider call or hardware execution.
 
 ## Changes and boundaries
 
@@ -188,3 +190,83 @@ export PYTHONDONTWRITEBYTECODE=1 ROS_DOMAIN_ID=226 ROS_LOCALHOST_ONLY=1
 export PYTHONPATH="$PWD/ltl_automaton_execution:$PWD/ltl_automaton_planner:$PWD/ltl_automaton_planner_core:$PWD:$PYTHONPATH"
 python3 -B -m pytest -q -p no:cacheprovider experiments/cmr_ros2_integration/test_feedback_dds.py
 ```
+
+## Real-instance and DDS qualification (2026-10-13)
+
+The repaired source at `14b2c806beecca27f855f32ab79be154e7011de7` was tested in a
+clean Linux checkout using the existing ROS Humble/WSL overlay. The source
+closure now includes the execution/resolver, snapshot serializer, message
+definitions and new V7 DDS adapter: **56 files**, under a freshly prepared
+canonical binding. The frozen CMR authority, exact arithmetic/search,
+refinement, 180/195-second budgets and independent certificate rules remain
+unchanged. No historical result is relabeled with the repaired source identity.
+
+The targets are the same three cells fixed for V7 before the repair. Reference,
+unchanged V6 and repaired V7 each ran once per cell: **9 fresh method workers,
+zero continued controls**, 24 accepted rebuild rounds and 60 unchanged frozen
+inputs. Every result is `OPTIMALITY_CERTIFIED`, with exact objectives 12, 15
+and 12. All nine persisted certificates independently replay PASS. Compared
+with the preserved V7 evidence, all arms retain the same verdict, exact cost,
+initial precision and complete concrete witness; V7 also retains the same
+normalized scientific rounds and heap/settlement/pruning counts.
+
+| Cell | Objective | Reference total s | V6 total s | Repaired V7 total s | Prior V7 total s |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| A-T1-M0-A-S-BRANCH / FULL | 12 | 2.232702 | 1.670048 | 1.513839 | 2.087386 |
+| B-D-BRANCH-S2 / FULL | 15 | 3.307895 | 2.240552 | 1.851326 | 2.314885 |
+| C3-T4 / AP-D | 12 | 1.047924 | 0.935987 | 0.864861 | 1.442596 |
+
+These are single observations with different source storage and loading
+conditions. They do not establish an algorithmic speedup from the repair.
+The prior measurements keep their original execution identity.
+
+`dds.py` invokes the V7 entry directly and reuses the qualified transport
+validation rules. Domain **227** isolates three additional real-instance DDS
+requests, one per fixed cell. All three pass and independently replay their
+persisted certificates. Their full witnesses equal the paired V7 method
+results. The imported execution node, fake runtime and models match the new
+source closure. The smoke executes one prefix and one suffix traversal:
+2/5/3 actions, **10 dispatched/completed/observed TS steps** in total, with
+the existing old-generation injection rejected. It is symbolic execution over
+actual DDS, with no physical robot. The 205/210-second server/transport windows
+surround the unchanged 180/195-second method/watchdog contract. Certificate
+readback runs in the parent after transport validation, outside method timing.
+There are **12 method workers and 12 independent certificate replay invocations**
+across this qualification; identical DDS/method certificate bytes are not counted
+as distinct scientific certificates.
+
+The first offline reader rejected this successful fresh run because it required
+exactly two carried controls. `readback.py` now admits either zero controls or
+the original complete two-control continuation, rejecting partial or undeclared
+reuse. Three directed reader fixtures pass; the historical two-control path was
+checked without rewriting its output. The initial reader failure is retained,
+and no successful solver or DDS method was rerun. `audit_readback.py` additionally
+checks the pinned baseline archive, paired scientific results and persisted DDS
+records using only the standard library. Reader source snapshots and hashes
+are separate from the method execution binding.
+
+The [new index](evidence/20261013_audit_real/index.json) binds the raw archive,
+member hashes, offline readbacks and external `validation/` logs/scripts. Runtime
+identity is `14b2c806beecca27f855f32ab79be154e7011de7+cmr-search-entry-42c88be895479adf`;
+binding ID is `CMR_SEARCH_ENTRY_V1-888c808d63103337`, SHA256
+`52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca`.
+The original repository-level V7 control remains `00fc5a9`, while its archived
+method identity remains `2934ec7...+cmr-search-entry-2135437e8cbf9959`.
+Documentation/reader commits do not change the recorded runtime source head.
+
+The exact preparation, method and DDS commands are preserved in
+[run_methods.sh](evidence/20261013_audit_real/validation/run_methods.sh) and
+[run_dds.sh](evidence/20261013_audit_real/validation/run_dds.sh). Reproduction
+requires matching frozen inputs, a fresh output namespace and a newly verified
+binding. The offline comparison can read the persisted output without a solver:
+
+```bash
+python3 -B -m experiments.cmr_ros2_search_entry.audit_readback --output /tmp/cmr_v7_audit_real_20261013_r1
+```
+
+This qualifies the three successful real-instance DDS paths only. It does not
+repeat V6's full V7 timeout/failure/default qualification, certify zero-cost
+results through the complete real CMR runner/verifier chain, or qualify raw
+observer events reissued with new timestamps. The preserved synthetic controls
+cover repeated cyclic entry and duplicate/stale original TS feedback. No default
+switch, PR merge or formal batch experiment occurred.

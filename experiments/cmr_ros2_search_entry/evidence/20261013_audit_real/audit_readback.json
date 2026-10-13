@@ -1,0 +1,89 @@
+{
+  "schema": "cmr-v7-audit-real-readback-v1",
+  "status": "PASSED",
+  "baseline_commit": "00fc5a91383b24f85d33aa81682af22e531234cf",
+  "baseline_execution_identity": "2934ec788e3b662111d378fd4b1a12ce6a459eee+cmr-search-entry-2135437e8cbf9959",
+  "execution_identity": "14b2c806beecca27f855f32ab79be154e7011de7+cmr-search-entry-42c88be895479adf",
+  "version_binding_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+  "source_head": "14b2c806beecca27f855f32ab79be154e7011de7",
+  "source_files": 56,
+  "native_readback": {
+    "schema": "cmr-search-entry-native-readback-v1",
+    "status": "PASSED",
+    "cells": 3,
+    "workers": 9,
+    "qualified_rows": 9,
+    "new_workers": 9,
+    "continued_controls": 0,
+    "certificate_replays": 9,
+    "accepted_rebuild_rounds": 24,
+    "frozen_inputs": 60,
+    "planner_imported": false,
+    "version_binding_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+    "version_binding_sha256": "52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca"
+  },
+  "paired_cells": [
+    {
+      "instance_id": "A-T1-M0-A-S-BRANCH",
+      "method": "FULL",
+      "objective": "12",
+      "verdict": "OPTIMALITY_CERTIFIED",
+      "witness_unchanged": true,
+      "scientific_rounds_unchanged": true,
+      "search_counters_unchanged": true,
+      "baseline_total_seconds": 2.08738582,
+      "repaired_total_seconds": 1.513838718
+    },
+    {
+      "instance_id": "B-D-BRANCH-S2",
+      "method": "FULL",
+      "objective": "15",
+      "verdict": "OPTIMALITY_CERTIFIED",
+      "witness_unchanged": true,
+      "scientific_rounds_unchanged": true,
+      "search_counters_unchanged": true,
+      "baseline_total_seconds": 2.314884822,
+      "repaired_total_seconds": 1.85132555
+    },
+    {
+      "instance_id": "C3-T4",
+      "method": "AP-D",
+      "objective": "12",
+      "verdict": "OPTIMALITY_CERTIFIED",
+      "witness_unchanged": true,
+      "scientific_rounds_unchanged": true,
+      "search_counters_unchanged": true,
+      "baseline_total_seconds": 1.442595737,
+      "repaired_total_seconds": 0.864860512
+    }
+  ],
+  "real_dds": [
+    {
+      "instance_id": "A-T1-M0-A-S-BRANCH",
+      "method": "FULL",
+      "objective": "12",
+      "certificate_replay": "PASS",
+      "actions": 2
+    },
+    {
+      "instance_id": "B-D-BRANCH-S2",
+      "method": "FULL",
+      "objective": "15",
+      "certificate_replay": "PASS",
+      "actions": 5
+    },
+    {
+      "instance_id": "C3-T4",
+      "method": "AP-D",
+      "objective": "12",
+      "certificate_replay": "PASS",
+      "actions": 3
+    }
+  ],
+  "method_workers": 9,
+  "dds_method_workers": 3,
+  "persisted_certificate_replays": 12,
+  "formal_campaign_workers": 0,
+  "provider_calls": 0,
+  "default_changed": false
+}

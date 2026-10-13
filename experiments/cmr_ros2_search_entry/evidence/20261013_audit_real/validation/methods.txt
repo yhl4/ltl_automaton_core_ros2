@@ -1,0 +1,9 @@
+{"instance": "A-T1-M0-A-S-BRANCH", "method": "FULL", "backend": "reference", "status": "OPTIMALITY_CERTIFIED", "total": 2.232702299, "search": 0.555140899, "other": 0.18807060100000017, "harness_wall": 7.481310294}
+{"instance": "A-T1-M0-A-S-BRANCH", "method": "FULL", "backend": "ros2-v6", "status": "OPTIMALITY_CERTIFIED", "total": 1.670047641, "search": 0.754941218, "other": 0.18854400599999988, "harness_wall": 7.01774647}
+{"instance": "A-T1-M0-A-S-BRANCH", "method": "FULL", "backend": "ros2-v7", "status": "OPTIMALITY_CERTIFIED", "total": 1.513838718, "search": 0.581544207, "other": 0.20212210200000014, "harness_wall": 6.202435383}
+{"instance": "B-D-BRANCH-S2", "method": "FULL", "backend": "reference", "status": "OPTIMALITY_CERTIFIED", "total": 3.307895063, "search": 0.916116541, "other": 0.18813001199999935, "harness_wall": 8.340040879}
+{"instance": "B-D-BRANCH-S2", "method": "FULL", "backend": "ros2-v6", "status": "OPTIMALITY_CERTIFIED", "total": 2.240552036, "search": 1.330807781, "other": 0.1730200100000001, "harness_wall": 7.009028625}
+{"instance": "B-D-BRANCH-S2", "method": "FULL", "backend": "ros2-v7", "status": "OPTIMALITY_CERTIFIED", "total": 1.85132555, "search": 0.916475525, "other": 0.20824950500000017, "harness_wall": 6.504033773}
+{"instance": "C3-T4", "method": "AP-D", "backend": "reference", "status": "OPTIMALITY_CERTIFIED", "total": 1.047923906, "search": 0.1347232, "other": 0.18108480100000002, "harness_wall": 5.883775925}
+{"instance": "C3-T4", "method": "AP-D", "backend": "ros2-v6", "status": "OPTIMALITY_CERTIFIED", "total": 0.935987118, "search": 0.210397304, "other": 0.19260560400000004, "harness_wall": 5.867187711}
+{"instance": "C3-T4", "method": "AP-D", "backend": "ros2-v7", "status": "OPTIMALITY_CERTIFIED", "total": 0.864860512, "search": 0.16755040300000001, "other": 0.19687580300000007, "harness_wall": 5.457209787}

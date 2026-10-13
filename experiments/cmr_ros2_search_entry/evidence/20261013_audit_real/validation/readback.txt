@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/tmp/cmr_v7_audit_source_14b2c80_20261013_r1/experiments/cmr_ros2_search_entry/readback.py", line 349, in <module>
+    main(parser.parse_args().output)
+  File "/tmp/cmr_v7_audit_source_14b2c80_20261013_r1/experiments/cmr_ros2_search_entry/readback.py", line 325, in main
+    check_continued_controls(output, plan, report)
+  File "/tmp/cmr_v7_audit_source_14b2c80_20261013_r1/experiments/cmr_ros2_search_entry/readback.py", line 261, in check_continued_controls
+    checked(isinstance(controls, list) and len(controls) == 2,
+  File "/tmp/cmr_v7_audit_source_14b2c80_20261013_r1/experiments/cmr_ros2_search_entry/readback.py", line 52, in checked
+    raise AssertionError(message)
+AssertionError: two carried V6 controls

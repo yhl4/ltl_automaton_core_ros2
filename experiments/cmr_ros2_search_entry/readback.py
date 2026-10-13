@@ -255,11 +255,12 @@ def check_cell(output, plan, current, cell, item):
 
 
 def check_continued_controls(output, plan, report):
-    expected = {("A-T1-M0-A-S-BRANCH", "FULL", "reference"),
-                ("A-T1-M0-A-S-BRANCH", "FULL", "ros2-v6")}
     controls = plan.get("continued_controls")
-    checked(isinstance(controls, list) and len(controls) == 2,
-            "two carried V6 controls")
+    checked(isinstance(controls, list) and len(controls) in (0, 2),
+            "fresh run or two carried V6 controls")
+    expected = ({("A-T1-M0-A-S-BRANCH", "FULL", "reference"),
+                 ("A-T1-M0-A-S-BRANCH", "FULL", "ros2-v6")}
+                if controls else set())
     observed = set()
     for control in controls:
         key = (control["instance_id"], control["method"], control["backend"])
@@ -285,7 +286,8 @@ def check_continued_controls(output, plan, report):
     checked(observed == expected, "complete continued control set")
     count = sum(1 for item in report["cells"] for arm in ARMS
                 if item["arms"][arm].get("continuation") is not None)
-    checked(count == 2, "exactly two continued rows and seven new workers")
+    checked(count == len(controls), "continued rows match the frozen plan")
+    return count
 
 
 def main(output):
@@ -322,14 +324,15 @@ def main(output):
             "offline fixtures passed")
     for cell, item in zip(plan["cells"], report["cells"]):
         check_cell(output, plan, current, cell, item)
-    check_continued_controls(output, plan, report)
+    continued_count = check_continued_controls(output, plan, report)
     total_build_rounds = sum(len(item["arms"][arm]["row"]["rounds"])
                              for item in report["cells"] for arm in ARMS)
     checked(total_build_rounds == 24, "24 accepted V7 rebuild rounds")
     result = {
         "schema": "cmr-search-entry-native-readback-v1",
         "status": "PASSED", "cells": 3, "workers": 9,
-        "qualified_rows": 9, "new_workers": 7, "continued_controls": 2,
+        "qualified_rows": 9, "new_workers": 9 - continued_count,
+        "continued_controls": continued_count,
         "certificate_replays": 9, "accepted_rebuild_rounds": total_build_rounds,
         "frozen_inputs": 60,
         "planner_imported": False,

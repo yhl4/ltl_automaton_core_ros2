@@ -133,6 +133,15 @@ worker/父进程 attempt 内复用已验证的入口描述与 schema，交付前
 重放或默认backend资格。搜索、180/195秒预算、证书规则及旧绑定均未改；未切换默认、
 合并PR或启动正式批量。详见 [修复范围与独立证据](experiments/cmr_ros2_search_entry/README.md#isolated-audit-repair-2026-10-13)。
 
+修复版随后以 `14b2c80` 源码和新的 56 文件闭包绑定完成三组固定真实实例资格对照：
+A/FULL、B-S2/FULL、C3/AP-D 的 reference/V6/V7 共9个全新worker均给出相同判定与
+精确目标12/15/12；与原V7记录的完整witness、逐轮科学字段及搜索计数一致。新增三次
+V7真实DDS请求共执行10步符号动作，连同方法对照共12次持久证书独立重放通过。
+读取器对全新运行误要求“两份续用control”的缺陷已修复，保留首次失败记录，成功求解
+未重跑。新证据不覆盖旧绑定；计时受源码存储与加载条件影响，只保留单次观察。
+V7完整失败/超时路径与默认资格仍未补齐，默认、PR及正式实验保持原状。见
+[真实实例与DDS回归证据](experiments/cmr_ros2_search_entry/README.md#real-instance-and-dds-qualification-2026-10-13)。
+
 ---
 
 ## 1. 当前支持范围

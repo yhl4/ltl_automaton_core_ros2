@@ -1,0 +1,15 @@
+{
+  "schema": "cmr-search-entry-native-readback-v1",
+  "status": "PASSED",
+  "cells": 3,
+  "workers": 9,
+  "qualified_rows": 9,
+  "new_workers": 9,
+  "continued_controls": 0,
+  "certificate_replays": 9,
+  "accepted_rebuild_rounds": 24,
+  "frozen_inputs": 60,
+  "planner_imported": false,
+  "version_binding_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+  "version_binding_sha256": "52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca"
+}
