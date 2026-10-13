@@ -36,6 +36,8 @@ class Campaign:
             require(not self.root.exists() or not any(self.root.iterdir()), 'fresh campaign directory required')
             self.root.mkdir(parents=True, exist_ok=True)
         self.plan = runner.load_plan(args.plan)
+        require(args.plan.resolve() == (args.plan.parent / 'plan.json').resolve(),
+                'worker lifecycle requires the canonical plan.json filename')
         require(self.plan['scope'] == runner.SCOPE and self.plan['formal_campaign'] is False,
                 'campaign requires the existing isolated search plan')
         selected = [c for c in self.plan['cells'] if (c['instance_id'], c['method']) == TARGET]
@@ -96,10 +98,12 @@ class Campaign:
         self.gate_sources = {str(p.resolve()): sha(p) for p in gate_paths}
         binding = copy.deepcopy(original)
         binding.pop('_binding_path', None)
+        source_binding_id = binding.pop('binding_id')
         binding.update(schema='cmr-qualified-campaign-binding-v1', scope=SCOPE,
                        qualification_only=True, formal_campaign=False, real_execution_authorized=False,
                        backend_binding=self.descriptor, method_attempts=1, cells=[self.cell], cell_count=1,
                        planner_budget_seconds=180, outer_watchdog_seconds=195,
+                       source_original_binding_id=source_binding_id,
                        source_plan_sha256=sha(args.plan), source_plan_execution_identity=self.plan['execution_identity'],
                        runtime_source_closure=self.plan['source_closure'], gate_source_closure=self.gate_sources,
                        benchmark_root=str(runner.adapter._native_path(original['benchmark_root'])),
