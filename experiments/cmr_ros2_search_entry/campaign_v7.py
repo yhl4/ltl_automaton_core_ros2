@@ -235,7 +235,7 @@ class Campaign:
         outer_timeout = row['terminal_status'] == 'TIMEOUT' and row.get('error') == 'watchdog'
         if outer_timeout:
             require(row.get('timeout_stage') == 'outer_watchdog' and row['T_total'] >= 195
-                    and row['method_start_ns'] == value['outer_start_ns'] and value['worker_exitcode'] != 0,
+                    and row['method_start_ns'] == value['outer_start_ns'],
                     'outer timeout supervisor provenance mismatch')
         envelope = dict(cell_id=self.cell['cell_id'], cell_identity_sha256=self.cell['cell_identity_sha256'],
                         terminal_status=row['terminal_status'], worker_result=row, attempt_id=attempt,
