@@ -1,0 +1,85 @@
+{
+  "archive": {
+    "member_count": 103,
+    "sha256": "5c30760ae6af2a7cb1c7296c32517cb41ea2c66d1763ad88a13974c76026f335",
+    "size": 303421
+  },
+  "artifact_manifest": {
+    "path": "artifact_manifest.json",
+    "sha256": "98c201fb0ad5e504e25ec4a0dc9ebe29437d41b8e9b2d52bad923c515af3311b",
+    "size": 3812
+  },
+  "baseline_commit": "5ac80ee5f8e622a7f929eb848627c9a5ebf6cf01",
+  "binding": {
+    "v8_backend_sha256": "279d27caa719b0fc0d0987556f50625486f5b3faced12a2aa42e5d81e193e5c9",
+    "version_binding_id": "CMR_AP_TS_REUSE_V1-b4c2588536755eb8",
+    "version_binding_sha256": "ab54aec5040871f827df41363cc555f3985269fa3d1f1f392705b818427e7e1a"
+  },
+  "checks": {
+    "default_qualification": false,
+    "lasso_and_certificate_hash": "PASS",
+    "normalized_rounds": "PASS",
+    "physical_full_ts_call_reduction": "PASS",
+    "runtime_overall_improvement": "UNPROVEN_AND_SLOWER_THIS_RUN",
+    "runtime_total_delta_v8_vs_v7_percent": 26.06,
+    "runtime_total_delta_v8_vs_v7_seconds": 0.273976001,
+    "search_counters": "PASS",
+    "semantic_equivalence": "PASS"
+  },
+  "execution": {
+    "dds_requests": 0,
+    "formal_campaign": false,
+    "formal_ledger": 0,
+    "method_workers": 3,
+    "persisted_certificate_replays": 3,
+    "provider_calls": 0,
+    "run_one": 3,
+    "worker_internal_p2f_verifications": 3,
+    "worker_internal_verification_basis": "fixed P2f source path plus three certified raw worker records; derived count, no extra calls"
+  },
+  "inputs": {
+    "frozen_inputs": 56,
+    "live_and_frozen_source_checks": 60,
+    "old_v7_and_00fc_unchanged": true,
+    "source_snapshots": "source_manifest.json"
+  },
+  "limitations": [
+    "single C3-T4/AP-D cell",
+    "formal campaign and ledger were not run",
+    "no performance conclusion from one run",
+    "old V7 and 00fc evidence were not modified"
+  ],
+  "results": {
+    "reference": {
+      "T_full_ts": 0.0484338,
+      "T_total": 1.1666765,
+      "objective": "12",
+      "status": "OPTIMALITY_CERTIFIED"
+    },
+    "ros2-v7": {
+      "T_full_ts": 0.0423791,
+      "T_total": 1.051325999,
+      "full_ts_cache_hits": 0,
+      "full_ts_rebuilds": 6,
+      "objective": "12",
+      "status": "OPTIMALITY_CERTIFIED"
+    },
+    "ros2-v8": {
+      "T_full_ts": 0.0117313,
+      "T_total": 1.325302,
+      "full_ts_cache_hits": 5,
+      "full_ts_rebuilds": 1,
+      "objective": "12",
+      "status": "OPTIMALITY_CERTIFIED"
+    }
+  },
+  "schema": "cmr-v8-ap-ts-reuse-evidence-v1",
+  "scope": "CMR_AP_FULL_TS_REUSE_SINGLE_CELL_QUALIFICATION",
+  "source_head": "db8236614c8ce4c876844127c8ce9df01c5d8507",
+  "status": "PASSED_READBACK",
+  "target": {
+    "instance_id": "C3-T4",
+    "method": "AP-D"
+  },
+  "validation": "validation/ contains native initial/final fixtures, three fake-precheck failures and corrected logs, prepare/run logs, read_v8.py, readback.json, and fake assertions"
+}

@@ -1,0 +1,10 @@
+python=/usr/bin/python3
+dp_file=/tmp/cmr_v8_ap_ts_source_db82366_20261013/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py
+dp_sha256=556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b
+sys_path0=
+Traceback (most recent call last):
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v8_ap_ts_reuse_20261013/fake_configure.py", line 19, in <module>
+    model = _make_model()
+  File "/tmp/cmr_v8_ap_ts_source_db82366_20261013/experiments/cmr_ros2_product_perf/fixtures.py", line 163, in _make_model
+    from ecc_p1.model import BuchiAutomaton, FormalAction, FormalFactorizedModel
+ModuleNotFoundError: No module named 'ecc_p1'

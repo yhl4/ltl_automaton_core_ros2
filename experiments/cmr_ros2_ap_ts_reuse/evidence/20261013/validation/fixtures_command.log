@@ -1,0 +1,4 @@
+command: C:\Users\Yuhling\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m py_compile experiments/cmr_ros2_ap_ts_reuse/builder.py experiments/cmr_ros2_ap_ts_reuse/fixtures.py
+command: C:\Users\Yuhling\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe experiments/cmr_ros2_ap_ts_reuse/fixtures.py --kernel-root C:\Users\Yuhling\.codex\worktrees\cmr-p1b-initial-label\Robotics4LLM\ltl_planning_studio\ecc_p1_formal_kernel --output C:\Users\Yuhling\.codex\worktrees\v7-audit-dds-regression\v8_ap_ts_reuse_20261013\fixtures_native.json
+result: py_compile PASS; fixtures exit 0; status PASSED; case_count 5
+scope: no formal runner, solver, provider, ROS, DDS, or real benchmark

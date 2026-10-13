@@ -192,6 +192,13 @@ crash拒绝发布及重试，超时不携带最优证书权限；未修改原科
 没有重复求解。180/195秒预算、语义与证书验收保持；当前新绑定的完整Campaign链尚未资格化，
 默认未切换，未合并PR或启动正式批量实验。见 [当前版本DDS资格](experiments/cmr_ros2_search_entry/README.md#current-runtime-dds-identity-repair-and-qualification-2026-10-13)。
 
+另有 [AP完整TS复用候选V8](experiments/cmr_ros2_ap_ts_reuse/README.md)：一次AP-D方法内
+构造完整可达TS一次，各轮仍重建投影、约简图和Product。固定C3-T4/AP-D与原求解器、
+未改的V7各一次对照，完整六轮轨迹和精确代价12保持，3份独立证书回放通过。
+实测完整TS构造6→1、该阶段耗时减少72.32%，但总耗时1.051→1.325秒，增加26.06%；
+因此仅保留可选原型，未认定整体加速或切换默认。旧V7每轮重建绑定不变，候选单独绑定；
+180/195秒预算与证书规则保持，没有新DDS或正式批量实验。
+
 ---
 
 ## 1. 当前支持范围

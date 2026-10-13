@@ -1,0 +1,64 @@
+{
+  "case_count": 5,
+  "cases": [
+    {
+      "first_work": {
+        "buchi_queries": 3,
+        "cache_entries": 3,
+        "cache_hits": 0,
+        "cache_misses": 3,
+        "completed": true,
+        "full_ts_cache_hits": 0,
+        "full_ts_rebuild_calls": 1,
+        "full_ts_source_edges": 2,
+        "full_ts_source_states": 2,
+        "precision": [
+          0
+        ],
+        "product_edges": 2,
+        "product_states": 2,
+        "reachable_ts_states": 2,
+        "reduced_ts_edges": 2
+      },
+      "name": "same_model_two_builds",
+      "second_work": {
+        "buchi_queries": 3,
+        "cache_entries": 3,
+        "cache_hits": 0,
+        "cache_misses": 3,
+        "completed": true,
+        "full_ts_cache_hits": 1,
+        "full_ts_rebuild_calls": 0,
+        "full_ts_source_edges": 2,
+        "full_ts_source_states": 2,
+        "precision": [
+          0,
+          1
+        ],
+        "product_edges": 2,
+        "product_states": 2,
+        "reachable_ts_states": 2,
+        "reduced_ts_edges": 2
+      },
+      "status": "PASSED"
+    },
+    {
+      "name": "different_model_rejected",
+      "status": "PASSED"
+    },
+    {
+      "name": "fraction_and_zero_cost_exact",
+      "status": "PASSED"
+    },
+    {
+      "name": "invalid_projected_label_rejected",
+      "status": "PASSED"
+    },
+    {
+      "name": "failed_full_ts_has_no_partial_cache",
+      "status": "PASSED"
+    }
+  ],
+  "schema": "cmr-v8-ap-ts-reuse-fixtures-v1",
+  "status": "PASSED"
+}

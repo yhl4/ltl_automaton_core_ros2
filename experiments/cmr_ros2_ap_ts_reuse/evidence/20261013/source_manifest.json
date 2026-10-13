@@ -1,0 +1,31 @@
+{
+  "files": [
+    {
+      "path": "source_snapshots/backend.py",
+      "sha256": "59fb3147d114e88978b71827934e09267542eae6bcb058fda266532a024176cf",
+      "size": 3009,
+      "source_head": "db8236614c8ce4c876844127c8ce9df01c5d8507"
+    },
+    {
+      "path": "source_snapshots/builder.py",
+      "sha256": "2faadef438667dee06d82c728fff0aade34734c8855f20f2cce7eb6364aab8ef",
+      "size": 3987,
+      "source_head": "db8236614c8ce4c876844127c8ce9df01c5d8507"
+    },
+    {
+      "path": "source_snapshots/fixtures.py",
+      "sha256": "72f74e36790fc93918257657623f658fda9698b0ec73bb67bcf3b7f432efcc39",
+      "size": 9901,
+      "source_head": "db8236614c8ce4c876844127c8ce9df01c5d8507"
+    },
+    {
+      "path": "source_snapshots/runner.py",
+      "sha256": "fbe322c4df3ec08bea1214bfcc201763ae2c060cc980748a127f44b3e003b805",
+      "size": 12720,
+      "source_head": "db8236614c8ce4c876844127c8ce9df01c5d8507"
+    }
+  ],
+  "fixture_final_sha256": "11249ab248c99d4137496aa283ef9cae26db3d63884757c34dbf0ef9881957ae",
+  "fixture_initial_sha256": "ea6e239e882883833a2e4365df04168ba80b77219db0309fe1a47643306d8b0e",
+  "source_head": "db8236614c8ce4c876844127c8ce9df01c5d8507"
+}

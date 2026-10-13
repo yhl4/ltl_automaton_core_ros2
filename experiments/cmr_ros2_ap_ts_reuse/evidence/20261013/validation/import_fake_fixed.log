@@ -1,0 +1,10 @@
+dp_file=/tmp/cmr_v8_ap_ts_source_db82366_20261013/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py
+dp_sha256=556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b
+source_head=$(git -C /tmp/cmr_v8_ap_ts_source_db82366_20261013 rev-parse HEAD)
+source_status=''
+Traceback (most recent call last):
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v8_ap_ts_reuse_20261013/fake_configure.py", line 25, in <module>
+    capture = backend.configure(formal)
+  File "/tmp/cmr_v8_ap_ts_source_db82366_20261013/experiments/cmr_ros2_ap_ts_reuse/backend.py", line 69, in configure
+    original_builder_global_preserved=(formal.build_optimistic_abstraction is
+AttributeError: 'types.SimpleNamespace' object has no attribute 'build_optimistic_abstraction'

@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v8_ap_ts_reuse_20261013/fake_configure.py", line 28, in <module>
+    formal.run_method_local(instance, 'AP-D', deadline_ns=1)
+  File "/tmp/cmr_v8_ap_ts_source_db82366_20261013/experiments/cmr_ros2_ap_ts_reuse/backend.py", line 58, in captured_local
+    result = local(*args, **kwargs)
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v8_ap_ts_reuse_20261013/fake_configure.py", line 16, in local
+    return _run_kernel_loop(instance, method, deadline_ns)
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v8_ap_ts_reuse_20261013/fake_configure.py", line 10, in loop
+    abstract = build_optimistic_abstraction(instance.model, precision,
+TypeError: configure.<locals>.build() got an unexpected keyword argument 'work'
