@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/dds_current_20261013/run_failure_dds_fixed.py", line 13, in <module>
+    report = failure_dds.run(args, plan, root / 'dds_failures')
+  File "/tmp/cmr_v7_current_dds_source_a6c2394_20261013/experiments/cmr_ros2_search_entry/failure_dds.py", line 80, in run
+    reference = runner.candidate_isolated(args, plan, dcell,
+  File "/tmp/cmr_v7_current_dds_source_a6c2394_20261013/experiments/cmr_ros2_search_entry/runner.py", line 231, in candidate_isolated
+    Path(plan['version_binding_path']), args.output / 'plan.json', output)
+AttributeError: 'types.SimpleNamespace' object has no attribute 'output'

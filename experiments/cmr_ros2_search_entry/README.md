@@ -625,7 +625,7 @@ scientific acceptance or the **180/195-second** deadlines:
   before dispatch and strictly validates it. Two new interface checks reject
   missing or incorrect input hashes. The failed old row is retained unchanged.
 
-The qualified runtime is now separately bound as
+That phase's qualified runtime is separately bound as
 `CMR_SEARCH_ENTRY_V1-e5e7c783aa3465b9`, SHA
 `710c4e87cb3d56d70f995fe105ce6088f7f311d38befb7bde17061944a5f112f`,
 with V7 backend SHA
@@ -684,3 +684,82 @@ batch occurred in this phase. Cooperative watchdog exit zero, other failure mode
 new-runtime DDS and broader current-entry real-instance coverage remain unrun.
 The frozen original Campaign constructor and full 510-cell chain remain
 UNRUN/UNVERIFIED; this qualification does not declare V7 default-ready.
+
+## Current runtime DDS identity repair and qualification (2026-10-13)
+
+`f1bcae9` added the immutable instance hash to unified requests, but the separate
+DDS envelope builder still copied the thin cell without that hash. Its exact
+comparison therefore rejected a correctly generated V7 request before ROS
+dispatch. Repair `a6c2394e93ed2826d9b2f93bf0b824d85cee9546` supplies the plan
+record's `instance_sha256` to the DDS builder. The V7 validation wrapper also
+requires worker results' instance hash, benchmark payload hash and execution
+identity to match the request. The existing V6 transport acceptance runs first
+and is unchanged. A pre-dispatch server ERROR has no worker/scientific row.
+Five offline unit checks pass, including missing/wrong request hash and three
+incorrect result identities. The pre-fix pure-envelope reproduction is retained.
+
+The fresh WSL source clone is clean at this repair commit. Sourcing Humble and
+the existing message overlay, then **prepending to the sourced `PYTHONPATH`**,
+keeps both the pinned planner modules and `rclpy` available. No dependency or
+remote environment was replaced. The new 56-file runtime closure changes only
+`dds.py` from the previous `e5e7c783…` closure. It has its own binding:
+
+- ID: `CMR_SEARCH_ENTRY_V1-a429239e4704ea06`
+- SHA256: `50c5d930f07b953f63eddd9b7c0e095424d3dd555cc8627d2a45e23962302204`
+- V7 backend SHA256: `c7548808c9fbdd9b69ca4f6ece242b5bfe2b194b8828041b8c6c5d987c009458`
+
+The backend SHA remains the same because the search/entry code did not change;
+the transport-inclusive version binding changes. Previous Campaign and DDS
+records keep their original bindings and are not relabeled as this runtime.
+
+| Cell / fault | DDS result | Exact objective | Execution / independent replay |
+| --- | --- | --- | --- |
+| A-T1-M0-A-S-BRANCH / FULL | OPTIMALITY_CERTIFIED | 12 | Complete 2 actions; replay PASS |
+| B-D-BRANCH-S2 / FULL | OPTIMALITY_CERTIFIED | 15 | Complete 5 actions; replay PASS |
+| C3-T4 / AP-D | OPTIMALITY_CERTIFIED | 12 | All 6 refinement rounds, complete 3 actions; replay PASS |
+| A / late delivery | TIMEOUT, right-censored | null | No snapshot or action; simulated clock offset |
+| A / pre-planning crash | INFRASTRUCTURE_FAILURE, exit 23 | null | No snapshot or action |
+| A / pre-worker server error | ERROR, no worker | null | No snapshot or action |
+| D1-1 / FULL | INFEASIBLE_CERTIFIED | null | No snapshot or action; exact-empty proof agrees with a fresh reference worker |
+
+Success cases use isolated DDS domain **227**, failure cases **228**, and the
+unchanged **180 s method / 195 s watchdog / 205 s server / 210 s transport**
+windows. The late case injects a **180-second clock offset**; its delivered
+`T_total=181.625622794` is a simulated censored lower bound, not an actual wait.
+The attempt retains its previously verified method certificate, while the
+delivered TIMEOUT has no optimal-certificate authority. The earlier real
+195-second watchdog qualification remains separate.
+
+There are **7 actual local DDS requests, 7 planner child processes and 6 original
+`run_one` calls**, including the fresh D1 reference. Four worker-internal
+certificate checks are identified by the pinned P2f persisted-certificate call
+path and the four certified raw method records (three successes and the late
+delivery). Three additional persisted independent optimal-certificate replays
+pass; D1's empty-proof comparison is not counted as an optimal replay.
+The complete successful action/feedback count is **10**, with the inherited
+old-generation observation rejection. Execution uses the symbolic FakeBackend
+over actual DDS, without a physical robot or external provider call.
+
+All five namespaces are retained. The first search attempt overwrote ROS's
+`PYTHONPATH`: six server/driver processes failed importing `rclpy`, before any
+request or planner worker. One failure namespace was prepared only; the next
+helper lacked `args.output` and failed before spawning the D1 reference. Fresh
+namespaces corrected these harness/environment errors. No completed method was
+rerun. Each preparation retains its 14 arithmetic and 16 interface checks.
+
+The [evidence index](evidence/20261013_current_dds/index.json) binds the complete
+685-member archive, source snapshots, failed attempts and standard-library
+readback. It verifies all raw member bytes, 56 live/frozen sources, the 60/61
+frozen input inventories, exact request/result identities, complete action
+witnesses, result hashes and certificate/replay bytes. The first readback
+incorrectly expected `initial_S0` in a pre-planning crash row; its script and
+failure transcript remain, and the corrected reader checks precision on rows
+that claim it. It starts no solver, DDS process or verifier. The three successful
+results agree with the preserved original solver records in verdict, exact
+objective, model hash and initial precision; this is not a fresh paired timing
+experiment. Baseline `00fc5a9` and the prior evidence archive hashes are unchanged.
+
+This phase qualifies the bounded DDS paths of the new runtime. The complete
+current-binding Campaign constructor/result chain, cooperative watchdog exit
+zero and zero-cost unified-worker/DDS inputs remain unqualified. The default
+backend is unchanged; no PR merge or formal batch was started.

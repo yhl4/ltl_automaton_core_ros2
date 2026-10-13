@@ -1,0 +1,1300 @@
+{
+  "schema": "cmr-current-dds-stdlib-readback-v1",
+  "status": "PASSED",
+  "source_head": "a6c2394e93ed2826d9b2f93bf0b824d85cee9546",
+  "version_binding_id": "CMR_SEARCH_ENTRY_V1-a429239e4704ea06",
+  "version_binding_sha256": "50c5d930f07b953f63eddd9b7c0e095424d3dd555cc8627d2a45e23962302204",
+  "archive_sha256": "e8bae1c9ec7f4c06c433143245750488a8fc44b53668ce45f19eb8d57720bcf9",
+  "archive_members": 685,
+  "source_closure_files": 56,
+  "totals": {
+    "actual_dds_requests": 7,
+    "actual_planner_workers": 7,
+    "actual_formal_run_one": 6,
+    "optimality_certificate_replays_pass": 3,
+    "dispatch_actions": 10
+  },
+  "cases": [
+    {
+      "instance_id": "A-T1-M0-A-S-BRANCH",
+      "method": "FULL",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "12",
+      "actions": 2,
+      "rounds": 1,
+      "T_total": 1.679438685
+    },
+    {
+      "instance_id": "B-D-BRANCH-S2",
+      "method": "FULL",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "15",
+      "actions": 5,
+      "rounds": 1,
+      "T_total": 2.11307726
+    },
+    {
+      "instance_id": "C3-T4",
+      "method": "AP-D",
+      "status": "OPTIMALITY_CERTIFIED",
+      "objective": "12",
+      "actions": 3,
+      "rounds": 6,
+      "T_total": 1.084392555
+    },
+    {
+      "instance_id": "A-T1-M0-A-S-BRANCH",
+      "method": "FULL",
+      "status": "INFRASTRUCTURE_FAILURE"
+    },
+    {
+      "instance_id": "A-T1-M0-A-S-BRANCH",
+      "method": "FULL",
+      "status": "TIMEOUT",
+      "simulated_clock": true,
+      "T_total": 181.625622794
+    },
+    {
+      "instance_id": "D1-1",
+      "method": "FULL",
+      "status": "INFEASIBLE_CERTIFIED"
+    },
+    {
+      "instance_id": "A-T1-M0-A-S-BRANCH",
+      "method": "FULL",
+      "status": "ERROR"
+    }
+  ],
+  "frozen_inputs_after_readback": {
+    "search_import_failure": {
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/buchi.py": {
+        "size": 6180,
+        "sha256": "7c83483cc119beca2b982831003a3889864982661de3e04ce740767727039b72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py": {
+        "size": 27763,
+        "sha256": "556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/irl.py": {
+        "size": 4660,
+        "sha256": "d53a06d1eced93a76f4437ba003f17e8e1ceca5a9a4a2c55fea3f33b1329e2c8"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ltl_planner.py": {
+        "size": 14916,
+        "sha256": "3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/product.py": {
+        "size": 17058,
+        "sha256": "74fc26ec60964c3a8fe313c7b7247aa28efe37c3be29155b659f28cc74c2d103"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ts.py": {
+        "size": 6791,
+        "sha256": "08ae086ebb8212f6eeb24110c63a73c3832bef95be0601ad8a40fa2a42792d0d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_discrete_plan.py": {
+        "size": 49514,
+        "sha256": "e9324bf03654dc97fb2225c5173b02c664950ff45998e3d22043994babe77536"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_irl.py": {
+        "size": 17340,
+        "sha256": "60e40979ecbb42b88330b166afaf222e346d2691b083e9eb34939fdd46dbc037"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_ltl_planner.py": {
+        "size": 23630,
+        "sha256": "9d38b1440e8a1210326c9cadae6b079e7f559af3232e20518e124352339b6dbb"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_product.py": {
+        "size": 30347,
+        "sha256": "0e890bcd00826696ee1613f1a6923ec51bdc0113ae10a1315708d4efc89363b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/README.md": {
+        "size": 5245,
+        "sha256": "37deba9b6ba470c55be50a2e2ed699b32ce2ed3a796393b8487e77300fd7a86d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/bound_runner.py": {
+        "size": 18851,
+        "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/dds_real.py": {
+        "size": 8665,
+        "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/runner.py": {
+        "size": 15393,
+        "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/selection.json": {
+        "size": 7263,
+        "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verifier_checks.py": {
+        "size": 5954,
+        "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verify_small.py": {
+        "size": 4509,
+        "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py": {
+        "size": 23223,
+        "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/backend.py": {
+        "size": 9102,
+        "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/README.md": {
+        "size": 2712,
+        "sha256": "65e7773fe279d4392a570e7925a8cf185976bfed81b5d41f7d5e54776211d8e4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/runtime.py": {
+        "size": 20890,
+        "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/verify_smoke.py": {
+        "size": 10240,
+        "sha256": "f296e44edd5a58d52812e8fc3f269bffbfb7d3810677675eeda27b74ea3eea69"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/dds_smoke.py": {
+        "size": 51951,
+        "sha256": "04391e39f325ca4e3bcff4a05857f4258ae5fa0c082c2ca5e85043ee177c8e1c"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/README.md": {
+        "size": 4805,
+        "sha256": "1b6f49afa526f31cdb6f82a5d3612ba45a5ba01ee30d9c2dace9dd3b103eba97"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/formal_runner_p2b.py": {
+        "size": 48637,
+        "sha256": "bc2766ca63972a276fc6d05bef4f0ded0c96acfeb68df35eec680bc2fdd170f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2d_control_cohort_interface_20261001/control_cohort_loader_p2d.py": {
+        "size": 1247,
+        "sha256": "5f7075407b6519e4dffc263cb95244f05015898c43db8bb42a7a9461f981e5c9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/certificate_path_binding_p2e.py": {
+        "size": 4260,
+        "sha256": "fd3ab2463fcf9f98be500422e064bdc29ac00e666be56a6b83959bd447c44869"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/solver.py": {
+        "size": 13986,
+        "sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_pilot_binding_p2c_20260930/binding_validation_p2c.py": {
+        "size": 1588,
+        "sha256": "381d88bf4963d1d6d6de9283b498e1817569978dcc19a2ba639a74778031d1e9"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/certificate.py": {
+        "size": 848,
+        "sha256": "608a606dd4f24b46b72c9d32ef2fcf6aa3cd2c20f3e450f2a84abf995fa5145d"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/concretization.py": {
+        "size": 9972,
+        "sha256": "10975a2e98ff318607098c508853e3e65d4074ffd945f417bfbdd6ef52e5a617"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/reference_initial_label_v1.py": {
+        "size": 6470,
+        "sha256": "2ae9752cf819044d14910f4129f97cfd61d25959339749aa3122eaba2fdd7eb9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/abstraction_grouped_p2f.py": {
+        "size": 5622,
+        "sha256": "c964ad7c6cf8f80d9d0831f6955ebe651efa7701a3ccf1304d332b421efa8dfc"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/racmr-bench-v1-r1-e2-2/e2_2_runner.py": {
+        "size": 76541,
+        "sha256": "ec1ad7ca8df827ad339cd253f3841ebfe56d91ef5e2aeb37acb79fe57f7179ac"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/model.py": {
+        "size": 6127,
+        "sha256": "3b2c4ebf6c5fdaea9798048835cc11795020a012e7a294733717dd0b35b6a206"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/abstraction.py": {
+        "size": 7736,
+        "sha256": "13089b8ea6c61a2bd6b6d5d77b4f6c40b43fc15074f6feb4fbcb394166795907"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/refinement.py": {
+        "size": 2154,
+        "sha256": "c0918a90913b7f2db0747ba4f0dc4c11302f2386929fe1fbd6c2e96b4ee534f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/result_schema_p2c.json": {
+        "size": 10133,
+        "sha256": "37f82080e8505a8b4d69af8fb0703778fca4c28ef809e9f2726b72bde4494ab6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/round_schema_p2c.json": {
+        "size": 8895,
+        "sha256": "db33755ecc1dc50f5eb3e49521e7dc6145e006b922cdcd8d2236ebb5a3749650"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py": {
+        "size": 49694,
+        "sha256": "29dcdcfb444c4fe9156a91eb8b7ceaaaee6286ebbae80c3606de96456256bfa0"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/semantic_contract.json": {
+        "size": 453,
+        "sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/terminal_status_contract_p2b.json": {
+        "size": 2323,
+        "sha256": "1dd0f5257657d0ba26da61b92b20da5b5927d5d4606df6cd6bfd3fa9975145e7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/p2c_schema_contract.py": {
+        "size": 6259,
+        "sha256": "69c1f198290a071c1f598f8f5dba8254920f7d61a3e55d3798ce6acf46ad837e"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/certificate_verifier_initial_label_v1.py": {
+        "size": 17515,
+        "sha256": "c3f2888fd5e5841015c74a602308d05a059891cf0e86553c59e6186f86a94704"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_experiment_a_missing_data_repair_20261004/final_campaign_receipt.json": {
+        "size": 21050,
+        "sha256": "1d1f0d5fc2bbbcbffd3b448fcf2b39e066946198af003667bb4e17d150cdaa57"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/execution_binding.json": {
+        "size": 2591711,
+        "sha256": "9c82640d06ee2388e5a809ab3a20c6a92c532036a1df3e43bc1acdb372f3f044"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/manifests/manifest.json": {
+        "size": 178206,
+        "sha256": "34baf18783170ddb7762b4ef4b01941e8de76c4a27d36d91f73f7b597648c358"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S1.json": {
+        "size": 2879,
+        "sha256": "e401f102dc90544e5df8a9e202dca8e8741fb4b0899362f7697e4b3012085f1d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C1-T1.json": {
+        "size": 2811,
+        "sha256": "826111129978ea43e3e8a6a20b9723ce2e675b1a45bac0afd645642e1e900312"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/D3-1.json": {
+        "size": 841,
+        "sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py": {
+        "size": 20830,
+        "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution.py": {
+        "size": 5367,
+        "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py": {
+        "size": 4021,
+        "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/models.py": {
+        "size": 3108,
+        "sha256": "c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py": {
+        "size": 6467,
+        "sha256": "0d9610b6c9eac1899bf800371dd796728f0235b2ba7aa7e400e7699c743d8278"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/A-T1-M0-A-S-BRANCH.json": {
+        "size": 4434,
+        "sha256": "a3801ead07da2b74673a79b2ca09f977af4fbe7e0a837a1c0f4b6c2cbb50b846"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/EXT-L2L-G01.json": {
+        "size": 1477,
+        "sha256": "273ddb6f6e0ffd31be61b5fee66766490ad85800065c1f9f00771b5fdffdbc96"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S2.json": {
+        "size": 4455,
+        "sha256": "f6a60a8dedb34d8d8fa759b717c65105c902a36bb777372f44cac37cf239fe07"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C2-T3.json": {
+        "size": 2849,
+        "sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C3-T4.json": {
+        "size": 2759,
+        "sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f"
+      }
+    },
+    "search_fixed": {
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/buchi.py": {
+        "size": 6180,
+        "sha256": "7c83483cc119beca2b982831003a3889864982661de3e04ce740767727039b72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py": {
+        "size": 27763,
+        "sha256": "556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/irl.py": {
+        "size": 4660,
+        "sha256": "d53a06d1eced93a76f4437ba003f17e8e1ceca5a9a4a2c55fea3f33b1329e2c8"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ltl_planner.py": {
+        "size": 14916,
+        "sha256": "3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/product.py": {
+        "size": 17058,
+        "sha256": "74fc26ec60964c3a8fe313c7b7247aa28efe37c3be29155b659f28cc74c2d103"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ts.py": {
+        "size": 6791,
+        "sha256": "08ae086ebb8212f6eeb24110c63a73c3832bef95be0601ad8a40fa2a42792d0d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_discrete_plan.py": {
+        "size": 49514,
+        "sha256": "e9324bf03654dc97fb2225c5173b02c664950ff45998e3d22043994babe77536"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_irl.py": {
+        "size": 17340,
+        "sha256": "60e40979ecbb42b88330b166afaf222e346d2691b083e9eb34939fdd46dbc037"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_ltl_planner.py": {
+        "size": 23630,
+        "sha256": "9d38b1440e8a1210326c9cadae6b079e7f559af3232e20518e124352339b6dbb"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_product.py": {
+        "size": 30347,
+        "sha256": "0e890bcd00826696ee1613f1a6923ec51bdc0113ae10a1315708d4efc89363b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/README.md": {
+        "size": 5245,
+        "sha256": "37deba9b6ba470c55be50a2e2ed699b32ce2ed3a796393b8487e77300fd7a86d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/bound_runner.py": {
+        "size": 18851,
+        "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/dds_real.py": {
+        "size": 8665,
+        "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/runner.py": {
+        "size": 15393,
+        "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/selection.json": {
+        "size": 7263,
+        "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verifier_checks.py": {
+        "size": 5954,
+        "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verify_small.py": {
+        "size": 4509,
+        "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py": {
+        "size": 23223,
+        "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/backend.py": {
+        "size": 9102,
+        "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/README.md": {
+        "size": 2712,
+        "sha256": "65e7773fe279d4392a570e7925a8cf185976bfed81b5d41f7d5e54776211d8e4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/runtime.py": {
+        "size": 20890,
+        "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/verify_smoke.py": {
+        "size": 10240,
+        "sha256": "f296e44edd5a58d52812e8fc3f269bffbfb7d3810677675eeda27b74ea3eea69"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/dds_smoke.py": {
+        "size": 51951,
+        "sha256": "04391e39f325ca4e3bcff4a05857f4258ae5fa0c082c2ca5e85043ee177c8e1c"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/README.md": {
+        "size": 4805,
+        "sha256": "1b6f49afa526f31cdb6f82a5d3612ba45a5ba01ee30d9c2dace9dd3b103eba97"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/formal_runner_p2b.py": {
+        "size": 48637,
+        "sha256": "bc2766ca63972a276fc6d05bef4f0ded0c96acfeb68df35eec680bc2fdd170f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2d_control_cohort_interface_20261001/control_cohort_loader_p2d.py": {
+        "size": 1247,
+        "sha256": "5f7075407b6519e4dffc263cb95244f05015898c43db8bb42a7a9461f981e5c9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/certificate_path_binding_p2e.py": {
+        "size": 4260,
+        "sha256": "fd3ab2463fcf9f98be500422e064bdc29ac00e666be56a6b83959bd447c44869"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/solver.py": {
+        "size": 13986,
+        "sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_pilot_binding_p2c_20260930/binding_validation_p2c.py": {
+        "size": 1588,
+        "sha256": "381d88bf4963d1d6d6de9283b498e1817569978dcc19a2ba639a74778031d1e9"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/certificate.py": {
+        "size": 848,
+        "sha256": "608a606dd4f24b46b72c9d32ef2fcf6aa3cd2c20f3e450f2a84abf995fa5145d"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/concretization.py": {
+        "size": 9972,
+        "sha256": "10975a2e98ff318607098c508853e3e65d4074ffd945f417bfbdd6ef52e5a617"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/reference_initial_label_v1.py": {
+        "size": 6470,
+        "sha256": "2ae9752cf819044d14910f4129f97cfd61d25959339749aa3122eaba2fdd7eb9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/abstraction_grouped_p2f.py": {
+        "size": 5622,
+        "sha256": "c964ad7c6cf8f80d9d0831f6955ebe651efa7701a3ccf1304d332b421efa8dfc"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/racmr-bench-v1-r1-e2-2/e2_2_runner.py": {
+        "size": 76541,
+        "sha256": "ec1ad7ca8df827ad339cd253f3841ebfe56d91ef5e2aeb37acb79fe57f7179ac"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/model.py": {
+        "size": 6127,
+        "sha256": "3b2c4ebf6c5fdaea9798048835cc11795020a012e7a294733717dd0b35b6a206"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/abstraction.py": {
+        "size": 7736,
+        "sha256": "13089b8ea6c61a2bd6b6d5d77b4f6c40b43fc15074f6feb4fbcb394166795907"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/refinement.py": {
+        "size": 2154,
+        "sha256": "c0918a90913b7f2db0747ba4f0dc4c11302f2386929fe1fbd6c2e96b4ee534f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/result_schema_p2c.json": {
+        "size": 10133,
+        "sha256": "37f82080e8505a8b4d69af8fb0703778fca4c28ef809e9f2726b72bde4494ab6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/round_schema_p2c.json": {
+        "size": 8895,
+        "sha256": "db33755ecc1dc50f5eb3e49521e7dc6145e006b922cdcd8d2236ebb5a3749650"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py": {
+        "size": 49694,
+        "sha256": "29dcdcfb444c4fe9156a91eb8b7ceaaaee6286ebbae80c3606de96456256bfa0"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/semantic_contract.json": {
+        "size": 453,
+        "sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/terminal_status_contract_p2b.json": {
+        "size": 2323,
+        "sha256": "1dd0f5257657d0ba26da61b92b20da5b5927d5d4606df6cd6bfd3fa9975145e7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/p2c_schema_contract.py": {
+        "size": 6259,
+        "sha256": "69c1f198290a071c1f598f8f5dba8254920f7d61a3e55d3798ce6acf46ad837e"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/certificate_verifier_initial_label_v1.py": {
+        "size": 17515,
+        "sha256": "c3f2888fd5e5841015c74a602308d05a059891cf0e86553c59e6186f86a94704"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_experiment_a_missing_data_repair_20261004/final_campaign_receipt.json": {
+        "size": 21050,
+        "sha256": "1d1f0d5fc2bbbcbffd3b448fcf2b39e066946198af003667bb4e17d150cdaa57"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/execution_binding.json": {
+        "size": 2591711,
+        "sha256": "9c82640d06ee2388e5a809ab3a20c6a92c532036a1df3e43bc1acdb372f3f044"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/manifests/manifest.json": {
+        "size": 178206,
+        "sha256": "34baf18783170ddb7762b4ef4b01941e8de76c4a27d36d91f73f7b597648c358"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S1.json": {
+        "size": 2879,
+        "sha256": "e401f102dc90544e5df8a9e202dca8e8741fb4b0899362f7697e4b3012085f1d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C1-T1.json": {
+        "size": 2811,
+        "sha256": "826111129978ea43e3e8a6a20b9723ce2e675b1a45bac0afd645642e1e900312"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/D3-1.json": {
+        "size": 841,
+        "sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py": {
+        "size": 20830,
+        "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution.py": {
+        "size": 5367,
+        "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py": {
+        "size": 4021,
+        "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/models.py": {
+        "size": 3108,
+        "sha256": "c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py": {
+        "size": 6467,
+        "sha256": "0d9610b6c9eac1899bf800371dd796728f0235b2ba7aa7e400e7699c743d8278"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/A-T1-M0-A-S-BRANCH.json": {
+        "size": 4434,
+        "sha256": "a3801ead07da2b74673a79b2ca09f977af4fbe7e0a837a1c0f4b6c2cbb50b846"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/EXT-L2L-G01.json": {
+        "size": 1477,
+        "sha256": "273ddb6f6e0ffd31be61b5fee66766490ad85800065c1f9f00771b5fdffdbc96"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S2.json": {
+        "size": 4455,
+        "sha256": "f6a60a8dedb34d8d8fa759b717c65105c902a36bb777372f44cac37cf239fe07"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C2-T3.json": {
+        "size": 2849,
+        "sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C3-T4.json": {
+        "size": 2759,
+        "sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f"
+      }
+    },
+    "failure_prepare": {
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/buchi.py": {
+        "size": 6180,
+        "sha256": "7c83483cc119beca2b982831003a3889864982661de3e04ce740767727039b72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py": {
+        "size": 27763,
+        "sha256": "556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/irl.py": {
+        "size": 4660,
+        "sha256": "d53a06d1eced93a76f4437ba003f17e8e1ceca5a9a4a2c55fea3f33b1329e2c8"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ltl_planner.py": {
+        "size": 14916,
+        "sha256": "3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/product.py": {
+        "size": 17058,
+        "sha256": "74fc26ec60964c3a8fe313c7b7247aa28efe37c3be29155b659f28cc74c2d103"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ts.py": {
+        "size": 6791,
+        "sha256": "08ae086ebb8212f6eeb24110c63a73c3832bef95be0601ad8a40fa2a42792d0d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_discrete_plan.py": {
+        "size": 49514,
+        "sha256": "e9324bf03654dc97fb2225c5173b02c664950ff45998e3d22043994babe77536"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_irl.py": {
+        "size": 17340,
+        "sha256": "60e40979ecbb42b88330b166afaf222e346d2691b083e9eb34939fdd46dbc037"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_ltl_planner.py": {
+        "size": 23630,
+        "sha256": "9d38b1440e8a1210326c9cadae6b079e7f559af3232e20518e124352339b6dbb"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_product.py": {
+        "size": 30347,
+        "sha256": "0e890bcd00826696ee1613f1a6923ec51bdc0113ae10a1315708d4efc89363b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/README.md": {
+        "size": 5245,
+        "sha256": "37deba9b6ba470c55be50a2e2ed699b32ce2ed3a796393b8487e77300fd7a86d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/bound_runner.py": {
+        "size": 18851,
+        "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/dds_real.py": {
+        "size": 8665,
+        "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/runner.py": {
+        "size": 15393,
+        "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/selection.json": {
+        "size": 7263,
+        "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verifier_checks.py": {
+        "size": 5954,
+        "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verify_small.py": {
+        "size": 4509,
+        "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py": {
+        "size": 23223,
+        "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/backend.py": {
+        "size": 9102,
+        "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/README.md": {
+        "size": 2712,
+        "sha256": "65e7773fe279d4392a570e7925a8cf185976bfed81b5d41f7d5e54776211d8e4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/runtime.py": {
+        "size": 20890,
+        "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/verify_smoke.py": {
+        "size": 10240,
+        "sha256": "f296e44edd5a58d52812e8fc3f269bffbfb7d3810677675eeda27b74ea3eea69"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/dds_smoke.py": {
+        "size": 51951,
+        "sha256": "04391e39f325ca4e3bcff4a05857f4258ae5fa0c082c2ca5e85043ee177c8e1c"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/README.md": {
+        "size": 4805,
+        "sha256": "1b6f49afa526f31cdb6f82a5d3612ba45a5ba01ee30d9c2dace9dd3b103eba97"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/formal_runner_p2b.py": {
+        "size": 48637,
+        "sha256": "bc2766ca63972a276fc6d05bef4f0ded0c96acfeb68df35eec680bc2fdd170f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2d_control_cohort_interface_20261001/control_cohort_loader_p2d.py": {
+        "size": 1247,
+        "sha256": "5f7075407b6519e4dffc263cb95244f05015898c43db8bb42a7a9461f981e5c9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/certificate_path_binding_p2e.py": {
+        "size": 4260,
+        "sha256": "fd3ab2463fcf9f98be500422e064bdc29ac00e666be56a6b83959bd447c44869"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/solver.py": {
+        "size": 13986,
+        "sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_pilot_binding_p2c_20260930/binding_validation_p2c.py": {
+        "size": 1588,
+        "sha256": "381d88bf4963d1d6d6de9283b498e1817569978dcc19a2ba639a74778031d1e9"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/certificate.py": {
+        "size": 848,
+        "sha256": "608a606dd4f24b46b72c9d32ef2fcf6aa3cd2c20f3e450f2a84abf995fa5145d"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/concretization.py": {
+        "size": 9972,
+        "sha256": "10975a2e98ff318607098c508853e3e65d4074ffd945f417bfbdd6ef52e5a617"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/reference_initial_label_v1.py": {
+        "size": 6470,
+        "sha256": "2ae9752cf819044d14910f4129f97cfd61d25959339749aa3122eaba2fdd7eb9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/abstraction_grouped_p2f.py": {
+        "size": 5622,
+        "sha256": "c964ad7c6cf8f80d9d0831f6955ebe651efa7701a3ccf1304d332b421efa8dfc"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/racmr-bench-v1-r1-e2-2/e2_2_runner.py": {
+        "size": 76541,
+        "sha256": "ec1ad7ca8df827ad339cd253f3841ebfe56d91ef5e2aeb37acb79fe57f7179ac"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/model.py": {
+        "size": 6127,
+        "sha256": "3b2c4ebf6c5fdaea9798048835cc11795020a012e7a294733717dd0b35b6a206"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/abstraction.py": {
+        "size": 7736,
+        "sha256": "13089b8ea6c61a2bd6b6d5d77b4f6c40b43fc15074f6feb4fbcb394166795907"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/refinement.py": {
+        "size": 2154,
+        "sha256": "c0918a90913b7f2db0747ba4f0dc4c11302f2386929fe1fbd6c2e96b4ee534f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/result_schema_p2c.json": {
+        "size": 10133,
+        "sha256": "37f82080e8505a8b4d69af8fb0703778fca4c28ef809e9f2726b72bde4494ab6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/round_schema_p2c.json": {
+        "size": 8895,
+        "sha256": "db33755ecc1dc50f5eb3e49521e7dc6145e006b922cdcd8d2236ebb5a3749650"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py": {
+        "size": 49694,
+        "sha256": "29dcdcfb444c4fe9156a91eb8b7ceaaaee6286ebbae80c3606de96456256bfa0"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/semantic_contract.json": {
+        "size": 453,
+        "sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/terminal_status_contract_p2b.json": {
+        "size": 2323,
+        "sha256": "1dd0f5257657d0ba26da61b92b20da5b5927d5d4606df6cd6bfd3fa9975145e7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/p2c_schema_contract.py": {
+        "size": 6259,
+        "sha256": "69c1f198290a071c1f598f8f5dba8254920f7d61a3e55d3798ce6acf46ad837e"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/certificate_verifier_initial_label_v1.py": {
+        "size": 17515,
+        "sha256": "c3f2888fd5e5841015c74a602308d05a059891cf0e86553c59e6186f86a94704"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_experiment_a_missing_data_repair_20261004/final_campaign_receipt.json": {
+        "size": 21050,
+        "sha256": "1d1f0d5fc2bbbcbffd3b448fcf2b39e066946198af003667bb4e17d150cdaa57"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/execution_binding.json": {
+        "size": 2591711,
+        "sha256": "9c82640d06ee2388e5a809ab3a20c6a92c532036a1df3e43bc1acdb372f3f044"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/manifests/manifest.json": {
+        "size": 178206,
+        "sha256": "34baf18783170ddb7762b4ef4b01941e8de76c4a27d36d91f73f7b597648c358"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S1.json": {
+        "size": 2879,
+        "sha256": "e401f102dc90544e5df8a9e202dca8e8741fb4b0899362f7697e4b3012085f1d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C1-T1.json": {
+        "size": 2811,
+        "sha256": "826111129978ea43e3e8a6a20b9723ce2e675b1a45bac0afd645642e1e900312"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/D3-1.json": {
+        "size": 841,
+        "sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py": {
+        "size": 20830,
+        "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution.py": {
+        "size": 5367,
+        "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py": {
+        "size": 4021,
+        "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/models.py": {
+        "size": 3108,
+        "sha256": "c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py": {
+        "size": 6467,
+        "sha256": "0d9610b6c9eac1899bf800371dd796728f0235b2ba7aa7e400e7699c743d8278"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/A-T1-M0-A-S-BRANCH.json": {
+        "size": 4434,
+        "sha256": "a3801ead07da2b74673a79b2ca09f977af4fbe7e0a837a1c0f4b6c2cbb50b846"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/EXT-L2L-G01.json": {
+        "size": 1477,
+        "sha256": "273ddb6f6e0ffd31be61b5fee66766490ad85800065c1f9f00771b5fdffdbc96"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S2.json": {
+        "size": 4455,
+        "sha256": "f6a60a8dedb34d8d8fa759b717c65105c902a36bb777372f44cac37cf239fe07"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C2-T3.json": {
+        "size": 2849,
+        "sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C3-T4.json": {
+        "size": 2759,
+        "sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/D1-1.json": {
+        "size": 864,
+        "sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71"
+      }
+    },
+    "failure_args_output": {
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/buchi.py": {
+        "size": 6180,
+        "sha256": "7c83483cc119beca2b982831003a3889864982661de3e04ce740767727039b72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py": {
+        "size": 27763,
+        "sha256": "556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/irl.py": {
+        "size": 4660,
+        "sha256": "d53a06d1eced93a76f4437ba003f17e8e1ceca5a9a4a2c55fea3f33b1329e2c8"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ltl_planner.py": {
+        "size": 14916,
+        "sha256": "3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/product.py": {
+        "size": 17058,
+        "sha256": "74fc26ec60964c3a8fe313c7b7247aa28efe37c3be29155b659f28cc74c2d103"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ts.py": {
+        "size": 6791,
+        "sha256": "08ae086ebb8212f6eeb24110c63a73c3832bef95be0601ad8a40fa2a42792d0d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_discrete_plan.py": {
+        "size": 49514,
+        "sha256": "e9324bf03654dc97fb2225c5173b02c664950ff45998e3d22043994babe77536"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_irl.py": {
+        "size": 17340,
+        "sha256": "60e40979ecbb42b88330b166afaf222e346d2691b083e9eb34939fdd46dbc037"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_ltl_planner.py": {
+        "size": 23630,
+        "sha256": "9d38b1440e8a1210326c9cadae6b079e7f559af3232e20518e124352339b6dbb"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_product.py": {
+        "size": 30347,
+        "sha256": "0e890bcd00826696ee1613f1a6923ec51bdc0113ae10a1315708d4efc89363b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/README.md": {
+        "size": 5245,
+        "sha256": "37deba9b6ba470c55be50a2e2ed699b32ce2ed3a796393b8487e77300fd7a86d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/bound_runner.py": {
+        "size": 18851,
+        "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/dds_real.py": {
+        "size": 8665,
+        "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/runner.py": {
+        "size": 15393,
+        "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/selection.json": {
+        "size": 7263,
+        "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verifier_checks.py": {
+        "size": 5954,
+        "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verify_small.py": {
+        "size": 4509,
+        "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py": {
+        "size": 23223,
+        "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/backend.py": {
+        "size": 9102,
+        "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/README.md": {
+        "size": 2712,
+        "sha256": "65e7773fe279d4392a570e7925a8cf185976bfed81b5d41f7d5e54776211d8e4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/runtime.py": {
+        "size": 20890,
+        "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/verify_smoke.py": {
+        "size": 10240,
+        "sha256": "f296e44edd5a58d52812e8fc3f269bffbfb7d3810677675eeda27b74ea3eea69"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/dds_smoke.py": {
+        "size": 51951,
+        "sha256": "04391e39f325ca4e3bcff4a05857f4258ae5fa0c082c2ca5e85043ee177c8e1c"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/README.md": {
+        "size": 4805,
+        "sha256": "1b6f49afa526f31cdb6f82a5d3612ba45a5ba01ee30d9c2dace9dd3b103eba97"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/formal_runner_p2b.py": {
+        "size": 48637,
+        "sha256": "bc2766ca63972a276fc6d05bef4f0ded0c96acfeb68df35eec680bc2fdd170f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2d_control_cohort_interface_20261001/control_cohort_loader_p2d.py": {
+        "size": 1247,
+        "sha256": "5f7075407b6519e4dffc263cb95244f05015898c43db8bb42a7a9461f981e5c9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/certificate_path_binding_p2e.py": {
+        "size": 4260,
+        "sha256": "fd3ab2463fcf9f98be500422e064bdc29ac00e666be56a6b83959bd447c44869"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/solver.py": {
+        "size": 13986,
+        "sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_pilot_binding_p2c_20260930/binding_validation_p2c.py": {
+        "size": 1588,
+        "sha256": "381d88bf4963d1d6d6de9283b498e1817569978dcc19a2ba639a74778031d1e9"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/certificate.py": {
+        "size": 848,
+        "sha256": "608a606dd4f24b46b72c9d32ef2fcf6aa3cd2c20f3e450f2a84abf995fa5145d"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/concretization.py": {
+        "size": 9972,
+        "sha256": "10975a2e98ff318607098c508853e3e65d4074ffd945f417bfbdd6ef52e5a617"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/reference_initial_label_v1.py": {
+        "size": 6470,
+        "sha256": "2ae9752cf819044d14910f4129f97cfd61d25959339749aa3122eaba2fdd7eb9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/abstraction_grouped_p2f.py": {
+        "size": 5622,
+        "sha256": "c964ad7c6cf8f80d9d0831f6955ebe651efa7701a3ccf1304d332b421efa8dfc"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/racmr-bench-v1-r1-e2-2/e2_2_runner.py": {
+        "size": 76541,
+        "sha256": "ec1ad7ca8df827ad339cd253f3841ebfe56d91ef5e2aeb37acb79fe57f7179ac"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/model.py": {
+        "size": 6127,
+        "sha256": "3b2c4ebf6c5fdaea9798048835cc11795020a012e7a294733717dd0b35b6a206"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/abstraction.py": {
+        "size": 7736,
+        "sha256": "13089b8ea6c61a2bd6b6d5d77b4f6c40b43fc15074f6feb4fbcb394166795907"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/refinement.py": {
+        "size": 2154,
+        "sha256": "c0918a90913b7f2db0747ba4f0dc4c11302f2386929fe1fbd6c2e96b4ee534f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/result_schema_p2c.json": {
+        "size": 10133,
+        "sha256": "37f82080e8505a8b4d69af8fb0703778fca4c28ef809e9f2726b72bde4494ab6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/round_schema_p2c.json": {
+        "size": 8895,
+        "sha256": "db33755ecc1dc50f5eb3e49521e7dc6145e006b922cdcd8d2236ebb5a3749650"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py": {
+        "size": 49694,
+        "sha256": "29dcdcfb444c4fe9156a91eb8b7ceaaaee6286ebbae80c3606de96456256bfa0"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/semantic_contract.json": {
+        "size": 453,
+        "sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/terminal_status_contract_p2b.json": {
+        "size": 2323,
+        "sha256": "1dd0f5257657d0ba26da61b92b20da5b5927d5d4606df6cd6bfd3fa9975145e7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/p2c_schema_contract.py": {
+        "size": 6259,
+        "sha256": "69c1f198290a071c1f598f8f5dba8254920f7d61a3e55d3798ce6acf46ad837e"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/certificate_verifier_initial_label_v1.py": {
+        "size": 17515,
+        "sha256": "c3f2888fd5e5841015c74a602308d05a059891cf0e86553c59e6186f86a94704"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_experiment_a_missing_data_repair_20261004/final_campaign_receipt.json": {
+        "size": 21050,
+        "sha256": "1d1f0d5fc2bbbcbffd3b448fcf2b39e066946198af003667bb4e17d150cdaa57"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/execution_binding.json": {
+        "size": 2591711,
+        "sha256": "9c82640d06ee2388e5a809ab3a20c6a92c532036a1df3e43bc1acdb372f3f044"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/manifests/manifest.json": {
+        "size": 178206,
+        "sha256": "34baf18783170ddb7762b4ef4b01941e8de76c4a27d36d91f73f7b597648c358"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S1.json": {
+        "size": 2879,
+        "sha256": "e401f102dc90544e5df8a9e202dca8e8741fb4b0899362f7697e4b3012085f1d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C1-T1.json": {
+        "size": 2811,
+        "sha256": "826111129978ea43e3e8a6a20b9723ce2e675b1a45bac0afd645642e1e900312"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/D3-1.json": {
+        "size": 841,
+        "sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py": {
+        "size": 20830,
+        "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution.py": {
+        "size": 5367,
+        "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py": {
+        "size": 4021,
+        "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/models.py": {
+        "size": 3108,
+        "sha256": "c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py": {
+        "size": 6467,
+        "sha256": "0d9610b6c9eac1899bf800371dd796728f0235b2ba7aa7e400e7699c743d8278"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/A-T1-M0-A-S-BRANCH.json": {
+        "size": 4434,
+        "sha256": "a3801ead07da2b74673a79b2ca09f977af4fbe7e0a837a1c0f4b6c2cbb50b846"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/EXT-L2L-G01.json": {
+        "size": 1477,
+        "sha256": "273ddb6f6e0ffd31be61b5fee66766490ad85800065c1f9f00771b5fdffdbc96"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S2.json": {
+        "size": 4455,
+        "sha256": "f6a60a8dedb34d8d8fa759b717c65105c902a36bb777372f44cac37cf239fe07"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C2-T3.json": {
+        "size": 2849,
+        "sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C3-T4.json": {
+        "size": 2759,
+        "sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/D1-1.json": {
+        "size": 864,
+        "sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71"
+      }
+    },
+    "failure_fixed2": {
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/buchi.py": {
+        "size": 6180,
+        "sha256": "7c83483cc119beca2b982831003a3889864982661de3e04ce740767727039b72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py": {
+        "size": 27763,
+        "sha256": "556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/irl.py": {
+        "size": 4660,
+        "sha256": "d53a06d1eced93a76f4437ba003f17e8e1ceca5a9a4a2c55fea3f33b1329e2c8"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ltl_planner.py": {
+        "size": 14916,
+        "sha256": "3ecebbc14a354d436cf44a16dc5b73b3e5d4fe92c8fe7c25b3b15b11b3bf6943"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/product.py": {
+        "size": 17058,
+        "sha256": "74fc26ec60964c3a8fe313c7b7247aa28efe37c3be29155b659f28cc74c2d103"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/ts.py": {
+        "size": 6791,
+        "sha256": "08ae086ebb8212f6eeb24110c63a73c3832bef95be0601ad8a40fa2a42792d0d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_discrete_plan.py": {
+        "size": 49514,
+        "sha256": "e9324bf03654dc97fb2225c5173b02c664950ff45998e3d22043994babe77536"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_irl.py": {
+        "size": 17340,
+        "sha256": "60e40979ecbb42b88330b166afaf222e346d2691b083e9eb34939fdd46dbc037"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_ltl_planner.py": {
+        "size": 23630,
+        "sha256": "9d38b1440e8a1210326c9cadae6b079e7f559af3232e20518e124352339b6dbb"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_planner_core/test/test_product.py": {
+        "size": 30347,
+        "sha256": "0e890bcd00826696ee1613f1a6923ec51bdc0113ae10a1315708d4efc89363b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/README.md": {
+        "size": 5245,
+        "sha256": "37deba9b6ba470c55be50a2e2ed699b32ce2ed3a796393b8487e77300fd7a86d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/bound_runner.py": {
+        "size": 18851,
+        "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/dds_real.py": {
+        "size": 8665,
+        "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/runner.py": {
+        "size": 15393,
+        "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/selection.json": {
+        "size": 7263,
+        "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verifier_checks.py": {
+        "size": 5954,
+        "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_real/verify_small.py": {
+        "size": 4509,
+        "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/smoke.py": {
+        "size": 23223,
+        "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/backend.py": {
+        "size": 9102,
+        "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_smoke/README.md": {
+        "size": 2712,
+        "sha256": "65e7773fe279d4392a570e7925a8cf185976bfed81b5d41f7d5e54776211d8e4"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/runtime.py": {
+        "size": 20890,
+        "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/verify_smoke.py": {
+        "size": 10240,
+        "sha256": "f296e44edd5a58d52812e8fc3f269bffbfb7d3810677675eeda27b74ea3eea69"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/dds_smoke.py": {
+        "size": 51951,
+        "sha256": "04391e39f325ca4e3bcff4a05857f4258ae5fa0c082c2ca5e85043ee177c8e1c"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/README.md": {
+        "size": 4805,
+        "sha256": "1b6f49afa526f31cdb6f82a5d3612ba45a5ba01ee30d9c2dace9dd3b103eba97"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/formal_runner_p2b.py": {
+        "size": 48637,
+        "sha256": "bc2766ca63972a276fc6d05bef4f0ded0c96acfeb68df35eec680bc2fdd170f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2d_control_cohort_interface_20261001/control_cohort_loader_p2d.py": {
+        "size": 1247,
+        "sha256": "5f7075407b6519e4dffc263cb95244f05015898c43db8bb42a7a9461f981e5c9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/certificate_path_binding_p2e.py": {
+        "size": 4260,
+        "sha256": "fd3ab2463fcf9f98be500422e064bdc29ac00e666be56a6b83959bd447c44869"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/solver.py": {
+        "size": 13986,
+        "sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_pilot_binding_p2c_20260930/binding_validation_p2c.py": {
+        "size": 1588,
+        "sha256": "381d88bf4963d1d6d6de9283b498e1817569978dcc19a2ba639a74778031d1e9"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/certificate.py": {
+        "size": 848,
+        "sha256": "608a606dd4f24b46b72c9d32ef2fcf6aa3cd2c20f3e450f2a84abf995fa5145d"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/concretization.py": {
+        "size": 9972,
+        "sha256": "10975a2e98ff318607098c508853e3e65d4074ffd945f417bfbdd6ef52e5a617"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/reference_initial_label_v1.py": {
+        "size": 6470,
+        "sha256": "2ae9752cf819044d14910f4129f97cfd61d25959339749aa3122eaba2fdd7eb9"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/abstraction_grouped_p2f.py": {
+        "size": 5622,
+        "sha256": "c964ad7c6cf8f80d9d0831f6955ebe651efa7701a3ccf1304d332b421efa8dfc"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/racmr-bench-v1-r1-e2-2/e2_2_runner.py": {
+        "size": 76541,
+        "sha256": "ec1ad7ca8df827ad339cd253f3841ebfe56d91ef5e2aeb37acb79fe57f7179ac"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/model.py": {
+        "size": 6127,
+        "sha256": "3b2c4ebf6c5fdaea9798048835cc11795020a012e7a294733717dd0b35b6a206"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/abstraction.py": {
+        "size": 7736,
+        "sha256": "13089b8ea6c61a2bd6b6d5d77b4f6c40b43fc15074f6feb4fbcb394166795907"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/refinement.py": {
+        "size": 2154,
+        "sha256": "c0918a90913b7f2db0747ba4f0dc4c11302f2386929fe1fbd6c2e96b4ee534f3"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/result_schema_p2c.json": {
+        "size": 10133,
+        "sha256": "37f82080e8505a8b4d69af8fb0703778fca4c28ef809e9f2726b72bde4494ab6"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/round_schema_p2c.json": {
+        "size": 8895,
+        "sha256": "db33755ecc1dc50f5eb3e49521e7dc6145e006b922cdcd8d2236ebb5a3749650"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py": {
+        "size": 49694,
+        "sha256": "29dcdcfb444c4fe9156a91eb8b7ceaaaee6286ebbae80c3606de96456256bfa0"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/semantic_contract.json": {
+        "size": 453,
+        "sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/terminal_status_contract_p2b.json": {
+        "size": 2323,
+        "sha256": "1dd0f5257657d0ba26da61b92b20da5b5927d5d4606df6cd6bfd3fa9975145e7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2c_schema_compatibility_20260930/p2c_schema_contract.py": {
+        "size": 6259,
+        "sha256": "69c1f198290a071c1f598f8f5dba8254920f7d61a3e55d3798ce6acf46ad837e"
+      },
+      "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2b_exact_empty_repair_20260929_01/certificate_verifier_initial_label_v1.py": {
+        "size": 17515,
+        "sha256": "c3f2888fd5e5841015c74a602308d05a059891cf0e86553c59e6186f86a94704"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_experiment_a_missing_data_repair_20261004/final_campaign_receipt.json": {
+        "size": 21050,
+        "sha256": "1d1f0d5fc2bbbcbffd3b448fcf2b39e066946198af003667bb4e17d150cdaa57"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/execution_binding.json": {
+        "size": 2591711,
+        "sha256": "9c82640d06ee2388e5a809ab3a20c6a92c532036a1df3e43bc1acdb372f3f044"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/manifests/manifest.json": {
+        "size": 178206,
+        "sha256": "34baf18783170ddb7762b4ef4b01941e8de76c4a27d36d91f73f7b597648c358"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S1.json": {
+        "size": 2879,
+        "sha256": "e401f102dc90544e5df8a9e202dca8e8741fb4b0899362f7697e4b3012085f1d"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C1-T1.json": {
+        "size": 2811,
+        "sha256": "826111129978ea43e3e8a6a20b9723ce2e675b1a45bac0afd645642e1e900312"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/D3-1.json": {
+        "size": 841,
+        "sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py": {
+        "size": 20830,
+        "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/execution.py": {
+        "size": 5367,
+        "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py": {
+        "size": 4021,
+        "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/models.py": {
+        "size": 3108,
+        "sha256": "c3f2ff8736f28c16fffa6d985adea4ac0198e0146a39340bab27450b2cff6371"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py": {
+        "size": 6467,
+        "sha256": "0d9610b6c9eac1899bf800371dd796728f0235b2ba7aa7e400e7699c743d8278"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/A-T1-M0-A-S-BRANCH.json": {
+        "size": 4434,
+        "sha256": "a3801ead07da2b74673a79b2ca09f977af4fbe7e0a837a1c0f4b6c2cbb50b846"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/EXT-L2L-G01.json": {
+        "size": 1477,
+        "sha256": "273ddb6f6e0ffd31be61b5fee66766490ad85800065c1f9f00771b5fdffdbc96"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/B-D-BRANCH-S2.json": {
+        "size": 4455,
+        "sha256": "f6a60a8dedb34d8d8fa759b717c65105c902a36bb777372f44cac37cf239fe07"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C2-T3.json": {
+        "size": 2849,
+        "sha256": "11433344181ccfe06d3c28510a4678031af36ab86bdaba9e4fecff03b5b0549a"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/C3-T4.json": {
+        "size": 2759,
+        "sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f"
+      },
+      "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_ltl_v2_core_r2_binding_20261002/runtime_benchmark/instances/D1-1.json": {
+        "size": 864,
+        "sha256": "3233bbceedb5ed70dd95a4e5661b4662e2ceaa6ea7ebee8f9aa8778dc9a5bc71"
+      }
+    }
+  },
+  "old_archive_hashes": {
+    "20261012": "399653ff5db57d8aed078f327e35671ddd0255385a500e1ad63ad6f6febea1a6",
+    "20261013_audit_real": "3626a630cccaae0d3f4e765455ddc43cb220a47c149ed84ab89cfce4bcb505d6"
+  },
+  "solver_imported": false,
+  "dispatches_started": 0,
+  "independent_verifier_calls": 0,
+  "historical_reference_comparison": "persisted verdict, exact objective, model hash and initial S0; no new paired timing claim"
+}

@@ -1,0 +1,264 @@
+{
+  "schema": "cmr-current-dds-evidence-index-v1",
+  "status": "PASSED_READBACK",
+  "source_head": "a6c2394e93ed2826d9b2f93bf0b824d85cee9546",
+  "source_checkout": "fresh WSL clone /tmp/cmr_v7_current_dds_source_a6c2394_20261013, clean",
+  "runtime": {
+    "version_binding_id": "CMR_SEARCH_ENTRY_V1-a429239e4704ea06",
+    "version_binding_sha256": "50c5d930f07b953f63eddd9b7c0e095424d3dd555cc8627d2a45e23962302204",
+    "backend": "ros2-v7",
+    "backend_sha256": "c7548808c9fbdd9b69ca4f6ece242b5bfe2b194b8828041b8c6c5d987c009458",
+    "domain_ids": {
+      "search_fixed": 227,
+      "failure_fixed2": 228
+    },
+    "budgets": {
+      "planner_seconds": 180,
+      "outer_watchdog_seconds": 195,
+      "dds_transport_seconds": 210
+    },
+    "server_window_seconds": 205,
+    "driver_transport_window_seconds": 210,
+    "source_closure_delta": {
+      "previous_binding_id": "CMR_SEARCH_ENTRY_V1-e5e7c783aa3465b9",
+      "changed_files": [
+        "experiments/cmr_ros2_search_entry/dds.py"
+      ],
+      "file_count": 56
+    }
+  },
+  "attempts": [
+    {
+      "prefix": "search_import_failure",
+      "namespace": "/tmp/cmr_v7_current_dds_20261013_search",
+      "stage": "child import",
+      "status": "FAILED_BEFORE_REQUEST",
+      "attempted_cases": 3,
+      "server_driver_processes": 6,
+      "dds_requests": 0,
+      "planner_workers": 0,
+      "run_one": 0,
+      "reason": "rclpy import failed before request publication; raw logs retained"
+    },
+    {
+      "prefix": "search_fixed",
+      "namespace": "/tmp/cmr_v7_current_dds_20261013_search_fixed",
+      "stage": "DDS qualification",
+      "status": "PASSED",
+      "cases": [
+        [
+          "A-T1-M0-A-S-BRANCH",
+          "FULL"
+        ],
+        [
+          "B-D-BRANCH-S2",
+          "FULL"
+        ],
+        [
+          "C3-T4",
+          "AP-D"
+        ]
+      ],
+      "dds_requests": 3,
+      "planner_workers": 3,
+      "run_one": 3,
+      "certificate_replays_pass": 3,
+      "outcomes": {
+        "A-T1-M0-A-S-BRANCH/FULL": {
+          "status": "OPTIMALITY_CERTIFIED",
+          "objective": "12"
+        },
+        "B-D-BRANCH-S2/FULL": {
+          "status": "OPTIMALITY_CERTIFIED",
+          "objective": "15"
+        },
+        "C3-T4/AP-D": {
+          "status": "OPTIMALITY_CERTIFIED",
+          "objective": "12"
+        }
+      }
+    },
+    {
+      "prefix": "failure_prepare",
+      "namespace": "/tmp/cmr_v7_current_dds_20261013_failure",
+      "stage": "prepare",
+      "status": "PREPARED_ONLY",
+      "dds_requests": 0,
+      "planner_workers": 0,
+      "run_one": 0,
+      "reason": "failure plan/fixtures only; execution not started"
+    },
+    {
+      "prefix": "failure_args_output",
+      "namespace": "/tmp/cmr_v7_current_dds_20261013_failure_fixed",
+      "stage": "parent reference setup",
+      "status": "FAILED_BEFORE_REQUEST",
+      "dds_requests": 0,
+      "planner_workers": 0,
+      "run_one": 0,
+      "reason": "helper omitted args.output; AttributeError before D1 reference subprocess dispatch"
+    },
+    {
+      "prefix": "failure_fixed2",
+      "namespace": "/tmp/cmr_v7_current_dds_20261013_failure_fixed2",
+      "stage": "DDS failure qualification",
+      "status": "PASSED",
+      "dds_requests": 4,
+      "planner_workers": 4,
+      "run_one": 3,
+      "cases": {
+        "late_delivery": "A/TIMEOUT",
+        "crash": "A/INFRASTRUCTURE_FAILURE",
+        "server_error": "A/ERROR",
+        "none": "D1/INFEASIBLE_CERTIFIED"
+      },
+      "reference": "D1-1 INFEASIBLE_CERTIFIED; no optimal certificate; failure modes have no certificate authority"
+    }
+  ],
+  "totals": {
+    "attempted_datasets": 5,
+    "actual_dds_requests": 7,
+    "actual_planner_workers": 7,
+    "actual_formal_run_one": 6,
+    "optimality_certificate_replays_pass": 3,
+    "provider_external_calls": 0,
+    "formal_campaign": false,
+    "dispatch_actions": 10,
+    "worker_internal_p2f_verifications": 4
+  },
+  "claims": {
+    "old_baseline_modified": false,
+    "synthetic_or_failure_records_are_not_full_campaign": true,
+    "initial_label": "INITIAL_LABEL_V1",
+    "objective_rule": "prefix_cost + 10*suffix_cost",
+    "failure_terminal_has_no_optimal_certificate_authority": true,
+    "failure_has_no_action_or_served_snapshot": true,
+    "late_raw_certificate_retained": true,
+    "worker_internal_p2f_verifications": {
+      "count": 4,
+      "basis": "fixed P2f function source and raw records",
+      "composition": "3 successful search workers plus late raw certified record",
+      "additional_calls": 0
+    }
+  },
+  "files": {
+    "archive_manifest": "archive_manifest.json",
+    "raw_archive": "raw_attempts.zip",
+    "validation_dir": "validation/",
+    "source_snapshots_dir": "source_snapshots/",
+    "readback": "readback.json",
+    "artifact_manifest": "artifact_manifest.json"
+  },
+  "readback": {
+    "path": "readback.json",
+    "status": "PASSED",
+    "archive_members": 685,
+    "source_closure_files": 56,
+    "frozen_inputs_after_snapshots": 5,
+    "dispatch_actions": 10,
+    "readback_initial_failure_preserved": "validation/readback_r1_tool_output.txt",
+    "readback_initial_failure_scope": "initial reader only; no method/DDS rerun"
+  },
+  "validation_summary": {
+    "offline_unit_checks": {
+      "count": 5,
+      "status": "PASS"
+    },
+    "prepare_fixture_shape": {
+      "search_fixture_cases": 14,
+      "entry_fixture_checks": 16
+    },
+    "root_readback": "readback.json PASSED",
+    "initial_readback_failure_preserved": "validation/readback_r1_tool_output.txt",
+    "readback_members": 685,
+    "runtime_source_closure_files": 56
+  },
+  "source_snapshot_mapping": [
+    {
+      "commit": "a6c2394e93ed2826d9b2f93bf0b824d85cee9546",
+      "files": [
+        "source_snapshots/a6c2394_dds.py",
+        "source_snapshots/a6c2394_test_dds_envelope.py",
+        "source_snapshots/a6c2394_failure_dds.py"
+      ],
+      "source_files": {
+        "source_snapshots/a6c2394_dds.py": "experiments/cmr_ros2_search_entry/dds.py",
+        "source_snapshots/a6c2394_test_dds_envelope.py": "experiments/cmr_ros2_search_entry/test_dds_envelope.py",
+        "source_snapshots/a6c2394_failure_dds.py": "experiments/cmr_ros2_search_entry/failure_dds.py"
+      }
+    },
+    {
+      "commit": "f1bcae9867ab6a83aef63ccc12da02764d6d5274",
+      "files": [
+        "source_snapshots/f1bcae9_dds.py"
+      ],
+      "source_files": {
+        "source_snapshots/f1bcae9_dds.py": "experiments/cmr_ros2_search_entry/dds.py"
+      }
+    },
+    {
+      "commit": "46cb5a52c4dd6dfee4440c23b2a377e168829d77",
+      "files": [
+        "source_snapshots/46cb5a5_dds.py"
+      ],
+      "source_files": {
+        "source_snapshots/46cb5a5_dds.py": "experiments/cmr_ros2_search_entry/dds.py"
+      }
+    }
+  ],
+  "not_validated": {
+    "broader_formal_campaign": true,
+    "zero_cost_worker_or_dds": true,
+    "cooperative_watchdog": true,
+    "provider_external_calls": 0
+  },
+  "artifact_manifest": {
+    "path": "artifact_manifest.json",
+    "size": 5494,
+    "sha256": "9869e0d721259cd3d0b196755741ba949e09addfb5401a545e17a3835ad7501e",
+    "file_count": 32
+  },
+  "internal_certificate_verifier_basis": {
+    "count": 4,
+    "basis": "Inferred from the frozen P2f persisted-certificate call path and its four raw certified rows; not new readback verifier invocations",
+    "source_path": "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py",
+    "source_sha256": "29dcdcfb444c4fe9156a91eb8b7ceaaaee6286ebbae80c3606de96456256bfa0",
+    "records": [
+      {
+        "path": "failure_fixed2/dds_failures/dds_late_delivery/cmr_attempt/runner_raw_result.json",
+        "certificate": "failure_fixed2/dds_failures/dds_late_delivery/cmr_attempt/certificates/A-T1-M0-A-S-BRANCH__FULL__1.json",
+        "certificate_hash": "69c2de1898c89317f6055c9594b9112e9a31c67cc11ed2227de85dc7e590c0e2"
+      },
+      {
+        "path": "search_fixed/dds/cmr-v7-A-T1-M0-A-S-BRANCH-FULL/cmr_attempt/runner_raw_result.json",
+        "certificate": "search_fixed/dds/cmr-v7-A-T1-M0-A-S-BRANCH-FULL/cmr_attempt/certificates/A-T1-M0-A-S-BRANCH__FULL__1.json",
+        "certificate_hash": "63df96a44fe8dc9b04897157154e7ea495b8a34dfa6c90dcaa44492ac2c12405"
+      },
+      {
+        "path": "search_fixed/dds/cmr-v7-B-D-BRANCH-S2-FULL/cmr_attempt/runner_raw_result.json",
+        "certificate": "search_fixed/dds/cmr-v7-B-D-BRANCH-S2-FULL/cmr_attempt/certificates/B-D-BRANCH-S2__FULL__96.json",
+        "certificate_hash": "53988197b7cef3a4fed1ad094871b74c5154f374a9a071f7bf50da6a0f548530"
+      },
+      {
+        "path": "search_fixed/dds/cmr-v7-C3-T4-AP-D/cmr_attempt/runner_raw_result.json",
+        "certificate": "search_fixed/dds/cmr-v7-C3-T4-AP-D/cmr_attempt/certificates/C3-T4__AP-D__121.json",
+        "certificate_hash": "bb0d144c56d900383d349708026f30c2a617e759adda5972ebf9aac7e71c7876"
+      }
+    ]
+  },
+  "preservation": {
+    "baseline_commit": "00fc5a91383b24f85d33aa81682af22e531234cf",
+    "default_changed": false,
+    "pr_merged": false,
+    "formal_batch_started": false
+  },
+  "packaging_readback": {
+    "status": "PASSED",
+    "raw_members_compared_with_live_namespaces": 685,
+    "source_snapshots_compared_with_git_blobs": 5,
+    "files_checked": 32,
+    "solver_calls": 0,
+    "dds_requests_started": 0,
+    "verifier_calls": 0
+  }
+}

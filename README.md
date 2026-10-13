@@ -182,6 +182,16 @@ watchdog四项资格；正常代价仍为12，watchdog最终测得199.908779952�
 crash拒绝发布及重试，超时不携带最优证书权限；未修改原科学验收或预算。此前失败及旧
 绑定证据保留，详见 [入口超时与失败资格](experiments/cmr_ros2_search_entry/README.md#current-campaign-timeout-and-failure-qualification-2026-10-13)。
 
+随后发现 DDS 请求生成器漏带新入口要求的实例哈希，导致新版请求在启动 ROS 前被拒绝。
+`a6c2394` 补齐该字段，并核对带 worker 的返回结果是否属于请求指定的实例和执行版本。
+在新绑定 `CMR_SEARCH_ENTRY_V1-a429239e4704ea06` 下，A/FULL、B-S2/FULL、C3/AP-D
+三个真实 DDS 实例完成，精确代价12/15/12与原求解器历史记录一致，3份独立证书回放通过，
+完整执行2/5/3步动作。另有交付超时、crash、服务错误和D1不可行四种DDS终态通过，
+均未派发动作；D1与本轮原求解器对照的exact-empty字段一致。超时使用显式模拟时钟偏移。
+共7个本地DDS请求、7个worker、6次原`run_one`，环境导入及派发前脚本失败完整保留，
+没有重复求解。180/195秒预算、语义与证书验收保持；当前新绑定的完整Campaign链尚未资格化，
+默认未切换，未合并PR或启动正式批量实验。见 [当前版本DDS资格](experiments/cmr_ros2_search_entry/README.md#current-runtime-dds-identity-repair-and-qualification-2026-10-13)。
+
 ---
 
 ## 1. 当前支持范围

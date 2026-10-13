@@ -1,0 +1,10 @@
+test_exact_envelope_and_budget (experiments.cmr_ros2_search_entry.test_dds_envelope.V7EnvelopeTests) ... ok
+test_failure_profile_admits_only_its_two_fixed_cells (experiments.cmr_ros2_search_entry.test_dds_envelope.V7EnvelopeTests) ... ok
+test_fixed_scope_rejects_out_of_scope_cell (experiments.cmr_ros2_search_entry.test_dds_envelope.V7EnvelopeTests) ... ok
+test_model_hash_is_present_and_missing_or_wrong_hash_is_rejected (experiments.cmr_ros2_search_entry.test_dds_envelope.V7EnvelopeTests) ... ok
+test_worker_result_must_match_input_and_execution_identity (experiments.cmr_ros2_search_entry.test_dds_envelope.V7EnvelopeTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK

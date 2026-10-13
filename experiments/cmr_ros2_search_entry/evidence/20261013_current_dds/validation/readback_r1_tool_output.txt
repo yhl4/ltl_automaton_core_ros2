@@ -1,0 +1,9 @@
+Transcript of the read-only tool output; the reader did not write this file.
+No solver, DDS process, or verifier was dispatched by this reader.
+
+Traceback (most recent call last):
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/dds_current_20261013/read_current_dds.py", line 218, in <module>
+    main(parser.parse_args())
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/dds_current_20261013/read_current_dds.py", line 136, in main
+    require(row['initial_S0']==cell['expected_initial_S0'], 'initial precision '+name)
+KeyError: 'initial_S0'
