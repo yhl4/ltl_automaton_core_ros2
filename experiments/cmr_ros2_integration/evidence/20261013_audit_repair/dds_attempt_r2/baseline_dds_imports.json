@@ -1,0 +1,18 @@
+{
+  "experiments.cmr_ros2_integration.dds_smoke": {
+    "path": "/tmp/cmr_audit_repair_00fc5a9_20261013_r2/experiments/cmr_ros2_integration/dds_smoke.py",
+    "sha256": "04391e39f325ca4e3bcff4a05857f4258ae5fa0c082c2ca5e85043ee177c8e1c"
+  },
+  "ltl_automaton_execution.accepted_run_resolver": {
+    "path": "/tmp/cmr_audit_repair_00fc5a9_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py",
+    "sha256": "0d9610b6c9eac1899bf800371dd796728f0235b2ba7aa7e400e7699c743d8278"
+  },
+  "ltl_automaton_execution.execution_node": {
+    "path": "/tmp/cmr_audit_repair_00fc5a9_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+    "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72"
+  },
+  "ltl_automaton_planner.planning_graph_snapshot": {
+    "path": "/tmp/cmr_audit_repair_00fc5a9_20261013_r2/ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py",
+    "sha256": "45dda1335c5c229671b0cf875af0ee2d9fffeae1096a03169ff7ae24f092dc3b"
+  }
+}

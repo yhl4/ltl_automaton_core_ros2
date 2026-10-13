@@ -1,0 +1,16 @@
+F...........                                                             [100%]
+=================================== FAILURES ===================================
+______ test_repeated_suffix_start_snapshot_preserves_two_self_loop_steps _______
+ltl_automaton_execution/test/test_execution_node.py:358: in test_repeated_suffix_start_snapshot_preserves_two_self_loop_steps
+    backend.calls[-1][1](ExecutionCompletion(True))
+E   TypeError: ExecutionCompletion.__init__() missing 1 required positional argument: 'message'
+=============================== warnings summary ===============================
+../../../../../../../../usr/lib/python3/dist-packages/networkx/readwrite/graphml.py:346
+../../../../../../../../usr/lib/python3/dist-packages/networkx/readwrite/gexf.py:223
+  Warning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+  Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+=========================== short test summary info ============================
+FAILED ltl_automaton_execution/test/test_execution_node.py::test_repeated_suffix_start_snapshot_preserves_two_self_loop_steps
+1 failed, 11 passed, 19 deselected, 2 warnings in 2.13s

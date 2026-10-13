@@ -1,0 +1,1 @@
+{"status": "PASSED", "cases": 14, "zero_cases": {"zero_self_loop": {"status": "PASSED", "integer_edges": 1, "fraction_edges": 0}, "zero_cycle": {"status": "PASSED", "integer_edges": 2, "fraction_edges": 0}}, "large_integer_case": {"status": "PASSED", "integer_edges": 2, "fraction_edges": 0}}

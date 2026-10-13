@@ -128,3 +128,63 @@ The recorded continuation additionally binds the original failed directory and
 the two control directories' complete file hashes. Fresh reproduction uses the
 fixed entry and needs no continuation. The worker CLI requires explicit
 `--backend reference|ros2-v6|ros2-v7`, plan, request and version binding.
+
+## Isolated audit repair (2026-10-13)
+
+Branch `codex/v7-audit-dds-regression` starts at the preserved control
+`00fc5a91383b24f85d33aa81682af22e531234cf`. The new production repair is
+`d958cdff90a8c1d27dfb1663e1ccced19e39cdc0`; test corrections follow in
+`a1cbf590bbd77ebdad8e853599907df25796642d` and
+`96e9d36c03439f71d0549e44e144db32b865e4ce`, in that order. No unidentified
+external patch was applied. Original V7/V6 results, failures and bindings retain
+their original bytes and execution identities.
+
+The execution snapshot stores one real node occurrence per suffix edge, with
+one implicit final-to-first edge. For example, certified CMR states `[P,P,P]`
+convert to snapshot `[P,P]` and retain two self-loop actions. The serializer and
+resolver accept this sequence only when its real closing edge exists; they do
+not strip further repeats. Message fields and the wire layout are unchanged.
+
+The CMR DDS server checks TS feedback timestamps before target matching. It
+rejects stamps at or before the current step's first publication, and stamps at
+or before the last accepted feedback. Republishing the same command does not
+move that boundary. Distinct fresh feedback for the same state still advances
+consecutive self-loop steps. This isolated transport requires a common ROS
+clock and preservation of the original feedback timestamp. Raw observer events
+reissued with a new timestamp are outside this check's qualification.
+
+The [new evidence index](../cmr_ros2_integration/evidence/20261013_audit_repair/index.json)
+records the separate `CMR_V7_AUDIT_REPAIR-6d0f6577e0d3c123` check binding,
+source identities, raw negative controls and retained fixture failures.
+77 native resolver/manager/feedback checks and 12 ROS snapshot/node boundary
+checks pass. Fourteen existing arithmetic fixtures still compare exact V6/V7
+costs, witnesses and search traces, including fractional weights, zero cycles
+and large integers. Their original per-run binding is preserved separately.
+
+Two fixed **synthetic transport fixtures over actual DDS** use zero-cost actions
+and the production execution node. Against `00fc5a9`, repeated feedback advances
+the cursor from 1 to 2 and the repeated-entry snapshot is refused. The repaired
+source passes both fixtures: actions dispatch at steps `[0,1]`, replay does not
+advance, and new feedback does. DDS domain 226 is isolated. The earlier ROS-array
+test assertion failure and intermediate attempts are retained; final assertions
+check the cursor after actual message receipt. There were 12 DDS fixture
+invocations across all retained attempts, with two final qualified fixture pairs.
+
+These checks do **not** run real CMR instances or replay persisted certificates.
+They do not grant a new CMR backend/default qualification. The unchanged
+historical V7 binding must not be reused for modified source; any later real CMR
+comparison needs a newly prepared canonical backend binding and source checks.
+INITIAL_LABEL_V1, exact objective, nonempty accepting suffix, 180/195-second
+budgets and certificate acceptance are unchanged. No default switch, PR merge,
+formal campaign, provider or hardware run occurred.
+
+Run the native feedback/resolver tests with this checkout on `PYTHONPATH`.
+For the two DDS fixtures, source ROS Humble and the existing message overlay,
+then prepend this checkout's package sources to avoid importing older Python
+modules from the overlay:
+
+```bash
+export PYTHONDONTWRITEBYTECODE=1 ROS_DOMAIN_ID=226 ROS_LOCALHOST_ONLY=1
+export PYTHONPATH="$PWD/ltl_automaton_execution:$PWD/ltl_automaton_planner:$PWD/ltl_automaton_planner_core:$PWD:$PYTHONPATH"
+python3 -B -m pytest -q -p no:cacheprovider experiments/cmr_ros2_integration/test_feedback_dds.py
+```

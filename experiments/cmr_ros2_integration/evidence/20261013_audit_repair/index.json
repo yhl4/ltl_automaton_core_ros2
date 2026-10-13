@@ -1,0 +1,178 @@
+{
+  "actual_dds_fixture_invocations_including_retained_attempts": 12,
+  "application_order": [
+    "d958cdff90a8c1d27dfb1663e1ccced19e39cdc0",
+    "a1cbf590bbd77ebdad8e853599907df25796642d",
+    "96e9d36c03439f71d0549e44e144db32b865e4ce"
+  ],
+  "arithmetic_binding_id": "CMR_V7_AUDIT_REPAIR-43c8a02d32ceebc5",
+  "arithmetic_cases": 14,
+  "baseline_commit": "00fc5a91383b24f85d33aa81682af22e531234cf",
+  "binding_id": "CMR_V7_AUDIT_REPAIR-6d0f6577e0d3c123",
+  "checks_commit": "96e9d36c03439f71d0549e44e144db32b865e4ce",
+  "dds_domain_id": 226,
+  "default_changed": false,
+  "files": {
+    "arithmetic_binding.json": {
+      "bytes": 6966,
+      "sha256": "d9516027a87f09f01caeaeb6405d7a30fb0a15e29e63ea1ee2fbd93750e47f52"
+    },
+    "arithmetic_checks.txt": {
+      "bytes": 293,
+      "sha256": "61939a358296f32d584af8b9436a1fb4fa0a0fa520c6a2034eb37fe1148257f7"
+    },
+    "arithmetic_fixtures.json": {
+      "bytes": 1628,
+      "sha256": "28f82e894db75e22c3623c9c5d21b95c5eb75c1aa151192633b9bb344f4a3e1d"
+    },
+    "arithmetic_preflight.json": {
+      "bytes": 24233,
+      "sha256": "78f17185b1789051c3ccda8d03efcd3ce5dc8d3cdc05c57585cc36bb15ccb2db"
+    },
+    "baseline_native.txt": {
+      "bytes": 2555,
+      "sha256": "c5c0da9f4afb1031ef7709d3e387df6e10dcd116ad88e7ac33a8c81b32ae2fba"
+    },
+    "binding.json": {
+      "bytes": 7015,
+      "sha256": "9ab1b5af4bc43a5b67416d5bdfba0b7e60d1dfdb49aa7c930043136df7c148cf"
+    },
+    "dds_attempt_r2/baseline_dds.rc": {
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "dds_attempt_r2/baseline_dds_checks.txt": {
+      "bytes": 3249,
+      "sha256": "9cfa8257854bb510f8a6941454b49a22db8289a025bce34414684e362622674f"
+    },
+    "dds_attempt_r2/baseline_dds_imports.json": {
+      "bytes": 1033,
+      "sha256": "6dc003caaaf707469e02c4b0f23c3a446c502762a04e2005a9dc45375f2ac4d5"
+    },
+    "dds_attempt_r2/repair_binding.json": {
+      "bytes": 6765,
+      "sha256": "a61bd109f1c989994918a1fd4d0563bbd83d0b94fcc9b996d0949d4c2faabf0d"
+    },
+    "dds_attempt_r2/repair_dds.rc": {
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "dds_attempt_r2/repair_dds_checks.txt": {
+      "bytes": 2434,
+      "sha256": "e670c01915f12ed1c1bd46a8e132fac7776e124cb96790c2808169cc0aafe8ac"
+    },
+    "dds_attempt_r2/repair_dds_imports.json": {
+      "bytes": 1209,
+      "sha256": "53ee241cf069ebe7cb5f6e47537c425b6d636e1ffa1edf9e9bad496b9251ceed"
+    },
+    "dds_attempt_r3/baseline_dds.rc": {
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "dds_attempt_r3/baseline_dds_checks.txt": {
+      "bytes": 3722,
+      "sha256": "0a130525ae8738382ebe3c9b7eee4aa44da37f947d75639ea0e06a93c8872438"
+    },
+    "dds_attempt_r3/baseline_dds_imports.json": {
+      "bytes": 1033,
+      "sha256": "1baa3125f6a4298be928e0c8bfa959b7b3e2170ad2cd7748f8c09d87ff4a4bf0"
+    },
+    "dds_attempt_r3/repair_binding.json": {
+      "bytes": 6966,
+      "sha256": "d9516027a87f09f01caeaeb6405d7a30fb0a15e29e63ea1ee2fbd93750e47f52"
+    },
+    "dds_attempt_r3/repair_dds.rc": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "dds_attempt_r3/repair_dds_checks.txt": {
+      "bytes": 1279,
+      "sha256": "bfc6a12b17275f9ab5b43686fe8155e322883c33132a0db42920442843f9480f"
+    },
+    "dds_attempt_r3/repair_dds_imports.json": {
+      "bytes": 1209,
+      "sha256": "53ee241cf069ebe7cb5f6e47537c425b6d636e1ffa1edf9e9bad496b9251ceed"
+    },
+    "dds_attempt_r4/baseline_dds.rc": {
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "dds_attempt_r4/baseline_dds_checks.txt": {
+      "bytes": 3216,
+      "sha256": "9d71675035be87db661bc3689020f856e5b122c63ad511dbc78096bc3e6f45c0"
+    },
+    "dds_attempt_r4/baseline_dds_imports.json": {
+      "bytes": 1033,
+      "sha256": "1a3aa3d4bb465b9d3ed99d85d5480e58f9de16c36a3bdbecb33e64d812d46b07"
+    },
+    "dds_attempt_r4/repair_binding.json": {
+      "bytes": 7015,
+      "sha256": "9ab1b5af4bc43a5b67416d5bdfba0b7e60d1dfdb49aa7c930043136df7c148cf"
+    },
+    "dds_attempt_r4/repair_dds.rc": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "dds_attempt_r4/repair_dds_checks.txt": {
+      "bytes": 1279,
+      "sha256": "3e2ea6923ceffdd74b13ccbd97ab5d01b4d5654332db0c405bb5edccdb1c0b08"
+    },
+    "dds_attempt_r4/repair_dds_imports.json": {
+      "bytes": 1209,
+      "sha256": "53ee241cf069ebe7cb5f6e47537c425b6d636e1ffa1edf9e9bad496b9251ceed"
+    },
+    "repaired_native.txt": {
+      "bytes": 182,
+      "sha256": "75a44dc5eb42cee89e2f65d6b1b1efd7885f1fed19dd1bdab40bdebe5893aac4"
+    },
+    "ros_boundary_first_failed.txt": {
+      "bytes": 1576,
+      "sha256": "6e2de21a3ab4ad14fc8f19f4ce08ef5ed135fe3e25dc937016cb407e082b56f3"
+    },
+    "ros_boundary_repaired.txt": {
+      "bytes": 923,
+      "sha256": "613e5fd8dbe8f3b163b98693619109465461deeeef75d2692de05e5609574965"
+    },
+    "ros_imports.json": {
+      "bytes": 1209,
+      "sha256": "d602a63db6444640b99fcd30a3f57898ee9626db78a9aed7f07b66231b418a61"
+    }
+  },
+  "final_dds_baseline": "2 expected failures: cursor 2 instead of 1; repeated-entry snapshot rejected",
+  "final_dds_repair": "2 passed: both actions dispatched at steps [0,1]; replay did not advance; fresh feedback did",
+  "final_real_dds_fixture_pairs": 2,
+  "formal_campaign_workers": 0,
+  "native_checks_passed": 77,
+  "objective": "prefix_cost + 10*suffix_cost",
+  "old_evidence_unchanged": [
+    {
+      "bytes": 937685,
+      "path": "experiments/cmr_ros2_search_entry/evidence/20261012/raw_attempts.zip",
+      "sha256": "399653ff5db57d8aed078f327e35671ddd0255385a500e1ad63ad6f6febea1a6"
+    },
+    {
+      "bytes": 2216897,
+      "path": "experiments/cmr_ros2_backend/evidence/20261012_acceptance/raw_attempts.zip",
+      "sha256": "2e393d8a55c91c0eaab550f4adc355b9e3a4df9d65c5ee798a4f4bf5a82b8d92"
+    }
+  ],
+  "outer_watchdog_seconds": 195,
+  "persisted_certificate_replay": "NOT_RUN",
+  "planner_budget_seconds": 180,
+  "pr_merged": false,
+  "production_fix_commit": "d958cdff90a8c1d27dfb1663e1ccced19e39cdc0",
+  "provider_calls": 0,
+  "real_cmr_solver_comparison": "NOT_RUN",
+  "retained_failures": [
+    "baseline_native: four reproduced defects",
+    "ROS boundary first attempt: test omitted ExecutionCompletion.message",
+    "DDS r2: ROS array versus list assertion error; not qualified",
+    "DDS r3: intermediate passing repair check; superseded by cursor-based r4 assertion"
+  ],
+  "ros_boundary_checks_passed": 12,
+  "schema": "cmr-v7-audit-repair-evidence-v1",
+  "scope": "SYNTHETIC_TRANSPORT_AND_DIRECTED_CHECKS_NOT_REAL_CMR_QUALIFICATION",
+  "semantic_contract_id": "INITIAL_LABEL_V1",
+  "status": "DIRECTED_CHECKS_PASSED",
+  "synthetic_transport_objective": "0"
+}

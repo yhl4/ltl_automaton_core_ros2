@@ -1,0 +1,9 @@
+............                                                             [100%]
+=============================== warnings summary ===============================
+../../../../../../../../usr/lib/python3/dist-packages/networkx/readwrite/graphml.py:346
+../../../../../../../../usr/lib/python3/dist-packages/networkx/readwrite/gexf.py:223
+  Warning: `np.int` is a deprecated alias for the builtin `int`. To silence this warning, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+  Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+12 passed, 19 deselected, 2 warnings in 2.37s

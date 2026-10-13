@@ -1,0 +1,24 @@
+{"arm": "baseline", "imports": {"experiments.cmr_ros2_integration.dds_smoke": {"path": "/tmp/cmr_audit_repair_00fc5a9_20261013_r2/experiments/cmr_ros2_integration/dds_smoke.py", "sha256": "04391e39f325ca4e3bcff4a05857f4258ae5fa0c082c2ca5e85043ee177c8e1c"}, "ltl_automaton_execution.accepted_run_resolver": {"path": "/tmp/cmr_audit_repair_00fc5a9_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py", "sha256": "0d9610b6c9eac1899bf800371dd796728f0235b2ba7aa7e400e7699c743d8278"}, "ltl_automaton_execution.execution_node": {"path": "/tmp/cmr_audit_repair_00fc5a9_20261013_r2/ltl_automaton_execution/ltl_automaton_execution/execution_node.py", "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72"}, "ltl_automaton_planner.planning_graph_snapshot": {"path": "/tmp/cmr_audit_repair_00fc5a9_20261013_r2/ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py", "sha256": "45dda1335c5c229671b0cf875af0ee2d9fffeae1096a03169ff7ae24f092dc3b"}}}
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+__________ test_dds_repeated_targets_reject_replayed_feedback[False] ___________
+/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/test_feedback_dds.py:67: in test_dds_repeated_targets_reject_replayed_feedback
+    assert server.snapshot.accepted_run.suffix_product_node_ids == [
+E   AssertionError: assert array('I', [0, 1]) == [0, 1]
+E     Full diff:
+E     - [0, 1]
+E     + array('I', [0, 1])
+___________ test_dds_repeated_targets_reject_replayed_feedback[True] ___________
+/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/test_feedback_dds.py:66: in test_dds_repeated_targets_reject_replayed_feedback
+    wait_for(lambda: len(calls) == 1)
+/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/test_feedback_dds.py:60: in wait_for
+    assert predicate(), server.events
+E   AssertionError: [{'event': 'server_ready', 'module': '/tmp/cmr_audit_repair_00fc5a9_20261013_r2/experiments/cmr_ros2_integration/dds_s... 'observation_published', 'step': 0, 'time_ns': 3075337720701}, {'event': 'snapshot_served', 'time_ns': 3075338430101}]
+E   assert False
+E    +  where False = <function test_dds_repeated_targets_reject_replayed_feedback.<locals>.<lambda> at 0x7ca9b441ea70>()
+----------------------------- Captured stderr call -----------------------------
+[WARN] [1791876521.734724602] [ltl_execution_manager]: Accepted suffix repeats its start node at the end.
+=========================== short test summary info ============================
+FAILED ../../mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/test_feedback_dds.py::test_dds_repeated_targets_reject_replayed_feedback[False]
+FAILED ../../mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/ltl_automaton_core-ros2/experiments/cmr_ros2_integration/test_feedback_dds.py::test_dds_repeated_targets_reject_replayed_feedback[True]
+2 failed in 8.33s

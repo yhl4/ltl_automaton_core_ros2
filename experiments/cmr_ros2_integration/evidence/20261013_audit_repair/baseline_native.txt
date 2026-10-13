@@ -1,0 +1,32 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_______ test_repeated_suffix_start_preserves_real_occurrences[suffix0] ________
+ltl_automaton_execution\test\test_accepted_run_resolver.py:197: in test_repeated_suffix_start_preserves_real_occurrences
+    pairs = resolver._retained_pairs(repeated)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ltl_automaton_execution\ltl_automaton_execution\accepted_run_resolver.py:164: in _retained_pairs
+    raise ResolutionError(
+E   ltl_automaton_execution.accepted_run_resolver.ResolutionError: Accepted suffix repeats its start node at the end.
+_______ test_repeated_suffix_start_preserves_real_occurrences[suffix1] ________
+ltl_automaton_execution\test\test_accepted_run_resolver.py:197: in test_repeated_suffix_start_preserves_real_occurrences
+    pairs = resolver._retained_pairs(repeated)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ltl_automaton_execution\ltl_automaton_execution\accepted_run_resolver.py:164: in _retained_pairs
+    raise ResolutionError(
+E   ltl_automaton_execution.accepted_run_resolver.ResolutionError: Accepted suffix repeats its start node at the end.
+__________ test_replayed_feedback_cannot_complete_the_next_self_loop __________
+experiments\cmr_ros2_integration\test_feedback.py:47: in test_replayed_feedback_cannot_complete_the_next_self_loop
+    assert server.cursor == 1
+E   assert 2 == 1
+E    +  where 2 = <experiments.cmr_ros2_integration.dds_smoke._Server object at 0x00000199699E7D40>.cursor
+______________ test_feedback_must_be_newer_than_the_current_step ______________
+experiments\cmr_ros2_integration\test_feedback.py:59: in test_feedback_must_be_newer_than_the_current_step
+    assert server.cursor == 0
+E   assert 2 == 0
+E    +  where 2 = <experiments.cmr_ros2_integration.dds_smoke._Server object at 0x00000199699E55E0>.cursor
+=========================== short test summary info ===========================
+FAILED ltl_automaton_execution/test/test_accepted_run_resolver.py::test_repeated_suffix_start_preserves_real_occurrences[suffix0]
+FAILED ltl_automaton_execution/test/test_accepted_run_resolver.py::test_repeated_suffix_start_preserves_real_occurrences[suffix1]
+FAILED experiments/cmr_ros2_integration/test_feedback.py::test_replayed_feedback_cannot_complete_the_next_self_loop
+FAILED experiments/cmr_ros2_integration/test_feedback.py::test_feedback_must_be_newer_than_the_current_step
+4 failed, 32 deselected in 0.41s

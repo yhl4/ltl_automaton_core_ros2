@@ -1,0 +1,73 @@
+{
+  "status": "PASSED",
+  "cases": {
+    "nonaccepting_entry": {
+      "status": "PASSED",
+      "integer_edges": 2,
+      "fraction_edges": 0
+    },
+    "zero_self_loop": {
+      "status": "PASSED",
+      "integer_edges": 1,
+      "fraction_edges": 0
+    },
+    "zero_cycle": {
+      "status": "PASSED",
+      "integer_edges": 2,
+      "fraction_edges": 0
+    },
+    "parallel_witness": {
+      "status": "PASSED",
+      "integer_edges": 1,
+      "fraction_edges": 1
+    },
+    "multiple_scc": {
+      "status": "PASSED",
+      "integer_edges": 4,
+      "fraction_edges": 0
+    },
+    "first_bound_is_loose": {
+      "status": "PASSED",
+      "integer_edges": 3,
+      "fraction_edges": 0
+    },
+    "no_accepting_cycle": {
+      "status": "PASSED",
+      "integer_edges": 1,
+      "fraction_edges": 0
+    },
+    "none_cost": {
+      "status": "REJECTED"
+    },
+    "float_cost": {
+      "status": "REJECTED"
+    },
+    "negative_cost": {
+      "status": "REJECTED"
+    },
+    "equal_parallel_tie": {
+      "status": "PASSED",
+      "integer_edges": 2,
+      "fraction_edges": 0
+    },
+    "multiple_initial": {
+      "status": "PASSED",
+      "integer_edges": 3,
+      "fraction_edges": 0
+    },
+    "accepting_entry_no_selfloop": {
+      "status": "PASSED",
+      "integer_edges": 2,
+      "fraction_edges": 0
+    },
+    "large_exact_integers": {
+      "status": "PASSED",
+      "integer_edges": 2,
+      "fraction_edges": 0
+    }
+  },
+  "planner_calls": 14,
+  "formal_campaign_workers": 0,
+  "repair_binding_id": "CMR_V7_AUDIT_REPAIR-43c8a02d32ceebc5",
+  "scope": "DIRECTED_ARITHMETIC_FIXTURES_NOT_REAL_CMR_QUALIFICATION"
+}
