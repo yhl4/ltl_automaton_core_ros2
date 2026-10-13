@@ -43,10 +43,26 @@ def identity():
 
 
 def source_closure():
-    # Verify the entire immutable V6/entry lineage, including its archives.
+    # Bind search and its DDS/execution boundary under one fresh version.
     closure = old_runner.execution_sources()
-    for name in ('backend.py', 'entry.py', 'entry_fixtures.py', 'fixtures.py', 'runner.py'):
+    for name in ('backend.py', 'entry.py', 'entry_fixtures.py', 'fixtures.py', 'runner.py', 'dds.py'):
         closure[str((HERE / name).relative_to(ROOT))] = digest(HERE / name)
+    paths = (
+        'ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py',
+        'ltl_automaton_execution/ltl_automaton_execution/execution.py',
+        'ltl_automaton_execution/ltl_automaton_execution/execution_node.py',
+        'ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py',
+        'ltl_automaton_execution/ltl_automaton_execution/models.py',
+        'ltl_automaton_execution/ltl_automaton_execution/observation.py',
+        'ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py',
+    )
+    messages = ('AcceptedRunSnapshot', 'PlanningExecutionObservation',
+                'TransitionSystemStateStamped', 'TransitionSystemState',
+                'ProductGraphNode', 'ProductGraphEdge', 'PlanningGraphMetadata',
+                'PlanningGraphSnapshot', 'BuchiGraphNode', 'BuchiGraphEdge')
+    for path in paths + tuple('ltl_automaton_msgs/msg/' + name + '.msg'
+                              for name in messages):
+        closure[path] = digest(ROOT / path)
     return closure
 
 
@@ -206,7 +222,7 @@ def prepare(args):
     version_path = args.output / 'backend_binding.json'
     write(version_path, content)
     plan = dict(schema='cmr-search-entry-plan-v1', scope=SCOPE,
-        qualification_id='CMR_SEARCH_ENTRY_20261012', source_head=current['source_head'],
+        qualification_id='CMR_SEARCH_ENTRY_AUDIT_REPAIR_20261013', source_head=current['source_head'],
         current_plan_path=str(args.output / 'current/plan.json'),
         source_closure=source_closure(), records=current['records'],
         cells=[c for c in current['cells'] if (c['instance_id'], c['method']) in TARGETS],
