@@ -38,6 +38,8 @@ def run(args, plan, output):
         raise AssertionError('source has no explicit action costs')
     benchmark = output / 'synthetic_benchmark'
     relative = 'instances/' + INSTANCE + '.json'
+    (benchmark / 'instances').mkdir(parents=True)
+    (benchmark / 'manifests').mkdir()
     runner.write(benchmark / relative, payload)
     synthetic = dict(record, instance_id=INSTANCE, path=relative,
                      source='SYNTHETIC_QUALIFICATION', cohort='SYNTHETIC',
@@ -98,6 +100,7 @@ def run(args, plan, output):
                              certificate_hash=row['certificate_hash'])
     negatives = []
     certificate = json.loads(cert.read_bytes())
+    (output / 'negative_certificates').mkdir()
     for name in ('objective_plus_one', 'empty_suffix'):
         altered = copy.deepcopy(certificate)
         if name == 'objective_plus_one':
