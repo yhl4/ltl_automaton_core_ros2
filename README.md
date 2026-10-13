@@ -139,8 +139,16 @@ A/FULL、B-S2/FULL、C3/AP-D 的 reference/V6/V7 共9个全新worker均给出相
 V7真实DDS请求共执行10步符号动作，连同方法对照共12次持久证书独立重放通过。
 读取器对全新运行误要求“两份续用control”的缺陷已修复，保留首次失败记录，成功求解
 未重跑。新证据不覆盖旧绑定；计时受源码存储与加载条件影响，只保留单次观察。
-V7完整失败/超时路径与默认资格仍未补齐，默认、PR及正式实验保持原状。见
+此轮覆盖三组成功DDS路径，默认、PR及正式实验保持原状。见
 [真实实例与DDS回归证据](experiments/cmr_ros2_search_entry/README.md#real-instance-and-dds-qualification-2026-10-13)。
+
+随后补验了V7九类方法超时/失败路径及11项截止边界。实际195秒watchdog终止了忽略
+SIGTERM的子进程，最终观测199.568秒并保留右删失；阶段延迟另标为模拟时钟。
+独立零成本合成CONTROL输入经原run_one、schema、终态交付和验证器，reference/V6/V7
+均接受精确0与非空后缀；6次验证器调用通过，目标加一/空后缀篡改被拒绝。两次求解前
+的检查脚本失败完整保留，成功故障路径未重跑，520项离线读回通过。此项不构成Core
+结果或零成本统一worker/DDS验证；V7不可行/失败DDS与正式结果链资格仍待补验。
+范围见 [方法故障与零成本证书检查](experiments/cmr_ros2_search_entry/README.md#method-failure-and-zero-cost-certificate-checks-2026-10-13)。
 
 ---
 

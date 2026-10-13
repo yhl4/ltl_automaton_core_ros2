@@ -264,9 +264,87 @@ binding. The offline comparison can read the persisted output without a solver:
 python3 -B -m experiments.cmr_ros2_search_entry.audit_readback --output /tmp/cmr_v7_audit_real_20261013_r1
 ```
 
-This qualifies the three successful real-instance DDS paths only. It does not
-repeat V6's full V7 timeout/failure/default qualification, certify zero-cost
-results through the complete real CMR runner/verifier chain, or qualify raw
-observer events reissued with new timestamps. The preserved synthetic controls
+This qualification covers the three successful real-instance DDS paths only.
+It does not test timeout/failure paths or zero-cost certificates; the subsequent
+method-level checks are recorded below. Raw observer events reissued with new
+timestamps remain outside the qualification. The preserved synthetic controls
 cover repeated cyclic entry and duplicate/stale original TS feedback. No default
 switch, PR merge or formal batch experiment occurred.
+
+## Method failure and zero-cost certificate checks (2026-10-13)
+
+The test-only `lifecycle.py` routes each injected worker through V7
+`candidate_isolated`, `VerifiedEntry`, V7 configuration and the original cloned
+delivery lifecycle. Production runner and search code are unchanged. The test
+intercepts the V7 child script before clone construction and propagates its
+offset clock to the parent; it does not call the V6 worker as a substitute.
+Four native hook checks passed before execution.
+
+One fixed A-T1-M0-A-S-BRANCH/FULL cell ran once per mode: late solver,
+certificate, logging and delivery; crash, missing result, malformed result,
+crash after result, and noncooperative watchdog. **All nine checks pass**.
+Five execute the original `run_one`; the four pre-dispatch faults validate
+authority/configuration and fail without planner execution. Late modes use an
+explicit simulated 180-second clock offset and are not runtime measurements.
+Crash after result confirms that a nonzero exit invalidates a previously
+written successful payload. Every failure clears objective, transport,
+certificate authority and round proof claims, preserving the original
+infrastructure/timeout distinction and worker cleanup.
+
+The watchdog actually waits for the unchanged 195-second deadline, then kills
+the child that ignores SIGTERM. Exit is `-9`; measured final `T_total` is
+**199.567793073 s**, and harness wall is 199.639298473 s, including subsequent
+serialization/source checks. This remains a right-censored observation, not a
+substituted 195-second runtime. Eleven offline checks retain the exact
+180-second equality boundary, archived certified/infeasible terminal controls,
+and the V7-configured original failure serializers. They dispatch no solver.
+
+`zero_certificate.py` separately derives one synthetic input from the fixed A
+model, changes all explicit action cost rows to exact zero, and persists it
+under a new instance ID and singleton manifest. The frozen P2d loader's existing
+`CONTROL` interface is used; the outer population and source are explicitly
+`SYNTHETIC_QUALIFICATION`, with **zero Core results**. Original inputs are read
+only. The frozen certificate ABI still uses its original benchmark/contract
+constants; those fields do not turn this derived input into frozen benchmark
+evidence.
+
+Reference, V6 and V7 each execute the original `run_one`, unchanged input
+preflight and loader, schema validation, terminal delivery and independent
+persisted-certificate verifier. All accept objective **0** and a nonempty
+one-edge suffix. Three verifier calls inside `run_one` and three later replays
+pass. The three certificate files have identical bytes; six invocations do not
+mean six distinct certificates. Two additional verifier calls reject a
+rehashed objective changed to 1 and a rehashed empty suffix. This direct test
+does not exercise `candidate_isolated`, its process watchdog, or DDS with a
+zero-cost input. The 180/195-second contract constants are unchanged.
+
+The initial combined attempt retained all nine successful lifecycle checks but
+failed because the zero-test script omitted its input directories. Its zero
+test never entered `run_one`. The next zero-only attempt was rejected by the
+frozen loader for an unsupported cohort, before search. Only the zero test was
+continued under the existing CONTROL interface in a third namespace; no
+successful lifecycle or solver result was rerun. All original failures remain.
+
+Lifecycle source is `01f0fcbad5e01449941d38fe665b4c9984e70083`; qualified zero-test
+source is `b2a87c1f57a96e0771e4a2df90df4a8a90f355d7`. Their runtime closure has
+the same 56 source files and canonical backend binding
+`CMR_SEARCH_ENTRY_V1-888c808d63103337`; their plans and execution identities
+remain separate. Harness source snapshots and hashes bind the fault injection
+and derived inputs separately. Both completed namespaces retain all 60 frozen
+inputs. The [evidence index](evidence/20261013_lifecycle_zero/index.json) preserves
+all three raw namespaces and validation scripts/logs. The standard-library
+`lifecycle_readback.py` passes 520 persisted checks; an offline mutation of a
+TIMEOUT timing marker is rejected without changing the original result.
+
+Exact execution commands are retained in the index's `validation/` scripts,
+including both failed zero-test attempts. Source hashes and commits must match
+before using a fresh output. Offline readback dispatches no method:
+
+```bash
+python3 -B -m experiments.cmr_ros2_search_entry.lifecycle_readback --output /tmp/cmr_v7_lifecycle_zero_20261013_r1 --zero-output /tmp/cmr_v7_zero_20261013_r3
+```
+
+V7 still lacks its own infeasible/error/timeout DDS checks and formal result-chain
+qualification. These checks do not grant default-backend status. No new DDS run,
+provider call, physical execution, default switch, PR merge or formal campaign
+occurred in this phase.

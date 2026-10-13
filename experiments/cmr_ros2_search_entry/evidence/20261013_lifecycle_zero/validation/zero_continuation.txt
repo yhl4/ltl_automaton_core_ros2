@@ -1,0 +1,14 @@
+{"prepared": true, "workers": 30, "binding": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25", "execution_identity": "0a10a15b0fbe5cebda0c07d8905f1eb154351398+cmr-unified-ffc0f5e26f2878fc"}
+{"prepared": true, "workers": 9, "version_binding": "CMR_SEARCH_ENTRY_V1-888c808d63103337"}
+Traceback (most recent call last):
+  File "<stdin>", line 13, in <module>
+  File "/tmp/cmr_v7_zero_source_0a10a15_20261013_r2/experiments/cmr_ros2_search_entry/zero_certificate.py", line 67, in run
+    row = formal.run_one(cell, {INSTANCE: synthetic}, directory / 'certificates',
+  File "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py", line 640, in run_one
+    instance = load_instance(record, benchmark_root)
+  File "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py", line 181, in load_instance
+    return ScientificInstance(record["instance_id"], record["path"], payload["formula"],
+  File "<string>", line 11, in __init__
+  File "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2d_control_cohort_interface_20261001/control_cohort_loader_p2d.py", line 11, in __post_init__
+    raise ValueError(f"invalid scientific cohort: {record_cohort!r}")
+ValueError: invalid scientific cohort: 'SYNTHETIC'

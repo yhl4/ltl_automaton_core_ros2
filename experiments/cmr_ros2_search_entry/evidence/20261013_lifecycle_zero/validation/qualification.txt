@@ -1,0 +1,29 @@
+{"prepared": true, "workers": 30, "binding": "CMR_UNIFIED_BACKENDS_V2-fa29b6da9213da25", "execution_identity": "01f0fcbad5e01449941d38fe665b4c9984e70083+cmr-unified-ffc0f5e26f2878fc"}
+{"prepared": true, "workers": 9, "version_binding": "CMR_SEARCH_ENTRY_V1-888c808d63103337"}
+{"source_head": "01f0fcbad5e01449941d38fe665b4c9984e70083", "binding": "CMR_SEARCH_ENTRY_V1-888c808d63103337", "closure": 56}
+{"boundary_status": "PASSED", "checks": 11}
+Traceback (most recent call last):
+  File "<stdin>", line 18, in <module>
+  File "/tmp/cmr_v7_lifecycle_source_01f0fcb_20261013_r1/experiments/cmr_ros2_search_entry/zero_certificate.py", line 41, in run
+    runner.write(benchmark / relative, payload)
+  File "/tmp/cmr_v7_lifecycle_source_01f0fcb_20261013_r1/experiments/cmr_ros2_bfull_perf/compare.py", line 34, in write
+    real.runtime.write_json(path, value)
+  File "/tmp/cmr_v7_lifecycle_source_01f0fcb_20261013_r1/experiments/cmr_ros2_integration/runtime.py", line 40, in write_json
+    temporary.write_text(json.dumps(value, indent=2, default=json_default) + '\n', encoding='utf-8')
+  File "/usr/lib/python3.10/pathlib.py", line 1154, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/cmr_v7_lifecycle_zero_20261013_r1/zero/synthetic_benchmark/instances/SYNTHETIC-ZERO-COST-A-T1.json.tmp'
+{"mode": "late_solver", "status": "PASSED"}
+{"mode": "late_certificate", "status": "PASSED"}
+{"mode": "late_logging", "status": "PASSED"}
+{"mode": "late_delivery", "status": "PASSED"}
+{"mode": "crash", "status": "PASSED"}
+{"mode": "missing_result", "status": "PASSED"}
+{"mode": "malformed_result", "status": "PASSED"}
+{"mode": "crash_after_result", "status": "PASSED"}
+{"mode": "watchdog", "status": "PASSED"}
+Traceback (most recent call last):
+  File "<stdin>", line 28, in <module>
+AssertionError

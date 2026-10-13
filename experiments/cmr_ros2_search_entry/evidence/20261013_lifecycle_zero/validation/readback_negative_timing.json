@@ -1,0 +1,8 @@
+{
+  "status": "PASSED",
+  "mutated": "TIMEOUT timing_status=UNCENSORED",
+  "rejected_by": [
+    "negative_timing_marker: timeout threshold and timing status"
+  ],
+  "original_results_modified": false
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "cmr-search-entry-lifecycle-readback-v1",
+  "status": "PASSED",
+  "output": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_lifecycle_zero_20261013_r1",
+  "zero_output": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_zero_20261013_r3",
+  "independent_zero_plan": true,
+  "lifecycle_source_head": "01f0fcbad5e01449941d38fe665b4c9984e70083",
+  "zero_source_head": "b2a87c1f57a96e0771e4a2df90df4a8a90f355d7",
+  "lifecycle_execution_identity": "01f0fcbad5e01449941d38fe665b4c9984e70083+cmr-search-entry-c304639970fa64c1",
+  "zero_execution_identity": "b2a87c1f57a96e0771e4a2df90df4a8a90f355d7+cmr-search-entry-d8837297070dc702",
+  "reader_sha256": "36e3d413fb88a6f90747a344d23dcabb77bf63c7dd063dd9afa9765fcfaae614",
+  "checks": 520,
+  "failures": [],
+  "lifecycle_modes": [
+    "late_solver",
+    "late_certificate",
+    "late_logging",
+    "late_delivery",
+    "crash",
+    "missing_result",
+    "malformed_result",
+    "crash_after_result",
+    "watchdog"
+  ],
+  "target": [
+    "A-T1-M0-A-S-BRANCH",
+    "FULL"
+  ],
+  "arms": [
+    "reference",
+    "ros2-v6",
+    "ros2-v7"
+  ],
+  "solver_provider_ros_calls": 0
+}

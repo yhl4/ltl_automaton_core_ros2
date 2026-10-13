@@ -1,0 +1,283 @@
+{
+  "schema": "cmr-search-entry-lifecycle-zero-evidence-index-v1",
+  "status": "PACKAGED",
+  "scope": {
+    "lifecycle_v7_fault_workers": 9,
+    "lifecycle_formal_run_one_workers": 5,
+    "lifecycle_pre_dispatch_fault_workers": 4,
+    "zero_r2_loader_run_one_calls": 1,
+    "zero_r3_synthetic_formal_run_one_calls": 3,
+    "zero_r3_persisted_certificate_replays": 6,
+    "zero_r3_mutated_certificate_rejections": 2,
+    "current_turn_dds_workers": 0,
+    "provider_calls": 0,
+    "formal_campaign": false,
+    "default_qualification": false,
+    "pr_merge": false,
+    "hardware": false,
+    "solver_or_ros_replay_started_by_packaging": false
+  },
+  "baseline": {
+    "commit": "00fc5a91383b24f85d33aa81682af22e531234cf",
+    "execution_identity": "2934ec788e3b662111d378fd4b1a12ce6a459eee+cmr-search-entry-2135437e8cbf9959",
+    "historical_only": true,
+    "modified": false
+  },
+  "runtime_binding": {
+    "source_closure_files": 56,
+    "source_closure_canonical_sha256": "ce71a3523939727feab79fb2d25a0c0e46b00c64976a0cabef1febcb03169795",
+    "binding_ids": [
+      "CMR_SEARCH_ENTRY_V1-888c808d63103337"
+    ],
+    "binding_sha256s": [
+      "52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca"
+    ],
+    "expected_binding_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+    "same_closure_across_namespaces": true
+  },
+  "namespaces": [
+    {
+      "name": "lifecycle_attempt",
+      "path": "lifecycle_attempt",
+      "source_head": "01f0fcbad5e01449941d38fe665b4c9984e70083",
+      "execution_identity": "01f0fcbad5e01449941d38fe665b4c9984e70083+cmr-search-entry-c304639970fa64c1",
+      "version_binding_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+      "version_binding_sha256": "52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca",
+      "binding_file_sha256": "52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca",
+      "binding_canonical_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+      "source_closure": {
+        "files": 56,
+        "canonical_sha256": "ce71a3523939727feab79fb2d25a0c0e46b00c64976a0cabef1febcb03169795"
+      },
+      "plan_sha256": "df713aff2dc38c82e8c1db13e165e15531ecb4b421ac2729a34154e6a00d3cbc",
+      "binding_path": "backend_binding.json"
+    },
+    {
+      "name": "zero_loader_failure",
+      "path": "zero_loader_failure",
+      "source_head": "0a10a15b0fbe5cebda0c07d8905f1eb154351398",
+      "execution_identity": "0a10a15b0fbe5cebda0c07d8905f1eb154351398+cmr-search-entry-e361f977ce7e42be",
+      "version_binding_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+      "version_binding_sha256": "52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca",
+      "binding_file_sha256": "52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca",
+      "binding_canonical_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+      "source_closure": {
+        "files": 56,
+        "canonical_sha256": "ce71a3523939727feab79fb2d25a0c0e46b00c64976a0cabef1febcb03169795"
+      },
+      "plan_sha256": "f72c2eb033306699fb0dbbc9173e2d2404b0afc040c1ada7ef1d3fb763541fde",
+      "binding_path": "backend_binding.json"
+    },
+    {
+      "name": "zero_qualified",
+      "path": "zero_qualified",
+      "source_head": "b2a87c1f57a96e0771e4a2df90df4a8a90f355d7",
+      "execution_identity": "b2a87c1f57a96e0771e4a2df90df4a8a90f355d7+cmr-search-entry-d8837297070dc702",
+      "version_binding_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+      "version_binding_sha256": "52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca",
+      "binding_file_sha256": "52d12289c12c6dc449999d319b5ea790734f586e38c0bcd79d90dec5475d34ca",
+      "binding_canonical_id": "CMR_SEARCH_ENTRY_V1-888c808d63103337",
+      "source_closure": {
+        "files": 56,
+        "canonical_sha256": "ce71a3523939727feab79fb2d25a0c0e46b00c64976a0cabef1febcb03169795"
+      },
+      "plan_sha256": "c3a214dd17d1b019224b5463a83834e571b59b95a210e965a590946dcadd1589",
+      "binding_path": "backend_binding.json"
+    }
+  ],
+  "lifecycle": {
+    "report": "lifecycle_attempt/lifecycle/lifecycle.json",
+    "status": "PASSED",
+    "modes": [
+      "late_solver",
+      "late_certificate",
+      "late_logging",
+      "late_delivery",
+      "crash",
+      "missing_result",
+      "malformed_result",
+      "crash_after_result",
+      "watchdog"
+    ],
+    "target": [
+      "A-T1-M0-A-S-BRANCH",
+      "FULL"
+    ],
+    "planner_budget_seconds": 180,
+    "outer_watchdog_seconds": 195,
+    "watchdog_actual_wall_seconds": 199.639298473,
+    "watchdog_actual_t_total_seconds": 199.567793073,
+    "watchdog_right_censored": true,
+    "watchdog_exitcode": -9,
+    "boundary": "lifecycle_attempt/boundary.json"
+  },
+  "zero": {
+    "loader_failure": {
+      "report": "zero_loader_failure/zero_failure.json",
+      "status": "FAILED",
+      "run_one_calls": 1,
+      "search_calls": 0
+    },
+    "qualified": {
+      "report": "zero_qualified/zero/zero_certificate.json",
+      "status": "PASSED",
+      "population": "SYNTHETIC_QUALIFICATION",
+      "core_instances": 0,
+      "formal_campaign": false,
+      "execution_identity": "b2a87c1f57a96e0771e4a2df90df4a8a90f355d7+synthetic-zero-71d94b1084627567",
+      "positive_independent_replays": 6,
+      "mutated_certificate_rejections": 2,
+      "objectives": {
+        "reference": "0",
+        "ros2-v6": "0",
+        "ros2-v7": "0"
+      },
+      "suffix_edges": {
+        "reference": 1,
+        "ros2-v6": 1,
+        "ros2-v7": 1
+      },
+      "watchdog_exercised": false,
+      "unified_candidate_isolated_exercised": false
+    }
+  },
+  "readback": {
+    "path": "lifecycle_readback.json",
+    "status": "PASSED",
+    "checks": 520,
+    "reader_sha256": "7d3c4338dcdc7c659deea6b11c9a303046c4468cfaf2c946fb2508b10b957f30",
+    "lifecycle_source_head": "01f0fcbad5e01449941d38fe665b4c9984e70083",
+    "zero_source_head": "b2a87c1f57a96e0771e4a2df90df4a8a90f355d7",
+    "lifecycle_execution_identity": "01f0fcbad5e01449941d38fe665b4c9984e70083+cmr-search-entry-c304639970fa64c1",
+    "zero_execution_identity": "b2a87c1f57a96e0771e4a2df90df4a8a90f355d7+synthetic-zero-71d94b1084627567"
+  },
+  "archive": {
+    "path": "raw_attempts.zip",
+    "compression": "ZIP_DEFLATED",
+    "member_count": 430,
+    "size": 1174628,
+    "sha256": "67ca1692f9912f55ddde42dead5a980ee3e9989b9acf8d5e776e59def4bf89b1"
+  },
+  "validation": [
+    {
+      "path": "validation/clone.txt",
+      "size": 73,
+      "sha256": "f4d897d34ef783e00401bd2aa990687e953ded4cec947d2bcb652e58c31320a6"
+    },
+    {
+      "path": "validation/lifecycle_readback.txt",
+      "size": 985,
+      "sha256": "d55110f52e7ad6ec780dbe755533505fef0eec39bd885cfc41b93a9bf265c5f2"
+    },
+    {
+      "path": "validation/lifecycle_readback_before_identity_labels.json",
+      "size": 1163,
+      "sha256": "945d6009f3e2dc018caa091f6721987e600886661dfc456537375903f4704551"
+    },
+    {
+      "path": "validation/lifecycle_readback_final.txt",
+      "size": 1091,
+      "sha256": "545792a4601f09915ec13760109441d17e62c7d3602a97a4f32bafff2ddaa8c8"
+    },
+    {
+      "path": "validation/qualification.txt",
+      "size": 2034,
+      "sha256": "b66cae509cdbd37d21e7b624efcf9290a4b1e2973989c4046c9f1d6d8878e14c"
+    },
+    {
+      "path": "validation/readback_negative_timing.json",
+      "size": 210,
+      "sha256": "3bb8d37db6016bda79c797c88a31c28b0fb9b14a7ba8343e772717700e2ed4bd"
+    },
+    {
+      "path": "validation/run_qualification.sh",
+      "size": 3248,
+      "sha256": "87a7cc5fca50fa26638f6d6c275eca0f9cd9d2ab4c547505376b6ebabc8251d1"
+    },
+    {
+      "path": "validation/run_zero_continuation.sh",
+      "size": 2437,
+      "sha256": "e2bc5d8ca11fc6fd7d6eb682d1b76999379f9f041f56baf9bdfae8c3d155255e"
+    },
+    {
+      "path": "validation/run_zero_qualification_r3.sh",
+      "size": 2443,
+      "sha256": "54fb03614f8ddc5471922aeb83c1457ce9fc243ea59761a3aa1af4fc80e41a2f"
+    },
+    {
+      "path": "validation/zero_clone.txt",
+      "size": 68,
+      "sha256": "97af56fedb5afc155b7f58dd0771a09ef5ed5b9d86dbec26b0a8a61dbfde6fa7"
+    },
+    {
+      "path": "validation/zero_continuation.txt",
+      "size": 1328,
+      "sha256": "459fcd5c217b374cdd6f6eff71d529caf80e870989f58535c90419861001c7e2"
+    },
+    {
+      "path": "validation/zero_r3_clone.txt",
+      "size": 68,
+      "sha256": "9f06c069025ed9287838215b10746c46813176cd0fb9f04539dac8dc90e009dc"
+    },
+    {
+      "path": "validation/zero_r3_continuation.txt",
+      "size": 2847,
+      "sha256": "9be5ebf2d48f0e56f383f64bc83c8865d33e478b2f0e67a49685d89b649d43e5"
+    }
+  ],
+  "harness_sources": [
+    {
+      "path": "harness_sources/01f_lifecycle.py",
+      "size": 16573,
+      "sha256": "8c608820574569b9a67d4b2ca88353c8474db2abd9ac68e01171d2664166f8e0"
+    },
+    {
+      "path": "harness_sources/01f_zero_certificate.py",
+      "size": 7405,
+      "sha256": "f68c79bf82685f7d2d65c3179556321fc01305cd188416f18f1da069ab78342a"
+    },
+    {
+      "path": "harness_sources/0a10_zero_certificate.py",
+      "size": 7540,
+      "sha256": "22f221e5ae045f22b9759b9e0b42a2f1088445af286083dc00251eae9e8c0b29"
+    },
+    {
+      "path": "harness_sources/b2_zero_certificate.py",
+      "size": 7688,
+      "sha256": "f83fa1cc91eab3c26fef7da464b5bf619a6a70a9f4f936e789c930b9c2300d71"
+    },
+    {
+      "path": "harness_sources/current_lifecycle_readback.py",
+      "size": 20028,
+      "sha256": "7d3c4338dcdc7c659deea6b11c9a303046c4468cfaf2c946fb2508b10b957f30"
+    }
+  ],
+  "sidecars": [
+    {
+      "path": "lifecycle_readback.json",
+      "size": 1274,
+      "sha256": "1ad27f2f5265e48d6e0fdb6a5cc433ed8ec3eb0ccc9fd0b4661b67cb5db2b99a"
+    },
+    {
+      "path": "boundary.json",
+      "size": 1712,
+      "sha256": "d2b78c94b3fcae5f499fe7157136d25eab840a29247f6054f17840e74eee5da5"
+    },
+    {
+      "path": "zero_certificate.json",
+      "size": 35576,
+      "sha256": "1f25a731eaa58127346cfcc438f6b61fc6be3c5da99cfed5881b4ec33a370dc3"
+    }
+  ],
+  "limitations": [
+    "The lifecycle namespace records nine V7 fault workers; five entered formal.run_one and four failed before dispatch.",
+    "The zero-qualified namespace is SYNTHETIC_QUALIFICATION with Core denominator zero and does not grant default qualification.",
+    "The two zero runs share the canonical V7 binding and 56-file closure but use independent source heads and execution identities.",
+    "Packaging itself records persisted bytes and dispatches no solver, ROS, provider, DDS, or certificate replay. The executed qualification calls are enumerated in scope."
+  ],
+  "package_integrity": "PASSED",
+  "retained_failure_namespaces": [
+    "lifecycle_attempt/zero_failure.json",
+    "zero_loader_failure/zero_failure.json"
+  ]
+}

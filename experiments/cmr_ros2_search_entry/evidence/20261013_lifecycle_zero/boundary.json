@@ -1,0 +1,66 @@
+{
+  "archived_controls": [
+    {
+      "archive_sha256": "3626a630cccaae0d3f4e765455ddc43cb220a47c149ed84ab89cfce4bcb505d6",
+      "member": "A-T1-M0-A-S-BRANCH_FULL/ros2-v7/result.json",
+      "original_execution_identity": "14b2c806beecca27f855f32ab79be154e7011de7+cmr-search-entry-42c88be895479adf"
+    },
+    {
+      "archive_sha256": "3df72515303b01ff95a31070f053d3547a8bcb7b878d322b401739c8ef385022",
+      "member": "D1-1_FULL/ros2-v6/result.json",
+      "original_execution_identity": "ed015febed55455fb3b311576af70f4d40c3ad86+cmr-unified-22fec8e176709683"
+    }
+  ],
+  "checks": [
+    {
+      "name": "OPTIMALITY_CERTIFIED_179999999999",
+      "status": "PASSED"
+    },
+    {
+      "name": "OPTIMALITY_CERTIFIED_180000000000",
+      "status": "PASSED"
+    },
+    {
+      "name": "OPTIMALITY_CERTIFIED_180000000001",
+      "status": "PASSED"
+    },
+    {
+      "name": "OPTIMALITY_CERTIFIED_195000000000",
+      "status": "PASSED"
+    },
+    {
+      "name": "INFEASIBLE_CERTIFIED_179999999999",
+      "status": "PASSED"
+    },
+    {
+      "name": "INFEASIBLE_CERTIFIED_180000000000",
+      "status": "PASSED"
+    },
+    {
+      "name": "INFEASIBLE_CERTIFIED_180000000001",
+      "status": "PASSED"
+    },
+    {
+      "name": "INFEASIBLE_CERTIFIED_195000000000",
+      "status": "PASSED"
+    },
+    {
+      "name": "v7_planner_serialization",
+      "status": "PASSED"
+    },
+    {
+      "name": "v7_outer_watchdog_serialization",
+      "status": "PASSED"
+    },
+    {
+      "name": "v7_infrastructure_serialization",
+      "status": "PASSED"
+    }
+  ],
+  "count": 11,
+  "outer_watchdog_seconds": 195,
+  "planner_budget_seconds": 180,
+  "simulated_clock": true,
+  "solver_calls": 0,
+  "status": "PASSED"
+}
