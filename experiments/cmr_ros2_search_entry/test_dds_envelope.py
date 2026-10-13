@@ -21,11 +21,34 @@ class V7EnvelopeTests(unittest.TestCase):
 
     def test_exact_envelope_and_budget(self):
         request = dds._request_envelope(
-            self.cell, self.descriptor, "qualification", "population", "execution", "req")
+            self.cell, self.descriptor, "qualification", "population", "execution", "req",
+            instance_sha256="c" * 64)
         dds._require_exact_envelope(request, request)
         altered = dict(request, outer_watchdog_seconds=196)
         with self.assertRaises(ValueError):
             dds._require_exact_envelope(altered, request)
+
+    def test_model_hash_is_present_and_missing_or_wrong_hash_is_rejected(self):
+        self.assertNotIn("instance_sha256", self.cell)
+        request = dds._request_envelope(
+            self.cell, self.descriptor, "qualification", "population", "execution", "req",
+            instance_sha256="c" * 64)
+        self.assertEqual(request["instance_sha256"], "c" * 64)
+        with self.assertRaises(ValueError):
+            dds._require_exact_envelope(
+                {key: value for key, value in request.items() if key != "instance_sha256"}, request)
+        with self.assertRaises(ValueError):
+            dds._require_exact_envelope(dict(request, instance_sha256="d" * 64), request)
+
+    def test_worker_result_must_match_input_and_execution_identity(self):
+        request = dict(instance_sha256="c" * 64, execution_identity="execution")
+        result = dict(worker_pid=42, instance_sha256="c" * 64,
+                      benchmark_payload_sha256="c" * 64, execution_commit="execution")
+        dds._require_result_identity(request, result)
+        for key in ("instance_sha256", "benchmark_payload_sha256", "execution_commit"):
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                dds._require_result_identity(request, dict(result, **{key: "wrong"}))
+        dds._require_result_identity(request, dict(terminal_status="ERROR", worker_pid=None))
 
     def test_fixed_scope_rejects_out_of_scope_cell(self):
         plan = {"cells": [dict(self.cell),

@@ -21,7 +21,7 @@ from types import SimpleNamespace
 from typing import Any, Mapping
 
 from experiments.cmr_ros2_integration import dds_smoke as transport
-from experiments.cmr_ros2_backend.dds import _validate_case, _wait_processes
+from experiments.cmr_ros2_backend.dds import _validate_case as _validate_transport_case, _wait_processes
 
 
 HERE = Path(__file__).resolve().parent
@@ -74,10 +74,11 @@ def _fixed_cells(plan: Mapping[str, Any]) -> dict[tuple[str, str], dict[str, Any
 
 def _request_envelope(cell: Mapping[str, Any], descriptor: Mapping[str, Any],
                       qualification_id: str, population: str,
-                      execution_identity: str, request_id: str) -> dict[str, Any]:
+                      execution_identity: str, request_id: str, *,
+                      instance_sha256: str) -> dict[str, Any]:
     """Build the exact public request envelope without importing ROS code."""
     value = dict(cell)
-    value.update(descriptor, qualification_id=qualification_id,
+    value.update(descriptor, instance_sha256=instance_sha256, qualification_id=qualification_id,
                  population=population, formal_campaign=False,
                  execution_identity=execution_identity,
                  planner_budget_seconds=180, outer_watchdog_seconds=195,
@@ -102,6 +103,22 @@ def _request_cell(plan: Mapping[str, Any], request: Mapping[str, Any]) -> dict[s
     if key not in cells:
         raise ValueError("DDS request cell is outside the fixed V7 scope")
     return cells[key]
+
+
+def _require_result_identity(request: Mapping[str, Any], result: Mapping[str, Any]) -> None:
+    # Pre-dispatch server ERROR has no worker row or claimed scientific identity.
+    if result.get("worker_pid") is None:
+        return
+    expected = {"instance_sha256": request["instance_sha256"],
+                "benchmark_payload_sha256": request["instance_sha256"],
+                "execution_commit": request["execution_identity"]}
+    if any(result.get(key) != value for key, value in expected.items()):
+        raise ValueError("V7 DDS result input/execution identity mismatch")
+
+
+def _validate_case(case, artifact, descriptor):
+    _validate_transport_case(case, artifact, descriptor)
+    _require_result_identity(case, artifact["driver"]["result"])
 
 
 class V7Server(transport._Server):
@@ -312,9 +329,10 @@ def run_dds(args, plan: dict[str, Any], output: Path) -> dict[str, Any]:
             descriptor = entry.describe("ros2-v7")
             request = runner.request_for(plan, entry, cell, "ros2-v7")
             request["request_id"] = request_id
+            record = next(record for record in plan["records"] if record["instance_id"] == instance_id)
             _require_exact_envelope(request, _request_envelope(
                 cell, descriptor, plan["qualification_id"], plan["scope"],
-                plan["execution_identity"], request_id))
+                plan["execution_identity"], request_id, instance_sha256=record["instance_sha256"]))
             artifact["request"] = request
             artifact = _run_case(request, args, case_dir, descriptor)
             _validate_case({**case, **request}, artifact, descriptor)
