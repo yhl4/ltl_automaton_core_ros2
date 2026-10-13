@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import os
 from pathlib import Path
 import sys
 import time
@@ -185,6 +186,10 @@ class Campaign:
             self.active()
             self.check_result(envelope['worker_result'])
             record, row = checked(campaign, cell, envelope, files, expected)
+            if envelope.get('timed_out_outer'):
+                record.update(frozen_gate_result_delivery=record['result_delivery'],
+                              result_delivery='V7_QUALIFIED_PARENT_OUTER_TIMEOUT_SERIALIZATION',
+                              outer_timeout_delivered_row_preserved=True)
             record.update(campaign_scope=SCOPE, formal_campaign=False, campaign_binding_id=self.binding['binding_id'],
                           campaign_binding_sha256=self.binding_sha, backend_binding=self.descriptor)
             return record, row
@@ -213,6 +218,12 @@ class Campaign:
         self.check_result(value['row'])
         row = value['row']
         require(value['worker_alive_after_cleanup'] is False, 'worker cleanup incomplete')
+        try:
+            os.killpg(value['worker_pid'], 0)
+        except ProcessLookupError:
+            pass
+        else:
+            raise ValueError('worker process group still present; terminal publication refused')
         require(row['terminal_status'] in {'OPTIMALITY_CERTIFIED', 'INFEASIBLE_CERTIFIED', 'CERTIFICATE_GAP', 'TIMEOUT'},
                 'failure worker retained before scientific publication')
         cert = b'null'
@@ -221,10 +232,19 @@ class Campaign:
             path = target / 'certificates' / row['certificate_path']
             require(sha(path) == row['certificate_hash'], 'persisted worker certificate changed')
             cert = path.read_bytes()
+        outer_timeout = row['terminal_status'] == 'TIMEOUT' and row.get('error') == 'watchdog'
+        if outer_timeout:
+            require(row.get('timeout_stage') == 'outer_watchdog' and row['T_total'] >= 195
+                    and row['method_start_ns'] == value['outer_start_ns'] and value['worker_exitcode'] != 0,
+                    'outer timeout supervisor provenance mismatch')
         envelope = dict(cell_id=self.cell['cell_id'], cell_identity_sha256=self.cell['cell_identity_sha256'],
                         terminal_status=row['terminal_status'], worker_result=row, attempt_id=attempt,
                         worker_pid=value['worker_pid'], worker_exit_code=value['worker_exitcode'],
-                        timed_out_outer=False, timing_status=row['timing_status'])
+                        timed_out_outer=outer_timeout, timing_status=row['timing_status'],
+                        delivered_row_source=('qualified_parent_outer_timeout' if outer_timeout
+                                              else 'qualified_worker_delivery'),
+                        process_group_absent=True,
+                        t_plan_wall_lower_bound_seconds=row['T_total'] if outer_timeout else None)
         files = {'result.json': raw(envelope), 'rounds.jsonl': b''.join(raw(r) for r in row.get('rounds') or []),
                  'stdout.log': (target / 'stdout.txt').read_bytes(), 'stderr.log': (target / 'stderr.txt').read_bytes(),
                  'certificate.json': cert, 'environment.json': raw(dict(campaign_scope=SCOPE,
@@ -260,8 +280,11 @@ def qualify(args):
                          ('core_results.jsonl', resumed.state.campaign.records)]:
         require((args.output / name).read_bytes() == b''.join(raw(item) for item in values),
                 'restored aggregate differs from committed records: ' + name)
-    require(len(campaign.verifications) == len(resumed.verifications) == 1
-            and campaign.verifications[0]['status'] == resumed.verifications[0]['status'] == 'PASS',
+    optimal = first['terminal_status'] == 'OPTIMALITY_CERTIFIED'
+    required_verifications = int(optimal)
+    verifications = campaign.verifications + resumed.verifications
+    require(len(campaign.verifications) == len(resumed.verifications) == required_verifications
+            and all(event['status'] == 'PASS' for event in verifications),
             'publication/restore independent certificate verification incomplete')
     report = dict(schema='cmr-current-v7-campaign-qualification-v1', status='PASSED', scope=SCOPE,
                   backend_binding=campaign.descriptor, campaign_binding_id=campaign.binding['binding_id'],
@@ -269,7 +292,9 @@ def qualify(args):
                   source_execution_identity=campaign.plan['execution_identity'], source_head=campaign.plan['source_head'],
                   target=list(TARGET), new_method_workers=1, resume_method_workers=0,
                   constructor_instances=2, worker_routing='EXECUTED', scientific_publication='PASS',
-                  scientific_restore='PASS', verifications=campaign.verifications + resumed.verifications,
+                  scientific_restore='PASS', verifications=verifications,
+                  certificate_replay='PASS' if optimal else 'NOT_APPLICABLE_NONOPTIMAL_TERMINAL',
+                  certificate_verifier_calls=len(verifications),
                   aggregate_readback='PASS',
                   committed=first, resumed=second, formal_campaign=False, default_changed=False,
                   provider_calls=0, dds_calls=0, frozen_formal_Campaign_constructor='UNRUN',
