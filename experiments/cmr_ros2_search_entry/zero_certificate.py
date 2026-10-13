@@ -42,11 +42,13 @@ def run(args, plan, output):
     (benchmark / 'manifests').mkdir()
     runner.write(benchmark / relative, payload)
     synthetic = dict(record, instance_id=INSTANCE, path=relative,
-                     source='SYNTHETIC_QUALIFICATION', cohort='SYNTHETIC',
+                     source='SYNTHETIC_QUALIFICATION', cohort='CONTROL',
                      dataset_revision='SYNTHETIC_ZERO_COST_V1',
                      instance_sha256=runner.digest(benchmark / relative),
                      model_sha256=hashlib.sha256(runner.canonical(payload['model']).encode()).hexdigest(),
                      parent_instance_sha256=before)
+    # The frozen P2d loader already admits CONTROL; the outer test population
+    # stays synthetic. No Core manifest or loader whitelist is changed.
     manifest = benchmark / 'manifests/manifest.json'
     runner.write(manifest, [synthetic])
     # Keep the certificate ABI's expected contract/benchmark constants. The
