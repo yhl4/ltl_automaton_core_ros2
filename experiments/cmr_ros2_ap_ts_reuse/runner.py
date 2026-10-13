@@ -230,9 +230,20 @@ class AttemptEntry:
             schema_for=timed(self.schema, self.timing, 'schema_for')))
 
     def guarded_write(self, path, value):
-        if Path(path).name in ('worker_result.json', 'result.json'):
+        if Path(path).name == 'worker_result.json':
             timed(self.release_check, self.timing, 'release_check')()
         return timed(write, self.timing, 'write')(path, value)
+
+    def checked_delivery(self, row, completion, *, outer_start, forced_timeout=False):
+        # Charge the new source/binding check before sampling the completion
+        # passed to the unchanged delivery/deadline classifier.
+        release_started = time.perf_counter_ns()
+        timed(self.release_check, self.timing, 'release_check')()
+        checked_completion = time.perf_counter_ns()
+        self.timing['delivery_checkpoint'] = dict(release_started_ns=release_started,
+            release_completed_ns=checked_completion)
+        return original.terminal_delivery(row, checked_completion,
+            outer_start=outer_start, forced_timeout=forced_timeout)
 
 
 def instrument_formal(formal, records):
@@ -270,7 +281,8 @@ def isolated(request, receipt, kernel, binding_path, plan_path, output):
     entry = AttemptEntry(plan_path)
     fn = adapter._clone_function(original.run_isolated, dict(HERE=HERE,
         load_plan=lambda path: entry.plan, validate_request=entry.validate,
-        backends=entry.proxy(), write=entry.guarded_write))
+        backends=entry.proxy(), write=entry.guarded_write,
+        terminal_delivery=entry.checked_delivery))
     started = time.perf_counter_ns()
     value = fn(request, receipt, kernel, binding_path, plan_path, output)
     write(Path(output)/'parent_timing.json', dict(entry_metrics=entry.metrics,
