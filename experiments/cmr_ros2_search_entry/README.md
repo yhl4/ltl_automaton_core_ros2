@@ -603,7 +603,84 @@ three namespaces, source versions, failures and command/readback scripts.
 This proves the new entry's single-cell construction, worker routing,
 scientific publication and restoration. The **original frozen formal Campaign
 constructor remains UNRUN**, and the full 510-cell chain remains UNVERIFIED.
-Failure/timeout paths through this new controller and broader real-instance
-coverage remain unqualified. There are zero DDS/provider calls in this phase,
+At the end of this single-cell phase, its failure/timeout paths and broader
+real-instance coverage remained unqualified. There are zero DDS/provider calls in this phase,
 no default switch, PR merge or formal batch experiment. V7 is not declared
 default-ready from this one cell.
+
+## Current Campaign timeout and failure qualification (2026-10-13)
+
+Two concrete entry defects were found and fixed without changing search,
+scientific acceptance or the **180/195-second** deadlines:
+
+- At `40975b7`, a valid TIMEOUT was published and restored successfully, then
+  the CLI failed because it expected two optimal-certificate verifier calls.
+  The controller now requires one call per gate for an optimal result, and
+  zero calls for an accepted nonoptimal terminal result. A passing qualification
+  report does not turn a TIMEOUT into a solved or optimal result.
+- At `09cab5f`, a real watchdog killed its noncooperative child, but the original
+  scientific gate rejected the serialized row's null input hashes. The slim
+  request omitted the identity needed by the original pre-method failure
+  serializer. `f1bcae9` binds `instance_sha256` from the immutable plan record
+  before dispatch and strictly validates it. Two new interface checks reject
+  missing or incorrect input hashes. The failed old row is retained unchanged.
+
+The qualified runtime is now separately bound as
+`CMR_SEARCH_ENTRY_V1-e5e7c783aa3465b9`, SHA
+`710c4e87cb3d56d70f995fe105ce6088f7f311d38befb7bde17061944a5f112f`,
+with V7 backend SHA
+`c7548808c9fbdd9b69ca4f6ece242b5bfe2b194b8828041b8c6c5d987c009458`.
+Its 56-file closure changes only `entry.py`, `entry_fixtures.py` and `runner.py`
+relative to the previous `232509…` runtime. The controller/gates retain their
+separate per-output binding. Old runtime records keep their original identities.
+
+All four final cases use the fixed **C3-T4/AP-D** cell in separate namespaces:
+
+| Case | Delivered result | Publication / restore | Certificate and retry behavior |
+| --- | --- | --- | --- |
+| Normal | OPTIMALITY_CERTIFIED, exact objective 12, all six rounds | PASS / PASS | Two controller P2e calls PASS; resume starts no worker |
+| Late delivery | TIMEOUT, null objective, right-censored | PASS / PASS | Explicit simulated 180-second clock offset; no optimal certificate authority |
+| Crash before planning | INFRASTRUCTURE_FAILURE, exit 23 | Refused / no committed record | Resume rejects the retained dispatch marker before a new worker |
+| Real watchdog | TIMEOUT, null objective, right-censored; exit -9 | PASS / PASS | Actual 195-second wait and original cleanup; no optimal certificate |
+
+The final watchdog's **measured `T_total=199.908779952 s`** includes the original
+cleanup/serialization boundary. It is not replaced with an exact 195-second
+runtime. The wrapper preserves the complete delivered row, explicitly records
+`timed_out_outer=true`, its measured lower bound and parent-serializer provenance,
+and checks that the old worker process group is absent before publication.
+The frozen scientific gate uses its supplied-row branch; the record retains that
+original branch label separately from the corrected supervisor-origin label.
+No new timeout row is reconstructed to overwrite the original delivery timing.
+
+Across the pre-fix reproduction, intermediate qualification and final runtime
+qualification, there are **nine process workers, five original `run_one` calls
+and two actual watchdog attempts**. The intermediate watchdog's rejection is
+retained. There are six publications/restorations in total, including the
+pre-fix TIMEOUT whose CLI failed after restoring it. Four controller
+publication/restore verifier calls pass. Five additional worker-internal
+persisted-certificate verifier calls are identified from the frozen P2f call
+path and the five raw certified method records; all occur within the original
+method boundary. Thus the bound code and persisted records account for nine
+independent verifier calls. Fault-report `verifier_calls=0` refers only to the
+controller's gates: late delivery can retain a previously verified certificate
+in attempt evidence while invalidating its terminal authority.
+
+The first final-runtime normal invocation used the wrong import root and was
+rejected by the existing source-path/hash gate before dispatch. It is retained;
+using the qualified clone's import paths then succeeds in a fresh namespace.
+The three preparations run 42 arithmetic cases and 44 interface checks in total;
+the separate Windows interface run has 16 checks. A synthetic identity precheck
+uses no worker and is not evidence of an actual watchdog wait. The `01b5d77`
+clone was checked but never executed. Raw helper constructor counts for crash
+cover the main entry only; the index separately records its additional successful
+resume constructor and zero resumed workers.
+
+The [evidence index](evidence/20261013_campaign_failures/index.json) binds all
+successful and failed namespaces, raw worker bytes, exact source versions,
+helper scripts and the standard-library readback. All 60 frozen inputs per
+preparation remain unchanged. The baseline `00fc5a9` and previous evidence are
+preserved. No new reference workers, DDS or provider calls, default switch, PR merge or formal
+batch occurred in this phase. Cooperative watchdog exit zero, other failure modes,
+new-runtime DDS and broader current-entry real-instance coverage remain unrun.
+The frozen original Campaign constructor and full 510-cell chain remain
+UNRUN/UNVERIFIED; this qualification does not declare V7 default-ready.

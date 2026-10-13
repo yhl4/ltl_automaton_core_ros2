@@ -176,6 +176,12 @@ V7 exact-empty字段一致。初次测试hook递归与合成标记拒绝保留�
 读回脚本的首次失败均保留，当前只证明这一隔离单格；原正式Campaign构造与510格链仍未验证。
 README及原始证据见 [当前版本单格链路](experiments/cmr_ros2_search_entry/README.md#current-version-single-cell-campaign-entry-2026-10-13)。
 
+该入口随后修复了合法TIMEOUT发布恢复后的统计误判，以及规划前watchdog序列化缺少实例
+哈希的问题。`f1bcae9` 在新独立运行时绑定下通过正常、模拟交付超时、crash及真实195秒
+watchdog四项资格；正常代价仍为12，watchdog最终测得199.908779952秒并保持右删失。
+crash拒绝发布及重试，超时不携带最优证书权限；未修改原科学验收或预算。此前失败及旧
+绑定证据保留，详见 [入口超时与失败资格](experiments/cmr_ros2_search_entry/README.md#current-campaign-timeout-and-failure-qualification-2026-10-13)。
+
 ---
 
 ## 1. 当前支持范围

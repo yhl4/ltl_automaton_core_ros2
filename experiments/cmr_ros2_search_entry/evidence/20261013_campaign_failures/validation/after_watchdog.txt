@@ -1,0 +1,5 @@
+{"status": "FAILED", "error": "result instance/method/payload mismatch"}
+Traceback (most recent call last):
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/campaign_failure_20261013/fault_driver_after.py", line 53, in <module>
+    assert exitcode == args.expected_exit, (exitcode, args.expected_exit)
+AssertionError: (1, 0)

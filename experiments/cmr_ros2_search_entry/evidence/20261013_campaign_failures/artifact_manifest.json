@@ -1,0 +1,169 @@
+{
+  "files": {
+    "after_watchdog_fatal.json": {
+      "sha256": "b051497d3a96fe2ffd8a7cf5a3197854d0e97ff7ad8d9262fe2adb8491b8f044",
+      "size": 1593
+    },
+    "archive_manifest.json": {
+      "sha256": "b56bfd185cdab1b8693c6e6e156003fd0305cd2dadb5ff1e61454fc27cb01109",
+      "size": 108888
+    },
+    "before_fatal.json": {
+      "sha256": "e002afa51ef5118d68cd5eba71aa9da81ddb89a1e05831938d99cf0dd3731b24",
+      "size": 730
+    },
+    "failure_readback.json": {
+      "sha256": "981f4eab18c45060e096beec5f6ba54ff6639ccbcb7fe4b771fbc77905db77ab",
+      "size": 3753
+    },
+    "fixed_importguard_fatal.json": {
+      "sha256": "8ecd573cc583968842836be8fc441926d6b2e600d977ad3bd8caf707c3bcf88d",
+      "size": 1705
+    },
+    "fixed_normal_report.json": {
+      "sha256": "71cf6c6a6c611c6ba7d953ff54c2c806fda0bf11a87626bbef0d307a27530417",
+      "size": 3880
+    },
+    "fixed_watchdog_fault_report.json": {
+      "sha256": "ae5988bc14dacc91cd76b78501c99173857bbd71345d55267d2296d5d8528b88",
+      "size": 1553
+    },
+    "harness_sources/campaign_v7_01b5d77.py": {
+      "sha256": "9e1c62d35671755c5b6ddde7d8a3e40a552d01d3506b5b27c89233aa3438397e",
+      "size": 20753
+    },
+    "harness_sources/campaign_v7_09cab5f.py": {
+      "sha256": "d4fa8e341ccf0d2e742a55e8234c32df5e5b713ec67c110eda753064a43cbc4f",
+      "size": 20719
+    },
+    "harness_sources/campaign_v7_40975b7.py": {
+      "sha256": "9a779bc854bb4d99be22dee81cb07a48abd209da2521fe44c69f29df6fa4ca67",
+      "size": 19194
+    },
+    "harness_sources/campaign_v7_f1bcae9.py": {
+      "sha256": "d4fa8e341ccf0d2e742a55e8234c32df5e5b713ec67c110eda753064a43cbc4f",
+      "size": 20719
+    },
+    "harness_sources/entry_f1bcae9.py": {
+      "sha256": "4f37d3c8bac30daaed33e46d7a41071393554c87d420d7ff6dd120d88b65f641",
+      "size": 12819
+    },
+    "harness_sources/entry_fixtures_f1bcae9.py": {
+      "sha256": "dad0c6bf30e12ea05d87dcc29f7f253c6db6bfef9e8dab72fa48723fddd3ba7c",
+      "size": 9293
+    },
+    "harness_sources/runner_f1bcae9.py": {
+      "sha256": "c2962e6dc9a505b8f5524d534a8a7af36b1f2ab3e2c6387d1c2463632d3530d9",
+      "size": 23185
+    },
+    "raw_attempts.zip": {
+      "sha256": "e5c83ea1cac1d6e90745fe616814b417af3c5d86925c015f6b58c74a03dd395d",
+      "size": 1555829
+    },
+    "validation/after_crash.txt": {
+      "sha256": "d6d43cb23e062e8f8a2b4a5b085af2205e2679ac73d68f1ebbfb189a543b6102",
+      "size": 1722
+    },
+    "validation/after_fixed_crash.txt": {
+      "sha256": "444b1534a2a3e4ebacee7d12be267ed1ae5571c3f512f105bf68a3ac7a1a6455",
+      "size": 1724
+    },
+    "validation/after_fixed_late.txt": {
+      "sha256": "0343c6b2b8c8dad4ba4343fdbedb92ccfa975622db56d72ad540f4497edab4d5",
+      "size": 2037
+    },
+    "validation/after_fixed_normal.txt": {
+      "sha256": "6b9f2c51c2dab2cfd3a46bbaeedb8edf821000deb9ea48e8b6d0f1abeee3592d",
+      "size": 74
+    },
+    "validation/after_fixed_normal_corrected.txt": {
+      "sha256": "754245cd2e35e1e4ec3519a91b87e3b85a6a9cf330c9e34ac1ea9e3760743f70",
+      "size": 408
+    },
+    "validation/after_fixed_prepare.txt": {
+      "sha256": "0636ae3e2e9324d788a007932f7a70c2d7315ad4824b3ee5967f5606139ed9b9",
+      "size": 330
+    },
+    "validation/after_fixed_watchdog.txt": {
+      "sha256": "0df7fdf0618829a0c8ed471ebb329334b81e4ffe5cb84b1361765ae4e6b31be2",
+      "size": 2016
+    },
+    "validation/after_late.txt": {
+      "sha256": "538518d20a6798737ffb077276c4f067fdef4cb2a9d855a77e2fe945b90d30dd",
+      "size": 2039
+    },
+    "validation/after_normal.txt": {
+      "sha256": "63f6c8b3bb7d4701c3d0ac44db046a04bb7fc2f580e955dc78fc51117d0f3ace",
+      "size": 397
+    },
+    "validation/after_prepare.txt": {
+      "sha256": "21ec7ca6c3b009623ea40cc328268b34d4924f5315f6531663dc5b4002aba987",
+      "size": 328
+    },
+    "validation/after_watchdog.txt": {
+      "sha256": "8e3e39791a9812997899e432247750316271efe21363d2b6e42b0cdc75f764cf",
+      "size": 346
+    },
+    "validation/before_clone.txt": {
+      "sha256": "3d7352fad3cb8c7b40a039aa04619385520ca0b39b0231d052bc359b230d08b0",
+      "size": 89
+    },
+    "validation/before_fault.txt": {
+      "sha256": "38c195867315ea3c28ea3525763b0b32c8792ab05aa74044223c299548257161",
+      "size": 1742
+    },
+    "validation/before_prepare.txt": {
+      "sha256": "308e13ce2e9f1c2f6d3e2f92ec1b4ae7b05d871587b94d020fcd74952eb098b6",
+      "size": 328
+    },
+    "validation/fault_driver.py": {
+      "sha256": "1bdfab2c1db3cef2d1f777972950fc33752130615c7a3150348d30730fa854dd",
+      "size": 5597
+    },
+    "validation/fault_driver_after.py": {
+      "sha256": "1bdfab2c1db3cef2d1f777972950fc33752130615c7a3150348d30730fa854dd",
+      "size": 5597
+    },
+    "validation/fault_driver_before.py": {
+      "sha256": "1bdfab2c1db3cef2d1f777972950fc33752130615c7a3150348d30730fa854dd",
+      "size": 5597
+    },
+    "validation/fault_driver_fixed.py": {
+      "sha256": "1bdfab2c1db3cef2d1f777972950fc33752130615c7a3150348d30730fa854dd",
+      "size": 5597
+    },
+    "validation/package_campaign_failures.py": {
+      "sha256": "d2fe806a9acdd17ec1d4141498f3e520414dc6662b4ae0c42cc9e06944baa8c5",
+      "size": 9295
+    },
+    "validation/prepare.py": {
+      "sha256": "6080de670baa2dd7dead53f0df096bbd825fc70f94ef10615bec17db43ce7b3a",
+      "size": 1001
+    },
+    "validation/prepare_after.py": {
+      "sha256": "b27668bb0133aaa5824972bf6f048df5b3d683e16b0e08f7100db717f4cbf234",
+      "size": 1013
+    },
+    "validation/prepare_fixed.py": {
+      "sha256": "c147f52bef874cd2cc4e85fad76dd5fb07f8746b55b1c3e013c341d9ad2c9e09",
+      "size": 1013
+    },
+    "validation/readback_failure.py": {
+      "sha256": "21d2b29a4f045406155072f02f95293990859045b19a75fc975fa024ed863891",
+      "size": 10416
+    },
+    "validation/run_before.sh": {
+      "sha256": "1f88ec6accd1a8cbbebb9b602831a524667834ae2efcecaa0690e648e75c22c8",
+      "size": 1093
+    },
+    "validation/serializer_precheck_fixed.json": {
+      "sha256": "3f5297b846ec75b661c2a54d0ca5b30b5f36290fc884da6cca5309aeda59a853",
+      "size": 982
+    },
+    "validation/serializer_precheck_fixed.py": {
+      "sha256": "f7274966b0aacf5bbd7cffea47c80b9c943b5671b5416ffc56a47a28e755d239",
+      "size": 2856
+    }
+  },
+  "schema": "cmr-campaign-failure-artifact-manifest-v1"
+}

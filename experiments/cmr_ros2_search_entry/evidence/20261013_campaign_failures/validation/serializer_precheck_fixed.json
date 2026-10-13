@@ -1,0 +1,23 @@
+{
+  "T_total": 195.000000001,
+  "backend_binding": {
+    "backend": "ros2-v7",
+    "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+    "backend_sha256": "c7548808c9fbdd9b69ca4f6ece242b5bfe2b194b8828041b8c6c5d987c009458",
+    "version_binding_id": "CMR_SEARCH_ENTRY_V1-e5e7c783aa3465b9",
+    "version_binding_sha256": "710c4e87cb3d56d70f995fe105ce6088f7f311d38befb7bde17061944a5f112f"
+  },
+  "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+  "execution_identity": "f1bcae9867ab6a83aef63ccc12da02764d6d5274+cmr-search-entry-b339a5eb76abf8b3",
+  "forced_timeout": true,
+  "formal_timeout_serialization": "called",
+  "instance_id": "C3-T4",
+  "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+  "kind": "SYNTHETIC_IDENTITY_PRECHECK",
+  "method": "AP-D",
+  "outer_watchdog_seconds": 195,
+  "release_check": "PASSED",
+  "status": "PASSED",
+  "terminal_status": "TIMEOUT",
+  "worker_calls": 0
+}
