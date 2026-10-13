@@ -1,0 +1,1 @@
+{"status": "FAILED", "error": "unexpected rehash_certificate_objective rejection: certificate objective does not match recomputed objective"}

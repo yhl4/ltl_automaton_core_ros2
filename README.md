@@ -160,8 +160,14 @@ V7 exact-empty字段一致。初次测试hook递归与合成标记拒绝保留�
 随后仅重放已有V7合成表前两行，原原子发布、读回和coordinator receipt的两条账本链
 通过，10个负例被拒绝，无求解/worker/provider/DDS/证书验证器调用。完全重算哈希的V6
 记录可通过通用receipt，V7包装层拒绝其身份；冻结正式driver也在派发前拒绝真实V7 SHA。
-因此正式worker路由、科学发布门和完整恢复路径仍待接入，尚不能据此切换默认；见
+该阶段正式worker路由、科学发布门和完整恢复路径仍待接入，尚不能据此切换默认；见
 [原发布函数离线探针](experiments/cmr_ros2_search_entry/README.md#frozen-publication-probe-2026-10-13)。
+
+随后在原`888c808…`绑定下离线回放三条真实实例资格记录，原科学发布与恢复函数通过，
+代价仍为12/15/12；发布及恢复的6次证书回放通过，重算哈希的错误代价与过期版本被拒绝。
+首轮脚本异常记录修复及失败证据保留。没有新增求解任务，也未重标为当前V7绑定；当前
+版本的正式worker路由与完整端到端资格仍未完成，默认保持；见
+[真实历史记录科学回放](experiments/cmr_ros2_search_entry/README.md#scientific-publication-and-restore-of-real-historical-records-2026-10-13)。
 
 ---
 

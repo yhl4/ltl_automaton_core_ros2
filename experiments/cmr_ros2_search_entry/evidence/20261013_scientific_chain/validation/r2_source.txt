@@ -1,0 +1,1 @@
+{"harness_head": "3ae2a579ec5493c0c84bc042ff2c2b6391ad040b", "harness_sha256": "c79dcf82586fa0594a17e5adabf585ab877987a47fc25e9c32ea0371b132e0d5", "tree": "CLEAN", "new_method_workers": 0, "formal_campaign": false}

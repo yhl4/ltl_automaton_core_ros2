@@ -475,3 +475,59 @@ functions were invoked; full `Campaign.restore_receipts`, scientific validation,
 certificate replay and formal campaign execution remain `UNRUN`, with the
 full campaign chain `UNVERIFIED`. No default switch, PR merge or formal batch
 experiment occurred.
+
+## Scientific publication and restore of real historical records (2026-10-13)
+
+`scientific_chain_v7.py` is a separate, bounded replay entry. Its input is the
+existing three-real-instance qualification archive, SHA
+`3626a630cccaae0d3f4e765455ddc43cb220a47c149ed84ab89cfce4bcb505d6`.
+The fixed A/FULL, B-D-BRANCH-S2/FULL and C3-T4/AP-D records retain their original
+source head `14b2c806`, execution identity and version binding
+`CMR_SEARCH_ENTRY_V1-888c808d63103337` (backend SHA `2dfba8df…`). They are
+qualification records from real instances, not formal Core R2 campaign results.
+They are not relabeled with the current `232509…` binding or `3d9f94…` backend.
+
+The adapter reuses the original coordinator's scientific `checked_record` and
+`publication_gate`, the R2 persisted-certificate gate and `restore_receipts`
+function code. It supplies the explicit source implementation identity and
+native replay paths in a new qualification binding. The frozen result/round
+schemas differ only in the backend SHA constant and `$id` metadata, matching
+the schemas already bound by these original V7 workers. The schema validator,
+scientific checks and independent P2e verifier are unchanged. An added descriptor
+check covers the row and every round during both publication and restoration.
+No original Campaign constructor or formal worker is invoked; the three-cell
+replay binding cannot authorize the frozen 510-cell campaign.
+
+Three scientific publications and restoration of all three committed records
+pass. Their complete result fields, original certificate bytes, exact objectives
+`12 / 15 / 12`, original method times, timestamps and execution identities remain
+unchanged. Six independent verifier calls pass: three before publication and
+three from the committed certificate files during restoration. New replay
+activity is separate from original method timing and does not add planning data.
+
+Four deliberate attacks are rejected before acceptance: a rehashed stale
+publication version, a changed row objective with the original certificate,
+a rehashed certificate and matching row both claiming objective `13` instead
+of the recomputed `12`, and a fully rehashed committed record carrying a stale
+version during restoration. The latter cannot bypass identity checks even with
+valid directory, result, record and ledger hashes.
+
+The initial harness at `f588c3e` expected the forged-certificate verifier to
+return a failure status. The original verifier instead raised its correct
+`certificate objective does not match recomputed objective` exception; the
+harness failed before any publication. Its complete input and failure bytes
+are retained. Commit `3ae2a57` records verifier exceptions and tests the actual
+rejection without changing the verifier or acceptance rule. The qualified run
+has six positive verifier calls plus one rejected call. Including the initial
+unrecorded exception, there are **eight actual verifier invocations across both
+attempts**. The initial empty counter is not interpreted as zero invocations.
+
+Standard-library readback confirms the 60 frozen inputs, 56 archived runtime
+sources, original rows/certificates, scientific record hashes and previous-ledger
+links. There are **zero new method workers, planner/provider/DDS calls**, and no
+default switch, PR merge or formal batch experiment. The
+[evidence index](evidence/20261013_scientific_chain/index.json) binds both raw
+namespaces and harness source versions separately from the original method
+identity. Current-version formal worker routing, Campaign construction and the
+full end-to-end chain remain `UNRUN`/`UNVERIFIED`; this historical replay does
+not make the current V7 default-ready.
