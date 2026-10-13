@@ -1,0 +1,1 @@
+{"status": "PASSED", "published": 2, "linked_receipts": 2, "calls": {"external_process": 0, "network": 0, "kernel_loader": 0}}

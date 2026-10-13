@@ -1,0 +1,1 @@
+{"status": "PASSED", "published": 2, "linked_receipts": 2, "negative_cases": 10, "source_files": 56, "method_workers": 0, "certificate_verifier_calls": 0, "formal_campaign": false}

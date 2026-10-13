@@ -425,3 +425,53 @@ provenance without a solver or ROS import. No default switch, PR merge, formal
 campaign, provider call or physical execution occurred. Remaining default
 qualification includes the V7 formal driver/result-publication chain and broader
 instance coverage under its own binding.
+
+## Frozen publication probe (2026-10-13)
+
+`publication_v7.py` replays exactly the first two rows, in file order, from the
+already-qualified V7 synthetic JSONL. The source SHA is
+`136ea3abb28642e9c6533f49255d991a0d04a606a10b20cb2de856de4e2c0b01`.
+No table or planning result is regenerated. The selected synthetic rows are
+B-D-CHAIN-S4/FULL (TIMEOUT, null objective) and C3-T4/AP-D (OPTIMALITY, rational
+text `4/6`). These labels remain synthetic; the rational text and original
+canonical row bytes are retained, and no scientific certificate is accepted.
+
+The WSL probe at harness commit `90949079a77e26a36eceb1bd38a30b4858f1c3f8`
+uses the original `driver_core_r2.atomic_publish`, `_read_committed` and the
+prior coordinator's actual `Campaign.receipt` function in a fresh output
+directory. It does not construct either Campaign. Two publications and their
+linked receipts pass. Ten negative checks reject duplicate publication, an
+unsafe filename, wrong identity, partial output, unhashed file tampering,
+ledger hash tampering, stale record payload, a changed previous-ledger link,
+a fully rehashed stale V6 descriptor, and V7 dispatch through the frozen driver.
+Every negative has its own retained bytes and exact rejection reason.
+
+The stale V6 control is important: after recomputing all file, result, record
+and ledger hashes, the unmodified coordinator receipt accepts its hashes.
+The added V7 wrapper rejects the backend identity. The generic receipt function
+does not validate V7; this result does not show that the full scientific
+publication gate accepts such a record, because that gate was not invoked.
+
+The frozen driver's real backend-SHA guard rejects the **actual** V7 SHA with
+`backend hash mismatch`, before opening the manifest or spawning a process.
+This identifies a concrete remaining integration requirement: the formal
+worker route and scientific publication/restore gates must be bound to V7 in
+a separate version. The old driver, schemas, budgets and authority were not
+modified to make this check pass.
+
+Process/network audit guards and an adapter-loader guard observe zero calls.
+There are **zero method workers, planner/provider/DDS calls and certificate
+verifier calls**. Input and driver/coordinator/adapter source bytes remain
+unchanged; the 56-file runtime closure and original
+`CMR_SEARCH_ENTRY_V1-2325092433cf5abc` binding are checked before and after.
+The input plan retains source head `6f60801` and its execution identity; the
+new replay harness is recorded separately.
+
+The [evidence index](evidence/20261013_publication_probe/index.json) contains
+the compact raw archive, per-file hashes, original plan/binding bytes, source
+snapshot and command/readback logs. The preceding phase's `UNRUN` publication
+probe is retained as historical evidence. In this new phase, publication
+functions were invoked; full `Campaign.restore_receipts`, scientific validation,
+certificate replay and formal campaign execution remain `UNRUN`, with the
+full campaign chain `UNVERIFIED`. No default switch, PR merge or formal batch
+experiment occurred.

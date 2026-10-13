@@ -1,0 +1,180 @@
+{
+  "schema": "cmr-search-entry-v7-publication-probe-index-v1",
+  "status": "PACKAGED",
+  "archive": {
+    "path": "raw_attempts.zip",
+    "size": 94268,
+    "sha256": "639f7e272194464aef939b248cf9ef7909d1698506d32997e7c4bf3397998d56",
+    "member_count": 114,
+    "file_count": 103
+  },
+  "raw_namespace": {
+    "member_prefix": "raw_attempt",
+    "original_root": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_publication_probe_20261013_r1",
+    "source_plan_head": "6f60801afaed3da950c8d9d0646669f7777a6623",
+    "source_closure_files": 56,
+    "status": "PASSED",
+    "source_execution_identity": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75"
+  },
+  "counts": {
+    "actual_method_workers": 0,
+    "solver_calls": 0,
+    "provider_calls": 0,
+    "dds_calls": 0,
+    "certificate_verifier_calls": 0,
+    "synthetic_rows_selected": 2,
+    "publications": 2,
+    "linked_receipts": 2,
+    "negative_cases": 10
+  },
+  "identity": {
+    "scope": "SYNTHETIC_PUBLICATION_ONLY",
+    "backend": "ros2-v7",
+    "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+    "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+    "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+    "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+    "source_execution_identity": "6f60801afaed3da950c8d9d0646669f7777a6623+cmr-search-entry-a380e76208538c75",
+    "runtime_source_closure_files": 56,
+    "source_rows_sha256": "136ea3abb28642e9c6533f49255d991a0d04a606a10b20cb2de856de4e2c0b01",
+    "source_plan_head": "6f60801afaed3da950c8d9d0646669f7777a6623"
+  },
+  "inputs": {
+    "metadata_plan": {
+      "path": "metadata/plan.json",
+      "size": 17155,
+      "sha256": "0b45409bf63071ab077117dda375874e93a0eeb2707fe22e62348e8a9b725979",
+      "reference_archive": "qualified_continuation/plan.json",
+      "reference_archive_sha256": "0b45409bf63071ab077117dda375874e93a0eeb2707fe22e62348e8a9b725979",
+      "bytes_match_reference": true
+    },
+    "metadata_binding": {
+      "path": "metadata/backend_binding.json",
+      "size": 8034,
+      "sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+      "reference_archive": "qualified_continuation/backend_binding.json",
+      "reference_archive_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+      "bytes_match_reference": true
+    },
+    "source_rows": {
+      "sha256": "136ea3abb28642e9c6533f49255d991a0d04a606a10b20cb2de856de4e2c0b01",
+      "rows": 510,
+      "reference_archive": "qualified_continuation/offline_chain/synthetic_results.jsonl",
+      "reference_archive_sha256": "136ea3abb28642e9c6533f49255d991a0d04a606a10b20cb2de856de4e2c0b01",
+      "copied_to_new_archive": false
+    },
+    "prior_evidence_archive": {
+      "path": "../20261013_failure_dds_chain/raw_attempts.zip",
+      "sha256": "0778c0b45dd4043e1d1cf2484011a1780d0c033acf0f1d89e104674eba2c4a8c",
+      "size": 1270243
+    }
+  },
+  "validation": [
+    {
+      "path": "validation/clone.txt",
+      "size": 75,
+      "sha256": "9c0b54e10e18bd979d651d0a074ff8ac7d5ee79c5b2ac077e47673a956641cb8"
+    },
+    {
+      "path": "validation/probe.txt",
+      "size": 127,
+      "sha256": "0e0affe89b207682320a38b52fe0623517dcd226b547d8e6fa6bc30d931b0bf7"
+    },
+    {
+      "path": "validation/readback.py",
+      "size": 4328,
+      "sha256": "c34441f064c7a0e2f0a97100dbb62601933ad16f4145d5910e3dc3de646567ad"
+    },
+    {
+      "path": "validation/readback.txt",
+      "size": 182,
+      "sha256": "32a6d6acbf6bf827917dfee19b9bd5996a86189c745b328974bdc73c7890b596"
+    },
+    {
+      "path": "validation/run_probe.sh",
+      "size": 1621,
+      "sha256": "719e77c32229ff24126bc332cc47d9cc094b4bd2c9107d52a331e990a1862a94"
+    },
+    {
+      "path": "validation/source.txt",
+      "size": 218,
+      "sha256": "436a0bf419098dc3a863314e68c7c6b6e62829cc08268b3b6a7f7e09175170ee"
+    }
+  ],
+  "harness_sources": [
+    {
+      "path": "harness_sources/publication_v7.py",
+      "size": 17801,
+      "sha256": "8619a4ad86fee2ad672dfd0872d1b5f0e80b825dd029f4fe27d62a9beaf49285",
+      "commit": "90949079a77e26a36eceb1bd38a30b4858f1c3f8",
+      "source_path": "experiments/cmr_ros2_search_entry/publication_v7.py"
+    }
+  ],
+  "metadata": [
+    {
+      "path": "metadata/backend_binding.json",
+      "size": 8034,
+      "sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+    },
+    {
+      "path": "metadata/plan.json",
+      "size": 17155,
+      "sha256": "0b45409bf63071ab077117dda375874e93a0eeb2707fe22e62348e8a9b725979"
+    }
+  ],
+  "execution": {
+    "partial_publication_functions_executed": {
+      "coordinator.Campaign.receipt": 5,
+      "driver._BASE.run_cell": 1,
+      "driver._read_committed": 6,
+      "driver.atomic_publish": 4
+    },
+    "full_Campaign_constructor": "UNRUN",
+    "full_Campaign_restore_receipts": "UNRUN",
+    "scientific_gate": "UNRUN",
+    "certificate_replay": "UNRUN",
+    "formal_campaign_driver_execution": "UNRUN",
+    "fullchain": "UNVERIFIED",
+    "formal_v7_route": "REJECTED_BEFORE_POPEN",
+    "stale_v6_original_receipt": "ACCEPTS_HASHES_ONLY",
+    "stale_v6_wrapper": "REJECTED",
+    "outcome_blind_selection": "first two existing file rows; indices 0,1; no outcome selection"
+  },
+  "sidecars": [
+    {
+      "path": "sidecars/publication_report.json",
+      "size": 4914,
+      "sha256": "7d0220f556345399cf60e97cb1ed558d690832d6dd53e8da58e7efa7a2074eec",
+      "zip_member": "sidecars/publication_report.json",
+      "matches_zip_member": true
+    },
+    {
+      "path": "sidecars/publication_readback.json",
+      "size": 166,
+      "sha256": "cb99fc30e8594f70652ea7e1640b09ba122cd4a631ceca0170d2562965365ea9",
+      "zip_member": "sidecars/publication_readback.json",
+      "matches_zip_member": true
+    }
+  ],
+  "verification": {
+    "archive_members_read_back": true,
+    "raw_source_bytes_preserved": true,
+    "source_and_inputs_unchanged": true,
+    "sidecars_match_zip": true,
+    "zip_compression": "ZIP_DEFLATED"
+  },
+  "limitations": [
+    "publication probe is SYNTHETIC_PUBLICATION_ONLY; it does not qualify a formal campaign or scientific certificate",
+    "the 510-row source is referenced by SHA and prior archive member; it is not copied into this archive",
+    "publication helper functions ran with zero method/solver/provider/DDS/certificate-verifier workers; full campaign constructor, restore path, scientific gate, and certificate replay are UNRUN",
+    "V7 route was rejected before Popen by backend hash guard; stale V6 material was fully rehashed and accepted only by the original hash receipt before the V7 wrapper rejected it"
+  ],
+  "harness": {
+    "source_head": "90949079a77e26a36eceb1bd38a30b4858f1c3f8",
+    "source_path": "experiments/cmr_ros2_search_entry/publication_v7.py",
+    "sha256": "8619a4ad86fee2ad672dfd0872d1b5f0e80b825dd029f4fe27d62a9beaf49285",
+    "tree_before_and_after": "CLEAN",
+    "execution_scope": "SYNTHETIC_PUBLICATION_ONLY",
+    "method_identity_relabelled": false
+  }
+}

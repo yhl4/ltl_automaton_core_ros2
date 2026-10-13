@@ -154,8 +154,14 @@ V7新增独立、固定A/FULL与D1-1/FULL的失败资格范围，原三组性能
 DDS终态（超时、worker崩溃、server错误、不可行）通过，均无动作派发；D1的原求解器与
 V7 exact-empty字段一致。初次测试hook递归与合成标记拒绝保留，仅续验两个失败DDS和
 离线流水线，成功对照未重跑。全新510格V7合成表通过冻结分析器及原子ledger检查；
-其real results为0，正式campaign driver/发布probe仍未执行。61份冻结输入保持，预算、
+其real results为0，该阶段正式campaign driver/发布probe均未执行。61份冻结输入保持，预算、
 证书规则及默认未改；见 [失败DDS与离线链范围](experiments/cmr_ros2_search_entry/README.md#failure-dds-and-synthetic-result-chain-2026-10-13)。
+
+随后仅重放已有V7合成表前两行，原原子发布、读回和coordinator receipt的两条账本链
+通过，10个负例被拒绝，无求解/worker/provider/DDS/证书验证器调用。完全重算哈希的V6
+记录可通过通用receipt，V7包装层拒绝其身份；冻结正式driver也在派发前拒绝真实V7 SHA。
+因此正式worker路由、科学发布门和完整恢复路径仍待接入，尚不能据此切换默认；见
+[原发布函数离线探针](experiments/cmr_ros2_search_entry/README.md#frozen-publication-probe-2026-10-13)。
 
 ---
 
