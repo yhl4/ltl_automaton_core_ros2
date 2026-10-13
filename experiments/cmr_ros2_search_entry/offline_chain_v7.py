@@ -38,6 +38,8 @@ V7_LABEL = "SYNTHETIC_SEARCH_ENTRY_V7_VALIDATION_ONLY"
 V7_PROVENANCE = "SYNTHETIC_SEARCH_ENTRY_V7_OFFLINE_ONLY"
 V7_BACKENDS = ("reference", "ros2-v6", "ros2-v7")
 V7_BINDING_PREFIX = "CMR_SEARCH_ENTRY_V1-"
+FROZEN_SYNTHETIC_LABEL = "SYNTHETIC_ANALYSIS_PIPELINE_VALIDATION_ONLY"
+FROZEN_SYNTHETIC_PROVENANCE = "SYNTHETIC_OFFLINE_ONLY"
 
 
 class QualificationError(ValueError):
@@ -309,11 +311,34 @@ def qualify(args: argparse.Namespace) -> dict[str, Any]:
         raise QualificationError("offline_chain.py changed before AST specialization")
     module, rebinding = _specialize_base()
     module.SCOPE = V7_SCOPE
-    module.SYNTHETIC_LABEL = V7_LABEL
-    module.SYNTHETIC_PROVENANCE = V7_PROVENANCE
+    # The frozen analyzer explicitly accepts only these marker values.  Keep
+    # them unchanged and carry the V7 identity in additional fields below.
+    if (module.SYNTHETIC_LABEL != FROZEN_SYNTHETIC_LABEL or
+            module.SYNTHETIC_PROVENANCE != FROZEN_SYNTHETIC_PROVENANCE):
+        raise QualificationError("frozen synthetic marker contract changed")
     backends = _V7Backends(Path(args.version_binding).resolve())
     module.load_backends = lambda: backends
     module.validate_version_binding_contract = _validate_v7_binding
+    original_synthetic_rows = module.synthetic_rows
+
+    def synthetic_rows_v7(schedule: dict[str, Any], descriptor: dict[str, Any],
+                          fixture: Any) -> list[dict[str, Any]]:
+        rows = original_synthetic_rows(schedule, descriptor, fixture)
+        for row in rows:
+            row.update({"v7_scope": V7_SCOPE,
+                        "v7_provenance": V7_PROVENANCE,
+                        "v7_version_binding_id": descriptor["version_binding_id"],
+                        "v7_version_binding_sha256": descriptor["version_binding_sha256"]})
+            for round_row in row.get("rounds") or []:
+                round_row.update({"v7_scope": V7_SCOPE,
+                                  "v7_provenance": V7_PROVENANCE,
+                                  "v7_version_binding_id": descriptor["version_binding_id"],
+                                  "v7_version_binding_sha256": descriptor["version_binding_sha256"]})
+            row.pop('result_hash', None)
+            row['result_hash'] = sha256_bytes(canonical(row).encode('utf-8'))
+        return rows
+
+    module.synthetic_rows = synthetic_rows_v7
     original_formal_driver_sources = module.formal_driver_sources
 
     def formal_driver_sources_metadata(execution_path: Path) -> dict[str, Any]:
@@ -388,6 +413,16 @@ def qualify(args: argparse.Namespace) -> dict[str, Any]:
             "source_root": identity["root"],
         },
         "source_rebinding": rebinding,
+        "frozen_synthetic_markers": {
+            "fixture_label": FROZEN_SYNTHETIC_LABEL,
+            "provenance_kind": FROZEN_SYNTHETIC_PROVENANCE,
+        },
+        "v7_metadata": {
+            "scope": V7_SCOPE,
+            "provenance": V7_PROVENANCE,
+            "backend": "ros2-v7",
+            "version_binding_id": binding["binding_id"],
+        },
         "runtime_source_closure": runtime_closure,
         "offline_rejection_checks": {
             "frozen_schedule_exception_unified": frozen_schedule_type_check,

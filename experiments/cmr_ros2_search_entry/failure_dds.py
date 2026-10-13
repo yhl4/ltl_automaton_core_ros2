@@ -3,6 +3,7 @@
 import argparse
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import traceback
@@ -27,8 +28,13 @@ def child(mode, argv):
             return original(args, plan, cell, output)
         entry = runner.VerifiedEntry(plan, runner.source_closure, runner.schema_for)
         request = runner.request_for(plan, entry, cell, 'ros2-v7')
-        return lifecycle.run_fault(request, args.binding, args.kernel_root,
-            Path(plan['version_binding_path']), args.output/'plan.json', output, mode)
+        # run_fault calls candidate_isolated itself; do not re-enter this hook.
+        runner.candidate_isolated = original
+        try:
+            return lifecycle.run_fault(request, args.binding, args.kernel_root,
+                Path(plan['version_binding_path']), args.output/'plan.json', output, mode)
+        finally:
+            runner.candidate_isolated = candidate
     runner.candidate_isolated = candidate
     try:
         return dds.main(argv)
@@ -36,7 +42,7 @@ def child(mode, argv):
         runner.candidate_isolated = original
 
 
-def run(args, plan, output):
+def run(args, plan, output, *, continue_from=None):
     from experiments.cmr_ros2_search_entry import runner, dds
     plan = runner.load_plan(args.plan)
     if plan['scope'] != runner.DDS_FAILURE_SCOPE:
@@ -49,22 +55,48 @@ def run(args, plan, output):
     entry = runner.VerifiedEntry(plan, runner.source_closure, runner.schema_for)
     descriptor = entry.describe('ros2-v7')
     dcell = cells[('D1-1', 'FULL')]
-    reference = runner.candidate_isolated(args, plan, dcell,
-                                         output/'reference_D1', backend_name='reference')
+    carried = {}
+    continuation = None
+    if continue_from is not None:
+        prior = Path(continue_from).resolve()
+        old = json.loads((prior/'dds_failures/failure_dds_report.json').read_bytes())
+        old_plan = runner.load_plan(prior/'plan.json')
+        passed = {c['mode']:c for c in old['cases'] if c['artifact']['status']=='PASSED'}
+        if (old['status'] != 'FAILED' or set(passed) != {'server_error','none'}
+                or old['descriptor'] != descriptor or old_plan['cells'] != plan['cells']
+                or old_plan['source_closure'] != plan['source_closure']):
+            raise ValueError('continuation is not the recorded two-case hook failure')
+        directories = [prior/'dds_failures/reference_D1'] + [
+            prior/'dds_failures'/('dds_'+mode) for mode in passed]
+        files = {str(p.relative_to(prior)):runner.digest(p)
+                 for directory in directories for p in directory.rglob('*') if p.is_file()}
+        continuation = dict(original_root=str(prior), original_plan_sha256=runner.digest(prior/'plan.json'),
+                            files=files, method_workers=2, dds_cases=2)
+        for directory in directories:
+            shutil.copytree(directory, output/directory.name)
+        reference = old['reference']
+        carried = passed
+    else:
+        reference = runner.candidate_isolated(args, plan, dcell,
+                                             output/'reference_D1', backend_name='reference')
     if reference['row']['terminal_status'] != 'INFEASIBLE_CERTIFIED':
         raise AssertionError('original D1 exact-empty control failed')
     report = dict(schema='cmr-v7-failure-dds-qualification-v1', status='RUNNING',
                   source_head=plan['source_head'], execution_identity=plan['execution_identity'],
                   descriptor=descriptor, domain_id=DOMAIN_ID, cases=[],
-                  reference=reference, method_workers=4, dds_cases=4,
+                  reference=reference, expected_method_workers=4, method_workers=1, dds_cases=4,
                   harness_sha256=runner.digest(Path(__file__)),
                   lifecycle_harness_sha256=runner.digest(HERE/'lifecycle.py'),
+                  continuation=continuation,
                   planner_budget_seconds=180, outer_watchdog_seconds=195,
                   formal_campaign=False, provider_calls=0)
     dds._write_json(output/'failure_dds_report.json', report)
     real_popen = subprocess.Popen
     old_domain = dds.DOMAIN_ID
     for mode, instance, terminal in CASES:
+        if mode in carried:
+            report['cases'].append(carried[mode])
+            continue
         directory = output/('dds_'+mode)
         request = dict(runner.request_for(plan, entry, cells[(instance,'FULL')], 'ros2-v7'),
                        request_id='cmr-v7-failure-'+mode)
@@ -96,9 +128,17 @@ def run(args, plan, output):
         directory.mkdir(parents=True, exist_ok=True)
         dds._write_json(directory/'dds_artifact.json', artifact)
         report['cases'].append(dict(mode=mode, expected_terminal=terminal, artifact=artifact))
+        report['method_workers'] = 1 + sum(
+            isinstance(c['artifact'].get('driver',{}).get('result',{}).get('worker_pid'),int)
+            for c in report['cases'])
         dds._write_json(output/'failure_dds_report.json', report)
         print(json.dumps(dict(mode=mode, status=artifact['status'])), flush=True)
     entry.release_check()
+    report['method_workers'] = 1 + sum(
+        isinstance(c['artifact'].get('driver',{}).get('result',{}).get('worker_pid'),int)
+        for c in report['cases'])
+    report['new_method_workers'] = report['method_workers'] - (2 if continuation else 0)
+    report['new_dds_cases'] = 2 if continuation else 4
     report['status'] = 'PASSED' if all(c['artifact']['status']=='PASSED' for c in report['cases']) else 'FAILED'
     dds._write_json(output/'failure_dds_report.json', report)
     return report
