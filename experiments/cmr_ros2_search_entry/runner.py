@@ -145,7 +145,12 @@ def configure(formal, name, descriptor):
 
 
 def request_for(plan, entry, cell, name):
-    return dict(cell, **entry.describe(name), qualification_id=plan['qualification_id'],
+    records = [record for record in plan['records'] if record['instance_id'] == cell['instance_id']]
+    if len(records) != 1:
+        raise ValueError('request input is not uniquely in the frozen plan')
+    # The original pre-method failure serializer takes identity from the request.
+    return dict(cell, instance_sha256=records[0]['instance_sha256'],
+        **entry.describe(name), qualification_id=plan['qualification_id'],
         population=plan['scope'], formal_campaign=False,
         execution_identity=plan['execution_identity'],
         planner_budget_seconds=180, outer_watchdog_seconds=195)

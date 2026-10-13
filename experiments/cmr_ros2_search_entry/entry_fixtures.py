@@ -61,6 +61,7 @@ def _plan(binding_path, binding_sha, closure):
         "qualification_id": "FIXTURE_QUALIFICATION",
         "scope": "FIXTURE_SCOPE",
         "execution_identity": "fixture-execution",
+        "records": [{"instance_id": "fixture-1", "instance_sha256": "1" * 64}],
         "cells": [{
             "instance_id": "fixture-1",
             "method": "FULL",
@@ -111,6 +112,7 @@ def run_fixtures() -> dict:
         entry = VerifiedEntry(plan, closure_fn, schema_factory)
         request = {
             **plan["cells"][0],
+            "instance_sha256": plan["records"][0]["instance_sha256"],
             **entry.describe("reference"),
             "qualification_id": plan["qualification_id"],
             "population": plan["scope"],
@@ -143,6 +145,10 @@ def run_fixtures() -> dict:
                 {**request, "instance_id": "other"})),
             _raises("wrong_request_budget", lambda: entry.validate_request(
                 {**request, "planner_budget_seconds": 179})),
+            _raises("wrong_request_instance_hash", lambda: entry.validate_request(
+                {**request, "instance_sha256": "0" * 64})),
+            _raises("missing_request_instance_hash", lambda: entry.validate_request(
+                {k: v for k, v in request.items() if k != "instance_sha256"})),
             _raises("receipt_cache_identity", lambda: entry.schema(
                 "reference", {"receipt": "two"})),
         ])

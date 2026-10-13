@@ -220,7 +220,17 @@ class VerifiedEntry:
                    and cell.get("method") == method]
         if len(matches) != 1:
             raise ValueError("request cell is not uniquely in the frozen plan")
+        records = self._plan.get("records")
+        if not isinstance(records, list):
+            raise ValueError("plan.records must be a list")
+        record_matches = [record for record in records
+                          if isinstance(record, Mapping)
+                          and record.get("instance_id") == instance_id]
+        if len(record_matches) != 1:
+            raise ValueError("request input is not uniquely in the frozen plan")
         expected = dict(matches[0])
+        expected["instance_sha256"] = _require_text(
+            record_matches[0].get("instance_sha256"), "record.instance_sha256")
         expected.update(self.describe(request.get("backend")),
                         qualification_id=_require_text(
                             self._plan.get("qualification_id"),
