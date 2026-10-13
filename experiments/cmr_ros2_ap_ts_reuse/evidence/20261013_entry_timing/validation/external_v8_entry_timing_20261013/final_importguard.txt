@@ -1,0 +1,6 @@
+python_executable /usr/bin/python3
+cwd /tmp/cmr_v8_entry_source_eb5e689_20261013
+git_head eb5e6896c763559def6ac65641bb902592dd9eda
+git_status ''
+discrete_plan /tmp/cmr_v8_entry_source_eb5e689_20261013/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py
+discrete_plan_sha256 556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b

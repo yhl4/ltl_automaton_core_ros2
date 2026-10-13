@@ -1,0 +1,9 @@
+Command: wsl.exe -d Ubuntu-22.04-D -- python3 -B /mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v8_entry_timing_20261013/read_entry_timing_final.py
+Exit code: 1
+Traceback (most recent call last):
+  File "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v8_entry_timing_20261013/read_entry_timing_final.py", line 38, in <module>
+    assert read(OUT/'entry_checks.json')['status']=='PASS'
+AssertionError
+
+The check artifacts use the aggregate literal PASSED, with per-check PASS.
+No worker, solver or verifier was started by this readback.

@@ -1,0 +1,154 @@
+{
+  "artifact_hashes": {
+    "profile": "c0239430de68887ef177c3bc0200c6ddfd2046cdcbb327e43e73577a17083863",
+    "result.json": "b031b34bfc6f8d5a9025d2adf3bf1b3ae562ebc6d6109a0927f710704045c421",
+    "worker_timing.json": "3303c3517c231974007af6a25d9135ae8e4af3681f1d0f79e36045bfbe1b9476"
+  },
+  "authority": {
+    "elapsed_seconds": 4.237128504,
+    "manifest_binding_sha256": "9c82640d06ee2388e5a809ab3a20c6a92c532036a1df3e43bc1acdb372f3f044",
+    "record_count": 170
+  },
+  "preflight": {
+    "breakdown": {
+      "import_module": {
+        "calls": 6,
+        "cumulative_seconds": 0.00019480000000000002,
+        "functions": [
+          {
+            "calls": 3,
+            "cumulative_seconds": 0.0001056,
+            "file": "/usr/lib/python3.10/importlib/__init__.py",
+            "function": "import_module",
+            "line": 108
+          },
+          {
+            "calls": 3,
+            "cumulative_seconds": 8.92e-05,
+            "file": "<frozen importlib._bootstrap>",
+            "function": "_find_and_load",
+            "line": 1022
+          }
+        ],
+        "primitive_calls": 6
+      },
+      "path_resolve": {
+        "calls": 14,
+        "cumulative_seconds": 0.21092970000000003,
+        "functions": [
+          {
+            "calls": 14,
+            "cumulative_seconds": 0.21092970000000003,
+            "file": "/usr/lib/python3.10/pathlib.py",
+            "function": "resolve",
+            "line": 1064
+          }
+        ],
+        "primitive_calls": 14
+      },
+      "source_hashing_read": {
+        "calls": 24,
+        "cumulative_seconds": 0.07289590000000001,
+        "functions": [
+          {
+            "calls": 8,
+            "cumulative_seconds": 0.0364611,
+            "file": "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py",
+            "function": "sha256_file",
+            "line": 102
+          },
+          {
+            "calls": 8,
+            "cumulative_seconds": 0.036106900000000004,
+            "file": "/usr/lib/python3.10/pathlib.py",
+            "function": "read_bytes",
+            "line": 1122
+          },
+          {
+            "calls": 8,
+            "cumulative_seconds": 0.0003279,
+            "file": "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_p2f_label_bucket_grouping_20261001/formal_runner_p2f.py",
+            "function": "sha256_bytes",
+            "line": 98
+          }
+        ],
+        "primitive_calls": 24
+      }
+    },
+    "elapsed_seconds": 0.2482299,
+    "error": null,
+    "observed": {
+      "abstraction_sha256": "c964ad7c6cf8f80d9d0831f6955ebe651efa7701a3ccf1304d332b421efa8dfc",
+      "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+      "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+      "loader_sha256": "ec1ad7ca8df827ad339cd253f3841ebfe56d91ef5e2aeb37acb79fe57f7179ac",
+      "model_sha256": "3b2c4ebf6c5fdaea9798048835cc11795020a012e7a294733717dd0b35b6a206",
+      "parent_abstraction_sha256": "13089b8ea6c61a2bd6b6d5d77b4f6c40b43fc15074f6feb4fbcb394166795907",
+      "reference_sha256": "2ae9752cf819044d14910f4129f97cfd61d25959339749aa3122eaba2fdd7eb9",
+      "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+      "solver_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+      "status": "PASS",
+      "verifier_sha256": "c3f2888fd5e5841015c74a602308d05a059891cf0e86553c59e6186f86a94704"
+    },
+    "profile_calls": 3305,
+    "profile_primitive_calls": 3305
+  },
+  "probe_scope": {
+    "DDS_requests": 0,
+    "authority_calls": 1,
+    "configure_calls": 0,
+    "formal_preflight_calls": 1,
+    "preflight_is_additional_read_only_probe": true,
+    "provider_calls": 0,
+    "run_one_calls": 0,
+    "solver_execution_calls": 0,
+    "verifier_calls": 0,
+    "worker_dispatches": 0
+  },
+  "source": {
+    "clone": "/tmp/cmr_v8_entry_source_111ae6c_20261013",
+    "clone_status": "",
+    "execution_identity": "111ae6c4e35a961c779ebf2d7bda9680bafd8798+cmr-ap-ts-reuse-3878a87731e7d297",
+    "formal_module": "",
+    "head": "111ae6c4e35a961c779ebf2d7bda9680bafd8798",
+    "plan": "/tmp/cmr_v8_entry_timing_20261013/plan.json",
+    "version_binding_id": "CMR_AP_TS_REUSE_V1-232247646823cb54",
+    "version_binding_path": "/tmp/cmr_v8_entry_timing_20261013/backend_binding.json",
+    "version_binding_sha256": "a1c1d3a0cf326f83098a9700445eb252cd2e607840b1067f2f1029d9ee46cda2"
+  },
+  "status": "PASSED",
+  "v8_worker_persist_diagnostics": {
+    "T_certification": 0.119561002,
+    "T_input_preprocess": 0.358875606,
+    "T_other": 0.2597190199999999,
+    "T_total": 1.039966433,
+    "backend": "ros2-v8",
+    "core_timing": {
+      "certificate__certificate_payload": {
+        "calls": 1,
+        "elapsed_ns": 63000
+      },
+      "certificate_canonical_record": {
+        "calls": 1,
+        "elapsed_ns": 63486201
+      },
+      "certificate_fsync": {
+        "calls": 1,
+        "elapsed_ns": 2873400
+      },
+      "certificate_sha256_file": {
+        "calls": 1,
+        "elapsed_ns": 48100
+      },
+      "certificate_verify_bound_certificate": {
+        "calls": 1,
+        "elapsed_ns": 52698301
+      }
+    },
+    "objective": "12",
+    "persist_code_preserved": true,
+    "post_runner_delivery_seconds": 0.25422532,
+    "run_one_code_preserved": true,
+    "terminal_status": "OPTIMALITY_CERTIFIED"
+  }
+}

@@ -1,0 +1,20 @@
+Tue Oct 13 22:36:30 2026    /mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v8_entry_timing_20261013/preflight_profile.prof
+
+         3305 function calls in 0.248 seconds
+
+   Ordered by: cumulative time
+   List reduced from 73 to 10 due to restriction <10>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.248    0.248 formal_runner_p2f.py:111(preflight)
+       14    0.000    0.000    0.211    0.015 pathlib.py:1064(resolve)
+       14    0.000    0.000    0.166    0.012 posixpath.py:389(realpath)
+       14    0.001    0.000    0.166    0.012 posixpath.py:398(_joinrealpath)
+      154    0.164    0.001    0.164    0.001 {built-in method posix.lstat}
+        1    0.000    0.000    0.084    0.084 {built-in method builtins.any}
+        4    0.000    0.000    0.084    0.021 formal_runner_p2f.py:134(<genexpr>)
+       14    0.000    0.000    0.045    0.003 pathlib.py:1092(stat)
+       14    0.044    0.003    0.044    0.003 {built-in method posix.stat}
+        8    0.000    0.000    0.036    0.005 formal_runner_p2f.py:102(sha256_file)
+
+

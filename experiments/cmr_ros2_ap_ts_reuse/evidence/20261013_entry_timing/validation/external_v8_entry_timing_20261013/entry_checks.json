@@ -1,0 +1,135 @@
+{
+  "checks": [
+    {
+      "detail": {
+        "fresh_backend_id": "v8-id",
+        "fresh_instance_id": "I0"
+      },
+      "name": "descriptor_and_request_deepcopy_isolation",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "entry_instance_id": "I0"
+      },
+      "name": "plan_deepcopy_isolation",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "factory_calls": 1,
+        "metrics": {
+          "binding_reads": 3,
+          "descriptor_requests": 5,
+          "release_checks": 1,
+          "schema_builds": 1,
+          "schema_requests": 2
+        },
+        "timing": {
+          "schema_validate_result": {
+            "calls": 2,
+            "elapsed_ns": 3400
+          }
+        },
+        "validation_calls": 2
+      },
+      "name": "schema_single_build_two_validations",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "exception": "ValueError",
+        "message": "entry receipt changed"
+      },
+      "name": "receipt_identity_change_rejected",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "binding_reads": 2,
+        "descriptor_requests": 5,
+        "release_checks": 1,
+        "schema_builds": 1,
+        "schema_requests": 2
+      },
+      "name": "release_baseline_passes",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "exception": "ValueError",
+        "message": "source changed before publication"
+      },
+      "name": "release_source_change_rejected",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "exception": "ValueError",
+        "message": "binding changed before publication"
+      },
+      "name": "release_binding_change_rejected",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "exception": "ValueError",
+        "message": "authority receipt changed before publication"
+      },
+      "name": "release_authority_change_rejected",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "capture": {
+          "backend_binding": {
+            "backend": "ros2-v8",
+            "backend_id": "v8-id",
+            "backend_sha256": "v8-sha",
+            "version_binding_id": "FAKE-BINDING-V1",
+            "version_binding_sha256": "ccd306ea88390e3a177464d1abf2c8af3a735c6c1f10bad8191a51190bc6263e"
+          },
+          "backend_id": "v8-id",
+          "backend_sha256": "v8-sha"
+        },
+        "core_timing": {
+          "original_function_code_preserved": {
+            "persist_and_verify_certificate": true,
+            "run_one": true
+          }
+        },
+        "fake_result": {
+          "backend_id": "selected-v8",
+          "method_local": "selected-local"
+        },
+        "original_calls": 1
+      },
+      "name": "configure_then_instrument_selected_globals",
+      "status": "PASS"
+    }
+  ],
+  "factory_calls": [
+    {
+      "name": "reference",
+      "receipt": {
+        "receipt": "one",
+        "version": 1
+      }
+    }
+  ],
+  "notes": [
+    "All files used by the checks were temporary files.",
+    "configure used a fake backend and fake formal; no frozen authority or run_one was invoked.",
+    "The cloned fake run_one body was called once as a no-solver stub."
+  ],
+  "profile_scope": {
+    "DDS": 0,
+    "authority": "temporary file digest only",
+    "load_plan": "mocked",
+    "provider": 0,
+    "run_one": 0,
+    "solver": 0,
+    "source_closure": "mocked except mutation checks"
+  },
+  "status": "PASSED"
+}

@@ -1,0 +1,82 @@
+Tue Oct 13 22:36:30 2026    /mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v8_entry_timing_20261013/preflight_profile.prof
+
+         3305 function calls in 0.248 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.248    0.248 formal_runner_p2f.py:111(preflight)
+       14    0.000    0.000    0.211    0.015 pathlib.py:1064(resolve)
+       14    0.000    0.000    0.166    0.012 posixpath.py:389(realpath)
+       14    0.001    0.000    0.166    0.012 posixpath.py:398(_joinrealpath)
+      154    0.164    0.001    0.164    0.001 {built-in method posix.lstat}
+        1    0.000    0.000    0.084    0.084 {built-in method builtins.any}
+        4    0.000    0.000    0.084    0.021 formal_runner_p2f.py:134(<genexpr>)
+       14    0.000    0.000    0.045    0.003 pathlib.py:1092(stat)
+       14    0.044    0.003    0.044    0.003 {built-in method posix.stat}
+        8    0.000    0.000    0.036    0.005 formal_runner_p2f.py:102(sha256_file)
+        8    0.000    0.000    0.036    0.005 pathlib.py:1122(read_bytes)
+        8    0.000    0.000    0.025    0.003 pathlib.py:1111(open)
+        8    0.025    0.003    0.025    0.003 {built-in method io.open}
+        8    0.005    0.001    0.005    0.001 {method '__exit__' of '_io._IOBase' objects}
+        8    0.005    0.001    0.005    0.001 {method 'read' of '_io.BufferedReader' objects}
+      154    0.000    0.000    0.001    0.000 posixpath.py:71(join)
+       34    0.000    0.000    0.001    0.000 pathlib.py:569(_parse_args)
+       21    0.000    0.000    0.001    0.000 pathlib.py:589(_from_parts)
+       34    0.000    0.000    0.000    0.000 pathlib.py:56(parse_parts)
+        8    0.000    0.000    0.000    0.000 formal_runner_p2f.py:98(sha256_bytes)
+        8    0.000    0.000    0.000    0.000 {built-in method _hashlib.openssl_sha256}
+       36    0.000    0.000    0.000    0.000 pathlib.py:631(__fspath__)
+       14    0.000    0.000    0.000    0.000 posixpath.py:374(abspath)
+        7    0.000    0.000    0.000    0.000 pathlib.py:957(__new__)
+       13    0.000    0.000    0.000    0.000 pathlib.py:853(__truediv__)
+       36    0.000    0.000    0.000    0.000 pathlib.py:621(__str__)
+       13    0.000    0.000    0.000    0.000 pathlib.py:615(_make_child)
+      182    0.000    0.000    0.000    0.000 posixpath.py:41(_get_sep)
+       14    0.000    0.000    0.000    0.000 posixpath.py:335(normpath)
+      258    0.000    0.000    0.000    0.000 {built-in method posix.fspath}
+      288    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+        3    0.000    0.000    0.000    0.000 __init__.py:108(import_module)
+      247    0.000    0.000    0.000    0.000 {built-in method sys.intern}
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:1038(_gcd_import)
+      213    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:1022(_find_and_load)
+       34    0.000    0.000    0.000    0.000 pathlib.py:239(splitroot)
+      154    0.000    0.000    0.000    0.000 {method 'partition' of 'str' objects}
+       28    0.000    0.000    0.000    0.000 posixpath.py:60(isabs)
+       31    0.000    0.000    0.000    0.000 pathlib.py:608(_format_parsed_parts)
+        7    0.000    0.000    0.000    0.000 pathlib.py:663(__eq__)
+      154    0.000    0.000    0.000    0.000 {built-in method _stat.S_ISLNK}
+       14    0.000    0.000    0.000    0.000 pathlib.py:654(_cparts)
+        8    0.000    0.000    0.000    0.000 pathlib.py:865(parent)
+      456    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+       35    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+       21    0.000    0.000    0.000    0.000 pathlib.py:600(_from_parsed_parts)
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:169(__enter__)
+        6    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:179(_get_module_lock)
+       45    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+      154    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+       42    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x623f757eb9a0}
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:216(_lock_unlock_module)
+        6    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:125(release)
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:173(__exit__)
+        8    0.000    0.000    0.000    0.000 {method 'hexdigest' of '_hashlib.HASH' objects}
+       13    0.000    0.000    0.000    0.000 pathlib.py:94(join_parsed_parts)
+       21    0.000    0.000    0.000    0.000 {method 'lstrip' of 'str' objects}
+        6    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:100(acquire)
+       50    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+        6    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:71(__init__)
+        6    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:198(cb)
+       34    0.000    0.000    0.000    0.000 {method 'reverse' of 'list' objects}
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:968(_sanity_check)
+       12    0.000    0.000    0.000    0.000 {built-in method _thread.allocate_lock}
+        9    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+       14    0.000    0.000    0.000    0.000 pathlib.py:257(casefold_parts)
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:165(__init__)
+       12    0.000    0.000    0.000    0.000 {built-in method _imp.acquire_lock}
+       12    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
+       12    0.000    0.000    0.000    0.000 {method '__exit__' of '_thread.lock' objects}
+       12    0.000    0.000    0.000    0.000 {built-in method _imp.release_lock}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+

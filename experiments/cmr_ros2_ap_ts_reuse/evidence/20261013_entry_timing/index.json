@@ -1,0 +1,197 @@
+{
+  "archive": {
+    "manifest_path": "archive_manifest.json",
+    "member_count": 224,
+    "path": "raw_attempts.zip",
+    "sha256": "0a923837b0129164236046b4358c07c778354269c65d7f61e7b367d10eb416d7",
+    "size": 622024
+  },
+  "artifact_manifest": {
+    "file_count": 50,
+    "path": "artifact_manifest.json",
+    "sha256": "e215eaffb5188228fd49ec44e3bfc20257a90721bd557799d3c8d73057eb92dc",
+    "size": 9367
+  },
+  "bindings": {
+    "final": {
+      "binding_id": "CMR_AP_TS_REUSE_V1-69b63b12cd3b9632",
+      "binding_sha256": "93c5c241046df1d02b92381b9c471deb447068bc87e5e2e462b21a9be643defb"
+    },
+    "intermediate": {
+      "binding_id": "CMR_AP_TS_REUSE_V1-232247646823cb54",
+      "binding_sha256": "a1c1d3a0cf326f83098a9700445eb252cd2e607840b1067f2f1029d9ee46cda2"
+    }
+  },
+  "helper_failures_path": "helper_failures.json",
+  "historical_references": {
+    "baseline_commit": "00fc5a91383b24f85d33aa81682af22e531234cf",
+    "old_v8_archive": {
+      "copied": false,
+      "path": "experiments/cmr_ros2_ap_ts_reuse/evidence/20261013/raw_attempts.zip",
+      "sha256": "5c30760ae6af2a7cb1c7296c32517cb41ea2c66d1763ad88a13974c76026f335"
+    },
+    "prior_v7": "Referenced by existing V7 evidence; not relabeled or copied into this package."
+  },
+  "namespaces": {
+    "final_eb5e689": {
+      "additional_persisted_replays": 3,
+      "certificate_replay_status": "PASS",
+      "execution_identity": "eb5e6896c763559def6ac65641bb902592dd9eda+cmr-ap-ts-reuse-0fad494c26bd32d9",
+      "formal_campaign": false,
+      "frozen_inputs": 56,
+      "internal_certificate_verifier_calls": 3,
+      "prefix": "final_eb5e689/",
+      "run_one": 3,
+      "source_closure_files": 60,
+      "source_head": "eb5e6896c763559def6ac65641bb902592dd9eda",
+      "v8_full_ts": "1 build + 5 hits",
+      "version_binding_id": "CMR_AP_TS_REUSE_V1-69b63b12cd3b9632",
+      "version_binding_sha256": "93c5c241046df1d02b92381b9c471deb447068bc87e5e2e462b21a9be643defb",
+      "workers": 3
+    },
+    "intermediate_111ae6c": {
+      "additional_persisted_replays": 3,
+      "execution_identity": "111ae6c4e35a961c779ebf2d7bda9680bafd8798+cmr-ap-ts-reuse-3878a87731e7d297",
+      "formal_campaign": false,
+      "frozen_inputs": 56,
+      "internal_certificate_verifier_calls": 3,
+      "prefix": "intermediate_111ae6c/",
+      "run_one": 3,
+      "source_closure_files": 60,
+      "source_head": "111ae6c4e35a961c779ebf2d7bda9680bafd8798",
+      "version_binding_id": "CMR_AP_TS_REUSE_V1-232247646823cb54",
+      "version_binding_sha256": "a1c1d3a0cf326f83098a9700445eb252cd2e607840b1067f2f1029d9ee46cda2",
+      "workers": 3
+    }
+  },
+  "readback": {
+    "final_eb5e689": {
+      "actual_run_one": 3,
+      "actual_workers": 3,
+      "delivery_guard": "release_completed_ns equals final row terminal_completion_ns; guard cost is included in T_total and T_other.",
+      "semantic_result": "PASS",
+      "source_files": 60,
+      "source_head": "eb5e6896c763559def6ac65641bb902592dd9eda",
+      "status": "PASSED",
+      "timing_claim": "FINAL_GUARDED"
+    },
+    "independent_package_readback": {
+      "archive_members": 224,
+      "artifact_files": 47,
+      "exact_git_blobs": 3,
+      "execution_count": 1,
+      "frozen_inputs_per_namespace": 56,
+      "note": "Independent readback checked the pre-refresh 47-file artifact manifest; archive224 and Git blobs3 remain complete.",
+      "recorded_extra_replays_pass": 6,
+      "solver_calls": 0,
+      "source_files_per_namespace": 60,
+      "status": "PASSED",
+      "verifier_calls": 0,
+      "workers_started": 0
+    },
+    "intermediate_111ae6c": {
+      "actual_run_one": 3,
+      "actual_workers": 3,
+      "limitation": "Source/release check was sampled after the recorded terminal timestamp; its added cost was not included in T_total. This namespace is not the final timing conclusion.",
+      "semantic_result": "PASS",
+      "source_files": 60,
+      "source_head": "111ae6c4e35a961c779ebf2d7bda9680bafd8798",
+      "status": "PASSED",
+      "timing_claim": "INTERMEDIATE_ONLY"
+    },
+    "packaging_member_byte_validation": true,
+    "readback_execution_in_package": 0
+  },
+  "schema": "cmr-ap-ts-reuse-entry-timing-evidence-index-v1",
+  "source_snapshots": {
+    "runner_111ae6c.py": {
+      "commit": "111ae6c4e35a961c779ebf2d7bda9680bafd8798",
+      "sha256": "dcdba9105a23f69cbe3609be0deab4ae6a8790a440472feb2cc62bdbdee9338c",
+      "size": 20202,
+      "source_path": "experiments/cmr_ros2_ap_ts_reuse/runner.py"
+    },
+    "runner_86f099c.py": {
+      "commit": "86f099cfe08a3c448f659c82a0269bf34994a832",
+      "sha256": "fbe322c4df3ec08bea1214bfcc201763ae2c060cc980748a127f44b3e003b805",
+      "size": 12720,
+      "source_path": "experiments/cmr_ros2_ap_ts_reuse/runner.py"
+    },
+    "runner_eb5e689.py": {
+      "commit": "eb5e6896c763559def6ac65641bb902592dd9eda",
+      "sha256": "840bc064cf7ca6c088320459db7c6786c3570866e92887c76ffc26df8a6c5148",
+      "size": 20905,
+      "source_path": "experiments/cmr_ros2_ap_ts_reuse/runner.py"
+    }
+  },
+  "status": "VERIFIED",
+  "task_totals": {
+    "DDS_requests_during_packaging": 0,
+    "additional_persisted_replays": 6,
+    "independent_package_readback_runs": 1,
+    "independent_package_readback_solver_calls": 0,
+    "independent_package_readback_verifier_calls": 0,
+    "independent_package_readback_workers": 0,
+    "internal_certificate_verifier_calls": 6,
+    "package_readback_runs": 0,
+    "provider_calls_during_packaging": 0,
+    "run_one": 6,
+    "solver_runs_during_packaging": 0,
+    "workers": 6
+  },
+  "timing_and_scope": {
+    "final_timing_rule": "eb5e689 delivery guard samples completion after release and is charged in row timing.",
+    "intermediate_timing_limitation": "111ae6c source/release check after timestamp; added work not charged in T_total.",
+    "no_performance_generalization": true,
+    "objective": "prefix_cost + 10*suffix_cost",
+    "outer_watchdog_seconds": 195,
+    "planner_budget_seconds": 180,
+    "profile_note": "preflight source_hashing_read aggregate had nested double counting; use top-level 8 sha256_file calls at 36.4611 ms, 14 Path.resolve calls at 210.9297 ms, and top-level import_module 3 calls at 0.1056 ms. authority internally also invokes one preflight; explicit profiled preflight is separate.",
+    "semantic_contract": "INITIAL_LABEL_V1"
+  },
+  "validation_paths": [
+    "validation/external_v8_entry_timing_20261013/clone.txt",
+    "validation/external_v8_entry_timing_20261013/clone_head.txt",
+    "validation/external_v8_entry_timing_20261013/clone_status.txt",
+    "validation/external_v8_entry_timing_20261013/control_plane.prof",
+    "validation/external_v8_entry_timing_20261013/control_plane_profile_full.txt",
+    "validation/external_v8_entry_timing_20261013/control_plane_profile_top10.txt",
+    "validation/external_v8_entry_timing_20261013/control_plane_timing.json",
+    "validation/external_v8_entry_timing_20261013/entry_checks.json",
+    "validation/external_v8_entry_timing_20261013/entry_checks.py",
+    "validation/external_v8_entry_timing_20261013/final_clone.txt",
+    "validation/external_v8_entry_timing_20261013/final_clone_head.txt",
+    "validation/external_v8_entry_timing_20261013/final_clone_status.txt",
+    "validation/external_v8_entry_timing_20261013/final_importguard.txt",
+    "validation/external_v8_entry_timing_20261013/final_prepare.txt",
+    "validation/external_v8_entry_timing_20261013/final_readback_failure_1.txt",
+    "validation/external_v8_entry_timing_20261013/final_run.txt",
+    "validation/external_v8_entry_timing_20261013/final_run_v8_timing.sh",
+    "validation/external_v8_entry_timing_20261013/hook_check.json",
+    "validation/external_v8_entry_timing_20261013/hook_check.py",
+    "validation/external_v8_entry_timing_20261013/importguard.txt",
+    "validation/external_v8_entry_timing_20261013/make_final_reader.py",
+    "validation/external_v8_entry_timing_20261013/make_final_reader_r1.py",
+    "validation/external_v8_entry_timing_20261013/preflight_diagnostics.json",
+    "validation/external_v8_entry_timing_20261013/preflight_profile.prof",
+    "validation/external_v8_entry_timing_20261013/preflight_profile.py",
+    "validation/external_v8_entry_timing_20261013/preflight_profile_full.txt",
+    "validation/external_v8_entry_timing_20261013/preflight_profile_top10.txt",
+    "validation/external_v8_entry_timing_20261013/prepare.txt",
+    "validation/external_v8_entry_timing_20261013/profile_command.txt",
+    "validation/external_v8_entry_timing_20261013/profile_control_plane.py",
+    "validation/external_v8_entry_timing_20261013/read_entry_timing.py",
+    "validation/external_v8_entry_timing_20261013/read_entry_timing_final.py",
+    "validation/external_v8_entry_timing_20261013/read_entry_timing_final_r1.py",
+    "validation/external_v8_entry_timing_20261013/read_entry_timing_r1.py",
+    "validation/external_v8_entry_timing_20261013/readback.json",
+    "validation/external_v8_entry_timing_20261013/readback_final.json",
+    "validation/external_v8_entry_timing_20261013/run.txt",
+    "validation/external_v8_entry_timing_20261013/run_entry_checks.sh",
+    "validation/external_v8_entry_timing_20261013/run_hook_check.sh",
+    "validation/external_v8_entry_timing_20261013/run_preflight_profile.sh",
+    "validation/external_v8_entry_timing_20261013/run_profile.sh",
+    "validation/external_v8_entry_timing_20261013/run_v8_timing.sh",
+    "validation/external_v8_entry_timing_20261013/verify_entry_package.py",
+    "validation/external_v8_entry_timing_20261013/package_readback.json"
+  ]
+}

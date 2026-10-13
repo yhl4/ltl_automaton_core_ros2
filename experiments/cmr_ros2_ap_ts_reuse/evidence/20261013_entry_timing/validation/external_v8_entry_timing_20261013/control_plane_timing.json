@@ -1,0 +1,125 @@
+{
+  "control_plane": {
+    "backend": "ros2-v8",
+    "calls": {
+      "describe": {
+        "count": 1,
+        "elapsed_ns": 58436100,
+        "elapsed_seconds": 0.0584361,
+        "exceptions": 0
+      },
+      "implementations": {
+        "count": 1,
+        "elapsed_ns": 31511700,
+        "elapsed_seconds": 0.0315117,
+        "exceptions": 0
+      },
+      "load_binding": {
+        "count": 1,
+        "elapsed_ns": 58368000,
+        "elapsed_seconds": 0.058368,
+        "exceptions": 0
+      },
+      "schema_for": {
+        "count": 2,
+        "elapsed_ns": 117247801,
+        "elapsed_seconds": 0.117247801,
+        "exceptions": 0
+      },
+      "source_closure": {
+        "count": 1,
+        "elapsed_ns": 26311700,
+        "elapsed_seconds": 0.0263117,
+        "exceptions": 0
+      },
+      "v7.identity": {
+        "count": 6,
+        "elapsed_ns": 5424100,
+        "elapsed_seconds": 0.0054241,
+        "exceptions": 0
+      },
+      "v8.backend.identity": {
+        "count": 5,
+        "elapsed_ns": 5312800,
+        "elapsed_seconds": 0.0053127999999999995,
+        "exceptions": 0
+      }
+    },
+    "descriptor": {
+      "backend": "ros2-v8",
+      "backend_id": "ROS2-DISCRETE-PLAN-CMR-AP-FULL-TS-REUSE-V8",
+      "backend_sha256": "279d27caa719b0fc0d0987556f50625486f5b3faced12a2aa42e5d81e193e5c9",
+      "version_binding_id": "CMR_AP_TS_REUSE_V1-b4c2588536755eb8",
+      "version_binding_sha256": "ab54aec5040871f827df41363cc555f3985269fa3d1f1f392705b818427e7e1a"
+    },
+    "phases_seconds": {
+      "describe_seconds": 0.0584434,
+      "schema_for_final_seconds": 0.0584587,
+      "schema_for_worker_seconds": 0.058799601,
+      "validate_final_seconds": 0.0021617,
+      "validate_worker_seconds": 0.0020385
+    }
+  },
+  "profile_scope": {
+    "DDS": 0,
+    "provider": 0,
+    "run_one": 0,
+    "schema_validation_is_independent_P2E": false,
+    "verifier": 0
+  },
+  "raw_files": {
+    "result.json": "4b070f23fb7e35597add1a56d182fdc042cbe35f66b2c94e3e7baaa65e677ba6",
+    "runner_raw_result.json": "cf3fb26716426df2b65ea5c1e41b2ba334dc9db3607162eda97207f1c6752c90",
+    "worker_result.json": "c158fe0017a5047ada61b1da95dbb84b95fb51dc490eaf2f8e7fd184981ad552"
+  },
+  "schema_validation": {
+    "final_result": {
+      "row_result_hash": "24038cfd36b1b6b7411088223321c0e7589943f538f1bea4146aeba1034df120",
+      "status": "PASS"
+    },
+    "schema_binding_ids": [
+      "CMR_AP_TS_REUSE_P2C_BACKEND_BINDING_V8",
+      "CMR_AP_TS_REUSE_P2C_BACKEND_BINDING_V8"
+    ],
+    "worker_result": {
+      "row_result_hash": "161f297a8d5f60d96887a29e3919be0e90c52e1481227907148b80f276acda29",
+      "status": "PASS"
+    }
+  },
+  "source": {
+    "authority_receipt": "/mnt/d/Robotics/Robotics4LLM/ltl_planning_studio/analysis/cmr_experiment_a_missing_data_repair_20261004/final_campaign_receipt.json",
+    "binding_path": "/tmp/cmr_v8_ap_ts_reuse_20261013/backend_binding.json",
+    "binding_sha256": "ab54aec5040871f827df41363cc555f3985269fa3d1f1f392705b818427e7e1a",
+    "clone": "/tmp/cmr_v8_ap_ts_source_db82366_20261013",
+    "head": "db8236614c8ce4c876844127c8ce9df01c5d8507",
+    "run": "/tmp/cmr_v8_ap_ts_reuse_20261013"
+  },
+  "timing_from_persisted_rows": {
+    "derived": {
+      "ROS_result_delivery_seconds": 0.4894769,
+      "cert_external_interval_seconds": 0.1541578,
+      "core_T_other_from_runner_raw_result": 0.00629119999999983,
+      "final_minus_core_T_other": 0.4894834,
+      "post_runner_delivery_seconds": 0.4894769,
+      "worker_minus_core_T_other": 0.0
+    },
+    "final_result": {
+      "ROS_result_delivery_seconds": 0.4894769,
+      "T_certification": 0.15427770000000002,
+      "T_logging": 4.04e-05,
+      "T_other": 0.49577459999999984,
+      "T_total": 1.325302,
+      "post_runner_delivery_seconds": 0.4894769
+    },
+    "raw_runner_result": {
+      "T_certification": 0.15427770000000002,
+      "T_other": 0.00629119999999983,
+      "T_total": 0.8358186
+    },
+    "worker_result": {
+      "T_certification": 0.15427770000000002,
+      "T_other": 0.00629119999999983,
+      "T_total": 0.8358186
+    }
+  }
+}

@@ -1,0 +1,3 @@
+{"backend": "reference", "status": "OPTIMALITY_CERTIFIED", "objective": "12", "seconds": 1.054115593}
+{"backend": "ros2-v7", "status": "OPTIMALITY_CERTIFIED", "objective": "12", "seconds": 0.922065695}
+{"backend": "ros2-v8", "status": "OPTIMALITY_CERTIFIED", "objective": "12", "seconds": 1.147387796}

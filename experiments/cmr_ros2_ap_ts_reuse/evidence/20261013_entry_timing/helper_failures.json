@@ -1,0 +1,24 @@
+{
+  "failures": [
+    {
+      "artifact": "validation/external_v8_entry_timing_20261013/final_readback_failure_1.txt",
+      "description": "Initial reader rejected the aggregate PASS/PASSED literal mismatch.",
+      "id": "final_readback_failure_1",
+      "kind": "reader_aggregate_status_literal",
+      "raw_record_retained": true,
+      "stderr_retained": true,
+      "workers_started": 0
+    },
+    {
+      "description": "Earlier reader/offline fixture failures remain represented by existing scripts and results; original stderr was not retained.",
+      "id": "earlier_reader_and_offline_fixture_failures",
+      "kind": "prior_temporary_failures",
+      "raw_record_retained": "existing scripts/results only",
+      "status": "unknown_not_retained",
+      "stderr_retained": false,
+      "workers_started": "unknown"
+    }
+  ],
+  "schema": "cmr-ap-ts-reuse-entry-timing-helper-failures-v1",
+  "status": "RECORDED"
+}

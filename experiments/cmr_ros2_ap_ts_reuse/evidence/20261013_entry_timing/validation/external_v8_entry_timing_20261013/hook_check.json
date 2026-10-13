@@ -1,0 +1,55 @@
+{
+  "checks": [
+    {
+      "detail": {
+        "captured": {
+          "completion": 180000001003,
+          "forced_timeout": true,
+          "outer_start": 50
+        },
+        "checkpoint": {
+          "release_completed_ns": 180000001003,
+          "release_started_ns": 1000
+        }
+      },
+      "name": "checked_delivery_uses_release_completion",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "completion": 180000001003,
+        "forced_timeout": true,
+        "outer_start": 50
+      },
+      "name": "checked_delivery_preserves_outer_arguments",
+      "status": "PASS"
+    },
+    {
+      "detail": {
+        "T_total": 180.000001,
+        "certificate_verifier_status": "NOT_AVAILABLE",
+        "objective": null,
+        "right_censored": true,
+        "terminal_status": "TIMEOUT",
+        "timeout_stage": "planner",
+        "timing_status": "RIGHT_CENSORED"
+      },
+      "name": "synthetic_release_crossing_180s_is_right_censored",
+      "status": "PASS"
+    }
+  ],
+  "notes": [
+    "The first check uses only a fake clock, fake release_check, and fake classifier delegate.",
+    "The timeout check uses the original terminal_delivery on a synthetic row; no real 180-second wait.",
+    "The existing 111ae6c three-worker outputs were not modified or rerun."
+  ],
+  "scope": {
+    "DDS": 0,
+    "formal_run_one": 0,
+    "provider": 0,
+    "real_waiting_seconds": 0,
+    "solver": 0,
+    "workers": 0
+  },
+  "status": "PASSED"
+}

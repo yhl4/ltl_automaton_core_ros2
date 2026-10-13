@@ -1,0 +1,19 @@
+{
+  "status": "PASSED",
+  "archive_members": 224,
+  "artifact_files": 47,
+  "namespaces": 2,
+  "source_files_per_namespace": 60,
+  "frozen_inputs_per_namespace": 56,
+  "exact_git_blobs": 3,
+  "certified_rows": 6,
+  "recorded_extra_replays_pass": 6,
+  "full_ts_reuse": "1 build + 5 hits in both V8 namespaces",
+  "final_delivery_guard_charged": true,
+  "old_archive_unchanged": true,
+  "actual_workers_started": 0,
+  "actual_solver_calls": 0,
+  "actual_verifier_calls": 0,
+  "dds_requests": 0,
+  "provider_calls": 0
+}
