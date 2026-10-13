@@ -72,10 +72,15 @@ class Replay:
         original_verify = self.formal.verify_bound_certificate
 
         def verify(*pos, **kw):
-            proof = original_verify(*pos, **kw)
-            self.verifier_calls.append(dict(path=str(pos[1]), expected_sha256=pos[2],
-                                            instance=kw['expected_instance_id'], method=kw['expected_method'],
-                                            status=proof['status']))
+            entry = dict(path=str(pos[1]), expected_sha256=pos[2],
+                         instance=kw['expected_instance_id'], method=kw['expected_method'])
+            self.verifier_calls.append(entry)
+            try:
+                proof = original_verify(*pos, **kw)
+            except Exception as exc:
+                entry.update(status='REJECTED_EXCEPTION', error_type=type(exc).__name__, error=str(exc))
+                raise
+            entry['status'] = proof['status']
             return proof
         self.formal.verify_bound_certificate = verify
         binding = copy.deepcopy(self.original)
@@ -273,7 +278,7 @@ def qualify(args):
         row['result_hash'] = digest(helpers.metadata.canonical(row).encode())
         rejected('rehash_certificate_objective', lambda: replay.publish(0, override=row,
                  certificate_override=bad_certificate, suffix='bad_certificate'),
-                 'P2e independent persisted certificate gate failed')
+                 'certificate objective does not match recomputed objective')
         require(not (args.output / 'completed').exists(), 'invalid record reached atomic publication')
         negative_verifier_count = len(replay.verifier_calls)
         for i in range(3):
