@@ -1,0 +1,1802 @@
+{
+  "schema": "cmr-current-campaign-archive-manifest-v1",
+  "archive": {
+    "path": "raw_attempts.zip",
+    "size": 1120295,
+    "sha256": "bdf325fc97ae1df71c2afa6dce6d6f2a541ffa06b00f1255e412d28f40cc5044",
+    "compression": "ZIP_DEFLATED"
+  },
+  "member_count": 358,
+  "members": {
+    "r1_prepare/plan/backend_binding.json": {
+      "size": 8034,
+      "sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\backend_binding.json"
+    },
+    "r1_prepare/plan/current/backend_binding.json": {
+      "size": 4590,
+      "sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\backend_binding.json"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py": {
+      "size": 8869,
+      "sha256": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\acceptance.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_backend/backends.py": {
+      "size": 5491,
+      "sha256": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\backends.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_backend/dds.py": {
+      "size": 25492,
+      "sha256": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\dds.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py": {
+      "size": 6363,
+      "sha256": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\fixtures.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py": {
+      "size": 14131,
+      "sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\lifecycle.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py": {
+      "size": 38098,
+      "sha256": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\offline_chain.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_backend/qualification.py": {
+      "size": 11161,
+      "sha256": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\qualification.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_backend/runner.py": {
+      "size": 16424,
+      "sha256": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\runner.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py": {
+      "size": 9241,
+      "sha256": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\backend.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py": {
+      "size": 3435,
+      "sha256": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\compare.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py": {
+      "size": 8675,
+      "sha256": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\fixtures.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py": {
+      "size": 9380,
+      "sha256": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\backend.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py": {
+      "size": 19250,
+      "sha256": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\compare.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py": {
+      "size": 6861,
+      "sha256": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\fixtures.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py": {
+      "size": 8820,
+      "sha256": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\backend.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py": {
+      "size": 3709,
+      "sha256": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\compare.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py": {
+      "size": 9712,
+      "sha256": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\fixtures.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py": {
+      "size": 6350,
+      "sha256": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\backend.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py": {
+      "size": 3616,
+      "sha256": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\compare.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py": {
+      "size": 11084,
+      "sha256": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\fixtures.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py": {
+      "size": 52772,
+      "sha256": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_integration\\dds_smoke.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_integration/runtime.py": {
+      "size": 20890,
+      "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_integration\\runtime.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py": {
+      "size": 7082,
+      "sha256": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\builder.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py": {
+      "size": 14888,
+      "sha256": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\compare.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py": {
+      "size": 20626,
+      "sha256": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\fixtures.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py": {
+      "size": 18851,
+      "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\bound_runner.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_real/dds_real.py": {
+      "size": 8665,
+      "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\dds_real.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_real/runner.py": {
+      "size": 15393,
+      "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\runner.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_real/selection.json": {
+      "size": 7263,
+      "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\selection.json"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py": {
+      "size": 5954,
+      "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\verifier_checks.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_real/verify_small.py": {
+      "size": 4509,
+      "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\verify_small.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_smoke/backend.py": {
+      "size": 9102,
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_smoke\\backend.py"
+    },
+    "r1_prepare/plan/current/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py": {
+      "size": 23223,
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_smoke\\smoke.py"
+    },
+    "r1_prepare/plan/current/frozen_inputs_before.json": {
+      "size": 14027,
+      "sha256": "64cd74596e5dea23c19ca6a44ed97af1d6e33b44ce0e3591b57ad6f9ea608987",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\frozen_inputs_before.json"
+    },
+    "r1_prepare/plan/current/plan.json": {
+      "size": 18452,
+      "sha256": "30e18058f3bd4318f15121fdec0059d1144cc61175b02a985c03073d8cf9b261",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\plan.json"
+    },
+    "r1_prepare/plan/current/selection.json": {
+      "size": 13156,
+      "sha256": "55154d96c18acfa9044c4114dc383da040f1a94681e2ce5b93b6f0a187132903",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\current\\selection.json"
+    },
+    "r1_prepare/plan/entry_fixtures.json": {
+      "size": 1409,
+      "sha256": "4d36854afce44e43d3a5628327d55733a4498ef3879d2da813cc82f228d81ff0",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\entry_fixtures.json"
+    },
+    "r1_prepare/plan/fixtures.json": {
+      "size": 287,
+      "sha256": "7a232454401add854b4574a1d9fd0c3f5e7d0bf2361f3a4a99e63b70be57b22e",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\fixtures.json"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py": {
+      "size": 8869,
+      "sha256": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\acceptance.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_backend/backends.py": {
+      "size": 5491,
+      "sha256": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\backends.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_backend/dds.py": {
+      "size": 25492,
+      "sha256": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\dds.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py": {
+      "size": 6363,
+      "sha256": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\fixtures.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py": {
+      "size": 14131,
+      "sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\lifecycle.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py": {
+      "size": 38098,
+      "sha256": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\offline_chain.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_backend/qualification.py": {
+      "size": 11161,
+      "sha256": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\qualification.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_backend/runner.py": {
+      "size": 16424,
+      "sha256": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\runner.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py": {
+      "size": 9241,
+      "sha256": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\backend.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py": {
+      "size": 3435,
+      "sha256": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\compare.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py": {
+      "size": 8675,
+      "sha256": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\fixtures.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py": {
+      "size": 9380,
+      "sha256": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\backend.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py": {
+      "size": 19250,
+      "sha256": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\compare.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py": {
+      "size": 6861,
+      "sha256": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\fixtures.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py": {
+      "size": 8820,
+      "sha256": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\backend.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py": {
+      "size": 3709,
+      "sha256": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\compare.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py": {
+      "size": 9712,
+      "sha256": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\fixtures.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py": {
+      "size": 6350,
+      "sha256": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\backend.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py": {
+      "size": 3616,
+      "sha256": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\compare.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py": {
+      "size": 11084,
+      "sha256": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\fixtures.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py": {
+      "size": 52772,
+      "sha256": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_integration\\dds_smoke.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_integration/runtime.py": {
+      "size": 20890,
+      "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_integration\\runtime.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py": {
+      "size": 7082,
+      "sha256": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\builder.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py": {
+      "size": 14888,
+      "sha256": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\compare.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py": {
+      "size": 20626,
+      "sha256": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\fixtures.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py": {
+      "size": 18851,
+      "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\bound_runner.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_real/dds_real.py": {
+      "size": 8665,
+      "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\dds_real.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_real/runner.py": {
+      "size": 15393,
+      "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\runner.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_real/selection.json": {
+      "size": 7263,
+      "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\selection.json"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py": {
+      "size": 5954,
+      "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\verifier_checks.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_real/verify_small.py": {
+      "size": 4509,
+      "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\verify_small.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_search_entry/backend.py": {
+      "size": 1650,
+      "sha256": "17936fb63ef67a2d9f901c623eaf04108e702e0e66b8a988d4a6bab1d86c5ab9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\backend.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_search_entry/dds.py": {
+      "size": 17456,
+      "sha256": "6325f4578c6a26e59613cc14923f8256fd5ab68afd554d351d7637467005c7dc",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\dds.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_search_entry/entry.py": {
+      "size": 12238,
+      "sha256": "d2823a0a7cac44c7403a702b61d5e94f548f6c2e303a0a5a3c2443b20aaf1548",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_search_entry/entry_fixtures.py": {
+      "size": 8835,
+      "sha256": "fdefba24b61212d7ec624bd219c751151abdfbbe89ff8144dfc175d75ec2006a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry_fixtures.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_search_entry/fixtures.py": {
+      "size": 2626,
+      "sha256": "4d635949f5bfb005ed60cba0c21dc8d63177045ab3d53236966b495a50cf135f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\fixtures.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_search_entry/runner.py": {
+      "size": 22844,
+      "sha256": "9a4ead42a922f4d17734746f9197979aa9491280e492a72d1200f96adf670150",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\runner.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_smoke/backend.py": {
+      "size": 9102,
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_smoke\\backend.py"
+    },
+    "r1_prepare/plan/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py": {
+      "size": 23223,
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\experiments\\cmr_ros2_smoke\\smoke.py"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py": {
+      "size": 6438,
+      "sha256": "a2adbacffa0f0f0e2596291fda17d616f603aef6907bdbbd42baf9405a0017d7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\accepted_run_resolver.py"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution.py": {
+      "size": 5367,
+      "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution.py"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution_node.py": {
+      "size": 20830,
+      "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution_node.py"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py": {
+      "size": 4021,
+      "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\fake_runtime.py"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/models.py": {
+      "size": 3114,
+      "sha256": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\models.py"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/observation.py": {
+      "size": 949,
+      "sha256": "55e3f91955ebfd211e1c03f140df2ae098a864df2883f3b438f8274030b98588",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\observation.py"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/AcceptedRunSnapshot.msg": {
+      "size": 554,
+      "sha256": "8ee52866e16ed11125053f3e46e76dbb7a80bf897ba1075750b378d9e15ed0b2",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\AcceptedRunSnapshot.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphEdge.msg": {
+      "size": 278,
+      "sha256": "48facaa6de8e475749563d2a8e51bb296fedd9c496861dc29f2a095444a4c355",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphEdge.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphNode.msg": {
+      "size": 371,
+      "sha256": "2d39df9fb62af0ac18ecf47de282f46da8fc1dc65a6e13c21179d44611b85442",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphNode.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/PlanningExecutionObservation.msg": {
+      "size": 820,
+      "sha256": "005c3598d54f0b1ed13bbdd249cc67b0812999e3a1c8f1bf12e6ce37b302ad9f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningExecutionObservation.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphMetadata.msg": {
+      "size": 784,
+      "sha256": "d953c35e3f7db80c60f53347483b865ebfd224c834dd54c88069a945362b11eb",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphMetadata.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphSnapshot.msg": {
+      "size": 272,
+      "sha256": "2819724a8b4d936b3f45e453b53f1648d503efc9dbedd03d5360a68818d2a339",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphSnapshot.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphEdge.msg": {
+      "size": 179,
+      "sha256": "225a9fe65cebd0ff3788ed2eef126e68092b34ea42e9a2518c832939794e57b5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphEdge.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphNode.msg": {
+      "size": 169,
+      "sha256": "6a8f32ce1039a3c8c004b26b50ad9c60fffa8b1cc46a2fc0d62a70ad03f9a091",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphNode.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemState.msg": {
+      "size": 534,
+      "sha256": "b8a5d7a46c81ae3e86cfcc73a0a7e0d9d7bb4624ba1335b5f67c2d7220121212",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemState.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg": {
+      "size": 193,
+      "sha256": "7325d312b99629a54ba378cf5cf4487aa6cd90a6d1e38c1f951180674dbf2926",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemStateStamped.msg"
+    },
+    "r1_prepare/plan/frozen_adapter/ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py": {
+      "size": 13166,
+      "sha256": "15247712288d759359a9927f5e3ac185ddaacf46a813ca20a4adf765d9d2e583",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_adapter\\ltl_automaton_planner\\ltl_automaton_planner\\planning_graph_snapshot.py"
+    },
+    "r1_prepare/plan/frozen_inputs_before.json": {
+      "size": 14027,
+      "sha256": "64cd74596e5dea23c19ca6a44ed97af1d6e33b44ce0e3591b57ad6f9ea608987",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\frozen_inputs_before.json"
+    },
+    "r1_prepare/plan/plan.json": {
+      "size": 16566,
+      "sha256": "b6a95c0e18e0116374650eee085642ee238e67eb08327ed1d527dd3286ce5f4f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\plan.json"
+    },
+    "r1_prepare/plan/search_fixtures.json": {
+      "size": 1495,
+      "sha256": "97ff81fee9aa386aa17212a8307e4eb75ba8fc194a8e133dffc943cc3c14b842",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1\\plan\\search_fixtures.json"
+    },
+    "r2_constructor_failure/campaign/fatal.json": {
+      "size": 620,
+      "sha256": "e0c7f234abc7fbd6d43763fa42b0042b391b7ef60cb1026904169efb3a195c6c",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\campaign\\fatal.json"
+    },
+    "r2_constructor_failure/plan/backend_binding.json": {
+      "size": 8034,
+      "sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\backend_binding.json"
+    },
+    "r2_constructor_failure/plan/current/backend_binding.json": {
+      "size": 4590,
+      "sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\backend_binding.json"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py": {
+      "size": 8869,
+      "sha256": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\acceptance.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_backend/backends.py": {
+      "size": 5491,
+      "sha256": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\backends.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_backend/dds.py": {
+      "size": 25492,
+      "sha256": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\dds.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py": {
+      "size": 6363,
+      "sha256": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py": {
+      "size": 14131,
+      "sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\lifecycle.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py": {
+      "size": 38098,
+      "sha256": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\offline_chain.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_backend/qualification.py": {
+      "size": 11161,
+      "sha256": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\qualification.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_backend/runner.py": {
+      "size": 16424,
+      "sha256": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\runner.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py": {
+      "size": 9241,
+      "sha256": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\backend.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py": {
+      "size": 3435,
+      "sha256": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\compare.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py": {
+      "size": 8675,
+      "sha256": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py": {
+      "size": 9380,
+      "sha256": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\backend.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py": {
+      "size": 19250,
+      "sha256": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\compare.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py": {
+      "size": 6861,
+      "sha256": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py": {
+      "size": 8820,
+      "sha256": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\backend.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py": {
+      "size": 3709,
+      "sha256": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\compare.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py": {
+      "size": 9712,
+      "sha256": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py": {
+      "size": 6350,
+      "sha256": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\backend.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py": {
+      "size": 3616,
+      "sha256": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\compare.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py": {
+      "size": 11084,
+      "sha256": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py": {
+      "size": 52772,
+      "sha256": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_integration\\dds_smoke.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_integration/runtime.py": {
+      "size": 20890,
+      "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_integration\\runtime.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py": {
+      "size": 7082,
+      "sha256": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\builder.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py": {
+      "size": 14888,
+      "sha256": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\compare.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py": {
+      "size": 20626,
+      "sha256": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py": {
+      "size": 18851,
+      "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\bound_runner.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_real/dds_real.py": {
+      "size": 8665,
+      "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\dds_real.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_real/runner.py": {
+      "size": 15393,
+      "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\runner.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_real/selection.json": {
+      "size": 7263,
+      "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\selection.json"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py": {
+      "size": 5954,
+      "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\verifier_checks.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_real/verify_small.py": {
+      "size": 4509,
+      "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\verify_small.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_smoke/backend.py": {
+      "size": 9102,
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_smoke\\backend.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py": {
+      "size": 23223,
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_smoke\\smoke.py"
+    },
+    "r2_constructor_failure/plan/current/frozen_inputs_before.json": {
+      "size": 14027,
+      "sha256": "64cd74596e5dea23c19ca6a44ed97af1d6e33b44ce0e3591b57ad6f9ea608987",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\frozen_inputs_before.json"
+    },
+    "r2_constructor_failure/plan/current/plan.json": {
+      "size": 18452,
+      "sha256": "3b89992e040a3c1965d0a6b5809c101723e33f2af8a106ef174ab9581a6e25f5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\plan.json"
+    },
+    "r2_constructor_failure/plan/current/selection.json": {
+      "size": 13156,
+      "sha256": "55154d96c18acfa9044c4114dc383da040f1a94681e2ce5b93b6f0a187132903",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\current\\selection.json"
+    },
+    "r2_constructor_failure/plan/entry_fixtures.json": {
+      "size": 1409,
+      "sha256": "4d36854afce44e43d3a5628327d55733a4498ef3879d2da813cc82f228d81ff0",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\entry_fixtures.json"
+    },
+    "r2_constructor_failure/plan/fixtures.json": {
+      "size": 287,
+      "sha256": "a76d04ebe755240b088554d2ce696363aabfe6545283885bc01d7132e8af5500",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\fixtures.json"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py": {
+      "size": 8869,
+      "sha256": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\acceptance.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_backend/backends.py": {
+      "size": 5491,
+      "sha256": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\backends.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_backend/dds.py": {
+      "size": 25492,
+      "sha256": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\dds.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py": {
+      "size": 6363,
+      "sha256": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py": {
+      "size": 14131,
+      "sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\lifecycle.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py": {
+      "size": 38098,
+      "sha256": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\offline_chain.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_backend/qualification.py": {
+      "size": 11161,
+      "sha256": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\qualification.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_backend/runner.py": {
+      "size": 16424,
+      "sha256": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\runner.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py": {
+      "size": 9241,
+      "sha256": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\backend.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py": {
+      "size": 3435,
+      "sha256": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\compare.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py": {
+      "size": 8675,
+      "sha256": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py": {
+      "size": 9380,
+      "sha256": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\backend.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py": {
+      "size": 19250,
+      "sha256": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\compare.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py": {
+      "size": 6861,
+      "sha256": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py": {
+      "size": 8820,
+      "sha256": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\backend.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py": {
+      "size": 3709,
+      "sha256": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\compare.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py": {
+      "size": 9712,
+      "sha256": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py": {
+      "size": 6350,
+      "sha256": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\backend.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py": {
+      "size": 3616,
+      "sha256": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\compare.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py": {
+      "size": 11084,
+      "sha256": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py": {
+      "size": 52772,
+      "sha256": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_integration\\dds_smoke.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_integration/runtime.py": {
+      "size": 20890,
+      "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_integration\\runtime.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py": {
+      "size": 7082,
+      "sha256": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\builder.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py": {
+      "size": 14888,
+      "sha256": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\compare.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py": {
+      "size": 20626,
+      "sha256": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py": {
+      "size": 18851,
+      "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\bound_runner.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_real/dds_real.py": {
+      "size": 8665,
+      "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\dds_real.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_real/runner.py": {
+      "size": 15393,
+      "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\runner.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_real/selection.json": {
+      "size": 7263,
+      "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\selection.json"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py": {
+      "size": 5954,
+      "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\verifier_checks.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_real/verify_small.py": {
+      "size": 4509,
+      "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\verify_small.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_search_entry/backend.py": {
+      "size": 1650,
+      "sha256": "17936fb63ef67a2d9f901c623eaf04108e702e0e66b8a988d4a6bab1d86c5ab9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\backend.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_search_entry/dds.py": {
+      "size": 17456,
+      "sha256": "6325f4578c6a26e59613cc14923f8256fd5ab68afd554d351d7637467005c7dc",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\dds.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_search_entry/entry.py": {
+      "size": 12238,
+      "sha256": "d2823a0a7cac44c7403a702b61d5e94f548f6c2e303a0a5a3c2443b20aaf1548",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_search_entry/entry_fixtures.py": {
+      "size": 8835,
+      "sha256": "fdefba24b61212d7ec624bd219c751151abdfbbe89ff8144dfc175d75ec2006a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry_fixtures.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_search_entry/fixtures.py": {
+      "size": 2626,
+      "sha256": "4d635949f5bfb005ed60cba0c21dc8d63177045ab3d53236966b495a50cf135f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\fixtures.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_search_entry/runner.py": {
+      "size": 22844,
+      "sha256": "9a4ead42a922f4d17734746f9197979aa9491280e492a72d1200f96adf670150",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\runner.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_smoke/backend.py": {
+      "size": 9102,
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_smoke\\backend.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py": {
+      "size": 23223,
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\experiments\\cmr_ros2_smoke\\smoke.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py": {
+      "size": 6438,
+      "sha256": "a2adbacffa0f0f0e2596291fda17d616f603aef6907bdbbd42baf9405a0017d7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\accepted_run_resolver.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution.py": {
+      "size": 5367,
+      "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution_node.py": {
+      "size": 20830,
+      "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution_node.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py": {
+      "size": 4021,
+      "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\fake_runtime.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/models.py": {
+      "size": 3114,
+      "sha256": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\models.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/observation.py": {
+      "size": 949,
+      "sha256": "55e3f91955ebfd211e1c03f140df2ae098a864df2883f3b438f8274030b98588",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\observation.py"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/AcceptedRunSnapshot.msg": {
+      "size": 554,
+      "sha256": "8ee52866e16ed11125053f3e46e76dbb7a80bf897ba1075750b378d9e15ed0b2",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\AcceptedRunSnapshot.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphEdge.msg": {
+      "size": 278,
+      "sha256": "48facaa6de8e475749563d2a8e51bb296fedd9c496861dc29f2a095444a4c355",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphEdge.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphNode.msg": {
+      "size": 371,
+      "sha256": "2d39df9fb62af0ac18ecf47de282f46da8fc1dc65a6e13c21179d44611b85442",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphNode.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/PlanningExecutionObservation.msg": {
+      "size": 820,
+      "sha256": "005c3598d54f0b1ed13bbdd249cc67b0812999e3a1c8f1bf12e6ce37b302ad9f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningExecutionObservation.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphMetadata.msg": {
+      "size": 784,
+      "sha256": "d953c35e3f7db80c60f53347483b865ebfd224c834dd54c88069a945362b11eb",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphMetadata.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphSnapshot.msg": {
+      "size": 272,
+      "sha256": "2819724a8b4d936b3f45e453b53f1648d503efc9dbedd03d5360a68818d2a339",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphSnapshot.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphEdge.msg": {
+      "size": 179,
+      "sha256": "225a9fe65cebd0ff3788ed2eef126e68092b34ea42e9a2518c832939794e57b5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphEdge.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphNode.msg": {
+      "size": 169,
+      "sha256": "6a8f32ce1039a3c8c004b26b50ad9c60fffa8b1cc46a2fc0d62a70ad03f9a091",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphNode.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemState.msg": {
+      "size": 534,
+      "sha256": "b8a5d7a46c81ae3e86cfcc73a0a7e0d9d7bb4624ba1335b5f67c2d7220121212",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemState.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg": {
+      "size": 193,
+      "sha256": "7325d312b99629a54ba378cf5cf4487aa6cd90a6d1e38c1f951180674dbf2926",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemStateStamped.msg"
+    },
+    "r2_constructor_failure/plan/frozen_adapter/ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py": {
+      "size": 13166,
+      "sha256": "15247712288d759359a9927f5e3ac185ddaacf46a813ca20a4adf765d9d2e583",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_adapter\\ltl_automaton_planner\\ltl_automaton_planner\\planning_graph_snapshot.py"
+    },
+    "r2_constructor_failure/plan/frozen_inputs_before.json": {
+      "size": 14027,
+      "sha256": "64cd74596e5dea23c19ca6a44ed97af1d6e33b44ce0e3591b57ad6f9ea608987",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\frozen_inputs_before.json"
+    },
+    "r2_constructor_failure/plan/plan.json": {
+      "size": 16566,
+      "sha256": "7dcf435ddabfc6e2dc9536132bee38cffa5f9269745bbff73a9af9abf195a44f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\plan.json"
+    },
+    "r2_constructor_failure/plan/search_fixtures.json": {
+      "size": 1495,
+      "sha256": "97ff81fee9aa386aa17212a8307e4eb75ba8fc194a8e133dffc943cc3c14b842",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\plan\\search_fixtures.json"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/certificates/C3-T4__AP-D__121.json": {
+      "size": 2896,
+      "sha256": "a69a63df580d2f2699b031d8839dcea8f65500b932ea62478deb97077e583fe5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\certificates\\C3-T4__AP-D__121.json"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/delivered_attempt.json": {
+      "size": 53167,
+      "sha256": "4917613a1f813d680471d10031a635673951d230150493c4f429f69737be863d",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\delivered_attempt.json"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/entry_metrics.json": {
+      "size": 344,
+      "sha256": "14b8329bf0d39db7dc2e6013cfa7700c39657e68e467ee214889d527f6242615",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\entry_metrics.json"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/preflight.json": {
+      "size": 29796,
+      "sha256": "44ddb3eda5c19081f0790b5f799ea9ef82a45d745fff4ca7bb64f07c5c7e49ac",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\preflight.json"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/request.json": {
+      "size": 916,
+      "sha256": "763149c0af29c910645bdfe37d73b32cdf9ce0d26a0fc05c9bae7e3f7b4ee80b",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\request.json"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/result.json": {
+      "size": 53700,
+      "sha256": "884ffaf303942176babfde08544a3d7d2acc5db75f2b066e7cbfecff6b5e91f9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\result.json"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/runner_raw_result.json": {
+      "size": 26749,
+      "sha256": "c6998b502f25e759d96c0920e18162170dd5034c5054bdd97ff6c2c0dea0aefd",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\runner_raw_result.json"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/schema_binding.json": {
+      "size": 22092,
+      "sha256": "1c044f780c5d0c6c85195b208d62940ee57b6050c926f0857e62c6cf0c599453",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\schema_binding.json"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/stderr.txt": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\stderr.txt"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/stdout.txt": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\stdout.txt"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/worker.rc": {
+      "size": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\worker.rc"
+    },
+    "r3_qualified/campaign/attempts/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/a-178389523175/worker_result.json": {
+      "size": 53070,
+      "sha256": "0cb25cda7145f4173b4be9dd41a6ad63a6e73f0d894a174e802618d2feee9223",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\attempts\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\a-178389523175\\worker_result.json"
+    },
+    "r3_qualified/campaign/campaign_binding.json": {
+      "size": 49712,
+      "sha256": "f5f301b878dc673806bfe4224250d4085f04649ab7be056ff2ab8e527a8c43ad",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\campaign_binding.json"
+    },
+    "r3_qualified/campaign/campaign_readback.json": {
+      "size": 1299,
+      "sha256": "df72239d1f8de4a9b27d0ce37c44021422f9939b661f8bf1ee8e65227318bed1",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\campaign_readback.json"
+    },
+    "r3_qualified/campaign/campaign_report.json": {
+      "size": 3749,
+      "sha256": "83aa6e6f57a0cd29798632ef3c53f0a0f407b21a7813e49ab87d50a80fae24d5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\campaign_report.json"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/certificate.json": {
+      "size": 2896,
+      "sha256": "a69a63df580d2f2699b031d8839dcea8f65500b932ea62478deb97077e583fe5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\certificate.json"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/commit_manifest.json": {
+      "size": 762,
+      "sha256": "8dc25ffcc498404348bff751ec8867d7f68232cc05e7260fb85a867db8253b8d",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\commit_manifest.json"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/environment.json": {
+      "size": 495,
+      "sha256": "794bb47897a413d02dae6d3b23f8c28ab44fa5b2eb439fd622eccea9311d030a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\environment.json"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/ledger_entry.json": {
+      "size": 1425,
+      "sha256": "efd44df8945c30c496e26a84dcc4fc945839b75ba2e44d47ec80bad7e8de8561",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\ledger_entry.json"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/pilot_record.json": {
+      "size": 27329,
+      "sha256": "8aa46a2dab15a09f513b984a2787b5b09bddb0284b1c9db3fad7671080b5d542",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\pilot_record.json"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/result.json": {
+      "size": 21651,
+      "sha256": "adaa79e8bed35f03b2ec88bc1af3234e1ddc89e592e89643070aee66dec440a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\result.json"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/rounds.jsonl": {
+      "size": 17376,
+      "sha256": "a9242f3967fdaff988ca62b36b01e146a546ea7b542ecf25a568956a89d58c7c",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\rounds.jsonl"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/stderr.log": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\stderr.log"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/stdout.log": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\stdout.log"
+    },
+    "r3_qualified/campaign/completed/f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad/validated_result.json": {
+      "size": 21305,
+      "sha256": "b037166549c95ceb99b49fd217840d14a648cc5922e175a6e210b778a671518e",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\completed\\f74fe5603025e1f1fdf9d78558a7e2a9e1fad8eae3feb5452e0df138a67ad1ad\\validated_result.json"
+    },
+    "r3_qualified/campaign/constructor_preflight.json": {
+      "size": 29796,
+      "sha256": "44ddb3eda5c19081f0790b5f799ea9ef82a45d745fff4ca7bb64f07c5c7e49ac",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\constructor_preflight.json"
+    },
+    "r3_qualified/campaign/core_results.jsonl": {
+      "size": 27329,
+      "sha256": "8aa46a2dab15a09f513b984a2787b5b09bddb0284b1c9db3fad7671080b5d542",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\core_results.jsonl"
+    },
+    "r3_qualified/campaign/dispatch.json": {
+      "size": 540,
+      "sha256": "c00ae526447d2f2702cdbfbdabe40dd9b0148801e27bcc23a24bebc490bd722f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\dispatch.json"
+    },
+    "r3_qualified/campaign/ledger.jsonl": {
+      "size": 1617,
+      "sha256": "c658b7dd270932caee0aa4a40ed1fafc3c8160f111149ce327a18fd200ee6f20",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\ledger.jsonl"
+    },
+    "r3_qualified/campaign/validation/result_schema.json": {
+      "size": 5315,
+      "sha256": "c40e88f9c93825630c43622b64b0ce3677fd25f1393637ef406c9f97c9be150d",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\validation\\result_schema.json"
+    },
+    "r3_qualified/campaign/validation/round_schema.json": {
+      "size": 5019,
+      "sha256": "ef309e5344f7f3debe99f33f36c6100da13834b8eee8933c8be2edc1fd4dbbf2",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\validation\\round_schema.json"
+    },
+    "r3_qualified/plan/backend_binding.json": {
+      "size": 8034,
+      "sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\backend_binding.json"
+    },
+    "r3_qualified/plan/current/backend_binding.json": {
+      "size": 4590,
+      "sha256": "b61af330bed131b875661f66952526e1ab8263b05582314f3616598c13e9dc3a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\backend_binding.json"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py": {
+      "size": 8869,
+      "sha256": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\acceptance.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_backend/backends.py": {
+      "size": 5491,
+      "sha256": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\backends.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_backend/dds.py": {
+      "size": 25492,
+      "sha256": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\dds.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py": {
+      "size": 6363,
+      "sha256": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\fixtures.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py": {
+      "size": 14131,
+      "sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\lifecycle.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py": {
+      "size": 38098,
+      "sha256": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\offline_chain.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_backend/qualification.py": {
+      "size": 11161,
+      "sha256": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\qualification.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_backend/runner.py": {
+      "size": 16424,
+      "sha256": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_backend\\runner.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py": {
+      "size": 9241,
+      "sha256": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\backend.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py": {
+      "size": 3435,
+      "sha256": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\compare.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py": {
+      "size": 8675,
+      "sha256": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\fixtures.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py": {
+      "size": 9380,
+      "sha256": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\backend.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py": {
+      "size": 19250,
+      "sha256": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\compare.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py": {
+      "size": 6861,
+      "sha256": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\fixtures.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py": {
+      "size": 8820,
+      "sha256": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\backend.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py": {
+      "size": 3709,
+      "sha256": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\compare.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py": {
+      "size": 9712,
+      "sha256": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\fixtures.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py": {
+      "size": 6350,
+      "sha256": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\backend.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py": {
+      "size": 3616,
+      "sha256": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\compare.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py": {
+      "size": 11084,
+      "sha256": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\fixtures.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py": {
+      "size": 52772,
+      "sha256": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_integration\\dds_smoke.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_integration/runtime.py": {
+      "size": 20890,
+      "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_integration\\runtime.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py": {
+      "size": 7082,
+      "sha256": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\builder.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py": {
+      "size": 14888,
+      "sha256": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\compare.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py": {
+      "size": 20626,
+      "sha256": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\fixtures.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py": {
+      "size": 18851,
+      "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\bound_runner.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_real/dds_real.py": {
+      "size": 8665,
+      "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\dds_real.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_real/runner.py": {
+      "size": 15393,
+      "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\runner.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_real/selection.json": {
+      "size": 7263,
+      "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\selection.json"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py": {
+      "size": 5954,
+      "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\verifier_checks.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_real/verify_small.py": {
+      "size": 4509,
+      "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_real\\verify_small.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_smoke/backend.py": {
+      "size": 9102,
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_smoke\\backend.py"
+    },
+    "r3_qualified/plan/current/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py": {
+      "size": 23223,
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_adapter\\experiments\\cmr_ros2_smoke\\smoke.py"
+    },
+    "r3_qualified/plan/current/frozen_inputs_before.json": {
+      "size": 14027,
+      "sha256": "64cd74596e5dea23c19ca6a44ed97af1d6e33b44ce0e3591b57ad6f9ea608987",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\frozen_inputs_before.json"
+    },
+    "r3_qualified/plan/current/plan.json": {
+      "size": 18452,
+      "sha256": "ff7f1392156214d942e4f73ef35700aec210f5da1f2b35ade5545527361e23b3",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\plan.json"
+    },
+    "r3_qualified/plan/current/selection.json": {
+      "size": 13156,
+      "sha256": "55154d96c18acfa9044c4114dc383da040f1a94681e2ce5b93b6f0a187132903",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\current\\selection.json"
+    },
+    "r3_qualified/plan/entry_fixtures.json": {
+      "size": 1409,
+      "sha256": "4d36854afce44e43d3a5628327d55733a4498ef3879d2da813cc82f228d81ff0",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\entry_fixtures.json"
+    },
+    "r3_qualified/plan/fixtures.json": {
+      "size": 287,
+      "sha256": "08c581e2b6d92434e3481a3f7a80298236ceafa73a90cd0620bd085d7d5a7022",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\fixtures.json"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py": {
+      "size": 8869,
+      "sha256": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\acceptance.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_backend/backends.py": {
+      "size": 5491,
+      "sha256": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\backends.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_backend/dds.py": {
+      "size": 25492,
+      "sha256": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\dds.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py": {
+      "size": 6363,
+      "sha256": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\fixtures.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py": {
+      "size": 14131,
+      "sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\lifecycle.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py": {
+      "size": 38098,
+      "sha256": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\offline_chain.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_backend/qualification.py": {
+      "size": 11161,
+      "sha256": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\qualification.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_backend/runner.py": {
+      "size": 16424,
+      "sha256": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_backend\\runner.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py": {
+      "size": 9241,
+      "sha256": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\backend.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py": {
+      "size": 3435,
+      "sha256": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\compare.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py": {
+      "size": 8675,
+      "sha256": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\fixtures.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py": {
+      "size": 9380,
+      "sha256": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\backend.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py": {
+      "size": 19250,
+      "sha256": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\compare.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py": {
+      "size": 6861,
+      "sha256": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\fixtures.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py": {
+      "size": 8820,
+      "sha256": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\backend.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py": {
+      "size": 3709,
+      "sha256": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\compare.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py": {
+      "size": 9712,
+      "sha256": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\fixtures.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py": {
+      "size": 6350,
+      "sha256": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\backend.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py": {
+      "size": 3616,
+      "sha256": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\compare.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py": {
+      "size": 11084,
+      "sha256": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\fixtures.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py": {
+      "size": 52772,
+      "sha256": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_integration\\dds_smoke.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_integration/runtime.py": {
+      "size": 20890,
+      "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_integration\\runtime.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py": {
+      "size": 7082,
+      "sha256": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\builder.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py": {
+      "size": 14888,
+      "sha256": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\compare.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py": {
+      "size": 20626,
+      "sha256": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\fixtures.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py": {
+      "size": 18851,
+      "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\bound_runner.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_real/dds_real.py": {
+      "size": 8665,
+      "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\dds_real.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_real/runner.py": {
+      "size": 15393,
+      "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\runner.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_real/selection.json": {
+      "size": 7263,
+      "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\selection.json"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py": {
+      "size": 5954,
+      "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\verifier_checks.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_real/verify_small.py": {
+      "size": 4509,
+      "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_real\\verify_small.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_search_entry/backend.py": {
+      "size": 1650,
+      "sha256": "17936fb63ef67a2d9f901c623eaf04108e702e0e66b8a988d4a6bab1d86c5ab9",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\backend.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_search_entry/dds.py": {
+      "size": 17456,
+      "sha256": "6325f4578c6a26e59613cc14923f8256fd5ab68afd554d351d7637467005c7dc",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\dds.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_search_entry/entry.py": {
+      "size": 12238,
+      "sha256": "d2823a0a7cac44c7403a702b61d5e94f548f6c2e303a0a5a3c2443b20aaf1548",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_search_entry/entry_fixtures.py": {
+      "size": 8835,
+      "sha256": "fdefba24b61212d7ec624bd219c751151abdfbbe89ff8144dfc175d75ec2006a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry_fixtures.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_search_entry/fixtures.py": {
+      "size": 2626,
+      "sha256": "4d635949f5bfb005ed60cba0c21dc8d63177045ab3d53236966b495a50cf135f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\fixtures.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_search_entry/runner.py": {
+      "size": 22844,
+      "sha256": "9a4ead42a922f4d17734746f9197979aa9491280e492a72d1200f96adf670150",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\runner.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_smoke/backend.py": {
+      "size": 9102,
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_smoke\\backend.py"
+    },
+    "r3_qualified/plan/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py": {
+      "size": 23223,
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\experiments\\cmr_ros2_smoke\\smoke.py"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py": {
+      "size": 6438,
+      "sha256": "a2adbacffa0f0f0e2596291fda17d616f603aef6907bdbbd42baf9405a0017d7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\accepted_run_resolver.py"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution.py": {
+      "size": 5367,
+      "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution.py"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution_node.py": {
+      "size": 20830,
+      "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution_node.py"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py": {
+      "size": 4021,
+      "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\fake_runtime.py"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/models.py": {
+      "size": 3114,
+      "sha256": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\models.py"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/observation.py": {
+      "size": 949,
+      "sha256": "55e3f91955ebfd211e1c03f140df2ae098a864df2883f3b438f8274030b98588",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\observation.py"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/AcceptedRunSnapshot.msg": {
+      "size": 554,
+      "sha256": "8ee52866e16ed11125053f3e46e76dbb7a80bf897ba1075750b378d9e15ed0b2",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\AcceptedRunSnapshot.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphEdge.msg": {
+      "size": 278,
+      "sha256": "48facaa6de8e475749563d2a8e51bb296fedd9c496861dc29f2a095444a4c355",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphEdge.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphNode.msg": {
+      "size": 371,
+      "sha256": "2d39df9fb62af0ac18ecf47de282f46da8fc1dc65a6e13c21179d44611b85442",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphNode.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/PlanningExecutionObservation.msg": {
+      "size": 820,
+      "sha256": "005c3598d54f0b1ed13bbdd249cc67b0812999e3a1c8f1bf12e6ce37b302ad9f",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningExecutionObservation.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphMetadata.msg": {
+      "size": 784,
+      "sha256": "d953c35e3f7db80c60f53347483b865ebfd224c834dd54c88069a945362b11eb",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphMetadata.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphSnapshot.msg": {
+      "size": 272,
+      "sha256": "2819724a8b4d936b3f45e453b53f1648d503efc9dbedd03d5360a68818d2a339",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphSnapshot.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphEdge.msg": {
+      "size": 179,
+      "sha256": "225a9fe65cebd0ff3788ed2eef126e68092b34ea42e9a2518c832939794e57b5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphEdge.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphNode.msg": {
+      "size": 169,
+      "sha256": "6a8f32ce1039a3c8c004b26b50ad9c60fffa8b1cc46a2fc0d62a70ad03f9a091",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphNode.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemState.msg": {
+      "size": 534,
+      "sha256": "b8a5d7a46c81ae3e86cfcc73a0a7e0d9d7bb4624ba1335b5f67c2d7220121212",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemState.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg": {
+      "size": 193,
+      "sha256": "7325d312b99629a54ba378cf5cf4487aa6cd90a6d1e38c1f951180674dbf2926",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemStateStamped.msg"
+    },
+    "r3_qualified/plan/frozen_adapter/ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py": {
+      "size": 13166,
+      "sha256": "15247712288d759359a9927f5e3ac185ddaacf46a813ca20a4adf765d9d2e583",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_adapter\\ltl_automaton_planner\\ltl_automaton_planner\\planning_graph_snapshot.py"
+    },
+    "r3_qualified/plan/frozen_inputs_after.json": {
+      "size": 12886,
+      "sha256": "6ca02185f92d3321bf0536bed06b3f3b37058db3625b8fc746e651992c95bab1",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_inputs_after.json"
+    },
+    "r3_qualified/plan/frozen_inputs_before.json": {
+      "size": 14027,
+      "sha256": "64cd74596e5dea23c19ca6a44ed97af1d6e33b44ce0e3591b57ad6f9ea608987",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\frozen_inputs_before.json"
+    },
+    "r3_qualified/plan/plan.json": {
+      "size": 16566,
+      "sha256": "d0e84d9ba34587c420352e445dcbeac245b98282837c5db0afb3ee5d0a217966",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\plan.json"
+    },
+    "r3_qualified/plan/search_fixtures.json": {
+      "size": 1495,
+      "sha256": "97ff81fee9aa386aa17212a8307e4eb75ba8fc194a8e133dffc943cc3c14b842",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\plan\\search_fixtures.json"
+    },
+    "validation/clone.txt": {
+      "size": 80,
+      "sha256": "beb0525b40be411dd60d85c5bb38ba3e8b3435f1cdb9cabee0e4c428adfceae8",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\clone.txt"
+    },
+    "validation/prepare.py": {
+      "size": 1290,
+      "sha256": "773f72b29766301c08af0c50c50014730a89df0938bd7612727c826bc99eb123",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\prepare.py"
+    },
+    "validation/prepare.sh": {
+      "size": 906,
+      "sha256": "c30f5e4b7864bc7872cbc83ee589ba30c0112ca6385fddb0910cc8b211bf19ce",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\prepare.sh"
+    },
+    "validation/prepare.txt": {
+      "size": 533,
+      "sha256": "25e2dced45dc630c2d9063561341d8884d4164a63e06e16757b0f65864078f07",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\prepare.txt"
+    },
+    "validation/prepare_r2.py": {
+      "size": 1143,
+      "sha256": "c0069b34067dbb34298ee7275cbc9f51ea36ee4af0220763d32b386855b16c1e",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\prepare_r2.py"
+    },
+    "validation/prepare_r3.py": {
+      "size": 1143,
+      "sha256": "d92f1f002f09a8c9d855116030d59602d22735bc3cde7122616dffe736d06ddf",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\prepare_r3.py"
+    },
+    "validation/r2_campaign.txt": {
+      "size": 46,
+      "sha256": "0cd3a7bcfbc6df0a7df9ab42be952418ee44f63e785ebf1085ccd3e81182f902",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\r2_campaign.txt"
+    },
+    "validation/r2_clone.txt": {
+      "size": 80,
+      "sha256": "b1e35574417bab2dc965fd8208c94ee15f5dcd0930c69c42910a08ebdaa63586",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\r2_clone.txt"
+    },
+    "validation/r2_prepare.txt": {
+      "size": 413,
+      "sha256": "9a565de45f91aa19c5da3ddc2010906afed513b8d923f07a088e605dee50b8c9",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\r2_prepare.txt"
+    },
+    "validation/r2_source_status.txt": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\r2_source_status.txt"
+    },
+    "validation/r3_campaign.txt": {
+      "size": 391,
+      "sha256": "3c88b15f4fb5997ce0e844ecad77b87bc68b7bfbbfb41d9b72a4fb87ebc9a351",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\r3_campaign.txt"
+    },
+    "validation/r3_clone.txt": {
+      "size": 80,
+      "sha256": "1ee93679868e06bbf9d392a7ce77d684ffac870ae3eacb8fb017b5abd53db78d",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\r3_clone.txt"
+    },
+    "validation/r3_prepare.txt": {
+      "size": 413,
+      "sha256": "1cfee3ceaf32d05dc6a6f78ba59bd65b29b8bd2bf359b5de0568e9808b52af36",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\r3_prepare.txt"
+    },
+    "validation/r3_source_status.txt": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\r3_source_status.txt"
+    },
+    "validation/readback.py": {
+      "size": 9073,
+      "sha256": "81d8562603ada96789f1fe32d92ed12b301b00fbf5a189592e2607754bab365d",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\readback.py"
+    },
+    "validation/readback_initial.py": {
+      "size": 8701,
+      "sha256": "79f899e5be72d74862975ad369c6c3399d6cff4ef1ae9dacc3f304bb5420e0a3",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\readback_initial.py"
+    },
+    "validation/readback_initial.txt": {
+      "size": 248,
+      "sha256": "a6cf6d98a903dafb58a62e6f07d83ef21560bb2d072330249dcc4f8b90599b41",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\readback_initial.txt"
+    },
+    "validation/run.sh": {
+      "size": 1008,
+      "sha256": "5b17db2d462523628d20ed35520a9b947530051a9d5dbbd42269998a9c1b02a7",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\run.sh"
+    },
+    "validation/run_r2.sh": {
+      "size": 1465,
+      "sha256": "6167239d11eba0f3b02a9a87ffacb0355109e141e072f450fe373dfe8d16b180",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\run_r2.sh"
+    },
+    "validation/run_r3.sh": {
+      "size": 1465,
+      "sha256": "84e651a7db95923ea0f27a741342f28f263d94af878b9f4535c9cbc635b5dffa",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\run_r3.sh"
+    },
+    "validation/source_status.txt": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\source_status.txt"
+    },
+    "validation/verify_package.py": {
+      "size": 3534,
+      "sha256": "28e1c6b9dd56c370ff9dcbe6e66b8518e78e4cd1f85896cf235f62f6385137df",
+      "source": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\campaign_current_20261013\\verify_package.py"
+    },
+    "harness_sources/campaign_v7_388326a00c21ec59320c52f05391511f493a7d77.py": {
+      "size": 18792,
+      "sha256": "647a8300cf7760ac90c23655af4bb9a0abe913448ecf7cc94984f568e259a1a9",
+      "source": "git:388326a00c21ec59320c52f05391511f493a7d77"
+    },
+    "harness_sources/campaign_v7_0d2c48ef0f8024ac1d4b74b4d082c0593d6aeae1.py": {
+      "size": 19076,
+      "sha256": "83050c3d3ea3e3786e029ad6dc7a02c8b8307e3b84b407b93034b0742bd731dd",
+      "source": "git:0d2c48ef0f8024ac1d4b74b4d082c0593d6aeae1"
+    },
+    "harness_sources/campaign_v7_0c096178bdd44f4f908cb4cc14e34c32f96abb00.py": {
+      "size": 19194,
+      "sha256": "9a779bc854bb4d99be22dee81cb07a48abd209da2521fe44c69f29df6fa4ca67",
+      "source": "git:0c096178bdd44f4f908cb4cc14e34c32f96abb00"
+    },
+    "sidecars/campaign_report.json": {
+      "size": 3749,
+      "sha256": "83aa6e6f57a0cd29798632ef3c53f0a0f407b21a7813e49ab87d50a80fae24d5",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\campaign_report.json"
+    },
+    "sidecars/campaign_readback.json": {
+      "size": 1299,
+      "sha256": "df72239d1f8de4a9b27d0ce37c44021422f9939b661f8bf1ee8e65227318bed1",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3\\campaign\\campaign_readback.json"
+    },
+    "sidecars/r2_fatal.json": {
+      "size": 620,
+      "sha256": "e0c7f234abc7fbd6d43763fa42b0042b391b7ef60cb1026904169efb3a195c6c",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2\\campaign\\fatal.json"
+    }
+  }
+}

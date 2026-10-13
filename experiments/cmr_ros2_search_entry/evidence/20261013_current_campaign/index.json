@@ -1,0 +1,278 @@
+{
+  "schema": "cmr-current-campaign-evidence-index-v1",
+  "status": "PACKAGED",
+  "archive": {
+    "path": "raw_attempts.zip",
+    "size": 1120295,
+    "sha256": "bdf325fc97ae1df71c2afa6dce6d6f2a541ffa06b00f1255e412d28f40cc5044",
+    "compression": "ZIP_DEFLATED"
+  },
+  "namespace_prefixes": [
+    {
+      "prefix": "r1_prepare",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r1",
+      "status": "PREPARE_ONLY",
+      "method_workers": 0,
+      "dispatches": 0,
+      "fixture_suite_runs": 2,
+      "search_fixture_cases": 14,
+      "entry_fixture_checks": 14
+    },
+    {
+      "prefix": "r2_constructor_failure",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r2",
+      "status": "FAILED_BEFORE_DISPATCH",
+      "failure_reason": "KeyError binding_id",
+      "method_workers": 0,
+      "dispatches": 0,
+      "worker_processes": 0,
+      "fixture_suite_runs": 2,
+      "search_fixture_cases": 14,
+      "entry_fixture_checks": 14
+    },
+    {
+      "prefix": "r3_qualified",
+      "source": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v7_current_campaign_20261013_r3",
+      "status": "PASSED",
+      "method_workers": 1,
+      "resume_method_workers": 0,
+      "target": [
+        "C3-T4",
+        "AP-D"
+      ],
+      "fixture_suite_runs": 2,
+      "search_fixture_cases": 14,
+      "entry_fixture_checks": 14
+    }
+  ],
+  "actual_counts": {
+    "namespace_count": 3,
+    "fixture_suite_runs": 6,
+    "search_fixture_cases": 42,
+    "entry_fixture_checks": 42,
+    "actual_method_workers": 1,
+    "resume_method_workers": 0,
+    "fresh_reference_workers": 0,
+    "dds_calls": 0,
+    "provider_calls": 0,
+    "certificate_verifier_calls": 2
+  },
+  "campaign": {
+    "scope": "CMR_V7_CURRENT_CAMPAIGN_SINGLE_CELL_QUALIFICATION",
+    "formal_campaign": false,
+    "full_510_cell_chain": "UNVERIFIED",
+    "default_changed": false,
+    "target": [
+      "C3-T4",
+      "AP-D"
+    ],
+    "objective": "12",
+    "method_T_total": 0.714135841,
+    "rounds": 6,
+    "certificate_sha256": "a69a63df580d2f2699b031d8839dcea8f65500b932ea62478deb97077e583fe5",
+    "initial_S0": [
+      3
+    ],
+    "frozen_inputs_checked": 60,
+    "runtime_sources_checked": 56,
+    "campaign_binding_id": "CMR_QUALIFIED_CAMPAIGN_V1-1fec121811deff4f",
+    "campaign_binding_sha256": "f5f301b878dc673806bfe4224250d4085f04649ab7be056ff2ab8e527a8c43ad",
+    "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+    "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f",
+    "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-INTEGER-V7",
+    "backend_sha256": "3d9f94098e0a98db657bc46fcadfd89c65b7ca85b8c0aa4a175231ea63f2c8e2",
+    "original_execution_binding_id": null,
+    "original_execution_binding_sha256": "9c82640d06ee2388e5a809ab3a20c6a92c532036a1df3e43bc1acdb372f3f044",
+    "canonical_campaign_binding_identity": "PASS",
+    "publication": "PASS",
+    "restore": "PASS",
+    "historical_reference": {
+      "archive_sha256": "3626a630cccaae0d3f4e765455ddc43cb220a47c149ed84ab89cfce4bcb505d6",
+      "verdict": "OPTIMALITY_CERTIFIED",
+      "objective": "12",
+      "fresh_reference_worker": 0
+    },
+    "gate_sources_checked": 8,
+    "planner_budget_seconds": 180,
+    "outer_watchdog_seconds": 195
+  },
+  "runtime_identity": {
+    "source_head": "0c096178bdd44f4f908cb4cc14e34c32f96abb00",
+    "execution_identity": "0c096178bdd44f4f908cb4cc14e34c32f96abb00+cmr-search-entry-788976545f14a7a2",
+    "runtime_source_closure_count": 56,
+    "version_binding_id": "CMR_SEARCH_ENTRY_V1-2325092433cf5abc",
+    "version_binding_sha256": "b9dbc9a9861d57e957cf5d020070a723f334325c3d573760859098568302438f"
+  },
+  "source_snapshots": [
+    {
+      "commit": "388326a00c21ec59320c52f05391511f493a7d77",
+      "member": "harness_sources/campaign_v7_388326a00c21ec59320c52f05391511f493a7d77.py",
+      "role": "planned_prepare_source"
+    },
+    {
+      "commit": "0d2c48ef0f8024ac1d4b74b4d082c0593d6aeae1",
+      "member": "harness_sources/campaign_v7_0d2c48ef0f8024ac1d4b74b4d082c0593d6aeae1.py",
+      "role": "r2_constructor_failure_source"
+    },
+    {
+      "commit": "0c096178bdd44f4f908cb4cc14e34c32f96abb00",
+      "member": "harness_sources/campaign_v7_0c096178bdd44f4f908cb4cc14e34c32f96abb00.py",
+      "role": "r3_qualified_source"
+    }
+  ],
+  "validation_status": {
+    "run.sh": "UNRUN",
+    "readback.py": "PASS_after_corrected_check",
+    "readback_initial.py": "TRANSCRIBED_TOOL_OUTPUT_FAILED_INITIAL_CHECK",
+    "source_snapshots": "exact_git_bytes",
+    "verify_package.py": "UNRUN_INITIAL_PACKAGING_READER_SNAPSHOT"
+  },
+  "limitations": {
+    "qualification_scope": "single C3-T4/AP-D current V7 cell only; not a formal campaign",
+    "formal_campaign_constructor": "UNRUN",
+    "full510": "UNVERIFIED",
+    "performance_claim": "NONE",
+    "run_sh": "UNRUN",
+    "original_formal_data_unchanged": true,
+    "r2_fatal_status": "FAILED"
+  },
+  "validation": [
+    {
+      "path": "validation/clone.txt",
+      "size": 80,
+      "sha256": "beb0525b40be411dd60d85c5bb38ba3e8b3435f1cdb9cabee0e4c428adfceae8"
+    },
+    {
+      "path": "validation/prepare.py",
+      "size": 1290,
+      "sha256": "773f72b29766301c08af0c50c50014730a89df0938bd7612727c826bc99eb123"
+    },
+    {
+      "path": "validation/prepare.sh",
+      "size": 906,
+      "sha256": "c30f5e4b7864bc7872cbc83ee589ba30c0112ca6385fddb0910cc8b211bf19ce"
+    },
+    {
+      "path": "validation/prepare.txt",
+      "size": 533,
+      "sha256": "25e2dced45dc630c2d9063561341d8884d4164a63e06e16757b0f65864078f07"
+    },
+    {
+      "path": "validation/prepare_r2.py",
+      "size": 1143,
+      "sha256": "c0069b34067dbb34298ee7275cbc9f51ea36ee4af0220763d32b386855b16c1e"
+    },
+    {
+      "path": "validation/prepare_r3.py",
+      "size": 1143,
+      "sha256": "d92f1f002f09a8c9d855116030d59602d22735bc3cde7122616dffe736d06ddf"
+    },
+    {
+      "path": "validation/r2_campaign.txt",
+      "size": 46,
+      "sha256": "0cd3a7bcfbc6df0a7df9ab42be952418ee44f63e785ebf1085ccd3e81182f902"
+    },
+    {
+      "path": "validation/r2_clone.txt",
+      "size": 80,
+      "sha256": "b1e35574417bab2dc965fd8208c94ee15f5dcd0930c69c42910a08ebdaa63586"
+    },
+    {
+      "path": "validation/r2_prepare.txt",
+      "size": 413,
+      "sha256": "9a565de45f91aa19c5da3ddc2010906afed513b8d923f07a088e605dee50b8c9"
+    },
+    {
+      "path": "validation/r2_source_status.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "validation/r3_campaign.txt",
+      "size": 391,
+      "sha256": "3c88b15f4fb5997ce0e844ecad77b87bc68b7bfbbfb41d9b72a4fb87ebc9a351"
+    },
+    {
+      "path": "validation/r3_clone.txt",
+      "size": 80,
+      "sha256": "1ee93679868e06bbf9d392a7ce77d684ffac870ae3eacb8fb017b5abd53db78d"
+    },
+    {
+      "path": "validation/r3_prepare.txt",
+      "size": 413,
+      "sha256": "1cfee3ceaf32d05dc6a6f78ba59bd65b29b8bd2bf359b5de0568e9808b52af36"
+    },
+    {
+      "path": "validation/r3_source_status.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "validation/readback.py",
+      "size": 9073,
+      "sha256": "81d8562603ada96789f1fe32d92ed12b301b00fbf5a189592e2607754bab365d"
+    },
+    {
+      "path": "validation/readback_initial.py",
+      "size": 8701,
+      "sha256": "79f899e5be72d74862975ad369c6c3399d6cff4ef1ae9dacc3f304bb5420e0a3"
+    },
+    {
+      "path": "validation/readback_initial.txt",
+      "size": 248,
+      "sha256": "a6cf6d98a903dafb58a62e6f07d83ef21560bb2d072330249dcc4f8b90599b41"
+    },
+    {
+      "path": "validation/run.sh",
+      "size": 1008,
+      "sha256": "5b17db2d462523628d20ed35520a9b947530051a9d5dbbd42269998a9c1b02a7"
+    },
+    {
+      "path": "validation/run_r2.sh",
+      "size": 1465,
+      "sha256": "6167239d11eba0f3b02a9a87ffacb0355109e141e072f450fe373dfe8d16b180"
+    },
+    {
+      "path": "validation/run_r3.sh",
+      "size": 1465,
+      "sha256": "84e651a7db95923ea0f27a741342f28f263d94af878b9f4535c9cbc635b5dffa"
+    },
+    {
+      "path": "validation/source_status.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "validation/verify_package.py",
+      "size": 3534,
+      "sha256": "28e1c6b9dd56c370ff9dcbe6e66b8518e78e4cd1f85896cf235f62f6385137df"
+    }
+  ],
+  "sidecars": [
+    {
+      "path": "sidecars/campaign_readback.json",
+      "size": 1299,
+      "sha256": "df72239d1f8de4a9b27d0ce37c44021422f9939b661f8bf1ee8e65227318bed1",
+      "zip_member": "sidecars/campaign_readback.json"
+    },
+    {
+      "path": "sidecars/campaign_report.json",
+      "size": 3749,
+      "sha256": "83aa6e6f57a0cd29798632ef3c53f0a0f407b21a7813e49ab87d50a80fae24d5",
+      "zip_member": "sidecars/campaign_report.json"
+    },
+    {
+      "path": "sidecars/r2_fatal.json",
+      "size": 620,
+      "sha256": "e0c7f234abc7fbd6d43763fa42b0042b391b7ef60cb1026904169efb3a195c6c",
+      "zip_member": "sidecars/r2_fatal.json"
+    }
+  ],
+  "member_count": 358,
+  "expanded_namespace_copies": false,
+  "archive_manifest": {
+    "path": "archive_manifest.json",
+    "size": 130495,
+    "sha256": "548da067d86d2e489464db8a6733b9c8e5c26976eef6be660a06c3767962b175"
+  }
+}

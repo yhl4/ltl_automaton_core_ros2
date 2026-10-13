@@ -165,9 +165,16 @@ V7 exact-empty字段一致。初次测试hook递归与合成标记拒绝保留�
 
 随后在原`888c808…`绑定下离线回放三条真实实例资格记录，原科学发布与恢复函数通过，
 代价仍为12/15/12；发布及恢复的6次证书回放通过，重算哈希的错误代价与过期版本被拒绝。
-首轮脚本异常记录修复及失败证据保留。没有新增求解任务，也未重标为当前V7绑定；当前
-版本的正式worker路由与完整端到端资格仍未完成，默认保持；见
+首轮脚本异常记录修复及失败证据保留。没有新增求解任务，也未重标为当前V7绑定；该历史
+回放阶段未完成当前版本的正式worker路由与完整端到端资格，默认保持；见
 [真实历史记录科学回放](experiments/cmr_ros2_search_entry/README.md#scientific-publication-and-restore-of-real-historical-records-2026-10-13)。
+
+当前版本另有固定单格入口 `campaign_v7.py`：显式选择 V7，C3-T4/AP-D 的一个新 worker
+完成六轮 refinement，判定为 OPTIMALITY_CERTIFIED、精确代价12，与原求解器历史对照一致。
+新入口构造、原科学发布/独立证书验收、账本落盘和恢复通过；恢复没有重复求解。
+原180/195秒预算及交付结果保持，新增控制器绑定独立于V7运行时绑定。构造阶段失败和
+读回脚本的首次失败均保留，当前只证明这一隔离单格；原正式Campaign构造与510格链仍未验证。
+README及原始证据见 [当前版本单格链路](experiments/cmr_ros2_search_entry/README.md#current-version-single-cell-campaign-entry-2026-10-13)。
 
 ---
 

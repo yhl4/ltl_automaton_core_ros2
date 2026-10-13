@@ -528,6 +528,82 @@ links. There are **zero new method workers, planner/provider/DDS calls**, and no
 default switch, PR merge or formal batch experiment. The
 [evidence index](evidence/20261013_scientific_chain/index.json) binds both raw
 namespaces and harness source versions separately from the original method
-identity. Current-version formal worker routing, Campaign construction and the
-full end-to-end chain remain `UNRUN`/`UNVERIFIED`; this historical replay does
+identity. At the end of this historical-replay phase, current-version worker
+routing and Campaign construction remained `UNRUN`, and the full end-to-end
+chain remained `UNVERIFIED`; this historical replay does
 not make the current V7 default-ready.
+
+## Current-version single-cell Campaign entry (2026-10-13)
+
+`campaign_v7.py` adds a real, separate qualification constructor and explicit
+backend selector over the existing worker lifecycle. Its fixed target is
+**C3-T4/AP-D**, selected by the existing metadata rule. The new binding enables
+exactly one method attempt and cannot authorize the formal 510-cell campaign.
+Only `--backend ros2-v7` is qualified here; the reference/V6 selector paths of
+this new entry have not been executed.
+
+The qualified source commit is `0c096178bdd44f4f908cb4cc14e34c32f96abb00`.
+The unchanged 56-file runtime retains binding
+`CMR_SEARCH_ENTRY_V1-2325092433cf5abc` and backend SHA `3d9f9409…`.
+The additional controller/gate binding is
+`CMR_QUALIFIED_CAMPAIGN_V1-1fec121811deff4f`, SHA
+`f5f301b878dc673806bfe4224250d4085f04649ab7be056ff2ab8e527a8c43ad`;
+it binds the source plan, one frozen cell, original authority, runtime closure
+and eight gate sources. Its ID is recomputed from content without `binding_id`.
+The frozen scientific schemas differ only in implementation identity metadata;
+their validation and original scientific/certificate acceptance code remain
+unchanged.
+
+One fresh V7 worker returns **OPTIMALITY_CERTIFIED, objective 12**, with `S0=[3]`
+and all six refinement/build rounds through full precision. Both new constructor
+instances succeed. The original scientific publication gate commits the exact
+delivered row and certificate; restoration invokes the original committed
+certificate gate and returns `ALREADY_COMPLETE` with **zero new workers**.
+Two independent P2e verifier calls pass, one at publication and one at restore.
+The original atomic writer persists `ledger.jsonl` and `core_results.jsonl`;
+restored receipt records match these aggregate bytes. Readback checks all
+60 frozen inputs, 56 runtime sources, eight gate sources, result/record/ledger
+hashes, certificate bytes and exact prefix-plus-period arithmetic.
+
+The verdict, objective, initialization, instance/formula and manifest identity
+match the existing reference record in the immutable `20261013_audit_real`
+archive. That reference's recorded certificate replay is PASS. No fresh
+reference worker is run, and this comparison makes no paired performance claim.
+The current method's original `T_total=0.714135841 s` is retained; added
+controller publication/restoration work is separate from that method timing.
+The **180 s method / 195 s watchdog**, `INITIAL_LABEL_V1`, full rebuild and
+nonempty accepting suffix rules are unchanged.
+
+Three preparation namespaces are retained. The first at `388326a` only prepared
+the plan and fixtures. The second at `0d2c48e` stopped in construction with
+`KeyError: 'binding_id'`: the old scientific execution binding has no runtime
+binding ID. Commit `0c09617` makes that optional and binds the original execution
+binding SHA explicitly. Neither earlier namespace dispatched a worker. Each
+preparation ran the existing 14-case arithmetic and 14-check interface fixtures;
+the larger preparation capacity of 30/9 workers is not execution evidence.
+The third namespace contains the sole method worker. The first standard-library
+readback also stopped because it expected the aggregate receipt ledger to equal
+the directory ledger body; the original receipt correctly adds its ledger and
+directory-manifest hashes. The corrected reader verifies both additions and
+passes. Its initial script and a labeled transcript of the tool's failure output
+are retained; no method or verifier was rerun.
+
+Reproduce in a fresh WSL namespace after preparing the existing search plan and
+its bound fixtures:
+
+```bash
+python3 -B -m experiments.cmr_ros2_search_entry.campaign_v7 \
+  --backend ros2-v7 --plan /tmp/<fresh-plan>/plan.json \
+  --binding <frozen-authority-receipt> --kernel-root <qualified-kernel-root> \
+  --output /tmp/<fresh-campaign>
+```
+
+The [evidence index](evidence/20261013_current_campaign/index.json) retains all
+three namespaces, source versions, failures and command/readback scripts.
+This proves the new entry's single-cell construction, worker routing,
+scientific publication and restoration. The **original frozen formal Campaign
+constructor remains UNRUN**, and the full 510-cell chain remains UNVERIFIED.
+Failure/timeout paths through this new controller and broader real-instance
+coverage remain unqualified. There are zero DDS/provider calls in this phase,
+no default switch, PR merge or formal batch experiment. V7 is not declared
+default-ready from this one cell.
