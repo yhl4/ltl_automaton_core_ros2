@@ -571,11 +571,11 @@ def test_frozenset_memberships_preserve_complete_snapshot(
 
 
 @pytest.mark.parametrize("container", [list, tuple])
-@pytest.mark.parametrize("single_node", [False, True])
-def test_accepted_run_path_order_and_single_node_cycle(container, single_node):
-    """Serialize repeated paths and a one-node accepted self-loop."""
+@pytest.mark.parametrize("self_loop_occurrences", [0, 1, 2])
+def test_accepted_run_path_order_and_single_node_cycle(container, self_loop_occurrences):
+    """Serialize repeated paths and every occurrence of a zero-cost self-loop."""
     planner = _control_planner()
-    if single_node:
+    if self_loop_occurrences:
         planner.product.add_edge(
             "p1",
             "p1",
@@ -585,7 +585,7 @@ def test_accepted_run_path_order_and_single_node_cycle(container, single_node):
             weight=0,
         )
         prefix = ["p1"]
-        suffix = ["p1"]
+        suffix = ["p1"] * self_loop_occurrences
         expected_prefix_cost = 0
         expected_suffix_cost = 0
         expected_total_cost = 0

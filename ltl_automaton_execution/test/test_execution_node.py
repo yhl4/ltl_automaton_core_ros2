@@ -340,31 +340,31 @@ def test_snapshot_conversion_preserves_validation_order_for_malformed_input(
     assert str(raised.value).startswith("invalid literal for int()")
 
 
-def test_repeated_suffix_start_snapshot_cannot_dispatch():
-    """Reject a malformed ROS suffix and accept a later valid generation."""
+def test_repeated_suffix_start_snapshot_preserves_two_self_loop_steps():
+    """Repeated suffix occurrences dispatch under separate command steps."""
     context = Context()
     rclpy.init(context=context)
     execution = None
     try:
         execution, backend, client = _delayed_execution(context)
-        diagnostics = []
-        execution._manager._diagnostic = diagnostics.append
         execution._on_observation(_observation(1))
         response = _successful_response(1)
         response.snapshot.accepted_run.suffix_product_node_ids = [2, 2]
         client.future.set_result(response)
 
-        assert backend.calls == []
-        assert not execution._manager.in_flight
-        assert diagnostics[-1] == "Accepted suffix repeats its start node at the end."
-
-        replacement_client = DelayedSnapshotClient()
-        execution._snapshot_client = replacement_client
-        execution._on_observation(_observation(2))
-        _complete_snapshot(replacement_client, generation=2)
         assert len(backend.calls) == 1
-        assert backend.calls[0][0].planning_generation == 2
         assert backend.calls[0][0].action == "move"
+        for sequence in (1, 2):
+            backend.calls[-1][1](ExecutionCompletion(True, "completed"))
+            message = _observation(1, sequence=sequence)
+            message.possible_product_node_ids = [2]
+            message.next_action = "wait"
+            execution._on_observation(message)
+            execution._on_observation(message)
+            assert len(backend.calls) == sequence + 1
+            assert backend.calls[-1][0].execution_step_seq == sequence
+            assert backend.calls[-1][0].source_product_node_ids == (2,)
+            assert backend.calls[-1][0].target_product_node_ids == (2,)
     finally:
         if execution is not None:
             execution.destroy_node()

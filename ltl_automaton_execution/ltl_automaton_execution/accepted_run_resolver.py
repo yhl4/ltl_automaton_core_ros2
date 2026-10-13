@@ -160,10 +160,8 @@ class AcceptedRunResolver:
             raise ResolutionError(
                 "Accepted prefix and suffix do not share their boundary node."
             )
-        if len(suffix) > 1 and suffix[-1] == suffix[0]:
-            raise ResolutionError(
-                "Accepted suffix repeats its start node at the end."
-            )
+        # Every suffix entry is a real occurrence. Even a final revisit to
+        # the first node still needs the implicit closing edge below.
         return tuple(chain(
             zip(prefix, islice(prefix, 1, None)),
             zip(suffix, islice(suffix, 1, None)),

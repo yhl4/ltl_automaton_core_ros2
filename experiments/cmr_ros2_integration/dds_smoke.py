@@ -280,6 +280,9 @@ class _Server:
         self.work_dir = work_dir
         self.transitions = []
         self.cursor = 0
+        self._feedback_step_seq = None
+        self._feedback_after_ns = None
+        self._last_state_stamp_ns = None
         self.done = False
         self._grace_deadline = None
         self.identity = f"cmr-smoke-{request['request_id']}"
@@ -386,6 +389,9 @@ class _Server:
         message.planning_generation = 1
         message.execution_step_seq = self.cursor
         if self.cursor < len(self.transitions):
+            if self._feedback_step_seq != self.cursor:
+                self._feedback_step_seq = self.cursor
+                self._feedback_after_ns = self.node.get_clock().now().nanoseconds
             source, _, action, _ = self.transitions[self.cursor]
             message.possible_product_node_ids = [self.state_ids[source]]
             message.has_next_action = True
@@ -407,8 +413,17 @@ class _Server:
         if self.snapshot is None or self.cursor >= len(self.transitions):
             _event(self.events, "late_state_ignored", state=list(observed))
             return
+        stamp_ns = message.header.stamp.sec * 1_000_000_000 + message.header.stamp.nanosec
+        if (self._feedback_after_ns is None
+                or stamp_ns <= self._feedback_after_ns
+                or (self._last_state_stamp_ns is not None
+                    and stamp_ns <= self._last_state_stamp_ns)):
+            _event(self.events, "stale_ts_ignored", state=list(observed),
+                   step=self.cursor, stamp_ns=stamp_ns)
+            return
         _, target, _, _ = self.transitions[self.cursor]
         if observed == target[0]:
+            self._last_state_stamp_ns = stamp_ns
             self.cursor += 1
             self._publish_observation()
             return

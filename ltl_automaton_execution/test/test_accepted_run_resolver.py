@@ -182,24 +182,34 @@ def test_e6_suffix_closing_edge_is_resolved():
 
 
 @pytest.mark.parametrize("suffix", [(3, 3), (3, 4, 5, 3)])
-def test_repeated_suffix_start_is_rejected_without_replacing_index(suffix):
-    """Reject explicitly closed suffixes even when the extra self-loop exists."""
+def test_repeated_suffix_start_preserves_real_occurrences(suffix):
+    """A repeated tail entry still owns its implicit closing self-loop."""
     snapshot = _snapshot()
     resolver = AcceptedRunResolver()
     resolver.resolve(_observation(), snapshot)
-    malformed = replace(
+    repeated = replace(
         snapshot,
         planning_generation=5,
         product_edges=snapshot.product_edges + (ProductEdge(3, 3, "wait"),),
         accepted_run=AcceptedRun((1, 3), suffix),
     )
 
-    with pytest.raises(ResolutionError) as error:
-        resolver.resolve(_observation(generation=5), malformed)
+    pairs = resolver._retained_pairs(repeated)
+    assert pairs == ((1, 3),) + tuple(zip(suffix, suffix[1:])) + ((3, 3),)
+    step = resolver.resolve(_observation((3,), "wait", generation=5), repeated)
+    assert step.source_product_node_ids == step.target_product_node_ids == (3,)
+    assert resolver._indexed_snapshot is repeated
+    assert repeated.accepted_run.suffix_node_ids == suffix
 
-    assert str(error.value) == "Accepted suffix repeats its start node at the end."
+
+def test_repeated_suffix_entry_still_requires_the_closing_edge():
+    snapshot = _snapshot()
+    resolver = AcceptedRunResolver()
+    resolver.resolve(_observation(), snapshot)
+    missing_closure = replace(snapshot, accepted_run=AcceptedRun((1, 3), (3, 4, 5, 3)))
+    with pytest.raises(ResolutionError, match="missing Product edges"):
+        resolver.resolve(_observation(), missing_closure)
     assert resolver._indexed_snapshot is snapshot
-    assert resolver.resolve(_observation(), snapshot).target_state == _state("r2")
 
 
 def test_single_node_suffix_keeps_its_closing_self_loop():

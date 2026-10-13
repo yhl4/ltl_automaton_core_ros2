@@ -58,7 +58,7 @@ class ProductEdge:
 
 @dataclass(frozen=True)
 class AcceptedRun:
-    """Retained prefix and non-repeated cyclic suffix node sequences."""
+    """Retained occurrence sequences; suffix has one implicit closing edge."""
 
     prefix_node_ids: tuple[int, ...]
     suffix_node_ids: tuple[int, ...]

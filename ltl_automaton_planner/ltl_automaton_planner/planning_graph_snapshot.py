@@ -302,11 +302,6 @@ def _serialize_run(planner, product, product_ids):
     if not suffix_ids:
         raise ValueError("The accepted run has no suffix cycle.")
 
-    if len(run.suffix) > 1 and run.suffix[-1] == run.suffix[0]:
-        raise ValueError(
-            "The accepted suffix repeats its start node at the end."
-        )
-
     if not product.has_edge(run.suffix[-1], run.suffix[0]):
         raise ValueError("The accepted suffix does not close in the Product graph.")
 
