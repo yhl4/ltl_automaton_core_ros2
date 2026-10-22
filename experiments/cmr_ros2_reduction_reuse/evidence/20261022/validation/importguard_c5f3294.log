@@ -1,0 +1,7 @@
+HEAD c5f32946d0bd152c5cf32d174cdf68fa34326aee
+/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v9_projection_witness_20261022/importguard_c5f3294.sh: line 16: warning: here-document at line 9 delimited by end-of-file (wanted `PY')
+STATUS DISCRETE_PLAN /tmp/cmr_v9_source_c5f3294_20261022/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py
+DISCRETE_PLAN_SHA256 556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b
+Traceback (most recent call last):
+  File "<stdin>", line 7, in <module>
+NameError: name 'PY' is not defined

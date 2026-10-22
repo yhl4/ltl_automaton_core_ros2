@@ -1,0 +1,5 @@
+{
+  "error": "AssertionError('authority Product pre-region changed')",
+  "status": "FAILED",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\ltl_automaton_core-ros2\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py\", line 262, in main\n    report.update(run(args.kernel_root))\n                  ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\ltl_automaton_core-ros2\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py\", line 235, in run\n    inherited = authority_fixtures.run_fixtures(\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\ltl_automaton_core-ros2\\experiments\\cmr_ros2_product_perf\\fixtures.py\", line 350, in run_fixtures\n    raise AssertionError(\"authority Product pre-region changed\")\nAssertionError: authority Product pre-region changed\n"
+}

@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "/tmp/cmr_v9_source_f6564fa_20261022/experiments/cmr_ros2_reduction_reuse/runner.py", line 242, in <module>
+    main()
+  File "/tmp/cmr_v9_source_f6564fa_20261022/experiments/cmr_ros2_ap_ts_reuse/runner.py", line 394, in main
+    prepare(args)
+  File "/tmp/cmr_v9_source_f6564fa_20261022/experiments/cmr_ros2_reduction_reuse/runner.py", line 148, in prepare
+    write(args.output/'fixture_details.json', result)
+  File "/tmp/cmr_v9_source_f6564fa_20261022/experiments/cmr_ros2_bfull_perf/compare.py", line 34, in write
+    real.runtime.write_json(path, value)
+  File "/tmp/cmr_v9_source_f6564fa_20261022/experiments/cmr_ros2_integration/runtime.py", line 40, in write_json
+    temporary.write_text(json.dumps(value, indent=2, default=json_default) + '\n', encoding='utf-8')
+  File "/usr/lib/python3.10/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+  File "/usr/lib/python3.10/json/encoder.py", line 201, in encode
+    chunks = list(chunks)
+  File "/usr/lib/python3.10/json/encoder.py", line 431, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/usr/lib/python3.10/json/encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.10/json/encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.10/json/encoder.py", line 405, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.10/json/encoder.py", line 325, in _iterencode_list
+    yield from chunks
+  File "/usr/lib/python3.10/json/encoder.py", line 438, in _iterencode
+    o = _default(o)
+  File "/tmp/cmr_v9_source_f6564fa_20261022/experiments/cmr_ros2_integration/runtime.py", line 29, in json_default
+    raise TypeError(f'unsupported JSON value: {type(value).__name__}')
+TypeError: unsupported JSON value: AbstractTransition

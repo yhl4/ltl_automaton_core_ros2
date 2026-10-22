@@ -1,0 +1,5 @@
+{
+  "error": "AttributeError(\"'function' object has no attribute 'solve_cmr_lasso'\")",
+  "status": "FAILED",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\ltl_automaton_core-ros2\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py\", line 351, in main\n    report.update(run(args.kernel_root))\n                  ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\ltl_automaton_core-ros2\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py\", line 331, in run\n    search = _search_checks(make_model, v7_search, candidate_search.solve_cmr_lasso)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\ltl_automaton_core-ros2\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py\", line 209, in _search_checks\n    new = candidate_search.solve_cmr_lasso(abstract, work=v9_work)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'function' object has no attribute 'solve_cmr_lasso'\n"
+}

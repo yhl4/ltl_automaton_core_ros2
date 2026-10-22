@@ -210,6 +210,17 @@ crash拒绝发布及重试，超时不携带最优证书权限；未修改原科
 旧基线和证据不变。
 180/195秒预算、CMR语义和证书规则保持，未切换默认、合并PR或启动正式批量实验。
 
+The optional [V9 projection/witness prototype](experiments/cmr_ros2_reduction_reuse/README.md)
+adds per-build state projection reuse and per-solve witness-key reuse while retaining
+V8's one full-TS construction. A fresh C3-T4/AP-D four-arm comparison gives total
+times reference/V7/V8/V9 = 1.967/1.170/1.252/0.977 s. All four complete six rounds,
+certify exact objective 12 and pass additional independent certificate replay.
+Actual projection computations fall 5382 to 384; witness-key computations fall
+3531 to 757. V9's observed total is 22.01% below the counter-equipped V8 control;
+this single observation is not a general speedup claim. Failed preparations and
+all results are retained under a separate binding. CMR semantics, 180/195 s budgets
+and certificate rules remain; no default switch or formal batch was performed.
+
 ---
 
 ## 1. 当前支持范围

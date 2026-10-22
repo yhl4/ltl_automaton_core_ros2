@@ -1,0 +1,5 @@
+{
+  "error": "AttributeError(\"module 'experiments.cmr_ros2_product_perf.fixtures' has no attribute '_assert_model_equal'\")",
+  "status": "FAILED",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\ltl_automaton_core-ros2\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py\", line 320, in main\n    report.update(run(args.kernel_root))\n                  ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\ltl_automaton_core-ros2\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py\", line 293, in run\n    inherited = _inherited_v8_checks(\n                ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\ltl_automaton_core-ros2\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py\", line 56, in _inherited_v8_checks\n    v8_fixtures._assert_model_equal(authority, candidate, make_model, signature)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'experiments.cmr_ros2_product_perf.fixtures' has no attribute '_assert_model_equal'\n"
+}

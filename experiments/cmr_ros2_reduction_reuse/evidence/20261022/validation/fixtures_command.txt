@@ -1,0 +1,1 @@
+py -3 experiments/cmr_ros2_reduction_reuse/fixtures.py --kernel-root C:\Users\Yuhling\.codex\worktrees\cmr-p1b-initial-label\Robotics4LLM\ltl_planning_studio\ecc_p1_formal_kernel --output C:\Users\Yuhling\.codex\worktrees\v7-audit-dds-regression\v9_projection_witness_20261022\fixtures_native.json

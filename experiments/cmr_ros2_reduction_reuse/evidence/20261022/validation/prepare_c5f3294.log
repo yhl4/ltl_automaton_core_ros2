@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/tmp/cmr_v9_source_c5f3294_20261022/experiments/cmr_ros2_reduction_reuse/runner.py", line 242, in <module>
+    main()
+  File "/tmp/cmr_v9_source_c5f3294_20261022/experiments/cmr_ros2_ap_ts_reuse/runner.py", line 394, in main
+    prepare(args)
+  File "/tmp/cmr_v9_source_c5f3294_20261022/experiments/cmr_ros2_reduction_reuse/runner.py", line 154, in prepare
+    entry.validate(plan, request, name)
+  File "/tmp/cmr_v9_source_c5f3294_20261022/experiments/cmr_ros2_ap_ts_reuse/runner.py", line 180, in validate
+    if plan != self.plan or request != self.request(name):
+  File "/tmp/cmr_v9_source_c5f3294_20261022/experiments/cmr_ros2_ap_ts_reuse/runner.py", line 175, in request
+    **self.describe(self.binding_path, name), qualification_id=self.plan['qualification_id'],
+  File "/tmp/cmr_v9_source_c5f3294_20261022/experiments/cmr_ros2_ap_ts_reuse/runner.py", line 168, in describe
+    raise ValueError('entry binding path/backend differs')
+ValueError: entry binding path/backend differs

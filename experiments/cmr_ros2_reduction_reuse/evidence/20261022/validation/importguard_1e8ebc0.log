@@ -1,0 +1,4 @@
+source_head 1e8ebc0f0e84484cca237bccfa93a83f491a7bbe
+source_status ''
+discrete_plan /tmp/cmr_v9_source_1e8ebc0_20261022/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py
+python /usr/bin/python3
