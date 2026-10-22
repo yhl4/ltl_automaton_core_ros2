@@ -309,7 +309,14 @@ def _search_checks(make_model, v7_search, candidate_search):
     exact_context.close()
     return {
         "status": "PASSED",
-        "v7_result": _result_signature(old),
+        "v7_result": None if old is None else {
+            "status": old.status,
+            "prefix": old.prefix,
+            "suffix": old.suffix,
+            "prefix_cost": str(old.prefix_cost),
+            "suffix_cost": str(old.suffix_cost),
+            "lower_bound": str(old.lower_bound),
+        },
         "v9_work": v9_work,
         "control_work": control_work,
         "shared_work": shared_work,
