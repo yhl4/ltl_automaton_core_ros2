@@ -90,6 +90,7 @@ def configure_descriptor(formal, name, descriptor):
 
 class AttemptEntry(base.AttemptEntry):
     __init__ = adapter._clone_function(base.AttemptEntry.__init__, dict(load_plan=load_plan, NAMES=NAMES))
+    describe = adapter._clone_function(base.AttemptEntry.describe, dict(NAMES=NAMES))
     request = adapter._clone_function(base.AttemptEntry.request, dict(SCOPE=SCOPE))
     release_check = adapter._clone_function(base.AttemptEntry.release_check, dict(source_closure=source_closure))
     proxy = adapter._clone_function(base.AttemptEntry.proxy, dict(NAMES=NAMES))
