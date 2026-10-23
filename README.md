@@ -221,6 +221,17 @@ this single observation is not a general speedup claim. Failed preparations and
 all results are retained under a separate binding. CMR semantics, 180/195 s budgets
 and certificate rules remain; no default switch or formal batch was performed.
 
+The optional [V10 suffix graph reuse prototype](experiments/cmr_ros2_suffix_reuse/README.md)
+retains V9 projection/witness reuse and one full TS build per AP-D invocation.
+A fixed C3-T4, D3-1 and D3-2 comparison uses nine isolated workers against V9
+and the original solver. In each multi-entry D3 cell, full accepting-lift
+constructions fall from 3 to 2 and source-edge scan passes from 3 to 1.
+All exact objectives agree and all nine additional certificate replays pass.
+Single-run total times increase on C3-T4 and slightly on D3-1, and decrease on
+D3-2; this is evidence of less repeated construction, not an overall speedup.
+The unchanged 180/195 s budgets and certificate rules remain; the default backend
+and formal experiment ledger are untouched.
+
 ---
 
 ## 1. 当前支持范围

@@ -1,0 +1,20 @@
+{
+  "all_member_bytes_equal_originals": true,
+  "archive_sha256": "c9b7f66b55f4e149949c8a1f10e472ab8b47fd5b1484a52fba1ace1638c86440",
+  "complete_development_folder": true,
+  "complete_runtime_namespace": true,
+  "kinds": {
+    "development_artifact": 12,
+    "runtime_namespace": 212,
+    "source_snapshot": 4
+  },
+  "members": 228,
+  "old_v9_archive_unchanged": true,
+  "root_result_readback_sha256": "ebcbdc1b6ac8ea67b2e793fb106e75aee74e6b19d923c013782b3befef17899b",
+  "schema": "cmr-v10-root-archive-readback-v1",
+  "solver_calls": 0,
+  "source_commit": "7a3ddc1d0b8ed22fb75c069085b8ffa3ff357ffc",
+  "source_snapshots_equal_git_and_live": true,
+  "status": "PASSED",
+  "verifier_calls": 0
+}

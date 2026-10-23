@@ -1,0 +1,193 @@
+{
+  "archive": {
+    "member_bytes_readback": "PASSED",
+    "member_count": 228,
+    "path": "raw_attempts.zip",
+    "sha256": "c9b7f66b55f4e149949c8a1f10e472ab8b47fd5b1484a52fba1ace1638c86440",
+    "size": 519558,
+    "zip_compression": "ZIP_DEFLATED"
+  },
+  "archive_manifest": {
+    "path": "archive_manifest.json",
+    "sha256": "00d2e2adc34450de9c82dd0e3b59f143e93f162a0b1d46497e0b2f51ccc6804a",
+    "size": 84921
+  },
+  "artifact_manifest": {
+    "path": "artifact_manifest.json",
+    "sha256": "b263d1cfa46d387f4d9a8431e98b1c19723f9986ff52ab34d98dd8f82c6228b7",
+    "size": 612
+  },
+  "counters_v9_to_v10": {
+    "C3-T4": {
+      "materializations": [
+        6,
+        6
+      ],
+      "requests": [
+        6,
+        6
+      ],
+      "reuses": [
+        0,
+        0
+      ],
+      "source_edge_scans": [
+        6,
+        6
+      ]
+    },
+    "D3-1": {
+      "materializations": [
+        3,
+        2
+      ],
+      "requests": [
+        3,
+        3
+      ],
+      "reuses": [
+        0,
+        1
+      ],
+      "source_edge_scans": [
+        3,
+        1
+      ]
+    },
+    "D3-2": {
+      "materializations": [
+        3,
+        2
+      ],
+      "requests": [
+        3,
+        3
+      ],
+      "reuses": [
+        0,
+        1
+      ],
+      "source_edge_scans": [
+        3,
+        1
+      ]
+    }
+  },
+  "edges_v9_to_v10": {
+    "C3-T4": [
+      3025,
+      3025
+    ],
+    "D3-1": [
+      42,
+      14
+    ],
+    "D3-2": [
+      18,
+      6
+    ]
+  },
+  "full_ts": {
+    "C3-T4": {
+      "builds": 1,
+      "hits": 5
+    },
+    "D3-1": {
+      "builds": 1,
+      "hits": 0
+    },
+    "D3-2": {
+      "builds": 1,
+      "hits": 0
+    }
+  },
+  "identity": {
+    "binding_id": "CMR_SUFFIX_GRAPH_REUSE_V1-15f39035342797bd",
+    "binding_sha256": "269b0487c156d2775ba76d978866dc7e3fb121aafcfdab2118c2e1acc935d392",
+    "manifest_sha256": "34baf18783170ddb7762b4ef4b01941e8de76c4a27d36d91f73f7b597648c358",
+    "v10_backend_sha256": "336d2bec6b66d179a3b03eb3d68e2dc2c88304a846655a486c8c41494533dbe5"
+  },
+  "limitations": {
+    "real_experiment_scope": "3 cells x 3 backends only",
+    "synthetic_fixture_solver_count": "unknown",
+    "timing_claim": "single qualification run; no general speedup claim"
+  },
+  "namespace": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v10_suffix_reuse_7a3ddc1_20261022",
+  "preservation": {
+    "failed_fixture_prep_evidence": [
+      "fixtures_native_failed_fraction.json",
+      "fixtures_native_failed_metrics.json"
+    ],
+    "old_v9_source_files_unchanged_archive_sha256": "8decec55208514c82742c8dd40db9c0bc50cfee458029ceaacfa925f49308993",
+    "precommit_source_versions": "not retained/unknown"
+  },
+  "qualification": {
+    "backends": [
+      "reference",
+      "ros2-v9",
+      "ros2-v10"
+    ],
+    "cells": 3,
+    "certificate_replays_passed": 9,
+    "dds_requests": 0,
+    "formal_calls": 0,
+    "inputs": 57,
+    "provider_calls": 0,
+    "recorded_rounds": 24,
+    "root_readback": "PASSED",
+    "source_files": 69,
+    "synthetic_fixture_solver_calls": "unknown",
+    "worker_exit0_cleanup": 9,
+    "workers": 9
+  },
+  "readback_scope": {
+    "package_readback": "PASSED",
+    "root_archive_readback": "PASSED",
+    "solver_calls": 0,
+    "verifier_calls": 0
+  },
+  "root_archive_readback": {
+    "path": "root_archive_readback.json",
+    "sha256": "9d6db8494b000aada73faa0eade070a3e08a3836ff5f12c02722eb65ee66d868",
+    "size": 696
+  },
+  "rounds": {
+    "C3-T4": 6,
+    "D3-1": 1,
+    "D3-2": 1
+  },
+  "schema": "cmr-v10-suffix-reuse-evidence-index-v1",
+  "source_branch": "codex/v10-suffix-reuse",
+  "source_commit": "7a3ddc1d0b8ed22fb75c069085b8ffa3ff357ffc",
+  "source_snapshots": [
+    {
+      "git_commit": "7a3ddc1d0b8ed22fb75c069085b8ffa3ff357ffc",
+      "member": "source_snapshots/backend.py",
+      "repository_path": "experiments/cmr_ros2_suffix_reuse/backend.py",
+      "sha256": "25b0daf7134055f48476365d9cb26f70d636a1863a4c5c9eef608cfa7568b89f",
+      "size": 3109
+    },
+    {
+      "git_commit": "7a3ddc1d0b8ed22fb75c069085b8ffa3ff357ffc",
+      "member": "source_snapshots/fixtures.py",
+      "repository_path": "experiments/cmr_ros2_suffix_reuse/fixtures.py",
+      "sha256": "05df3737ad7e23bf450c037dddb24a7f545e1061bb6db0d114d43e6269af2ff4",
+      "size": 11593
+    },
+    {
+      "git_commit": "7a3ddc1d0b8ed22fb75c069085b8ffa3ff357ffc",
+      "member": "source_snapshots/runner.py",
+      "repository_path": "experiments/cmr_ros2_suffix_reuse/runner.py",
+      "sha256": "8a55cb644805eacf4767994ef1faec78959b0516bf7228aa3a268d796e438d73",
+      "size": 16109
+    },
+    {
+      "git_commit": "7a3ddc1d0b8ed22fb75c069085b8ffa3ff357ffc",
+      "member": "source_snapshots/search.py",
+      "repository_path": "experiments/cmr_ros2_suffix_reuse/search.py",
+      "sha256": "dbf942acca6c1a6205fbdc3cd32f44a841c26ffc3b3996dbef2191383a54e31c",
+      "size": 8610
+    }
+  ],
+  "status": "VERIFIED"
+}

@@ -1,0 +1,24 @@
+{
+  "excludes": [
+    "index.json",
+    "artifact_manifest.json"
+  ],
+  "files": [
+    {
+      "path": "raw_attempts.zip",
+      "sha256": "c9b7f66b55f4e149949c8a1f10e472ab8b47fd5b1484a52fba1ace1638c86440",
+      "size": 519558
+    },
+    {
+      "path": "archive_manifest.json",
+      "sha256": "00d2e2adc34450de9c82dd0e3b59f143e93f162a0b1d46497e0b2f51ccc6804a",
+      "size": 84921
+    },
+    {
+      "path": "root_archive_readback.json",
+      "sha256": "9d6db8494b000aada73faa0eade070a3e08a3836ff5f12c02722eb65ee66d868",
+      "size": 696
+    }
+  ],
+  "schema": "cmr-v10-suffix-reuse-artifact-manifest-v1"
+}
