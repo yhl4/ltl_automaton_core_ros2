@@ -1,0 +1,8 @@
+# Versions used by the Python 3.10 / Ubuntu 22.04 offline CI jobs.
+networkx==2.8.8
+ply==3.11
+PyYAML==6.0.1
+pytest==7.4.4
+setuptools==68.2.2
+wheel==0.41.3
+flake8==7.1.2

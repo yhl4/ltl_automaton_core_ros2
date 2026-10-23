@@ -18,6 +18,9 @@ setup(
     ],
     install_requires=[
         'setuptools',
+        'networkx',
+        'ply',
+        'PyYAML',
     ],
     zip_safe=True,
     maintainer='yuhling',
