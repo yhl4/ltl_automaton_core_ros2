@@ -1,0 +1,24 @@
+{
+  "excludes": [
+    "index.json",
+    "artifact_manifest.json"
+  ],
+  "files": [
+    {
+      "path": "raw_attempts.zip",
+      "sha256": "13dc6acee0c029793ae453e6343e460855b5668ce629dd2489f397da3f9fa4ce",
+      "size": 1009324
+    },
+    {
+      "path": "archive_manifest.json",
+      "sha256": "62edc6fd2b526c8e8d172ec86f2fbf404963ba040b26da392fab9735ad322cde",
+      "size": 167226
+    },
+    {
+      "path": "root_archive_readback.json",
+      "sha256": "ded677f2057b7fd0aeae81ce23afa48732e0615f3ae51879058f7f462978fdce",
+      "size": 836
+    }
+  ],
+  "schema": "cmr-v12-compact-cost-artifact-manifest-v1"
+}

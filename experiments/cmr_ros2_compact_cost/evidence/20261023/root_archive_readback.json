@@ -1,0 +1,26 @@
+{
+  "all_bytes_equal_originals": true,
+  "archive_sha256": "13dc6acee0c029793ae453e6343e460855b5668ce629dd2489f397da3f9fa4ce",
+  "complete_both_namespaces": true,
+  "complete_helpers": true,
+  "interrupted_additional_replays_pass": 5,
+  "interrupted_replay_not_classified": 1,
+  "interrupted_workers": 6,
+  "kinds": {
+    "development_artifact": 36,
+    "interrupted_runtime_namespace": 173,
+    "runtime_namespace": 220,
+    "source_snapshot": 4
+  },
+  "members": 433,
+  "previous_v11_archive_unchanged": true,
+  "qualified_additional_replays_pass": 9,
+  "qualified_workers": 9,
+  "schema": "cmr-v12-root-archive-readback-v1",
+  "solver_calls": 0,
+  "source_commit": "3cd0d168a8a93f441cd195e6fa9743cb6d213218",
+  "source_snapshots_equal_git_and_live": true,
+  "status": "PASSED",
+  "total_recorded_rounds": 45,
+  "verifier_calls": 0
+}

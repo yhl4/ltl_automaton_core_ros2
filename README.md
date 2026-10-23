@@ -241,6 +241,16 @@ C3 search falls from 0.136800 to 0.111782 s, but total time rises from 1.477440
 to 1.617667 s. D3 timings are also mixed. Complete evidence and failures are
 retained; no overall speedup or default-backend promotion is claimed.
 
+The optional [V12 compact-cost experiment](experiments/cmr_ros2_compact_cost/README.md)
+moves integer-valued weight conversion before compact graph comparisons while
+retaining all V11/V10/V9 reuse. The completed three-cell comparison certifies
+the same costs and passes nine additional certificate replays. C3 search is
+0.105577/0.096945 s for observed V11/V12 controls; an earlier interrupted wave
+had the reverse timing tendency and is retained in full. Its unfinished replay
+is not counted as a pass. Original preflight hashes/path checks remain fresh;
+the profile identifies WSL filesystem overhead without bypassing acceptance.
+This remains bounded evidence, with no default switch or formal campaign.
+
 ---
 
 ## 1. 当前支持范围

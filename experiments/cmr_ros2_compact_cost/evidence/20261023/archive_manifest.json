@@ -1,0 +1,3038 @@
+{
+  "member_count": 433,
+  "members": [
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/certificates/C3-T4__AP-D__121.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\certificates\\C3-T4__AP-D__121.json",
+      "sha256": "3a7f5f18fe1a1ed69b31a149c69592851faa6a9aab0402223072ec0b958b7c3b",
+      "size": 2896
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\delivered_attempt.json",
+      "sha256": "beee1d10842641693daf7b2366dd063828264361793e56792d9619fde00e5fc7",
+      "size": 34540
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\external_replay_timing.json",
+      "sha256": "e20de9e9a0a66a26fb744035bf05521192f7666942ef5ccaec5b5c912acad2b1",
+      "size": 88
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\parent_timing.json",
+      "sha256": "87593d418c262175fe8af4e23042ef3f1cd7629992ddfa9cc63d0bd0d7ef44bf",
+      "size": 777
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\request.json",
+      "sha256": "30efd78edc9e8b59b201c385efa73ee44657f83fdbc662cf96de521e30236863",
+      "size": 984
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\result.json",
+      "sha256": "1e9a49a1c4954af0ebcbda9087d6f3d2112f77510feaa66112823149851abf5e",
+      "size": 35076
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\runner_raw_result.json",
+      "sha256": "d353bdd9040cbfcccc98d99d9cf407e3d94a715bfc9fda578000b72b36cd2c92",
+      "size": 26710
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\schema_binding.json",
+      "sha256": "2dba2daf6604bfbcbbd2cc8d27a9e2412aed0bbdd0c09f23d52565296f1617a3",
+      "size": 22026
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\worker_result.json",
+      "sha256": "aacf553ac85f1da31c7a564743124870d8c18a4dc7609db76338efeda38088a1",
+      "size": 34442
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/reference/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\reference\\worker_timing.json",
+      "sha256": "902e5d7edae4ec6b893d703508a5e5a5a085ee7f6a6b97f67cdc2bb3d7a5740a",
+      "size": 1558
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/certificates/C3-T4__AP-D__121.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\certificates\\C3-T4__AP-D__121.json",
+      "sha256": "3a7f5f18fe1a1ed69b31a149c69592851faa6a9aab0402223072ec0b958b7c3b",
+      "size": 2896
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\delivered_attempt.json",
+      "sha256": "61bb9e13dd935df181f4dc8bd440bca19f3eb6877341d6ed13346bd088083707",
+      "size": 58701
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\external_replay_timing.json",
+      "sha256": "09d1290188d862fd10d655830654391f3e11d5fe6c4734f4251025b1f41626c4",
+      "size": 87
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\parent_timing.json",
+      "sha256": "852939932abb628e14e81efecc50aa4a8697d48592f4b5b6e6358dca701e3a54",
+      "size": 776
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\request.json",
+      "sha256": "d28f304385c7f93b50e2ca04ca782fb26c26252bc0f355ad7e9f5a285144a61e",
+      "size": 999
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\result.json",
+      "sha256": "fbee4bd085155b4cd0d9f9c8a5ec6fea38c702d77de85c18d2f132b1eb3c0ef4",
+      "size": 59237
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\runner_raw_result.json",
+      "sha256": "31441e73f2b3cbac3ac9c4b481678d30769356456f2652f499326bb7fbb05ba9",
+      "size": 26849
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\schema_binding.json",
+      "sha256": "7a53701a2ba5b95bdc35cc40d454f6b31343a5574c7ecd7e787acaabd612cee1",
+      "size": 22092
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\worker_result.json",
+      "sha256": "54614dd136a156b6acad87441e363fb828b682cb9eb85c911184f949421b2f2f",
+      "size": 58603
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v11/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v11\\worker_timing.json",
+      "sha256": "856f387f6ac6715f12f25ae7ca4e119c1789e342cad183d65e0a9e9fdf3a2fb2",
+      "size": 1556
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/certificates/C3-T4__AP-D__121.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\certificates\\C3-T4__AP-D__121.json",
+      "sha256": "3a7f5f18fe1a1ed69b31a149c69592851faa6a9aab0402223072ec0b958b7c3b",
+      "size": 2896
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\delivered_attempt.json",
+      "sha256": "f44298327c3717b484d1f2859b581d73a483567190caf44683caa794de92288d",
+      "size": 58640
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\external_replay_timing.json",
+      "sha256": "6c33ea93500eceb17dbd65f26413580a00d27d3389d4f41341f75c721f0749e6",
+      "size": 88
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\parent_timing.json",
+      "sha256": "658e2a56b081da4a0aa89449912318d358fa1ef88d6e35452c3eb10b18c34e20",
+      "size": 777
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\request.json",
+      "sha256": "a54fd617a2039ed2903849b25bfbe121b5a94d572872cda3cd230515b7ac7959",
+      "size": 995
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\result.json",
+      "sha256": "9b243d8e91bb8c598ca7b92bd08f481ca08d22079d4af2a4bf3468b23138ec84",
+      "size": 59174
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\runner_raw_result.json",
+      "sha256": "a76a3dd7b1105f530cda0ecae8eca8b0cd2505d3e460cec3c0f7f77d668b0c55",
+      "size": 26789
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\schema_binding.json",
+      "sha256": "ce6ad7e89c3222adb50af1a31b02d2f72a8348d9a892309a81577b0b49e4af0d",
+      "size": 22088
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\worker_result.json",
+      "sha256": "5784a659e97ab6ed4b513b03b4e93f82bfa2692e96d6308d63cd7e1c9ba0de01",
+      "size": 58542
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/C3-T4_AP-D/ros2-v12/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\C3-T4_AP-D\\ros2-v12\\worker_timing.json",
+      "sha256": "40617e1ba9cb52219c14b9a7080a02cd5bc33499d3ecc6d82ba669df027565b7",
+      "size": 1557
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/certificates/D3-1__AP-D__142.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\certificates\\D3-1__AP-D__142.json",
+      "sha256": "c1dfebfc2cc74361fa7d4d9ffc8921f58f1b090177a5a605f64bc0831146e1b7",
+      "size": 1902
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\delivered_attempt.json",
+      "sha256": "77e6133c2b5ad9e3eece74861b3b31f45821b9ac22715e779890da36fb545061",
+      "size": 10201
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\external_replay_timing.json",
+      "sha256": "813447fe54ebab2161dd2b6dd42f0dae4636d3ced46350171eaedff734e770bb",
+      "size": 87
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\parent_timing.json",
+      "sha256": "92b1faeac69f1d4e01b400401f33e4f48ac00cd201baeca7a2eb28a69f8e0a3d",
+      "size": 777
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\request.json",
+      "sha256": "d8b664a6a3dea0a683eb46cff833e622c57175739b064a956fbd78474d210bab",
+      "size": 983
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\result.json",
+      "sha256": "ec2dbb41619900b7d66b6accc76941986924422819e674664e86b2f12fc31e8d",
+      "size": 10546
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\runner_raw_result.json",
+      "sha256": "15f68559d93da06b472824f0ae5032b85b22a1dc58055bea4c811ff3db38de46",
+      "size": 6673
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\schema_binding.json",
+      "sha256": "2dba2daf6604bfbcbbd2cc8d27a9e2412aed0bbdd0c09f23d52565296f1617a3",
+      "size": 22026
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\worker_result.json",
+      "sha256": "a6f61260ed71ba2ae0151633e41251acca7f5856f3c0a75569285f2cb5ff592e",
+      "size": 10103
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/reference/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\reference\\worker_timing.json",
+      "sha256": "99fecaa92ecf16647713bd5ef32bf50e196bccb9bdf627ae05c4984645b7f010",
+      "size": 1556
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/certificates/D3-1__AP-D__142.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\certificates\\D3-1__AP-D__142.json",
+      "sha256": "c1dfebfc2cc74361fa7d4d9ffc8921f58f1b090177a5a605f64bc0831146e1b7",
+      "size": 1902
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\delivered_attempt.json",
+      "sha256": "bffa7645a8fe33c822dbad3adec620ef2977cdc5b01f169119c79e72983084cf",
+      "size": 15870
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\external_replay_timing.json",
+      "sha256": "b3da1ad8779fd3bda711ae89697137edd945fdfb2c1a221f4ccfa7860c413cbe",
+      "size": 87
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\parent_timing.json",
+      "sha256": "e05657e44f14b343c43acf2b85d3a9c4676dd2160ffa9b84f0a62882b44a3f43",
+      "size": 776
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\request.json",
+      "sha256": "03f6b10f7d1b483d9b3b253b1b3c483912701cf5e29d2206bbfb779c293b6ef0",
+      "size": 998
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\result.json",
+      "sha256": "352b472a224ffefd9878f077388e12a7ba8c3a643c03bf8aeacde40293af1eba",
+      "size": 16215
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\runner_raw_result.json",
+      "sha256": "7904bbce39126b86b51ff444274640e574a22291d93008d2a5a2edab1243fdf3",
+      "size": 6710
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\schema_binding.json",
+      "sha256": "7a53701a2ba5b95bdc35cc40d454f6b31343a5574c7ecd7e787acaabd612cee1",
+      "size": 22092
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\worker_result.json",
+      "sha256": "35a403b8a5c5efa57cbef399c61f78adbeaf646fd4701022b12c852c0dc5eb5f",
+      "size": 15772
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v11/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v11\\worker_timing.json",
+      "sha256": "3d11f9e82a63cbf2786a233f3fda5726bd2817e2f531f6e12f3fed3a4e6f23dc",
+      "size": 1556
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/certificates/D3-1__AP-D__142.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\certificates\\D3-1__AP-D__142.json",
+      "sha256": "c1dfebfc2cc74361fa7d4d9ffc8921f58f1b090177a5a605f64bc0831146e1b7",
+      "size": 1902
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\delivered_attempt.json",
+      "sha256": "2e44ad21a3bb45a2250469f89931e19e2a648290b0d9794d89bd208c585b6eef",
+      "size": 15856
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\parent_timing.json",
+      "sha256": "b5726aacdb899ffb19fb03f1c92c78870fc7b2cae0a8c76bb81454d4e08152e0",
+      "size": 775
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\request.json",
+      "sha256": "55568f54ec9bb3824154f6f0f5fcedcad1c8a87632cd44bf8b43aa7839c19848",
+      "size": 994
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\result.json",
+      "sha256": "da990b22db81e287c656f3347af5ad4f34160f793d8f25bc3e230a82502a81a4",
+      "size": 16201
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\runner_raw_result.json",
+      "sha256": "1ea73a925ae224f79b8d0bd333f86a4d7de0847071e503967125dcf148e24735",
+      "size": 6705
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\schema_binding.json",
+      "sha256": "ce6ad7e89c3222adb50af1a31b02d2f72a8348d9a892309a81577b0b49e4af0d",
+      "size": 22088
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\worker_result.json",
+      "sha256": "deb37e7ee601e48ef2e5723cdeda9dd7ce33bc317dcf34571bf2940bc836a01c",
+      "size": 15758
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/D3-1_AP-D/ros2-v12/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\D3-1_AP-D\\ros2-v12\\worker_timing.json",
+      "sha256": "a7fe619c0b6c80b5de4c6f5ca2902d2bb81542c2aa17949fd171552105e0a9f6",
+      "size": 1553
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/backend_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\backend_binding.json",
+      "sha256": "f276393f9d9ed39439b1ab693d14f304a3af300fc8f20aba4ebaf0f5312986e7",
+      "size": 10824
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/comparison.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\comparison.json",
+      "sha256": "16afd0e44e926cc25c86f5c392c9b9d8f55a7412cfaf6f41c9988bd0b837435b",
+      "size": 252386
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/dispatches/C3-T4_AP-D__reference.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\dispatches\\C3-T4_AP-D__reference.json",
+      "sha256": "30efd78edc9e8b59b201c385efa73ee44657f83fdbc662cf96de521e30236863",
+      "size": 984
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/dispatches/C3-T4_AP-D__ros2-v11.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\dispatches\\C3-T4_AP-D__ros2-v11.json",
+      "sha256": "d28f304385c7f93b50e2ca04ca782fb26c26252bc0f355ad7e9f5a285144a61e",
+      "size": 999
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/dispatches/C3-T4_AP-D__ros2-v12.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\dispatches\\C3-T4_AP-D__ros2-v12.json",
+      "sha256": "a54fd617a2039ed2903849b25bfbe121b5a94d572872cda3cd230515b7ac7959",
+      "size": 995
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/dispatches/D3-1_AP-D__reference.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\dispatches\\D3-1_AP-D__reference.json",
+      "sha256": "d8b664a6a3dea0a683eb46cff833e622c57175739b064a956fbd78474d210bab",
+      "size": 983
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/dispatches/D3-1_AP-D__ros2-v11.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\dispatches\\D3-1_AP-D__ros2-v11.json",
+      "sha256": "03f6b10f7d1b483d9b3b253b1b3c483912701cf5e29d2206bbfb779c293b6ef0",
+      "size": 998
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/dispatches/D3-1_AP-D__ros2-v12.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\dispatches\\D3-1_AP-D__ros2-v12.json",
+      "sha256": "55568f54ec9bb3824154f6f0f5fcedcad1c8a87632cd44bf8b43aa7839c19848",
+      "size": 994
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/entry_fixture_details.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\entry_fixture_details.json",
+      "sha256": "c66ee22a78b7c44f2166c5e3c0e0350aaa3c6bc6387c5b605601425f9665a345",
+      "size": 678
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/fixture_details.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\fixture_details.json",
+      "sha256": "5e6eab9322ed2de9db79401e7460fb54731ea8f877e7df1629ae8f0c1ba4329c",
+      "size": 39917
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/fixtures.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\fixtures.json",
+      "sha256": "be6fa7accde782be0af96759b7e9dd8cf80334f2a89b0e6864304887eb686a8f",
+      "size": 287
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_ap_ts_reuse\\backend.py",
+      "sha256": "59fb3147d114e88978b71827934e09267542eae6bcb058fda266532a024176cf",
+      "size": 3009
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/builder.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_ap_ts_reuse\\builder.py",
+      "sha256": "2faadef438667dee06d82c728fff0aade34734c8855f20f2cce7eb6364aab8ef",
+      "size": 3987
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_ap_ts_reuse\\fixtures.py",
+      "sha256": "72f74e36790fc93918257657623f658fda9698b0ec73bb67bcf3b7f432efcc39",
+      "size": 9901
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_ap_ts_reuse\\runner.py",
+      "sha256": "840bc064cf7ca6c088320459db7c6786c3570866e92887c76ffc26df8a6c5148",
+      "size": 20905
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_backend\\acceptance.py",
+      "sha256": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+      "size": 8869
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_backend/backends.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_backend\\backends.py",
+      "sha256": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+      "size": 5491
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_backend/dds.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_backend\\dds.py",
+      "sha256": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+      "size": 25492
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_backend\\fixtures.py",
+      "sha256": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+      "size": 6363
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_backend\\lifecycle.py",
+      "sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+      "size": 14131
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_backend\\offline_chain.py",
+      "sha256": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+      "size": 38098
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_backend/qualification.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_backend\\qualification.py",
+      "sha256": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+      "size": 11161
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_backend/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_backend\\runner.py",
+      "sha256": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+      "size": 16424
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\backend.py",
+      "sha256": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+      "size": 9241
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\compare.py",
+      "sha256": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+      "size": 3435
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\fixtures.py",
+      "sha256": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+      "size": 8675
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\backend.py",
+      "sha256": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+      "size": 9380
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\compare.py",
+      "sha256": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+      "size": 19250
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\fixtures.py",
+      "sha256": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+      "size": 6861
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\backend.py",
+      "sha256": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+      "size": 8820
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\compare.py",
+      "sha256": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+      "size": 3709
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\fixtures.py",
+      "sha256": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+      "size": 9712
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\backend.py",
+      "sha256": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+      "size": 6350
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\compare.py",
+      "sha256": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+      "size": 3616
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\fixtures.py",
+      "sha256": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+      "size": 11084
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_compact_cost/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_compact_cost\\backend.py",
+      "sha256": "acbcba528b4c72b127330d9cbf5c536d6ddba1810d6fca9fc7ba654efd374e16",
+      "size": 3164
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_compact_cost/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_compact_cost\\fixtures.py",
+      "sha256": "52ea988a2ae6c2b1475d174bf9922a621878172ee097abe1bf490c85c53d4dad",
+      "size": 8664
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_compact_cost/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_compact_cost\\runner.py",
+      "sha256": "6082b1d564eb9b789e043a6d6bcc381cd79c852a17aa6db8c9cf9146274d07fd",
+      "size": 16161
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_compact_cost/search.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_compact_cost\\search.py",
+      "sha256": "49772531d0975e2aed336be961e59c0afc7fcb91bd2c3d2b42e27b641b735fb5",
+      "size": 4074
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_exact_cost_reuse\\backend.py",
+      "sha256": "4f04b8eb97500f9a2d47395e4e9ab3a085afe0b9fd57660783d38530389c1da2",
+      "size": 3153
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_exact_cost_reuse\\fixtures.py",
+      "sha256": "4eb17ca4d5d2d5e777498ff06811d3c7bb4b4aac4608cb7d41085949b2b9465b",
+      "size": 16414
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_exact_cost_reuse\\runner.py",
+      "sha256": "9906c014a88b2b799c330108398d173e2ff4813c7f2a8c5f200bffc2a9258d2f",
+      "size": 16221
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/search.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_exact_cost_reuse\\search.py",
+      "sha256": "1eeee60145cdb722ee8665cbfe94ac0d8e68f60f562bb6aff043af0d0c6083cb",
+      "size": 4139
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_integration\\dds_smoke.py",
+      "sha256": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+      "size": 52772
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_integration/runtime.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_integration\\runtime.py",
+      "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+      "size": 20890
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\builder.py",
+      "sha256": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+      "size": 7082
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\compare.py",
+      "sha256": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+      "size": 14888
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\fixtures.py",
+      "sha256": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+      "size": 20626
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_real\\bound_runner.py",
+      "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+      "size": 18851
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_real/dds_real.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_real\\dds_real.py",
+      "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+      "size": 8665
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_real/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_real\\runner.py",
+      "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+      "size": 15393
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_real/selection.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_real\\selection.json",
+      "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+      "size": 7263
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_real\\verifier_checks.py",
+      "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+      "size": 5954
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_real/verify_small.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_real\\verify_small.py",
+      "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+      "size": 4509
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\backend.py",
+      "sha256": "f584332d6316abc629e0d791885892dfe898319422ce4f1d7b34ba44575d5ba9",
+      "size": 3239
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/builder.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\builder.py",
+      "sha256": "138e401f67d3852f65fc08de475d1eb01cd4cbe58d2c60663620844558835553",
+      "size": 4091
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py",
+      "sha256": "38bead646012a263794f39c9d3cc1babb22860bcc288b594801b5e1e914bc94b",
+      "size": 15779
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\runner.py",
+      "sha256": "cb64e29d49cb0b60530e0752154a26107a0a22d2d7e73b2b2c57c152bdbe71ff",
+      "size": 13695
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/search.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\search.py",
+      "sha256": "590f0cfc39725b70f789b893819dc08a178dafdb030bcc469a8f426974d594b7",
+      "size": 3756
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_search_entry/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\backend.py",
+      "sha256": "17936fb63ef67a2d9f901c623eaf04108e702e0e66b8a988d4a6bab1d86c5ab9",
+      "size": 1650
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_search_entry/dds.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\dds.py",
+      "sha256": "2d816f142c066e247d1d4c2e8f4f1400467dfa3a610f5a71b9a014d61892a3ff",
+      "size": 18467
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_search_entry/entry.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry.py",
+      "sha256": "4f37d3c8bac30daaed33e46d7a41071393554c87d420d7ff6dd120d88b65f641",
+      "size": 12819
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_search_entry/entry_fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry_fixtures.py",
+      "sha256": "dad0c6bf30e12ea05d87dcc29f7f253c6db6bfef9e8dab72fa48723fddd3ba7c",
+      "size": 9293
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_search_entry/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\fixtures.py",
+      "sha256": "4d635949f5bfb005ed60cba0c21dc8d63177045ab3d53236966b495a50cf135f",
+      "size": 2626
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_search_entry/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\runner.py",
+      "sha256": "c2962e6dc9a505b8f5524d534a8a7af36b1f2ab3e2c6387d1c2463632d3530d9",
+      "size": 23185
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_smoke/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_smoke\\backend.py",
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+      "size": 9102
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_smoke\\smoke.py",
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+      "size": 23223
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_suffix_reuse\\backend.py",
+      "sha256": "25b0daf7134055f48476365d9cb26f70d636a1863a4c5c9eef608cfa7568b89f",
+      "size": 3109
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_suffix_reuse\\fixtures.py",
+      "sha256": "05df3737ad7e23bf450c037dddb24a7f545e1061bb6db0d114d43e6269af2ff4",
+      "size": 11593
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_suffix_reuse\\runner.py",
+      "sha256": "8a55cb644805eacf4767994ef1faec78959b0516bf7228aa3a268d796e438d73",
+      "size": 16109
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/search.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\experiments\\cmr_ros2_suffix_reuse\\search.py",
+      "sha256": "dbf942acca6c1a6205fbdc3cd32f44a841c26ffc3b3996dbef2191383a54e31c",
+      "size": 8610
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\accepted_run_resolver.py",
+      "sha256": "a2adbacffa0f0f0e2596291fda17d616f603aef6907bdbbd42baf9405a0017d7",
+      "size": 6438
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution.py",
+      "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a",
+      "size": 5367
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution_node.py",
+      "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+      "size": 20830
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\fake_runtime.py",
+      "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7",
+      "size": 4021
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/models.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\models.py",
+      "sha256": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+      "size": 3114
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/observation.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\observation.py",
+      "sha256": "55e3f91955ebfd211e1c03f140df2ae098a864df2883f3b438f8274030b98588",
+      "size": 949
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/AcceptedRunSnapshot.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\AcceptedRunSnapshot.msg",
+      "sha256": "8ee52866e16ed11125053f3e46e76dbb7a80bf897ba1075750b378d9e15ed0b2",
+      "size": 554
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphEdge.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphEdge.msg",
+      "sha256": "48facaa6de8e475749563d2a8e51bb296fedd9c496861dc29f2a095444a4c355",
+      "size": 278
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphNode.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphNode.msg",
+      "sha256": "2d39df9fb62af0ac18ecf47de282f46da8fc1dc65a6e13c21179d44611b85442",
+      "size": 371
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/PlanningExecutionObservation.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningExecutionObservation.msg",
+      "sha256": "005c3598d54f0b1ed13bbdd249cc67b0812999e3a1c8f1bf12e6ce37b302ad9f",
+      "size": 820
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphMetadata.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphMetadata.msg",
+      "sha256": "d953c35e3f7db80c60f53347483b865ebfd224c834dd54c88069a945362b11eb",
+      "size": 784
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphSnapshot.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphSnapshot.msg",
+      "sha256": "2819724a8b4d936b3f45e453b53f1648d503efc9dbedd03d5360a68818d2a339",
+      "size": 272
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphEdge.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphEdge.msg",
+      "sha256": "225a9fe65cebd0ff3788ed2eef126e68092b34ea42e9a2518c832939794e57b5",
+      "size": 179
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphNode.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphNode.msg",
+      "sha256": "6a8f32ce1039a3c8c004b26b50ad9c60fffa8b1cc46a2fc0d62a70ad03f9a091",
+      "size": 169
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemState.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemState.msg",
+      "sha256": "b8a5d7a46c81ae3e86cfcc73a0a7e0d9d7bb4624ba1335b5f67c2d7220121212",
+      "size": 534
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemStateStamped.msg",
+      "sha256": "7325d312b99629a54ba378cf5cf4487aa6cd90a6d1e38c1f951180674dbf2926",
+      "size": 193
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_adapter/ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_adapter\\ltl_automaton_planner\\ltl_automaton_planner\\planning_graph_snapshot.py",
+      "sha256": "15247712288d759359a9927f5e3ac185ddaacf46a813ca20a4adf765d9d2e583",
+      "size": 13166
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/frozen_inputs_before.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\frozen_inputs_before.json",
+      "sha256": "44648b279ab0790efb4b8a1a589fc8a729ab2779c48531430525a9b67bef0b55",
+      "size": 13266
+    },
+    {
+      "kind": "interrupted_runtime_namespace",
+      "name": "interrupted_namespace/plan.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023\\plan.json",
+      "sha256": "d994986fd91d584c3f43b437298ca70393e52e391694a438f843452ad67bc340",
+      "size": 15081
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/certificates/C3-T4__AP-D__121.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\certificates\\C3-T4__AP-D__121.json",
+      "sha256": "0d530878dc4b097a5f3089a13811581e1a62b09a2d592b4901fc586c43477fcc",
+      "size": 2896
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\delivered_attempt.json",
+      "sha256": "d0ce3d6bf8ea36a85be32f2916b3ea2bbb730019b7edee399fc18714bd69f7dd",
+      "size": 34396
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\external_replay_timing.json",
+      "sha256": "21151da212a6aa8b0f2d043f7a32a7127abbd98072ec13802a898ba61c7c658f",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\parent_timing.json",
+      "sha256": "3c2136d7b5f53ad3341aeb405dcc865ea10752e076a00fab01726782872175b7",
+      "size": 772
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\request.json",
+      "sha256": "2677fac47701d8ca5101f5666179e9f82daac158bfb6af83af85dd9cb4db0646",
+      "size": 984
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\result.json",
+      "sha256": "99439bfc6839fceaab9193a4699f836082af8333c7eccc5d37c8944b3fc64e87",
+      "size": 34927
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\runner_raw_result.json",
+      "sha256": "8dcf5d422fb25e79cb6544c82582e3293d7aeb493783346203d079f99d0d7001",
+      "size": 26569
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\schema_binding.json",
+      "sha256": "2dba2daf6604bfbcbbd2cc8d27a9e2412aed0bbdd0c09f23d52565296f1617a3",
+      "size": 22026
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\worker_result.json",
+      "sha256": "37f6e2c33a012fbe0d92261b1b67586d70f4b970f3a010bc8eaa1a8aa0fb8c0a",
+      "size": 34300
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\reference\\worker_timing.json",
+      "sha256": "3ac5c21f14d4656980b87cc0c88bce7ef5e05d5ffe61b77736d96c807a6a4564",
+      "size": 1554
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/certificates/C3-T4__AP-D__121.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\certificates\\C3-T4__AP-D__121.json",
+      "sha256": "0d530878dc4b097a5f3089a13811581e1a62b09a2d592b4901fc586c43477fcc",
+      "size": 2896
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\delivered_attempt.json",
+      "sha256": "b8652c933fedd242cb3c8974aba814b9f1d739bdd7fc0b201f0204e7cd6d7eda",
+      "size": 58467
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\external_replay_timing.json",
+      "sha256": "3092ddc379b767013db67a6350683d3c5c2e8b55bb753959b8890509bf731e0f",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\parent_timing.json",
+      "sha256": "f795e99d2142321f5ebaf3bd1380651218dbaa7bb9d64e9aead8948dc259a291",
+      "size": 771
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\request.json",
+      "sha256": "8f3f4082f639bc2df2ed6fead209c61010c8185b96f5d8ee9834d09b50087bad",
+      "size": 999
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\result.json",
+      "sha256": "5d6b5711652c03567213ff8380d6172081f8ed7ac290fd0eab419f4d493eda59",
+      "size": 58999
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\runner_raw_result.json",
+      "sha256": "42351a92c7de8e856d11a18cf1348e4069e843748e8d852dd914f3d1865b41fc",
+      "size": 26626
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\schema_binding.json",
+      "sha256": "7a53701a2ba5b95bdc35cc40d454f6b31343a5574c7ecd7e787acaabd612cee1",
+      "size": 22092
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\worker_result.json",
+      "sha256": "5e81d8cb3a57ca4d2712fc7f00dd2f2c5d2c26c04024ad2cf86f24601f99a22c",
+      "size": 58371
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v11\\worker_timing.json",
+      "sha256": "30c5dc6bb956684344019c9ef76c3407b14f3110e55c091ff90a770a70ac050a",
+      "size": 1556
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/certificates/C3-T4__AP-D__121.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\certificates\\C3-T4__AP-D__121.json",
+      "sha256": "0d530878dc4b097a5f3089a13811581e1a62b09a2d592b4901fc586c43477fcc",
+      "size": 2896
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\delivered_attempt.json",
+      "sha256": "e36f74179ee25f3a94256c281e21d510500548ec5ae634cce1f6e78d68b0d47c",
+      "size": 58480
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\external_replay_timing.json",
+      "sha256": "5a958a0888c882dd6e642791edfda8ae04af2cfd508c64ea8f0c3d82c3d68d90",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\parent_timing.json",
+      "sha256": "8b01847d6f572e873b37bca91fd37f0ce5655bd5e67f21e7eb49534ccb9244a7",
+      "size": 771
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\request.json",
+      "sha256": "898b82784614e2c6f0f4e619928c6c427cd2d61f927a3f20cb5ddea6c00e0424",
+      "size": 995
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\result.json",
+      "sha256": "bad1fb5ea0b7e98850088873296c62dd031c94047ee08333405da4c7c9a717b7",
+      "size": 59009
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\runner_raw_result.json",
+      "sha256": "f1bb58667ee5ac7574f7f54a39ace654464764a2d77f836ee97fbf5fee034707",
+      "size": 26636
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\schema_binding.json",
+      "sha256": "ce6ad7e89c3222adb50af1a31b02d2f72a8348d9a892309a81577b0b49e4af0d",
+      "size": 22088
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\worker_result.json",
+      "sha256": "022391d3d3506abc4b08e0175c4cbaec0fd98b5131a83d04e11dc17d19346f59",
+      "size": 58384
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v12/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\C3-T4_AP-D\\ros2-v12\\worker_timing.json",
+      "sha256": "8f57c947a58a45ee5f05830484a8a782a4eeeb8afdd31b8fb9e7a3b7c2a9e482",
+      "size": 1553
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/certificates/D3-1__AP-D__142.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\certificates\\D3-1__AP-D__142.json",
+      "sha256": "7288de948c57d81127e8b122149781c6ffda664f5bf9aec30a0947b961472a46",
+      "size": 1902
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\delivered_attempt.json",
+      "sha256": "dc9cfa9d0fe4451916f7a0a5c63ee6be05d38d9310b7265e0314783f7caec711",
+      "size": 10163
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\external_replay_timing.json",
+      "sha256": "4ef4ff32b03af3ffb9e313f01c424d06cfffb02c6bb030c32a09ed8a008fbb83",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\parent_timing.json",
+      "sha256": "f332c7409a0375946f5070d20ef2de12a5a381f915d37ddce52691d2ed41c157",
+      "size": 769
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\request.json",
+      "sha256": "d9ff19e53929bcd138e9762fc37aa88907c706488bd958d6ed9919afa37a47c9",
+      "size": 983
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\result.json",
+      "sha256": "992607d62399e96d16725550ebb18282613800714e8f1be8073f867d0dd6cc05",
+      "size": 10501
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\runner_raw_result.json",
+      "sha256": "a9b605476c9d0127ede846af9ebb00f5021b31e9a69b680269712e5f33f18f7a",
+      "size": 6638
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\schema_binding.json",
+      "sha256": "2dba2daf6604bfbcbbd2cc8d27a9e2412aed0bbdd0c09f23d52565296f1617a3",
+      "size": 22026
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\worker_result.json",
+      "sha256": "659f8b8fa2acee7dd49f91ce777164353c5638df654d43f24ff113d7a00d783c",
+      "size": 10067
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\reference\\worker_timing.json",
+      "sha256": "9cb668cb860d23a81f6100ed6fc7863f1a782e75df46ea6098181ea93317dde5",
+      "size": 1552
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/certificates/D3-1__AP-D__142.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\certificates\\D3-1__AP-D__142.json",
+      "sha256": "7288de948c57d81127e8b122149781c6ffda664f5bf9aec30a0947b961472a46",
+      "size": 1902
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\delivered_attempt.json",
+      "sha256": "cf242b305522db52823e6e6b9f54c3f0a00dd372b4cd49825355dd2a0523fb10",
+      "size": 15845
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\external_replay_timing.json",
+      "sha256": "d8b3e6aaf6d5fd132d88b5e40ef1e2c46103e631e40801ad69bffd71962c385a",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\parent_timing.json",
+      "sha256": "b93d23c0a3ff061ee9cab89d6c9aebd28514d8162d3f55dd34e4cf51a0568bca",
+      "size": 772
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\request.json",
+      "sha256": "5e929cbfb61994e3fee99ad32b78cc9e56483dfb99256e097838916e80502038",
+      "size": 998
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\result.json",
+      "sha256": "60b3527ba1dd9c9c2ca858f6ee039bbd599eba6f85299cae3b58feb165eacadb",
+      "size": 16180
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\runner_raw_result.json",
+      "sha256": "31919f8a6a9fe650c3e35c66768fad65e2cf76c4d264614b2b020eba1d19ab08",
+      "size": 6690
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\schema_binding.json",
+      "sha256": "7a53701a2ba5b95bdc35cc40d454f6b31343a5574c7ecd7e787acaabd612cee1",
+      "size": 22092
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\worker_result.json",
+      "sha256": "00c21d9b63fd6a503ad1d04d8b55f49036954c6d38f2cd8e8f11dcc7e8fc8381",
+      "size": 15748
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v11\\worker_timing.json",
+      "sha256": "a878b034f09abffe91dfe12433785c4153456a0010afaf3b79377bec5ba5cb25",
+      "size": 1554
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/certificates/D3-1__AP-D__142.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\certificates\\D3-1__AP-D__142.json",
+      "sha256": "7288de948c57d81127e8b122149781c6ffda664f5bf9aec30a0947b961472a46",
+      "size": 1902
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\delivered_attempt.json",
+      "sha256": "f3413e13f31c5e325a14f5d12930de416a460f10aa713f3f9333e1fb8e476c53",
+      "size": 15825
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\external_replay_timing.json",
+      "sha256": "f9e6edad0c8b29a1cbf26805a5b3f202f84d0d789dc78907d6b66c429563db7a",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\parent_timing.json",
+      "sha256": "7ed19d9057adcc7f0c2b04061695cf0b14a9935e63eec205ac580f4af98ff142",
+      "size": 772
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\request.json",
+      "sha256": "c136d2d22c39ef68f319f73b1e780ed462ba4ba5102324556b9b039264ff03eb",
+      "size": 994
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\result.json",
+      "sha256": "88c5d8d791e38fe6a0abcfe1ffcce7f6e2a31f89c6e030c2d6e13e8464d11556",
+      "size": 16168
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\runner_raw_result.json",
+      "sha256": "b79eb08754243b25cbfce4a705c093496450d1cbe43fb9d2af129b68df49c14b",
+      "size": 6681
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\schema_binding.json",
+      "sha256": "ce6ad7e89c3222adb50af1a31b02d2f72a8348d9a892309a81577b0b49e4af0d",
+      "size": 22088
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\worker_result.json",
+      "sha256": "d587262c4856cd16d8fb93b2c64b482ffeed0e280af52e7868497c4e9271e4b3",
+      "size": 15728
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v12/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-1_AP-D\\ros2-v12\\worker_timing.json",
+      "sha256": "f70f0f37b2e619b46a5db2dd6f1d49e9aad1a7b5b49f9923a3663cfca3b5c15b",
+      "size": 1552
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/certificates/D3-2__AP-D__143.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\certificates\\D3-2__AP-D__143.json",
+      "sha256": "e147e9300b2f42a79fdb5a2342b2201f15fe74c0d0d24a0eafdf9da3f6ca0231",
+      "size": 1898
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\delivered_attempt.json",
+      "sha256": "e02594696625a9dd36f9e0e819da29424dbe89fbf084b09feb3dbea25b8f9034",
+      "size": 10186
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\external_replay_timing.json",
+      "sha256": "28e3c50209c32adbd464114b81583934d5ec432b35fb65f5e43e7a6211d478b4",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\parent_timing.json",
+      "sha256": "bc281bd35dd8ba67015b258ef142a65c65a9d4d6a04cd822db7512aa342edaa2",
+      "size": 774
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\request.json",
+      "sha256": "23c424e6db58f963f1b2222b98a10b85320637a1b95aa4aaebb62e37dc405f39",
+      "size": 983
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\result.json",
+      "sha256": "6836b21a80c732119c1239eeb3aa9656189d0e77dc9eaad21d903b9d9313e74d",
+      "size": 10520
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\runner_raw_result.json",
+      "sha256": "e5d2a616eb413eb32d282c5bddfacc73cd5785797f26e0c33c5ae095b579eea7",
+      "size": 6664
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\schema_binding.json",
+      "sha256": "2dba2daf6604bfbcbbd2cc8d27a9e2412aed0bbdd0c09f23d52565296f1617a3",
+      "size": 22026
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\worker_result.json",
+      "sha256": "27c24142a62ce9f8a5d5e102c495ad9993680b2f083e1d1e03e10858c383355b",
+      "size": 10089
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\reference\\worker_timing.json",
+      "sha256": "330afb8425bbb7d2e46e138336f03325c3c6dea9e8114ca71dce7cf4a2af6f6e",
+      "size": 1553
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/certificates/D3-2__AP-D__143.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\certificates\\D3-2__AP-D__143.json",
+      "sha256": "e147e9300b2f42a79fdb5a2342b2201f15fe74c0d0d24a0eafdf9da3f6ca0231",
+      "size": 1898
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\delivered_attempt.json",
+      "sha256": "c87eaccbb4d3c886ee031d3f6086cc90324d601313f06064decdde05c226419e",
+      "size": 15807
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\external_replay_timing.json",
+      "sha256": "7df999a4fe743773f79ae0753008f5e47d0a256ec60f22178eb8f43c129f37ff",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\parent_timing.json",
+      "sha256": "9abfca155507b87f294cf88f8965a4ce1781a9ecee82885056e16c49de648362",
+      "size": 772
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\request.json",
+      "sha256": "112df49eae9a31cd7128acd76c870fde0b1c676ea55ca9879b57351f7bab5c88",
+      "size": 998
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\result.json",
+      "sha256": "3821d711ce398baf77fa67606d973ee48994bd0ec9127a7a824c4f42ea04a17d",
+      "size": 16148
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\runner_raw_result.json",
+      "sha256": "4cdfabd84d2d7b02ee3fe27a6aef8c4066ba06202c0d5bd5824a25152b370908",
+      "size": 6680
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\schema_binding.json",
+      "sha256": "7a53701a2ba5b95bdc35cc40d454f6b31343a5574c7ecd7e787acaabd612cee1",
+      "size": 22092
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\worker_result.json",
+      "sha256": "ea5b8defc5c4b1fa12c0aa9454efb6fa100b4a5637e71c4f94f51ab7ad3faf6b",
+      "size": 15710
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v11\\worker_timing.json",
+      "sha256": "1bfa32b270a87628de617f4c9d50dac5abbaec8a41cbedf41c8777d7e8c084f9",
+      "size": 1552
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/certificates/D3-2__AP-D__143.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\certificates\\D3-2__AP-D__143.json",
+      "sha256": "e147e9300b2f42a79fdb5a2342b2201f15fe74c0d0d24a0eafdf9da3f6ca0231",
+      "size": 1898
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/delivered_attempt.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\delivered_attempt.json",
+      "sha256": "b7b3837e13ef1f506311410094050dd5ac2c728873ab15f99f6be4f263c0c8ca",
+      "size": 15796
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/external_replay_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\external_replay_timing.json",
+      "sha256": "1c35b751344b79a12ed1a6c153fe252f88250c09cf1f3f549004fa5badb6e815",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/parent_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\parent_timing.json",
+      "sha256": "033924f175337682cce31d514dacde50e6d365eb5d39aa375938d7f4246597b7",
+      "size": 773
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/preflight.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\preflight.json",
+      "sha256": "ed3019b238213e924b2c89f7c974a937d2c3535a5e184bf64b18a44b6f7a266f",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/request.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\request.json",
+      "sha256": "3a4f4c1b824c4f6737f5760bab416cc2d9c676d6787e198f2d9d7c93210ba4cc",
+      "size": 994
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\result.json",
+      "sha256": "9276c5640f8408f3b65b163fd97226f29763f56171ed7c334b636f2c98b8dfae",
+      "size": 16139
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/runner_raw_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\runner_raw_result.json",
+      "sha256": "bd1b26ddf12f2c62e5be3e715dec7c734a225265e5b118bcfb747438efb0a3bd",
+      "size": 6677
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/schema_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\schema_binding.json",
+      "sha256": "ce6ad7e89c3222adb50af1a31b02d2f72a8348d9a892309a81577b0b49e4af0d",
+      "size": 22088
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/stderr.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/stdout.txt",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/worker.rc",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/worker_result.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\worker_result.json",
+      "sha256": "946c02422099741da768313da47a483c3f0636a498a64eaaf8dcc7f74d67c2a8",
+      "size": 15699
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v12/worker_timing.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\D3-2_AP-D\\ros2-v12\\worker_timing.json",
+      "sha256": "d2e162c1cbb5eff7a7ec28332aaf1d05d5d8d97f70aea6fea73ae8fecde57a0b",
+      "size": 1552
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/backend_binding.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\backend_binding.json",
+      "sha256": "f276393f9d9ed39439b1ab693d14f304a3af300fc8f20aba4ebaf0f5312986e7",
+      "size": 10824
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/comparison.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\comparison.json",
+      "sha256": "c53e745e95526f3653cca073b2727bf2ffea9bbb9695e21195dc82e282435a1f",
+      "size": 308946
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/C3-T4_AP-D__reference.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\dispatches\\C3-T4_AP-D__reference.json",
+      "sha256": "2677fac47701d8ca5101f5666179e9f82daac158bfb6af83af85dd9cb4db0646",
+      "size": 984
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/C3-T4_AP-D__ros2-v11.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\dispatches\\C3-T4_AP-D__ros2-v11.json",
+      "sha256": "8f3f4082f639bc2df2ed6fead209c61010c8185b96f5d8ee9834d09b50087bad",
+      "size": 999
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/C3-T4_AP-D__ros2-v12.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\dispatches\\C3-T4_AP-D__ros2-v12.json",
+      "sha256": "898b82784614e2c6f0f4e619928c6c427cd2d61f927a3f20cb5ddea6c00e0424",
+      "size": 995
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-1_AP-D__reference.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\dispatches\\D3-1_AP-D__reference.json",
+      "sha256": "d9ff19e53929bcd138e9762fc37aa88907c706488bd958d6ed9919afa37a47c9",
+      "size": 983
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-1_AP-D__ros2-v11.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\dispatches\\D3-1_AP-D__ros2-v11.json",
+      "sha256": "5e929cbfb61994e3fee99ad32b78cc9e56483dfb99256e097838916e80502038",
+      "size": 998
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-1_AP-D__ros2-v12.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\dispatches\\D3-1_AP-D__ros2-v12.json",
+      "sha256": "c136d2d22c39ef68f319f73b1e780ed462ba4ba5102324556b9b039264ff03eb",
+      "size": 994
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-2_AP-D__reference.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\dispatches\\D3-2_AP-D__reference.json",
+      "sha256": "23c424e6db58f963f1b2222b98a10b85320637a1b95aa4aaebb62e37dc405f39",
+      "size": 983
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-2_AP-D__ros2-v11.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\dispatches\\D3-2_AP-D__ros2-v11.json",
+      "sha256": "112df49eae9a31cd7128acd76c870fde0b1c676ea55ca9879b57351f7bab5c88",
+      "size": 998
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-2_AP-D__ros2-v12.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\dispatches\\D3-2_AP-D__ros2-v12.json",
+      "sha256": "3a4f4c1b824c4f6737f5760bab416cc2d9c676d6787e198f2d9d7c93210ba4cc",
+      "size": 994
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/entry_fixture_details.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\entry_fixture_details.json",
+      "sha256": "c66ee22a78b7c44f2166c5e3c0e0350aaa3c6bc6387c5b605601425f9665a345",
+      "size": 678
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/fixture_details.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\fixture_details.json",
+      "sha256": "12925e3cb1bc20be3b1c42314c79ddb9c0b51d0cf99ba54f1124c5130a4557e7",
+      "size": 39917
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/fixtures.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\fixtures.json",
+      "sha256": "09ed98aa1a9009c1611170464361f218e25bee31339fd3d331b50c4c1f316e22",
+      "size": 287
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_ap_ts_reuse\\backend.py",
+      "sha256": "59fb3147d114e88978b71827934e09267542eae6bcb058fda266532a024176cf",
+      "size": 3009
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/builder.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_ap_ts_reuse\\builder.py",
+      "sha256": "2faadef438667dee06d82c728fff0aade34734c8855f20f2cce7eb6364aab8ef",
+      "size": 3987
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_ap_ts_reuse\\fixtures.py",
+      "sha256": "72f74e36790fc93918257657623f658fda9698b0ec73bb67bcf3b7f432efcc39",
+      "size": 9901
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_ap_ts_reuse\\runner.py",
+      "sha256": "840bc064cf7ca6c088320459db7c6786c3570866e92887c76ffc26df8a6c5148",
+      "size": 20905
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_backend\\acceptance.py",
+      "sha256": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+      "size": 8869
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/backends.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_backend\\backends.py",
+      "sha256": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+      "size": 5491
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/dds.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_backend\\dds.py",
+      "sha256": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+      "size": 25492
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_backend\\fixtures.py",
+      "sha256": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+      "size": 6363
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_backend\\lifecycle.py",
+      "sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+      "size": 14131
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_backend\\offline_chain.py",
+      "sha256": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+      "size": 38098
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/qualification.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_backend\\qualification.py",
+      "sha256": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+      "size": 11161
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_backend\\runner.py",
+      "sha256": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+      "size": 16424
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\backend.py",
+      "sha256": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+      "size": 9241
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\compare.py",
+      "sha256": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+      "size": 3435
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_compact\\fixtures.py",
+      "sha256": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+      "size": 8675
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\backend.py",
+      "sha256": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+      "size": 9380
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\compare.py",
+      "sha256": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+      "size": 19250
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_perf\\fixtures.py",
+      "sha256": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+      "size": 6861
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\backend.py",
+      "sha256": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+      "size": 8820
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\compare.py",
+      "sha256": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+      "size": 3709
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_reuse\\fixtures.py",
+      "sha256": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+      "size": 9712
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\backend.py",
+      "sha256": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+      "size": 6350
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\compare.py",
+      "sha256": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+      "size": 3616
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_bfull_target\\fixtures.py",
+      "sha256": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+      "size": 11084
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_compact_cost/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_compact_cost\\backend.py",
+      "sha256": "acbcba528b4c72b127330d9cbf5c536d6ddba1810d6fca9fc7ba654efd374e16",
+      "size": 3164
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_compact_cost/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_compact_cost\\fixtures.py",
+      "sha256": "52ea988a2ae6c2b1475d174bf9922a621878172ee097abe1bf490c85c53d4dad",
+      "size": 8664
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_compact_cost/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_compact_cost\\runner.py",
+      "sha256": "6082b1d564eb9b789e043a6d6bcc381cd79c852a17aa6db8c9cf9146274d07fd",
+      "size": 16161
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_compact_cost/search.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_compact_cost\\search.py",
+      "sha256": "49772531d0975e2aed336be961e59c0afc7fcb91bd2c3d2b42e27b641b735fb5",
+      "size": 4074
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_exact_cost_reuse\\backend.py",
+      "sha256": "4f04b8eb97500f9a2d47395e4e9ab3a085afe0b9fd57660783d38530389c1da2",
+      "size": 3153
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_exact_cost_reuse\\fixtures.py",
+      "sha256": "4eb17ca4d5d2d5e777498ff06811d3c7bb4b4aac4608cb7d41085949b2b9465b",
+      "size": 16414
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_exact_cost_reuse\\runner.py",
+      "sha256": "9906c014a88b2b799c330108398d173e2ff4813c7f2a8c5f200bffc2a9258d2f",
+      "size": 16221
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/search.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_exact_cost_reuse\\search.py",
+      "sha256": "1eeee60145cdb722ee8665cbfe94ac0d8e68f60f562bb6aff043af0d0c6083cb",
+      "size": 4139
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_integration\\dds_smoke.py",
+      "sha256": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+      "size": 52772
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_integration/runtime.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_integration\\runtime.py",
+      "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+      "size": 20890
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\builder.py",
+      "sha256": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+      "size": 7082
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\compare.py",
+      "sha256": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+      "size": 14888
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_product_perf\\fixtures.py",
+      "sha256": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+      "size": 20626
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_real\\bound_runner.py",
+      "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+      "size": 18851
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/dds_real.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_real\\dds_real.py",
+      "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+      "size": 8665
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_real\\runner.py",
+      "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+      "size": 15393
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/selection.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_real\\selection.json",
+      "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+      "size": 7263
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_real\\verifier_checks.py",
+      "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+      "size": 5954
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/verify_small.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_real\\verify_small.py",
+      "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+      "size": 4509
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\backend.py",
+      "sha256": "f584332d6316abc629e0d791885892dfe898319422ce4f1d7b34ba44575d5ba9",
+      "size": 3239
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/builder.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\builder.py",
+      "sha256": "138e401f67d3852f65fc08de475d1eb01cd4cbe58d2c60663620844558835553",
+      "size": 4091
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\fixtures.py",
+      "sha256": "38bead646012a263794f39c9d3cc1babb22860bcc288b594801b5e1e914bc94b",
+      "size": 15779
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\runner.py",
+      "sha256": "cb64e29d49cb0b60530e0752154a26107a0a22d2d7e73b2b2c57c152bdbe71ff",
+      "size": 13695
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/search.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_reduction_reuse\\search.py",
+      "sha256": "590f0cfc39725b70f789b893819dc08a178dafdb030bcc469a8f426974d594b7",
+      "size": 3756
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\backend.py",
+      "sha256": "17936fb63ef67a2d9f901c623eaf04108e702e0e66b8a988d4a6bab1d86c5ab9",
+      "size": 1650
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/dds.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\dds.py",
+      "sha256": "2d816f142c066e247d1d4c2e8f4f1400467dfa3a610f5a71b9a014d61892a3ff",
+      "size": 18467
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/entry.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry.py",
+      "sha256": "4f37d3c8bac30daaed33e46d7a41071393554c87d420d7ff6dd120d88b65f641",
+      "size": 12819
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/entry_fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\entry_fixtures.py",
+      "sha256": "dad0c6bf30e12ea05d87dcc29f7f253c6db6bfef9e8dab72fa48723fddd3ba7c",
+      "size": 9293
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\fixtures.py",
+      "sha256": "4d635949f5bfb005ed60cba0c21dc8d63177045ab3d53236966b495a50cf135f",
+      "size": 2626
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_search_entry\\runner.py",
+      "sha256": "c2962e6dc9a505b8f5524d534a8a7af36b1f2ab3e2c6387d1c2463632d3530d9",
+      "size": 23185
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_smoke/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_smoke\\backend.py",
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+      "size": 9102
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_smoke\\smoke.py",
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+      "size": 23223
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/backend.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_suffix_reuse\\backend.py",
+      "sha256": "25b0daf7134055f48476365d9cb26f70d636a1863a4c5c9eef608cfa7568b89f",
+      "size": 3109
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/fixtures.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_suffix_reuse\\fixtures.py",
+      "sha256": "05df3737ad7e23bf450c037dddb24a7f545e1061bb6db0d114d43e6269af2ff4",
+      "size": 11593
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/runner.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_suffix_reuse\\runner.py",
+      "sha256": "8a55cb644805eacf4767994ef1faec78959b0516bf7228aa3a268d796e438d73",
+      "size": 16109
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/search.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\experiments\\cmr_ros2_suffix_reuse\\search.py",
+      "sha256": "dbf942acca6c1a6205fbdc3cd32f44a841c26ffc3b3996dbef2191383a54e31c",
+      "size": 8610
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\accepted_run_resolver.py",
+      "sha256": "a2adbacffa0f0f0e2596291fda17d616f603aef6907bdbbd42baf9405a0017d7",
+      "size": 6438
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution.py",
+      "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a",
+      "size": 5367
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\execution_node.py",
+      "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+      "size": 20830
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\fake_runtime.py",
+      "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7",
+      "size": 4021
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/models.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\models.py",
+      "sha256": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+      "size": 3114
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/observation.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_execution\\ltl_automaton_execution\\observation.py",
+      "sha256": "55e3f91955ebfd211e1c03f140df2ae098a864df2883f3b438f8274030b98588",
+      "size": 949
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/AcceptedRunSnapshot.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\AcceptedRunSnapshot.msg",
+      "sha256": "8ee52866e16ed11125053f3e46e76dbb7a80bf897ba1075750b378d9e15ed0b2",
+      "size": 554
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphEdge.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphEdge.msg",
+      "sha256": "48facaa6de8e475749563d2a8e51bb296fedd9c496861dc29f2a095444a4c355",
+      "size": 278
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphNode.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\BuchiGraphNode.msg",
+      "sha256": "2d39df9fb62af0ac18ecf47de282f46da8fc1dc65a6e13c21179d44611b85442",
+      "size": 371
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/PlanningExecutionObservation.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningExecutionObservation.msg",
+      "sha256": "005c3598d54f0b1ed13bbdd249cc67b0812999e3a1c8f1bf12e6ce37b302ad9f",
+      "size": 820
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphMetadata.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphMetadata.msg",
+      "sha256": "d953c35e3f7db80c60f53347483b865ebfd224c834dd54c88069a945362b11eb",
+      "size": 784
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphSnapshot.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\PlanningGraphSnapshot.msg",
+      "sha256": "2819724a8b4d936b3f45e453b53f1648d503efc9dbedd03d5360a68818d2a339",
+      "size": 272
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphEdge.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphEdge.msg",
+      "sha256": "225a9fe65cebd0ff3788ed2eef126e68092b34ea42e9a2518c832939794e57b5",
+      "size": 179
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphNode.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\ProductGraphNode.msg",
+      "sha256": "6a8f32ce1039a3c8c004b26b50ad9c60fffa8b1cc46a2fc0d62a70ad03f9a091",
+      "size": 169
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemState.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemState.msg",
+      "sha256": "b8a5d7a46c81ae3e86cfcc73a0a7e0d9d7bb4624ba1335b5f67c2d7220121212",
+      "size": 534
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_msgs\\msg\\TransitionSystemStateStamped.msg",
+      "sha256": "7325d312b99629a54ba378cf5cf4487aa6cd90a6d1e38c1f951180674dbf2926",
+      "size": 193
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_adapter\\ltl_automaton_planner\\ltl_automaton_planner\\planning_graph_snapshot.py",
+      "sha256": "15247712288d759359a9927f5e3ac185ddaacf46a813ca20a4adf765d9d2e583",
+      "size": 13166
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_inputs_after.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_inputs_after.json",
+      "sha256": "44648b279ab0790efb4b8a1a589fc8a729ab2779c48531430525a9b67bef0b55",
+      "size": 13266
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_inputs_before.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\frozen_inputs_before.json",
+      "sha256": "44648b279ab0790efb4b8a1a589fc8a729ab2779c48531430525a9b67bef0b55",
+      "size": 13266
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/plan.json",
+      "original_path": "\\\\wsl.localhost\\Ubuntu-22.04-D\\tmp\\cmr_v12_compact_cost_3cd0d16_20261023_r2\\plan.json",
+      "sha256": "80aac8964e93c15df67214e39055da7cce28b6a2276290b92ea30a0277b08503",
+      "size": 15084
+    },
+    {
+      "kind": "source_snapshot",
+      "name": "source_snapshots/backend.py",
+      "original_path": "git:3cd0d168a8a93f441cd195e6fa9743cb6d213218:experiments/cmr_ros2_compact_cost/backend.py",
+      "sha256": "acbcba528b4c72b127330d9cbf5c536d6ddba1810d6fca9fc7ba654efd374e16",
+      "size": 3164
+    },
+    {
+      "kind": "source_snapshot",
+      "name": "source_snapshots/fixtures.py",
+      "original_path": "git:3cd0d168a8a93f441cd195e6fa9743cb6d213218:experiments/cmr_ros2_compact_cost/fixtures.py",
+      "sha256": "52ea988a2ae6c2b1475d174bf9922a621878172ee097abe1bf490c85c53d4dad",
+      "size": 8664
+    },
+    {
+      "kind": "source_snapshot",
+      "name": "source_snapshots/runner.py",
+      "original_path": "git:3cd0d168a8a93f441cd195e6fa9743cb6d213218:experiments/cmr_ros2_compact_cost/runner.py",
+      "sha256": "6082b1d564eb9b789e043a6d6bcc381cd79c852a17aa6db8c9cf9146274d07fd",
+      "size": 16161
+    },
+    {
+      "kind": "source_snapshot",
+      "name": "source_snapshots/search.py",
+      "original_path": "git:3cd0d168a8a93f441cd195e6fa9743cb6d213218:experiments/cmr_ros2_compact_cost/search.py",
+      "sha256": "49772531d0975e2aed336be961e59c0afc7fcb91bd2c3d2b42e27b641b735fb5",
+      "size": 4074
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/interrupted_attempt_observation.json",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\interrupted_attempt_observation.json",
+      "sha256": "5223257f107b0cc384c6de305899333a077223a005fe0dbafbf709325fe55de4",
+      "size": 2266
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/pack_evidence.py",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\pack_evidence.py",
+      "sha256": "c89e3045afdbd55f69305cf5a67c19aa7b5b7c580a8eb0c67df9c22b47f0de49",
+      "size": 4208
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_preflight.json",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\profile_preflight.json",
+      "sha256": "4e0ea1067414ea625b9b6d5af41bd5ddebe69cfe11eb42056748ffd4b09cd23c",
+      "size": 27709
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_preflight.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\profile_preflight.log",
+      "sha256": "eb22434afbb4b6e49e287173e527798b89a7b6b651a4b1dbf4244bcaf48a47a4",
+      "size": 3512
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_preflight.pstats",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\profile_preflight.pstats",
+      "sha256": "38b6143cffda8b79cf0d443f067e905600d9710ff813ed241ad0e9386d24fb76",
+      "size": 9427
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_preflight.py",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\profile_preflight.py",
+      "sha256": "7820a44bb9c8704551264b9cd99ffb93746f815bc7e61145626d6213011ede16",
+      "size": 2318
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/readback.py",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\readback.py",
+      "sha256": "ab903a259b93fcd661ff150684a3a8854ad15180477ac7424f8615cba593c821",
+      "size": 11345
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/readback_final.json",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\readback_final.json",
+      "sha256": "0e66eab392cfad9188078d205c36855a832203029ac014a0ebec6eb4282d7c29",
+      "size": 7065
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/recovery_importguard.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\recovery_importguard.log",
+      "sha256": "90ac160c8e2dbb4b70032e6559da610cabe3cc02c493f583777fd07b86c9eb6f",
+      "size": 218
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/recovery_launch.json",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\recovery_launch.json",
+      "sha256": "f7f7b0adc42f4f4f1e476c490696e887a920d545451faeacb4d59e55b636b6b2",
+      "size": 224
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/recovery_prepare.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\recovery_prepare.log",
+      "sha256": "c14f5681f1c184a6655dd51e82b0e1187ad112df0abf32d9bf31a5df7fd7eb16",
+      "size": 84
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/recovery_prepare.rc",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\recovery_prepare.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/recovery_qualification.sh",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\recovery_qualification.sh",
+      "sha256": "2864830449652131a27edbc370d947c8a9610c0c3f151e012cf3afe2c9e16c41",
+      "size": 2089
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/recovery_run.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\recovery_run.log",
+      "sha256": "fe9d638a130a3cb0219c9c77e5e57dfa7dc56ce6f35a32622960f71241ce998c",
+      "size": 1103
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/recovery_run.rc",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\recovery_run.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/recovery_supervisor.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\recovery_supervisor.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/recovery_supervisor.rc",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\recovery_supervisor.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_clone.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_clone.log",
+      "sha256": "c6f819e5ad11a08c761ad762102d37ddc221c72ed44d0b36253a9c0f0cd21d51",
+      "size": 61
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_clone.rc",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_clone.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_directed_command.txt",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_directed_command.txt",
+      "sha256": "cc0cbc033c73b8e327ad92f14207cbb4abd1823fa7ecb0b64125ed77ab79758b",
+      "size": 422
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_directed_command_final.txt",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_directed_command_final.txt",
+      "sha256": "cd8f7f3fca4271438c5d812887fff4b0a66cb6f117d11e160de7d73aaa95d883",
+      "size": 428
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_directed_command_v2.txt",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_directed_command_v2.txt",
+      "sha256": "96161e6b8eef3022de79ab82bb52be058e955858d3a442dfe916511c4b93b904",
+      "size": 425
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_directed_result.json",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_directed_result.json",
+      "sha256": "2ea5df3313377a1c5c9158480a46e361d4a5bc36347519ef7ac420b60f532ef3",
+      "size": 169
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_directed_result_final.json",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_directed_result_final.json",
+      "sha256": "7f5564bbdcf199398127ea174ee2e89f4c5f02465bfa4a779cfbb9362f1b1507",
+      "size": 39917
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_directed_result_v2.json",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_directed_result_v2.json",
+      "sha256": "45a008b2ee61c7125d70944d0c5e6c48f5e371b1421f17f53680e05ae1132ff0",
+      "size": 39917
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_directed_run_final.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_directed_run_final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_directed_run_v2.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_directed_run_v2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_importguard.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_importguard.log",
+      "sha256": "d9c6f56c418b2e994252c8fbd57e6c43ce0faaa5bd3d30f8158efeeb16654c95",
+      "size": 373
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_importguard.rc",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_importguard.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_importguard_attempt1_failure.txt",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_importguard_attempt1_failure.txt",
+      "sha256": "640484ef49c6f2f63be50aea31541cf1106ec1fb2f9d5d90afef896ebe303dc0",
+      "size": 206
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_importguard_attempt2.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_importguard_attempt2.log",
+      "sha256": "bab601fa1401983f882503f85f9a14cb714414df8c96ba081c004d2c1ebb54bb",
+      "size": 155
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_importguard_attempt2.rc",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_importguard_attempt2.rc",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_prepare.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_prepare.log",
+      "sha256": "c14f5681f1c184a6655dd51e82b0e1187ad112df0abf32d9bf31a5df7fd7eb16",
+      "size": 84
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_prepare.rc",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_prepare.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_qualification.sh",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_qualification.sh",
+      "sha256": "1297628858dcef5e1e3355767d32d0eaf1cb2856b641e2fbcb7cdcbc7d21fcb9",
+      "size": 4282
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/v12_run.log",
+      "original_path": "C:\\Users\\Yuhling\\.codex\\worktrees\\v7-audit-dds-regression\\preflight_profile_20261023\\v12_run.log",
+      "sha256": "dcdb03cef2dda972809f733e297ab03008396cbc633faeb81b566335eb192636",
+      "size": 614
+    }
+  ],
+  "schema": "cmr-v12-compact-cost-archive-manifest-v1",
+  "source_commit": "3cd0d168a8a93f441cd195e6fa9743cb6d213218"
+}
