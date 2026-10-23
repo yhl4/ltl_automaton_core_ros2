@@ -1,0 +1,920 @@
+{
+  "binding_id": "CMR_EXACT_COST_REUSE_P2C_BACKEND_BINDING_V11",
+  "source_hashes": {
+    "result": "37f82080e8505a8b4d69af8fb0703778fca4c28ef809e9f2726b72bde4494ab6",
+    "round": "db33755ecc1dc50f5eb3e49521e7dc6145e006b922cdcd8d2236ebb5a3749650"
+  },
+  "schemas": {
+    "result": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "CMR P2c result witness compatibility contract",
+      "type": "object",
+      "required": [
+        "schema_version",
+        "experiment_id",
+        "instance_id",
+        "instance_sha256",
+        "benchmark_payload_sha256",
+        "method",
+        "backend_id",
+        "backend_sha256",
+        "semantic_contract_id",
+        "semantic_contract_sha256",
+        "terminal_status",
+        "right_censored",
+        "timing_status",
+        "timeout_stage",
+        "planner_budget_seconds",
+        "outer_watchdog_seconds",
+        "objective",
+        "rounds",
+        "refinement_rounds",
+        "candidate_fingerprint",
+        "prefix_actions",
+        "suffix_actions",
+        "suffix_entry_product_state",
+        "certificate_verifier_status",
+        "T_input_preprocess",
+        "T_initialization",
+        "T_full_ts",
+        "T_reduction",
+        "T_product",
+        "T_search",
+        "T_concretization",
+        "T_certification",
+        "T_refinement",
+        "T_logging",
+        "T_other",
+        "T_total",
+        "phase_intervals_ns",
+        "result_hash",
+        "infeasibility_proof_basis"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "cmr-p2b-result-v1"
+        },
+        "experiment_id": {
+          "type": "string"
+        },
+        "instance_id": {
+          "type": "string"
+        },
+        "instance_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "benchmark_payload_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "method": {
+          "enum": [
+            "FULL",
+            "AP-D",
+            "DEP-D",
+            "AI-D"
+          ]
+        },
+        "backend_id": {
+          "type": "string"
+        },
+        "backend_sha256": {
+          "const": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4"
+        },
+        "semantic_contract_id": {
+          "const": "INITIAL_LABEL_V1"
+        },
+        "semantic_contract_sha256": {
+          "const": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308"
+        },
+        "terminal_status": {
+          "enum": [
+            "OPTIMALITY_CERTIFIED",
+            "INFEASIBLE_CERTIFIED",
+            "TIMEOUT",
+            "ERROR",
+            "CERTIFICATE_GAP",
+            "INVALID_CERTIFICATE",
+            "INFRASTRUCTURE_FAILURE"
+          ]
+        },
+        "right_censored": {
+          "type": "boolean"
+        },
+        "timing_status": {
+          "type": "string"
+        },
+        "timeout_stage": {
+          "type": "string"
+        },
+        "planner_budget_seconds": {
+          "type": "number"
+        },
+        "outer_watchdog_seconds": {
+          "type": "number"
+        },
+        "objective": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rounds": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "refinement_rounds": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "candidate_fingerprint": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prefix_actions": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "suffix_actions": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "suffix_entry_product_state": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "certificate_verifier_status": {
+          "type": "string"
+        },
+        "T_input_preprocess": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_initialization": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_full_ts": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_reduction": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_product": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_search": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_concretization": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_certification": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_refinement": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_logging": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_other": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "T_total": {
+          "type": "number"
+        },
+        "phase_intervals_ns": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "result_hash": {
+          "type": "string"
+        },
+        "infeasibility_proof_basis": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "const": "exact reduced Product emptiness under optimistic projection"
+            }
+          ]
+        },
+        "infeasibility_certificate_type": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "const": "REDUCED_PRODUCT_EXACT_EMPTY"
+            }
+          ]
+        },
+        "infeasibility_precision": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "uniqueItems": true
+            }
+          ]
+        },
+        "lower_precision_infeasibility": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "$id": "urn:cmr-ltl:p2c:result:v1:ros2-scc-bound-v2",
+      "$comment": "Versioned validation contract P2c; unchanged P2b wire schema_version and runner.",
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "terminal_status"
+            ],
+            "properties": {
+              "terminal_status": {
+                "const": "OPTIMALITY_CERTIFIED"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "prefix_actions",
+              "suffix_actions"
+            ],
+            "properties": {
+              "prefix_actions": {
+                "type": "array"
+              },
+              "suffix_actions": {
+                "type": "array",
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "terminal_status"
+            ],
+            "properties": {
+              "terminal_status": {
+                "const": "INFEASIBLE_CERTIFIED"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "prefix_actions",
+              "suffix_actions"
+            ],
+            "properties": {
+              "prefix_actions": {
+                "type": "null"
+              },
+              "suffix_actions": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "terminal_status"
+            ],
+            "properties": {
+              "terminal_status": {
+                "const": "CERTIFICATE_GAP"
+              }
+            }
+          },
+          "then": {
+            "if": {
+              "required": [
+                "candidate_fingerprint"
+              ],
+              "properties": {
+                "candidate_fingerprint": {
+                  "type": "string"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "prefix_actions",
+                "suffix_actions"
+              ],
+              "properties": {
+                "prefix_actions": {
+                  "type": "array"
+                },
+                "suffix_actions": {
+                  "type": "array",
+                  "minItems": 1
+                }
+              }
+            },
+            "else": {
+              "oneOf": [
+                {
+                  "required": [
+                    "prefix_actions",
+                    "suffix_actions"
+                  ],
+                  "properties": {
+                    "prefix_actions": {
+                      "type": "null"
+                    },
+                    "suffix_actions": {
+                      "type": "null"
+                    }
+                  }
+                },
+                {
+                  "required": [
+                    "prefix_actions",
+                    "suffix_actions"
+                  ],
+                  "properties": {
+                    "prefix_actions": {
+                      "type": "array",
+                      "maxItems": 0
+                    },
+                    "suffix_actions": {
+                      "type": "array",
+                      "maxItems": 0
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "terminal_status"
+            ],
+            "properties": {
+              "terminal_status": {
+                "const": "TIMEOUT"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "infeasibility_certificate_type",
+              "infeasibility_proof_basis",
+              "infeasibility_precision",
+              "lower_precision_infeasibility"
+            ],
+            "properties": {
+              "infeasibility_certificate_type": {
+                "type": "null"
+              },
+              "infeasibility_proof_basis": {
+                "type": "null"
+              },
+              "infeasibility_precision": {
+                "type": "null"
+              },
+              "lower_precision_infeasibility": {
+                "type": "null"
+              },
+              "right_censored": {
+                "const": true
+              },
+              "timing_status": {
+                "const": "RIGHT_CENSORED"
+              },
+              "rounds": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "required": [
+                    "infeasibility_certificate_type",
+                    "infeasibility_proof_basis",
+                    "infeasibility_precision",
+                    "lower_precision_infeasibility"
+                  ],
+                  "properties": {
+                    "infeasibility_certificate_type": {
+                      "type": "null"
+                    },
+                    "infeasibility_proof_basis": {
+                      "type": "null"
+                    },
+                    "infeasibility_precision": {
+                      "type": "null"
+                    },
+                    "lower_precision_infeasibility": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "round": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "CMR P2c round witness compatibility contract",
+      "type": "object",
+      "required": [
+        "schema_version",
+        "instance_id",
+        "instance_sha256",
+        "benchmark_payload_sha256",
+        "method",
+        "round_index",
+        "semantic_contract_id",
+        "semantic_contract_sha256",
+        "backend_id",
+        "backend_sha256",
+        "N",
+        "S_phi",
+        "initial_S0",
+        "S_k",
+        "S_k_size",
+        "H_k",
+        "R_k",
+        "final_precision",
+        "J_lb",
+        "J_ub",
+        "abstract_prefix_cost",
+        "abstract_suffix_cost",
+        "prefix_cost",
+        "suffix_cost",
+        "certificate_status",
+        "concretization_status",
+        "ell",
+        "m",
+        "terminal_status",
+        "reduced_ts_states",
+        "reduced_ts_edges",
+        "product_unique_states",
+        "product_unique_edges",
+        "reachable_product_nodes",
+        "qualifying_sccs",
+        "candidate_entries",
+        "exact_entry_searches",
+        "bound_pruned_entries",
+        "queue_pushes",
+        "queue_pops",
+        "prefix_settled",
+        "lower_bound_settled",
+        "suffix_settled",
+        "candidate_fingerprint",
+        "prefix_actions",
+        "suffix_actions",
+        "suffix_entry_product_state",
+        "timings",
+        "phase_intervals_ns",
+        "infeasibility_proof_basis"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "cmr-p2b-round-v1"
+        },
+        "instance_id": {
+          "type": "string"
+        },
+        "instance_sha256": {
+          "type": "string"
+        },
+        "benchmark_payload_sha256": {
+          "type": "string"
+        },
+        "method": {
+          "enum": [
+            "FULL",
+            "AP-D",
+            "DEP-D",
+            "AI-D"
+          ]
+        },
+        "round_index": {
+          "type": "integer"
+        },
+        "semantic_contract_id": {
+          "const": "INITIAL_LABEL_V1"
+        },
+        "semantic_contract_sha256": {
+          "const": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308"
+        },
+        "backend_id": {
+          "type": "string"
+        },
+        "backend_sha256": {
+          "const": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4"
+        },
+        "N": {
+          "type": "integer"
+        },
+        "S_phi": {
+          "type": "array"
+        },
+        "initial_S0": {
+          "type": "array"
+        },
+        "S_k": {
+          "type": "array"
+        },
+        "S_k_size": {
+          "type": "integer"
+        },
+        "H_k": {
+          "type": "array"
+        },
+        "R_k": {
+          "type": "array"
+        },
+        "final_precision": {
+          "type": "array"
+        },
+        "J_lb": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "J_ub": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "abstract_prefix_cost": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "abstract_suffix_cost": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prefix_cost": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "suffix_cost": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "certificate_status": {
+          "type": "string"
+        },
+        "concretization_status": {
+          "type": "string"
+        },
+        "ell": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "m": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "terminal_status": {
+          "type": "string"
+        },
+        "reduced_ts_states": {
+          "type": "integer"
+        },
+        "reduced_ts_edges": {
+          "type": "integer"
+        },
+        "product_unique_states": {
+          "type": "integer"
+        },
+        "product_unique_edges": {
+          "type": "integer"
+        },
+        "reachable_product_nodes": {
+          "type": "integer"
+        },
+        "qualifying_sccs": {
+          "type": "integer"
+        },
+        "candidate_entries": {
+          "type": "integer"
+        },
+        "exact_entry_searches": {
+          "type": "integer"
+        },
+        "bound_pruned_entries": {
+          "type": "integer"
+        },
+        "queue_pushes": {
+          "type": "integer"
+        },
+        "queue_pops": {
+          "type": "integer"
+        },
+        "prefix_settled": {
+          "type": "integer"
+        },
+        "lower_bound_settled": {
+          "type": "integer"
+        },
+        "suffix_settled": {
+          "type": "integer"
+        },
+        "candidate_fingerprint": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prefix_actions": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "suffix_actions": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "suffix_entry_product_state": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "timings": {
+          "type": "object"
+        },
+        "phase_intervals_ns": {
+          "type": "object"
+        },
+        "infeasibility_proof_basis": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "const": "exact reduced Product emptiness under optimistic projection"
+            }
+          ]
+        },
+        "infeasibility_certificate_type": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "const": "REDUCED_PRODUCT_EXACT_EMPTY"
+            }
+          ]
+        },
+        "infeasibility_precision": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "uniqueItems": true
+            }
+          ]
+        },
+        "lower_precision_infeasibility": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true,
+      "$id": "urn:cmr-ltl:p2c:round:v1:ros2-scc-bound-v2",
+      "$comment": "Versioned validation contract P2c; unchanged P2b wire schema_version and runner.",
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "terminal_status"
+            ],
+            "properties": {
+              "terminal_status": {
+                "const": "OPTIMALITY_CERTIFIED"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "prefix_actions",
+              "suffix_actions"
+            ],
+            "properties": {
+              "prefix_actions": {
+                "type": "array"
+              },
+              "suffix_actions": {
+                "type": "array",
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "terminal_status"
+            ],
+            "properties": {
+              "terminal_status": {
+                "const": "INFEASIBLE_CERTIFIED"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "prefix_actions",
+              "suffix_actions"
+            ],
+            "properties": {
+              "prefix_actions": {
+                "type": "null"
+              },
+              "suffix_actions": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "terminal_status"
+            ],
+            "properties": {
+              "terminal_status": {
+                "const": "CERTIFICATE_GAP"
+              }
+            }
+          },
+          "then": {
+            "if": {
+              "required": [
+                "candidate_fingerprint"
+              ],
+              "properties": {
+                "candidate_fingerprint": {
+                  "type": "string"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "prefix_actions",
+                "suffix_actions"
+              ],
+              "properties": {
+                "prefix_actions": {
+                  "type": "array"
+                },
+                "suffix_actions": {
+                  "type": "array",
+                  "minItems": 1
+                }
+              }
+            },
+            "else": {
+              "required": [
+                "prefix_actions",
+                "suffix_actions"
+              ],
+              "properties": {
+                "prefix_actions": {
+                  "type": "array",
+                  "maxItems": 0
+                },
+                "suffix_actions": {
+                  "type": "array",
+                  "maxItems": 0
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "terminal_status"
+            ],
+            "properties": {
+              "terminal_status": {
+                "const": "TIMEOUT"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "infeasibility_certificate_type",
+              "infeasibility_proof_basis",
+              "infeasibility_precision",
+              "lower_precision_infeasibility"
+            ],
+            "properties": {
+              "infeasibility_certificate_type": {
+                "type": "null"
+              },
+              "infeasibility_proof_basis": {
+                "type": "null"
+              },
+              "infeasibility_precision": {
+                "type": "null"
+              },
+              "lower_precision_infeasibility": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

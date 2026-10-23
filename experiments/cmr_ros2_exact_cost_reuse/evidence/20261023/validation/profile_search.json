@@ -1,0 +1,1499 @@
+{
+  "dds_requests": 0,
+  "discrete_plan_path": "/tmp/cmr_v10_source_7a3ddc1_20261022/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py",
+  "discrete_plan_sha256": "556b6925a61ce408a0b42d56da45138fcdf3c7c7655e7850eb17b551996df31b",
+  "elapsed_ns": 130670675,
+  "formal_campaign": false,
+  "functions": [
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.130111474,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_suffix_reuse/search.py",
+      "line": 164,
+      "name": "solve_cmr_lasso",
+      "primitive_calls": 1,
+      "self_seconds": 0.00040570000000000005
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.129053874,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_search_entry/backend.py",
+      "line": 16,
+      "name": "solve_cmr_lasso",
+      "primitive_calls": 1,
+      "self_seconds": 1.9e-05
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.129024374,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_target/backend.py",
+      "line": 112,
+      "name": "solve_cmr_lasso",
+      "primitive_calls": 1,
+      "self_seconds": 0.000748601
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.128275773,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 52,
+      "name": "solve_cmr_lasso",
+      "primitive_calls": 1,
+      "self_seconds": 0.0032756020000000003
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.048256927000000005,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_suffix_reuse/search.py",
+      "line": 147,
+      "name": "edge_rows",
+      "primitive_calls": 1,
+      "self_seconds": 4.9000000000000005e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.048252027,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_reduction_reuse/search.py",
+      "line": 22,
+      "name": "_cached_edge_rows",
+      "primitive_calls": 1,
+      "self_seconds": 0.012948005
+    },
+    {
+      "calls": 2179,
+      "cumulative_seconds": 0.024722518000000002,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_smoke/backend.py",
+      "line": 30,
+      "name": "_exact",
+      "primitive_calls": 2179,
+      "self_seconds": 0.009045105000000001
+    },
+    {
+      "calls": 4878,
+      "cumulative_seconds": 0.017894615000000003,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 62,
+      "name": "__new__",
+      "primitive_calls": 4878,
+      "self_seconds": 0.010697409000000001
+    },
+    {
+      "calls": 2179,
+      "cumulative_seconds": 0.015677413,
+      "file": "/mnt/c/Users/Yuhling/.codex/worktrees/cmr-p1b-initial-label/Robotics4LLM/ltl_planning_studio/ecc_p1_formal_kernel/ecc_p1/model.py",
+      "line": 12,
+      "name": "exact_cost",
+      "primitive_calls": 2179,
+      "self_seconds": 0.0032133020000000003
+    },
+    {
+      "calls": 1920,
+      "cumulative_seconds": 0.015498510000000002,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.min>",
+      "primitive_calls": 1920,
+      "self_seconds": 0.003285501
+    },
+    {
+      "calls": 3971,
+      "cumulative_seconds": 0.015477607,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 713,
+      "name": "__lt__",
+      "primitive_calls": 3971,
+      "self_seconds": 0.0025609020000000003
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.015234509,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_target/backend.py",
+      "line": 119,
+      "name": "target_suffix_graph",
+      "primitive_calls": 1,
+      "self_seconds": 3.13e-05
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.015202009,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_suffix_reuse/search.py",
+      "line": 123,
+      "name": "get",
+      "primitive_calls": 1,
+      "self_seconds": 1.9600000000000002e-05
+    },
+    {
+      "calls": 4100,
+      "cumulative_seconds": 0.013449006000000001,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 691,
+      "name": "_richcmp",
+      "primitive_calls": 4100,
+      "self_seconds": 0.0057476030000000004
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.012114207,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_search_entry/backend.py",
+      "line": 21,
+      "name": "compact_graph",
+      "primitive_calls": 1,
+      "self_seconds": 0.002071701
+    },
+    {
+      "calls": 13888,
+      "cumulative_seconds": 0.01182451,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.isinstance>",
+      "primitive_calls": 13888,
+      "self_seconds": 0.0071454050000000005
+    },
+    {
+      "calls": 3603,
+      "cumulative_seconds": 0.010295305000000001,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 577,
+      "name": "add_edge",
+      "primitive_calls": 3603,
+      "self_seconds": 0.008172703
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.010287506,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_suffix_reuse/search.py",
+      "line": 84,
+      "name": "_materialize",
+      "primitive_calls": 1,
+      "self_seconds": 0.004007805000000001
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.008223005,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_compact/backend.py",
+      "line": 21,
+      "name": "_compact_graph",
+      "primitive_calls": 1,
+      "self_seconds": 0.0023811
+    },
+    {
+      "calls": 384,
+      "cumulative_seconds": 0.0070120040000000005,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_reduction_reuse/search.py",
+      "line": 14,
+      "name": "_normalize_witnesses",
+      "primitive_calls": 384,
+      "self_seconds": 0.0011175
+    },
+    {
+      "calls": 6,
+      "cumulative_seconds": 0.006866404,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_target/backend.py",
+      "line": 126,
+      "name": "target_call",
+      "primitive_calls": 6,
+      "self_seconds": 5.1200000000000004e-05
+    },
+    {
+      "calls": 6,
+      "cumulative_seconds": 0.0068141040000000005,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 63,
+      "name": "<lambda>",
+      "primitive_calls": 6,
+      "self_seconds": 2.4900000000000002e-05
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 0.006401104,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py",
+      "line": 275,
+      "name": "_prefix_distances",
+      "primitive_calls": 3,
+      "self_seconds": 0.005365103
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.006310403,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_perf/backend.py",
+      "line": 34,
+      "name": "_qualifying_sccs",
+      "primitive_calls": 1,
+      "self_seconds": 2.32e-05
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 0.006262303,
+      "file": "/usr/lib/python3/dist-packages/networkx/algorithms/components/strongly_connected.py",
+      "line": 26,
+      "name": "strongly_connected_components",
+      "primitive_calls": 2,
+      "self_seconds": 0.0030887030000000004
+    },
+    {
+      "calls": 389,
+      "cumulative_seconds": 0.0060688040000000006,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.sorted>",
+      "primitive_calls": 388,
+      "self_seconds": 0.0008646000000000001
+    },
+    {
+      "calls": 5506,
+      "cumulative_seconds": 0.005566302,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 666,
+      "name": "<genexpr>",
+      "primitive_calls": 5506,
+      "self_seconds": 0.0038130010000000003
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 0.005237802000000001,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'sort' of 'list' objects>",
+      "primitive_calls": 2,
+      "self_seconds": 0.0010653000000000001
+    },
+    {
+      "calls": 768,
+      "cumulative_seconds": 0.005115704,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_reduction_reuse/search.py",
+      "line": 16,
+      "name": "<genexpr>",
+      "primitive_calls": 768,
+      "self_seconds": 0.0007361010000000001
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.004874403,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_suffix_reuse/search.py",
+      "line": 58,
+      "name": "_index",
+      "primitive_calls": 1,
+      "self_seconds": 0.002688502
+    },
+    {
+      "calls": 7219,
+      "cumulative_seconds": 0.004679105,
+      "file": "/usr/lib/python3.10/abc.py",
+      "line": 117,
+      "name": "__instancecheck__",
+      "primitive_calls": 7219,
+      "self_seconds": 0.002185102
+    },
+    {
+      "calls": 389,
+      "cumulative_seconds": 0.004082902,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 356,
+      "name": "forward",
+      "primitive_calls": 389,
+      "self_seconds": 0.0005753
+    },
+    {
+      "calls": 128,
+      "cumulative_seconds": 0.0035257,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 118,
+      "name": "<listcomp>",
+      "primitive_calls": 128,
+      "self_seconds": 0.0012659000000000001
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.002861602,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_smoke/backend.py",
+      "line": 20,
+      "name": "_canonical_nodes",
+      "primitive_calls": 1,
+      "self_seconds": 0.0020068020000000002
+    },
+    {
+      "calls": 4878,
+      "cumulative_seconds": 0.002779302,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method __new__ of type object at 0x5982e11669a0>",
+      "primitive_calls": 4878,
+      "self_seconds": 0.002779302
+    },
+    {
+      "calls": 7219,
+      "cumulative_seconds": 0.0024940030000000003,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method _abc._abc_instancecheck>",
+      "primitive_calls": 7219,
+      "self_seconds": 0.0024940030000000003
+    },
+    {
+      "calls": 937,
+      "cumulative_seconds": 0.002366902,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 670,
+      "name": "__eq__",
+      "primitive_calls": 937,
+      "self_seconds": 0.0010705
+    },
+    {
+      "calls": 260,
+      "cumulative_seconds": 0.002110002,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 451,
+      "name": "_add",
+      "primitive_calls": 260,
+      "self_seconds": 0.0012056
+    },
+    {
+      "calls": 130,
+      "cumulative_seconds": 0.0019825010000000002,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 933,
+      "name": "__call__",
+      "primitive_calls": 130,
+      "self_seconds": 0.0005408
+    },
+    {
+      "calls": 3870,
+      "cumulative_seconds": 0.0017853010000000002,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'update' of 'dict' objects>",
+      "primitive_calls": 3870,
+      "self_seconds": 0.0017853010000000002
+    },
+    {
+      "calls": 5376,
+      "cumulative_seconds": 0.001571001,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 655,
+      "name": "<lambda>",
+      "primitive_calls": 5376,
+      "self_seconds": 0.001571001
+    },
+    {
+      "calls": 11105,
+      "cumulative_seconds": 0.001510103,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'get' of 'dict' objects>",
+      "primitive_calls": 11105,
+      "self_seconds": 0.001510103
+    },
+    {
+      "calls": 402,
+      "cumulative_seconds": 0.0014636,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graph.py",
+      "line": 451,
+      "name": "__getitem__",
+      "primitive_calls": 402,
+      "self_seconds": 0.0004198
+    },
+    {
+      "calls": 130,
+      "cumulative_seconds": 0.001441701,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 642,
+      "name": "__init__",
+      "primitive_calls": 130,
+      "self_seconds": 0.0007532000000000001
+    },
+    {
+      "calls": 7997,
+      "cumulative_seconds": 0.0012239,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 256,
+      "name": "numerator",
+      "primitive_calls": 7997,
+      "self_seconds": 0.0012239
+    },
+    {
+      "calls": 129,
+      "cumulative_seconds": 0.0012173000000000002,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 483,
+      "name": "_mul",
+      "primitive_calls": 129,
+      "self_seconds": 0.0006841000000000001
+    },
+    {
+      "calls": 130,
+      "cumulative_seconds": 0.0011633000000000001,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 841,
+      "name": "edges",
+      "primitive_calls": 130,
+      "self_seconds": 0.00020730000000000002
+    },
+    {
+      "calls": 7482,
+      "cumulative_seconds": 0.0011443,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 260,
+      "name": "denominator",
+      "primitive_calls": 7482,
+      "self_seconds": 0.0011443
+    },
+    {
+      "calls": 2178,
+      "cumulative_seconds": 0.0011291,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.id>",
+      "primitive_calls": 2178,
+      "self_seconds": 0.0011291
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.0010264010000000001,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 428,
+      "name": "add_nodes_from",
+      "primitive_calls": 1,
+      "self_seconds": 0.001012401
+    },
+    {
+      "calls": 130,
+      "cumulative_seconds": 0.000956,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 906,
+      "name": "__init__",
+      "primitive_calls": 130,
+      "self_seconds": 0.00037190000000000004
+    },
+    {
+      "calls": 130,
+      "cumulative_seconds": 0.000917901,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 665,
+      "name": "__iter__",
+      "primitive_calls": 130,
+      "self_seconds": 0.00037370100000000005
+    },
+    {
+      "calls": 128,
+      "cumulative_seconds": 0.0008733020000000001,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.max>",
+      "primitive_calls": 128,
+      "self_seconds": 0.0002213
+    },
+    {
+      "calls": 3971,
+      "cumulative_seconds": 0.0008194000000000001,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method _operator.lt>",
+      "primitive_calls": 3971,
+      "self_seconds": 0.0008194000000000001
+    },
+    {
+      "calls": 3711,
+      "cumulative_seconds": 0.0007087,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'add' of 'set' objects>",
+      "primitive_calls": 3711,
+      "self_seconds": 0.0007087
+    },
+    {
+      "calls": 128,
+      "cumulative_seconds": 0.000688501,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graph.py",
+      "line": 1827,
+      "name": "nbunch_iter",
+      "primitive_calls": 128,
+      "self_seconds": 0.0003729
+    },
+    {
+      "calls": 128,
+      "cumulative_seconds": 0.000652002,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 717,
+      "name": "__gt__",
+      "primitive_calls": 128,
+      "self_seconds": 0.000125301
+    },
+    {
+      "calls": 3977,
+      "cumulative_seconds": 0.0006464,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'append' of 'list' objects>",
+      "primitive_calls": 3977,
+      "self_seconds": 0.0006464
+    },
+    {
+      "calls": 402,
+      "cumulative_seconds": 0.0006056000000000001,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 325,
+      "name": "adj",
+      "primitive_calls": 402,
+      "self_seconds": 0.00047270000000000005
+    },
+    {
+      "calls": 143,
+      "cumulative_seconds": 0.0006022,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.hasattr>",
+      "primitive_calls": 143,
+      "self_seconds": 0.00019930000000000002
+    },
+    {
+      "calls": 129,
+      "cumulative_seconds": 0.0005701,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 381,
+      "name": "add_node",
+      "primitive_calls": 129,
+      "self_seconds": 0.0005504
+    },
+    {
+      "calls": 128,
+      "cumulative_seconds": 0.0005428000000000001,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 649,
+      "name": "<lambda>",
+      "primitive_calls": 128,
+      "self_seconds": 0.0002919
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 0.0005077,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'clear' of 'dict' objects>",
+      "primitive_calls": 3,
+      "self_seconds": 0.0005077
+    },
+    {
+      "calls": 402,
+      "cumulative_seconds": 0.0004382,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/coreviews.py",
+      "line": 80,
+      "name": "__getitem__",
+      "primitive_calls": 402,
+      "self_seconds": 0.0003413
+    },
+    {
+      "calls": 130,
+      "cumulative_seconds": 0.00040290000000000004,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 344,
+      "name": "succ",
+      "primitive_calls": 130,
+      "self_seconds": 0.0002496
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 0.0003858,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graph.py",
+      "line": 1775,
+      "name": "number_of_edges",
+      "primitive_calls": 3,
+      "self_seconds": 5.4e-06
+    },
+    {
+      "calls": 934,
+      "cumulative_seconds": 0.00038310000000000004,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/coreviews.py",
+      "line": 44,
+      "name": "__init__",
+      "primitive_calls": 934,
+      "self_seconds": 0.00038310000000000004
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 0.00038040000000000003,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graph.py",
+      "line": 1732,
+      "name": "size",
+      "primitive_calls": 3,
+      "self_seconds": 5.61e-05
+    },
+    {
+      "calls": 5,
+      "cumulative_seconds": 0.0003724,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.sum>",
+      "primitive_calls": 5,
+      "self_seconds": 3.66e-05
+    },
+    {
+      "calls": 383,
+      "cumulative_seconds": 0.00036320000000000005,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/coreviews.py",
+      "line": 50,
+      "name": "__iter__",
+      "primitive_calls": 383,
+      "self_seconds": 0.0002198
+    },
+    {
+      "calls": 787,
+      "cumulative_seconds": 0.00032700000000000003,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'items' of 'dict' objects>",
+      "primitive_calls": 787,
+      "self_seconds": 0.00032700000000000003
+    },
+    {
+      "calls": 516,
+      "cumulative_seconds": 0.000326001,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.iter>",
+      "primitive_calls": 516,
+      "self_seconds": 0.000326001
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.00030930000000000004,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_target/backend.py",
+      "line": 44,
+      "name": "_target_component_distances",
+      "primitive_calls": 1,
+      "self_seconds": 0.0002629
+    },
+    {
+      "calls": 388,
+      "cumulative_seconds": 0.00027820000000000004,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graph.py",
+      "line": 1768,
+      "name": "<genexpr>",
+      "primitive_calls": 388,
+      "self_seconds": 7.03e-05
+    },
+    {
+      "calls": 128,
+      "cumulative_seconds": 0.0002509,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 649,
+      "name": "<listcomp>",
+      "primitive_calls": 128,
+      "self_seconds": 0.0002509
+    },
+    {
+      "calls": 388,
+      "cumulative_seconds": 0.0002079,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 365,
+      "name": "__iter__",
+      "primitive_calls": 388,
+      "self_seconds": 0.0001698
+    },
+    {
+      "calls": 402,
+      "cumulative_seconds": 0.0001834,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method _heapq.heappop>",
+      "primitive_calls": 402,
+      "self_seconds": 0.0001834
+    },
+    {
+      "calls": 258,
+      "cumulative_seconds": 0.0001667,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graph.py",
+      "line": 416,
+      "name": "__contains__",
+      "primitive_calls": 258,
+      "self_seconds": 0.0001667
+    },
+    {
+      "calls": 520,
+      "cumulative_seconds": 0.00015780000000000001,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method math.gcd>",
+      "primitive_calls": 520,
+      "self_seconds": 0.00015780000000000001
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.0001473,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_suffix_reuse/search.py",
+      "line": 75,
+      "name": "_append_lift_record",
+      "primitive_calls": 1,
+      "self_seconds": 1.55e-05
+    },
+    {
+      "calls": 1172,
+      "cumulative_seconds": 0.000135901,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.len>",
+      "primitive_calls": 1172,
+      "self_seconds": 0.000135901
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 0.000135,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_suffix_reuse/search.py",
+      "line": 144,
+      "name": "_solver_with_local_base",
+      "primitive_calls": 1,
+      "self_seconds": 6.790000000000001e-05
+    },
+    {
+      "calls": 1792,
+      "cumulative_seconds": 0.00011870000000000001,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_reduction_reuse/search.py",
+      "line": 62,
+      "name": "<lambda>",
+      "primitive_calls": 1792,
+      "self_seconds": 0.00011870000000000001
+    },
+    {
+      "calls": 129,
+      "cumulative_seconds": 8.67e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_smoke/backend.py",
+      "line": 27,
+      "name": "<genexpr>",
+      "primitive_calls": 129,
+      "self_seconds": 8.67e-05
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 7.88e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py",
+      "line": 377,
+      "name": "_restore_tight_path",
+      "primitive_calls": 2,
+      "self_seconds": 6.97e-05
+    },
+    {
+      "calls": 4,
+      "cumulative_seconds": 7.460000000000001e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_real/bound_runner.py",
+      "line": 212,
+      "name": "_clone_function",
+      "primitive_calls": 4,
+      "self_seconds": 5.92e-05
+    },
+    {
+      "calls": 439,
+      "cumulative_seconds": 7.32e-05,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method _heapq.heappush>",
+      "primitive_calls": 439,
+      "self_seconds": 7.32e-05
+    },
+    {
+      "calls": 439,
+      "cumulative_seconds": 4.07e-05,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.next>",
+      "primitive_calls": 439,
+      "self_seconds": 4.07e-05
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 3.66e-05,
+      "file": "/usr/lib/python3/dist-packages/networkx/utils/decorators.py",
+      "line": 64,
+      "name": "_not_implemented_for",
+      "primitive_calls": 2,
+      "self_seconds": 1.4000000000000001e-05
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 3.52e-05,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 1181,
+      "name": "reverse",
+      "primitive_calls": 1,
+      "self_seconds": 3.7e-06
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 3.2800000000000004e-05,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 270,
+      "name": "__init__",
+      "primitive_calls": 3,
+      "self_seconds": 3.1100000000000004e-05
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 3.15e-05,
+      "file": "<decorator-gen-12>",
+      "line": 1,
+      "name": "reverse_view",
+      "primitive_calls": 1,
+      "self_seconds": 2.0000000000000003e-06
+    },
+    {
+      "calls": 128,
+      "cumulative_seconds": 3.0200000000000002e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 126,
+      "name": "<lambda>",
+      "primitive_calls": 128,
+      "self_seconds": 3.0200000000000002e-05
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 2.9100000000000003e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 81,
+      "name": "<setcomp>",
+      "primitive_calls": 1,
+      "self_seconds": 2.9100000000000003e-05
+    },
+    {
+      "calls": 128,
+      "cumulative_seconds": 2.8100000000000002e-05,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method _operator.gt>",
+      "primitive_calls": 128,
+      "self_seconds": 2.8100000000000002e-05
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 2.6001e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 86,
+      "name": "<setcomp>",
+      "primitive_calls": 1,
+      "self_seconds": 2.0601e-05
+    },
+    {
+      "calls": 255,
+      "cumulative_seconds": 2.57e-05,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'pop' of 'list' objects>",
+      "primitive_calls": 255,
+      "self_seconds": 2.57e-05
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 2.23e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 57,
+      "name": "<listcomp>",
+      "primitive_calls": 1,
+      "self_seconds": 5.9e-06
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 2.16e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 150,
+      "name": "<genexpr>",
+      "primitive_calls": 2,
+      "self_seconds": 2.2e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 2.1400000000000002e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 76,
+      "name": "<dictcomp>",
+      "primitive_calls": 1,
+      "self_seconds": 2.1400000000000002e-05
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 2.1400000000000002e-05,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graphviews.py",
+      "line": 184,
+      "name": "reverse_view",
+      "primitive_calls": 1,
+      "self_seconds": 2.7e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 1.87e-05,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graphviews.py",
+      "line": 47,
+      "name": "generic_graph_view",
+      "primitive_calls": 1,
+      "self_seconds": 7.8e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 1.8e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_suffix_reuse/search.py",
+      "line": 48,
+      "name": "_bind",
+      "primitive_calls": 1,
+      "self_seconds": 1.8e-05
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 1.7800000000000002e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 164,
+      "name": "<genexpr>",
+      "primitive_calls": 3,
+      "self_seconds": 1.8000000000000001e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 1.63e-05,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_compact/backend.py",
+      "line": 57,
+      "name": "_decode_suffix",
+      "primitive_calls": 1,
+      "self_seconds": 1.3000000000000001e-05
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 1.48e-05,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 938,
+      "name": "degree",
+      "primitive_calls": 3,
+      "self_seconds": 6.1e-06
+    },
+    {
+      "calls": 4,
+      "cumulative_seconds": 1.39e-05,
+      "file": "/usr/lib/python3.10/copy.py",
+      "line": 66,
+      "name": "copy",
+      "primitive_calls": 4,
+      "self_seconds": 1.22e-05
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 9.9e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graph.py",
+      "line": 666,
+      "name": "nodes",
+      "primitive_calls": 2,
+      "self_seconds": 7.8e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 9.7e-06,
+      "file": "<decorator-gen-180>",
+      "line": 1,
+      "name": "strongly_connected_components",
+      "primitive_calls": 1,
+      "self_seconds": 2.6e-06
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 9.4e-06,
+      "file": "<frozen importlib._bootstrap>",
+      "line": 1053,
+      "name": "_handle_fromlist",
+      "primitive_calls": 2,
+      "self_seconds": 8.400000000000001e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 9e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_compact/backend.py",
+      "line": 70,
+      "name": "_prefix_edges",
+      "primitive_calls": 1,
+      "self_seconds": 7.8e-06
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 8.7e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 334,
+      "name": "__init__",
+      "primitive_calls": 3,
+      "self_seconds": 7.5e-06
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 8.200000000000001e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_smoke/backend.py",
+      "line": 113,
+      "name": "_validate_decoded",
+      "primitive_calls": 2,
+      "self_seconds": 7.7e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 7.9e-06,
+      "file": "<string>",
+      "line": 2,
+      "name": "__init__",
+      "primitive_calls": 1,
+      "self_seconds": 7.9e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 7.4e-06,
+      "file": "/usr/lib/python3.10/fractions.py",
+      "line": 725,
+      "name": "__ge__",
+      "primitive_calls": 1,
+      "self_seconds": 1.8000000000000001e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 7.000000000000001e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_suffix_reuse/search.py",
+      "line": 40,
+      "name": "__init__",
+      "primitive_calls": 1,
+      "self_seconds": 7.000000000000001e-06
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 6.4000000000000006e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 174,
+      "name": "__iter__",
+      "primitive_calls": 2,
+      "self_seconds": 5.1e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 6.1e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_perf/backend.py",
+      "line": 45,
+      "name": "<lambda>",
+      "primitive_calls": 1,
+      "self_seconds": 1.8000000000000001e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 4.6e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/function.py",
+      "line": 147,
+      "name": "freeze",
+      "primitive_calls": 1,
+      "self_seconds": 4.6e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 4.2000000000000004e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 784,
+      "name": "successors",
+      "primitive_calls": 1,
+      "self_seconds": 3e-06
+    },
+    {
+      "calls": 19,
+      "cumulative_seconds": 3.8e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/coreviews.py",
+      "line": 53,
+      "name": "__getitem__",
+      "primitive_calls": 19,
+      "self_seconds": 3.8e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 3.5000000000000004e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 83,
+      "name": "<setcomp>",
+      "primitive_calls": 1,
+      "self_seconds": 3.5000000000000004e-06
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 3.3e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graph.py",
+      "line": 764,
+      "name": "number_of_nodes",
+      "primitive_calls": 3,
+      "self_seconds": 2.2e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 3.2000000000000003e-06,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'intersection' of 'frozenset' objects>",
+      "primitive_calls": 1,
+      "self_seconds": 3.2000000000000003e-06
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 3.1000000000000004e-06,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'update' of 'set' objects>",
+      "primitive_calls": 2,
+      "self_seconds": 3.1000000000000004e-06
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 2.7e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/graph.py",
+      "line": 398,
+      "name": "__iter__",
+      "primitive_calls": 2,
+      "self_seconds": 1.3e-06
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 2.3e-06,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.vars>",
+      "primitive_calls": 2,
+      "self_seconds": 2.3e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 2.1000000000000002e-06,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.any>",
+      "primitive_calls": 1,
+      "self_seconds": 7.000000000000001e-07
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 2.1000000000000002e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 167,
+      "name": "__init__",
+      "primitive_calls": 2,
+      "self_seconds": 2.1000000000000002e-06
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 2.0000000000000003e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 147,
+      "name": "<genexpr>",
+      "primitive_calls": 2,
+      "self_seconds": 2.0000000000000003e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 1.9e-06,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'intersection' of 'set' objects>",
+      "primitive_calls": 1,
+      "self_seconds": 1.9e-06
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 1.9e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/ltl_automaton_planner_core/ltl_automaton_planner_core/ltl_tools/discrete_plan.py",
+      "line": 385,
+      "name": "<dictcomp>",
+      "primitive_calls": 2,
+      "self_seconds": 1.9e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 1.5e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "line": 166,
+      "name": "<setcomp>",
+      "primitive_calls": 1,
+      "self_seconds": 1.5e-06
+    },
+    {
+      "calls": 10,
+      "cumulative_seconds": 1.5e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 1102,
+      "name": "is_directed",
+      "primitive_calls": 10,
+      "self_seconds": 1.5e-06
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 1.4000000000000001e-06,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'setdefault' of 'dict' objects>",
+      "primitive_calls": 3,
+      "self_seconds": 1.4000000000000001e-06
+    },
+    {
+      "calls": 23,
+      "cumulative_seconds": 1.4000000000000001e-06,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'append' of 'collections.deque' objects>",
+      "primitive_calls": 23,
+      "self_seconds": 1.4000000000000001e-06
+    },
+    {
+      "calls": 3,
+      "cumulative_seconds": 1.4000000000000001e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/reportviews.py",
+      "line": 342,
+      "name": "__call__",
+      "primitive_calls": 3,
+      "self_seconds": 1.4000000000000001e-06
+    },
+    {
+      "calls": 9,
+      "cumulative_seconds": 1.3e-06,
+      "file": "/usr/lib/python3/dist-packages/networkx/classes/digraph.py",
+      "line": 1098,
+      "name": "is_multigraph",
+      "primitive_calls": 9,
+      "self_seconds": 1.3e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 1.2000000000000002e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_compact/backend.py",
+      "line": 58,
+      "name": "<listcomp>",
+      "primitive_calls": 1,
+      "self_seconds": 1.2000000000000002e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 1.1e-06,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_compact/backend.py",
+      "line": 61,
+      "name": "<listcomp>",
+      "primitive_calls": 1,
+      "self_seconds": 1.1e-06
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 9.000000000000001e-07,
+      "file": "/tmp/cmr_v10_source_7a3ddc1_20261022/experiments/cmr_ros2_bfull_compact/backend.py",
+      "line": 71,
+      "name": "<listcomp>",
+      "primitive_calls": 1,
+      "self_seconds": 9.000000000000001e-07
+    },
+    {
+      "calls": 4,
+      "cumulative_seconds": 9.000000000000001e-07,
+      "file": "/usr/lib/python3.10/copy.py",
+      "line": 107,
+      "name": "_copy_immutable",
+      "primitive_calls": 4,
+      "self_seconds": 9.000000000000001e-07
+    },
+    {
+      "calls": 4,
+      "cumulative_seconds": 7.000000000000001e-07,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method builtins.getattr>",
+      "primitive_calls": 4,
+      "self_seconds": 7.000000000000001e-07
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 6.000000000000001e-07,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'pop' of 'dict' objects>",
+      "primitive_calls": 1,
+      "self_seconds": 6.000000000000001e-07
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 6.000000000000001e-07,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'clear' of 'collections.deque' objects>",
+      "primitive_calls": 2,
+      "self_seconds": 6.000000000000001e-07
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 5.000000000000001e-07,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'disable' of '_lsprof.Profiler' objects>",
+      "primitive_calls": 1,
+      "self_seconds": 5.000000000000001e-07
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 4.0000000000000003e-07,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'insert' of 'list' objects>",
+      "primitive_calls": 1,
+      "self_seconds": 4.0000000000000003e-07
+    },
+    {
+      "calls": 4,
+      "cumulative_seconds": 4.0000000000000003e-07,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'popleft' of 'collections.deque' objects>",
+      "primitive_calls": 4,
+      "self_seconds": 4.0000000000000003e-07
+    },
+    {
+      "calls": 2,
+      "cumulative_seconds": 3.0000000000000004e-07,
+      "file": "~",
+      "line": 0,
+      "name": "<method 'reverse' of 'list' objects>",
+      "primitive_calls": 2,
+      "self_seconds": 3.0000000000000004e-07
+    },
+    {
+      "calls": 1,
+      "cumulative_seconds": 3.0000000000000004e-07,
+      "file": "~",
+      "line": 0,
+      "name": "<built-in method _operator.ge>",
+      "primitive_calls": 1,
+      "self_seconds": 3.0000000000000004e-07
+    }
+  ],
+  "instance": "C3-T4",
+  "objective": "12",
+  "peak_tracemalloc_bytes": 2250868,
+  "precision": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "product_edges": 1792,
+  "product_states": 128,
+  "provider_calls": 0,
+  "real_cmr_workers": 0,
+  "schema": "cmr-v11-directed-search-profile-v1",
+  "scope": "one final-precision abstract solve only; no method T_total or speedup claim",
+  "search_work": {
+    "bound_pruned_entries": 127,
+    "candidate_entries": 128,
+    "exact_entry_searches": 1,
+    "fractional_weight_edges": 0,
+    "graph_reuses": 2,
+    "integer_weight_edges": 1792,
+    "product_states_unique": 128,
+    "qualifying_sccs": 1,
+    "reachable_nodes": 128,
+    "reachable_original_edges": 1792,
+    "reachable_original_nodes": 128,
+    "reverse_views": 1,
+    "subgraph_copies": 0,
+    "suffix_graph_component_indexes": 1,
+    "suffix_graph_dummy_rebinds": 0,
+    "suffix_graph_materializations": 1,
+    "suffix_graph_requests": 1,
+    "suffix_graph_reuses": 0,
+    "suffix_graph_source_edge_scans": 1,
+    "suffix_graph_source_edges_examined": 1792,
+    "suffix_lifts": [
+      {
+        "edges": 1811,
+        "entry": 20,
+        "entry_accepting": true,
+        "layers": 1,
+        "nodes": 129
+      }
+    ],
+    "target_searches": [
+      {
+        "discovered_nodes": 55,
+        "fringe_remaining": 37,
+        "settled_nodes": 18,
+        "stop_reason": "target_finalized",
+        "target_distance": "1",
+        "target_settled": true
+      }
+    ],
+    "unique_original_edges": 1792,
+    "unique_original_nodes": 128,
+    "witness_items_normalized": 384,
+    "witness_key_cache_hits": 1408,
+    "witness_key_computations": 384,
+    "witness_key_requests": 1792
+  },
+  "solver_calls": 1,
+  "source_closure": {
+    "experiments/cmr_ros2_ap_ts_reuse/backend.py": "59fb3147d114e88978b71827934e09267542eae6bcb058fda266532a024176cf",
+    "experiments/cmr_ros2_ap_ts_reuse/builder.py": "2faadef438667dee06d82c728fff0aade34734c8855f20f2cce7eb6364aab8ef",
+    "experiments/cmr_ros2_ap_ts_reuse/fixtures.py": "72f74e36790fc93918257657623f658fda9698b0ec73bb67bcf3b7f432efcc39",
+    "experiments/cmr_ros2_ap_ts_reuse/runner.py": "840bc064cf7ca6c088320459db7c6786c3570866e92887c76ffc26df8a6c5148",
+    "experiments/cmr_ros2_backend/acceptance.py": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+    "experiments/cmr_ros2_backend/backends.py": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+    "experiments/cmr_ros2_backend/dds.py": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+    "experiments/cmr_ros2_backend/fixtures.py": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+    "experiments/cmr_ros2_backend/lifecycle.py": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+    "experiments/cmr_ros2_backend/offline_chain.py": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+    "experiments/cmr_ros2_backend/qualification.py": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+    "experiments/cmr_ros2_backend/runner.py": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+    "experiments/cmr_ros2_bfull_compact/backend.py": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+    "experiments/cmr_ros2_bfull_compact/compare.py": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+    "experiments/cmr_ros2_bfull_compact/fixtures.py": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+    "experiments/cmr_ros2_bfull_perf/backend.py": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+    "experiments/cmr_ros2_bfull_perf/compare.py": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+    "experiments/cmr_ros2_bfull_perf/fixtures.py": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+    "experiments/cmr_ros2_bfull_reuse/backend.py": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+    "experiments/cmr_ros2_bfull_reuse/compare.py": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+    "experiments/cmr_ros2_bfull_reuse/fixtures.py": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+    "experiments/cmr_ros2_bfull_target/backend.py": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+    "experiments/cmr_ros2_bfull_target/compare.py": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+    "experiments/cmr_ros2_bfull_target/fixtures.py": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+    "experiments/cmr_ros2_integration/dds_smoke.py": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+    "experiments/cmr_ros2_integration/runtime.py": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+    "experiments/cmr_ros2_product_perf/builder.py": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+    "experiments/cmr_ros2_product_perf/compare.py": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+    "experiments/cmr_ros2_product_perf/fixtures.py": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+    "experiments/cmr_ros2_real/bound_runner.py": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+    "experiments/cmr_ros2_real/dds_real.py": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+    "experiments/cmr_ros2_real/runner.py": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+    "experiments/cmr_ros2_real/selection.json": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+    "experiments/cmr_ros2_real/verifier_checks.py": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+    "experiments/cmr_ros2_real/verify_small.py": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+    "experiments/cmr_ros2_reduction_reuse/backend.py": "f584332d6316abc629e0d791885892dfe898319422ce4f1d7b34ba44575d5ba9",
+    "experiments/cmr_ros2_reduction_reuse/builder.py": "138e401f67d3852f65fc08de475d1eb01cd4cbe58d2c60663620844558835553",
+    "experiments/cmr_ros2_reduction_reuse/fixtures.py": "38bead646012a263794f39c9d3cc1babb22860bcc288b594801b5e1e914bc94b",
+    "experiments/cmr_ros2_reduction_reuse/runner.py": "cb64e29d49cb0b60530e0752154a26107a0a22d2d7e73b2b2c57c152bdbe71ff",
+    "experiments/cmr_ros2_reduction_reuse/search.py": "590f0cfc39725b70f789b893819dc08a178dafdb030bcc469a8f426974d594b7",
+    "experiments/cmr_ros2_search_entry/backend.py": "17936fb63ef67a2d9f901c623eaf04108e702e0e66b8a988d4a6bab1d86c5ab9",
+    "experiments/cmr_ros2_search_entry/dds.py": "2d816f142c066e247d1d4c2e8f4f1400467dfa3a610f5a71b9a014d61892a3ff",
+    "experiments/cmr_ros2_search_entry/entry.py": "4f37d3c8bac30daaed33e46d7a41071393554c87d420d7ff6dd120d88b65f641",
+    "experiments/cmr_ros2_search_entry/entry_fixtures.py": "dad0c6bf30e12ea05d87dcc29f7f253c6db6bfef9e8dab72fa48723fddd3ba7c",
+    "experiments/cmr_ros2_search_entry/fixtures.py": "4d635949f5bfb005ed60cba0c21dc8d63177045ab3d53236966b495a50cf135f",
+    "experiments/cmr_ros2_search_entry/runner.py": "c2962e6dc9a505b8f5524d534a8a7af36b1f2ab3e2c6387d1c2463632d3530d9",
+    "experiments/cmr_ros2_smoke/backend.py": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+    "experiments/cmr_ros2_smoke/smoke.py": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+    "experiments/cmr_ros2_suffix_reuse/backend.py": "25b0daf7134055f48476365d9cb26f70d636a1863a4c5c9eef608cfa7568b89f",
+    "experiments/cmr_ros2_suffix_reuse/fixtures.py": "05df3737ad7e23bf450c037dddb24a7f545e1061bb6db0d114d43e6269af2ff4",
+    "experiments/cmr_ros2_suffix_reuse/runner.py": "8a55cb644805eacf4767994ef1faec78959b0516bf7228aa3a268d796e438d73",
+    "experiments/cmr_ros2_suffix_reuse/search.py": "dbf942acca6c1a6205fbdc3cd32f44a841c26ffc3b3996dbef2191383a54e31c",
+    "ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py": "a2adbacffa0f0f0e2596291fda17d616f603aef6907bdbbd42baf9405a0017d7",
+    "ltl_automaton_execution/ltl_automaton_execution/execution.py": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a",
+    "ltl_automaton_execution/ltl_automaton_execution/execution_node.py": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+    "ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7",
+    "ltl_automaton_execution/ltl_automaton_execution/models.py": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+    "ltl_automaton_execution/ltl_automaton_execution/observation.py": "55e3f91955ebfd211e1c03f140df2ae098a864df2883f3b438f8274030b98588",
+    "ltl_automaton_msgs/msg/AcceptedRunSnapshot.msg": "8ee52866e16ed11125053f3e46e76dbb7a80bf897ba1075750b378d9e15ed0b2",
+    "ltl_automaton_msgs/msg/BuchiGraphEdge.msg": "48facaa6de8e475749563d2a8e51bb296fedd9c496861dc29f2a095444a4c355",
+    "ltl_automaton_msgs/msg/BuchiGraphNode.msg": "2d39df9fb62af0ac18ecf47de282f46da8fc1dc65a6e13c21179d44611b85442",
+    "ltl_automaton_msgs/msg/PlanningExecutionObservation.msg": "005c3598d54f0b1ed13bbdd249cc67b0812999e3a1c8f1bf12e6ce37b302ad9f",
+    "ltl_automaton_msgs/msg/PlanningGraphMetadata.msg": "d953c35e3f7db80c60f53347483b865ebfd224c834dd54c88069a945362b11eb",
+    "ltl_automaton_msgs/msg/PlanningGraphSnapshot.msg": "2819724a8b4d936b3f45e453b53f1648d503efc9dbedd03d5360a68818d2a339",
+    "ltl_automaton_msgs/msg/ProductGraphEdge.msg": "225a9fe65cebd0ff3788ed2eef126e68092b34ea42e9a2518c832939794e57b5",
+    "ltl_automaton_msgs/msg/ProductGraphNode.msg": "6a8f32ce1039a3c8c004b26b50ad9c60fffa8b1cc46a2fc0d62a70ad03f9a091",
+    "ltl_automaton_msgs/msg/TransitionSystemState.msg": "b8a5d7a46c81ae3e86cfcc73a0a7e0d9d7bb4624ba1335b5f67c2d7220121212",
+    "ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg": "7325d312b99629a54ba378cf5cf4487aa6cd90a6d1e38c1f951180674dbf2926",
+    "ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py": "15247712288d759359a9927f5e3ac185ddaacf46a813ca20a4adf765d9d2e583"
+  },
+  "source_commit": "7a3ddc1d0b8ed22fb75c069085b8ffa3ff357ffc",
+  "status": "PASSED",
+  "tracemalloc": true,
+  "verifier_calls": 0
+}

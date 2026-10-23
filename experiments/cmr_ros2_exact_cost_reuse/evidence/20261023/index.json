@@ -1,0 +1,74 @@
+{
+  "additional_certificate_replays": 9,
+  "archive_manifest": {
+    "path": "archive_manifest.json",
+    "sha256": "76ece4d84fddc36851ad1879168b50146d0ff83726c378bd6efb124fba791713",
+    "size": 82940
+  },
+  "archive_members": 216,
+  "archive_receipt": {
+    "path": "archive_receipt.json",
+    "sha256": "ea0a71ae6bfe854a328160bbc4f0633d100a40acededc536b1ae450de6815dc9",
+    "size": 701
+  },
+  "artifact_manifest": {
+    "path": "artifact_manifest.json",
+    "sha256": "5af382216a12f0f172e5f3319aa36cb0526c1d4b62a4e87a71d125dee67bc593",
+    "size": 915
+  },
+  "backends": {
+    "v10_sha256": "336d2bec6b66d179a3b03eb3d68e2dc2c88304a846655a486c8c41494533dbe5",
+    "v11_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4"
+  },
+  "binding": {
+    "id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+    "sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+  },
+  "cells": 3,
+  "certificate_replays": {
+    "additional": 9,
+    "all_pass": true,
+    "internal": 9
+  },
+  "comparison": {
+    "path": "namespace/comparison.json",
+    "sha256": "531284c1f779d09e4919cb1ddd92ba06b5d026562014e6052ddd32014e8365d9"
+  },
+  "context": {
+    "path": "context.json",
+    "sha256": "541fec439caee7607889d93a5c334008c17f5a71e13287575854a41f7e626072",
+    "size": 1069
+  },
+  "dds_requests": 0,
+  "formal_calls": 0,
+  "inputs": 57,
+  "internal_certificate_verifications": 9,
+  "manifest_members": 247,
+  "no_default_switch": true,
+  "old_source_files_preserved": 69,
+  "prior_v10_archive_sha256": "c9b7f66b55f4e149949c8a1f10e472ab8b47fd5b1484a52fba1ace1638c86440",
+  "provider_calls": 0,
+  "raw_attempts": {
+    "path": "raw_attempts.zip",
+    "sha256": "9cad781b5d3f9c81076786ae053256a8a2060324c197816f05c20fdcb003b5a2",
+    "size": 507585
+  },
+  "recorded_rounds": {
+    "C3-T4": 6,
+    "D3-1": 1,
+    "D3-2": 1
+  },
+  "root_archive_readback": {
+    "path": "root_archive_readback.json",
+    "sha256": "8ca36527230cbc4e41431fcd085a6c6c20a5793abfed7c4a3d871bc7b40f8f8f",
+    "size": 793
+  },
+  "schema": "cmr-v11-exact-cost-reuse-evidence-index-v1",
+  "source_branch": "codex/v11-exact-cost-reuse",
+  "source_closure": 73,
+  "source_commit": "e5ff91294b373a1f33e7ae9458641e4a2200ab56",
+  "status": "VERIFIED",
+  "total_recorded_rounds": 24,
+  "worker_exit0_cleanup": 9,
+  "workers": 9
+}

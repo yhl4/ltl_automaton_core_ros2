@@ -1,0 +1,3461 @@
+{
+  "dds_requests": 0,
+  "development_fixture_solver_calls": "unknown",
+  "exact_cost": {
+    "exact_values": [
+      "0",
+      "1/3",
+      "1208925819614629174706177/7"
+    ],
+    "float_witness_rejected": true,
+    "negative_edge_rejected": true,
+    "status": "PASSED",
+    "work": {
+      "exact_cost_fallbacks": 5,
+      "exact_cost_requests": 8,
+      "exact_cost_reuses": 3
+    }
+  },
+  "provider_calls": 0,
+  "real_cmr_workers": 0,
+  "schema": "cmr-v11-exact-cost-reuse-fixtures-v1",
+  "search": {
+    "cache_disabled": {
+      "bound_pruned_entries": 0,
+      "candidate_entries": 2,
+      "exact_cost_fallbacks": 10,
+      "exact_cost_requests": 10,
+      "exact_cost_reuses": 0,
+      "exact_entry_searches": 2,
+      "fractional_weight_edges": 0,
+      "graph_reuses": 2,
+      "integer_weight_edges": 3,
+      "product_states_unique": 2,
+      "qualifying_sccs": 1,
+      "reachable_nodes": 2,
+      "reachable_original_edges": 3,
+      "reachable_original_nodes": 2,
+      "reverse_views": 1,
+      "subgraph_copies": 0,
+      "suffix_graph_component_indexes": 0,
+      "suffix_graph_dummy_rebinds": 0,
+      "suffix_graph_materializations": 2,
+      "suffix_graph_requests": 2,
+      "suffix_graph_reuses": 0,
+      "suffix_graph_source_edge_scans": 2,
+      "suffix_graph_source_edges_examined": 6,
+      "suffix_lifts": [
+        {
+          "edges": 4,
+          "entry": 0,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 3
+        },
+        {
+          "edges": 5,
+          "entry": 1,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 3
+        }
+      ],
+      "target_searches": [
+        {
+          "discovered_nodes": 3,
+          "fringe_remaining": 0,
+          "settled_nodes": 3,
+          "stop_reason": "target_finalized",
+          "target_distance": "101",
+          "target_settled": true
+        },
+        {
+          "discovered_nodes": 3,
+          "fringe_remaining": 1,
+          "settled_nodes": 2,
+          "stop_reason": "target_finalized",
+          "target_distance": "2",
+          "target_settled": true
+        }
+      ],
+      "unique_original_edges": 3,
+      "unique_original_nodes": 2,
+      "witness_items_normalized": 3,
+      "witness_key_cache_hits": 0,
+      "witness_key_computations": 3,
+      "witness_key_requests": 3
+    },
+    "cases": [
+      {
+        "name": "nonaccepting_entry",
+        "result": {
+          "objective": "10",
+          "prefix_actions": [],
+          "prefix_cost": "0",
+          "suffix_actions": [
+            "go",
+            "back"
+          ],
+          "suffix_cost": "1"
+        },
+        "status": "PASSED",
+        "v10_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 2,
+          "suffix_graph_requests": 2,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 2,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 2,
+          "witness_key_requests": 2
+        },
+        "v11_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_cost_fallbacks": 8,
+          "exact_cost_requests": 8,
+          "exact_cost_reuses": 0,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 2,
+          "suffix_graph_requests": 2,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 2,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 2,
+          "witness_key_requests": 2
+        },
+        "v9_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 2,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 2,
+          "witness_key_requests": 2
+        }
+      },
+      {
+        "name": "zero_self_loop",
+        "result": {
+          "objective": "0",
+          "prefix_actions": [],
+          "prefix_cost": "0",
+          "suffix_actions": [
+            "wait"
+          ],
+          "suffix_cost": "0"
+        },
+        "status": "PASSED",
+        "v10_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 1,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 1,
+          "product_states_unique": 1,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 1,
+          "reachable_original_edges": 1,
+          "reachable_original_nodes": 1,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 1,
+          "suffix_lifts": [
+            {
+              "edges": 2,
+              "entry": 0,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 2
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 2,
+              "fringe_remaining": 0,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 1,
+          "unique_original_nodes": 1,
+          "witness_items_normalized": 1,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 1,
+          "witness_key_requests": 1
+        },
+        "v11_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 1,
+          "exact_cost_fallbacks": 3,
+          "exact_cost_requests": 3,
+          "exact_cost_reuses": 0,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 1,
+          "product_states_unique": 1,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 1,
+          "reachable_original_edges": 1,
+          "reachable_original_nodes": 1,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 1,
+          "suffix_lifts": [
+            {
+              "edges": 2,
+              "entry": 0,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 2
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 2,
+              "fringe_remaining": 0,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 1,
+          "unique_original_nodes": 1,
+          "witness_items_normalized": 1,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 1,
+          "witness_key_requests": 1
+        },
+        "v9_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 1,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 1,
+          "product_states_unique": 1,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 1,
+          "reachable_original_edges": 1,
+          "reachable_original_nodes": 1,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_lifts": [
+            {
+              "edges": 2,
+              "entry": 0,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 2
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 2,
+              "fringe_remaining": 0,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 1,
+          "unique_original_nodes": 1,
+          "witness_items_normalized": 1,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 1,
+          "witness_key_requests": 1
+        }
+      },
+      {
+        "name": "zero_cycle",
+        "result": {
+          "objective": "0",
+          "prefix_actions": [],
+          "prefix_cost": "0",
+          "suffix_actions": [
+            "go",
+            "back"
+          ],
+          "suffix_cost": "0"
+        },
+        "status": "PASSED",
+        "v10_work": {
+          "bound_pruned_entries": 1,
+          "candidate_entries": 2,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 2,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 2,
+          "witness_key_requests": 2
+        },
+        "v11_work": {
+          "bound_pruned_entries": 1,
+          "candidate_entries": 2,
+          "exact_cost_fallbacks": 6,
+          "exact_cost_requests": 6,
+          "exact_cost_reuses": 0,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 2,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 2,
+          "witness_key_requests": 2
+        },
+        "v9_work": {
+          "bound_pruned_entries": 1,
+          "candidate_entries": 2,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_lifts": [
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 2,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 2,
+          "witness_key_requests": 2
+        }
+      },
+      {
+        "name": "parallel_witness",
+        "result": {
+          "objective": "10/3",
+          "prefix_actions": [],
+          "prefix_cost": "0",
+          "suffix_actions": [
+            "a_fast",
+            "back"
+          ],
+          "suffix_cost": "1/3"
+        },
+        "status": "PASSED",
+        "v10_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 1,
+          "graph_reuses": 2,
+          "integer_weight_edges": 1,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 2,
+          "suffix_graph_requests": 2,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1/3",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1/3",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        },
+        "v11_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_cost_fallbacks": 4,
+          "exact_cost_requests": 10,
+          "exact_cost_reuses": 6,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 1,
+          "graph_reuses": 2,
+          "integer_weight_edges": 1,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 2,
+          "suffix_graph_requests": 2,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1/3",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1/3",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        },
+        "v9_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 1,
+          "graph_reuses": 2,
+          "integer_weight_edges": 1,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1/3",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1/3",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        }
+      },
+      {
+        "name": "multiple_scc",
+        "result": {
+          "objective": "1",
+          "prefix_actions": [
+            "enter"
+          ],
+          "prefix_cost": "1",
+          "suffix_actions": [
+            "accept_wait"
+          ],
+          "suffix_cost": "0"
+        },
+        "status": "PASSED",
+        "v10_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 1,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 0,
+          "integer_weight_edges": 4,
+          "product_states_unique": 3,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 3,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 2,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 3,
+          "suffix_lifts": [
+            {
+              "edges": 2,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 2
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 2,
+              "fringe_remaining": 0,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 3,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 4,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 4,
+          "witness_key_requests": 4
+        },
+        "v11_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 1,
+          "exact_cost_fallbacks": 10,
+          "exact_cost_requests": 10,
+          "exact_cost_reuses": 0,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 0,
+          "integer_weight_edges": 4,
+          "product_states_unique": 3,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 3,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 2,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 3,
+          "suffix_lifts": [
+            {
+              "edges": 2,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 2
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 2,
+              "fringe_remaining": 0,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 3,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 4,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 4,
+          "witness_key_requests": 4
+        },
+        "v9_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 1,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 0,
+          "integer_weight_edges": 4,
+          "product_states_unique": 3,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 3,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 2,
+          "suffix_lifts": [
+            {
+              "edges": 2,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 2
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 2,
+              "fringe_remaining": 0,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 3,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 4,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 4,
+          "witness_key_requests": 4
+        }
+      },
+      {
+        "name": "first_bound_is_loose",
+        "result": {
+          "objective": "21",
+          "prefix_actions": [
+            "to_b"
+          ],
+          "prefix_cost": "1",
+          "suffix_actions": [
+            "b_wait"
+          ],
+          "suffix_cost": "2"
+        },
+        "status": "PASSED",
+        "v10_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 3,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 3,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 1,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 2,
+          "suffix_graph_reuses": 1,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 3,
+          "suffix_lifts": [
+            {
+              "edges": 4,
+              "entry": 0,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "101",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 1,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "2",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 3,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        },
+        "v11_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_cost_fallbacks": 10,
+          "exact_cost_requests": 10,
+          "exact_cost_reuses": 0,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 3,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 3,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 1,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 2,
+          "suffix_graph_reuses": 1,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 3,
+          "suffix_lifts": [
+            {
+              "edges": 4,
+              "entry": 0,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "101",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 1,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "2",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 3,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        },
+        "v9_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 3,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 3,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_lifts": [
+            {
+              "edges": 4,
+              "entry": 0,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "101",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 1,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "2",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 3,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        }
+      },
+      {
+        "name": "equal_parallel_tie",
+        "result": {
+          "objective": "10",
+          "prefix_actions": [],
+          "prefix_cost": "0",
+          "suffix_actions": [
+            "same",
+            "back"
+          ],
+          "suffix_cost": "1"
+        },
+        "status": "PASSED",
+        "v10_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 2,
+          "suffix_graph_requests": 2,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        },
+        "v11_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_cost_fallbacks": 10,
+          "exact_cost_requests": 10,
+          "exact_cost_reuses": 0,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 2,
+          "suffix_graph_requests": 2,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        },
+        "v9_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 2,
+          "exact_entry_searches": 2,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 1,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            },
+            {
+              "edges": 5,
+              "entry": 0,
+              "entry_accepting": false,
+              "layers": 2,
+              "nodes": 5
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            },
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        }
+      },
+      {
+        "name": "multiple_initial",
+        "result": {
+          "objective": "1",
+          "prefix_actions": [
+            "b_to_c"
+          ],
+          "prefix_cost": "1",
+          "suffix_actions": [
+            "c_wait"
+          ],
+          "suffix_cost": "0"
+        },
+        "status": "PASSED",
+        "v10_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 1,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 1,
+          "integer_weight_edges": 3,
+          "product_states_unique": 3,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 3,
+          "reachable_original_edges": 3,
+          "reachable_original_nodes": 3,
+          "reverse_views": 1,
+          "subgraph_copies": 1,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 3,
+          "suffix_lifts": [
+            {
+              "edges": 2,
+              "entry": 2,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 2
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 2,
+              "fringe_remaining": 0,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 3,
+          "unique_original_nodes": 3,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        },
+        "v11_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 1,
+          "exact_cost_fallbacks": 8,
+          "exact_cost_requests": 8,
+          "exact_cost_reuses": 0,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 1,
+          "integer_weight_edges": 3,
+          "product_states_unique": 3,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 3,
+          "reachable_original_edges": 3,
+          "reachable_original_nodes": 3,
+          "reverse_views": 1,
+          "subgraph_copies": 1,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 3,
+          "suffix_lifts": [
+            {
+              "edges": 2,
+              "entry": 2,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 2
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 2,
+              "fringe_remaining": 0,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 3,
+          "unique_original_nodes": 3,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        },
+        "v9_work": {
+          "bound_pruned_entries": 0,
+          "candidate_entries": 1,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 1,
+          "integer_weight_edges": 3,
+          "product_states_unique": 3,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 3,
+          "reachable_original_edges": 3,
+          "reachable_original_nodes": 3,
+          "reverse_views": 1,
+          "subgraph_copies": 1,
+          "suffix_lifts": [
+            {
+              "edges": 2,
+              "entry": 2,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 2
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 2,
+              "fringe_remaining": 0,
+              "settled_nodes": 2,
+              "stop_reason": "target_finalized",
+              "target_distance": "0",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 3,
+          "unique_original_nodes": 3,
+          "witness_items_normalized": 3,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 3,
+          "witness_key_requests": 3
+        }
+      },
+      {
+        "name": "accepting_entry_no_selfloop",
+        "result": {
+          "objective": "10",
+          "prefix_actions": [],
+          "prefix_cost": "0",
+          "suffix_actions": [
+            "to_other",
+            "back_accept"
+          ],
+          "suffix_cost": "1"
+        },
+        "status": "PASSED",
+        "v10_work": {
+          "bound_pruned_entries": 1,
+          "candidate_entries": 2,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 0,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 2,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 2,
+          "witness_key_requests": 2
+        },
+        "v11_work": {
+          "bound_pruned_entries": 1,
+          "candidate_entries": 2,
+          "exact_cost_fallbacks": 6,
+          "exact_cost_requests": 6,
+          "exact_cost_reuses": 0,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_graph_component_indexes": 1,
+          "suffix_graph_dummy_rebinds": 0,
+          "suffix_graph_materializations": 1,
+          "suffix_graph_requests": 1,
+          "suffix_graph_reuses": 0,
+          "suffix_graph_source_edge_scans": 1,
+          "suffix_graph_source_edges_examined": 2,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 0,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 2,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 2,
+          "witness_key_requests": 2
+        },
+        "v9_work": {
+          "bound_pruned_entries": 1,
+          "candidate_entries": 2,
+          "exact_entry_searches": 1,
+          "fractional_weight_edges": 0,
+          "graph_reuses": 2,
+          "integer_weight_edges": 2,
+          "product_states_unique": 2,
+          "qualifying_sccs": 1,
+          "reachable_nodes": 2,
+          "reachable_original_edges": 2,
+          "reachable_original_nodes": 2,
+          "reverse_views": 1,
+          "subgraph_copies": 0,
+          "suffix_lifts": [
+            {
+              "edges": 3,
+              "entry": 0,
+              "entry_accepting": true,
+              "layers": 1,
+              "nodes": 3
+            }
+          ],
+          "target_searches": [
+            {
+              "discovered_nodes": 3,
+              "fringe_remaining": 0,
+              "settled_nodes": 3,
+              "stop_reason": "target_finalized",
+              "target_distance": "1",
+              "target_settled": true
+            }
+          ],
+          "unique_original_edges": 2,
+          "unique_original_nodes": 2,
+          "witness_items_normalized": 2,
+          "witness_key_cache_hits": 0,
+          "witness_key_computations": 2,
+          "witness_key_requests": 2
+        }
+      }
+    ],
+    "cold_cache_1": {
+      "bound_pruned_entries": 0,
+      "candidate_entries": 2,
+      "exact_cost_fallbacks": 10,
+      "exact_cost_requests": 10,
+      "exact_cost_reuses": 0,
+      "exact_entry_searches": 2,
+      "fractional_weight_edges": 0,
+      "graph_reuses": 2,
+      "integer_weight_edges": 3,
+      "product_states_unique": 2,
+      "qualifying_sccs": 1,
+      "reachable_nodes": 2,
+      "reachable_original_edges": 3,
+      "reachable_original_nodes": 2,
+      "reverse_views": 1,
+      "subgraph_copies": 0,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 1,
+      "suffix_graph_materializations": 1,
+      "suffix_graph_requests": 2,
+      "suffix_graph_reuses": 1,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 3,
+      "suffix_lifts": [
+        {
+          "edges": 4,
+          "entry": 0,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 3
+        },
+        {
+          "edges": 5,
+          "entry": 1,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 3
+        }
+      ],
+      "target_searches": [
+        {
+          "discovered_nodes": 3,
+          "fringe_remaining": 0,
+          "settled_nodes": 3,
+          "stop_reason": "target_finalized",
+          "target_distance": "101",
+          "target_settled": true
+        },
+        {
+          "discovered_nodes": 3,
+          "fringe_remaining": 1,
+          "settled_nodes": 2,
+          "stop_reason": "target_finalized",
+          "target_distance": "2",
+          "target_settled": true
+        }
+      ],
+      "unique_original_edges": 3,
+      "unique_original_nodes": 2,
+      "witness_items_normalized": 3,
+      "witness_key_cache_hits": 0,
+      "witness_key_computations": 3,
+      "witness_key_requests": 3
+    },
+    "cold_cache_2": {
+      "bound_pruned_entries": 0,
+      "candidate_entries": 2,
+      "exact_cost_fallbacks": 10,
+      "exact_cost_requests": 10,
+      "exact_cost_reuses": 0,
+      "exact_entry_searches": 2,
+      "fractional_weight_edges": 0,
+      "graph_reuses": 2,
+      "integer_weight_edges": 3,
+      "product_states_unique": 2,
+      "qualifying_sccs": 1,
+      "reachable_nodes": 2,
+      "reachable_original_edges": 3,
+      "reachable_original_nodes": 2,
+      "reverse_views": 1,
+      "subgraph_copies": 0,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 1,
+      "suffix_graph_materializations": 1,
+      "suffix_graph_requests": 2,
+      "suffix_graph_reuses": 1,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 3,
+      "suffix_lifts": [
+        {
+          "edges": 4,
+          "entry": 0,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 3
+        },
+        {
+          "edges": 5,
+          "entry": 1,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 3
+        }
+      ],
+      "target_searches": [
+        {
+          "discovered_nodes": 3,
+          "fringe_remaining": 0,
+          "settled_nodes": 3,
+          "stop_reason": "target_finalized",
+          "target_distance": "101",
+          "target_settled": true
+        },
+        {
+          "discovered_nodes": 3,
+          "fringe_remaining": 1,
+          "settled_nodes": 2,
+          "stop_reason": "target_finalized",
+          "target_distance": "2",
+          "target_settled": true
+        }
+      ],
+      "unique_original_edges": 3,
+      "unique_original_nodes": 2,
+      "witness_items_normalized": 3,
+      "witness_key_cache_hits": 0,
+      "witness_key_computations": 3,
+      "witness_key_requests": 3
+    },
+    "exact_control": {
+      "bound_pruned_entries": 0,
+      "candidate_entries": 2,
+      "exact_cost_fallbacks": 10,
+      "exact_cost_requests": 10,
+      "exact_cost_reuses": 0,
+      "exact_entry_searches": 2,
+      "fractional_weight_edges": 1,
+      "graph_reuses": 2,
+      "integer_weight_edges": 1,
+      "product_states_unique": 2,
+      "qualifying_sccs": 1,
+      "reachable_nodes": 2,
+      "reachable_original_edges": 2,
+      "reachable_original_nodes": 2,
+      "reverse_views": 1,
+      "subgraph_copies": 0,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 0,
+      "suffix_graph_materializations": 2,
+      "suffix_graph_requests": 2,
+      "suffix_graph_reuses": 0,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 2,
+      "suffix_lifts": [
+        {
+          "edges": 3,
+          "entry": 1,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 3
+        },
+        {
+          "edges": 5,
+          "entry": 0,
+          "entry_accepting": false,
+          "layers": 2,
+          "nodes": 5
+        }
+      ],
+      "target_searches": [
+        {
+          "discovered_nodes": 3,
+          "fringe_remaining": 0,
+          "settled_nodes": 3,
+          "stop_reason": "target_finalized",
+          "target_distance": "1/3",
+          "target_settled": true
+        },
+        {
+          "discovered_nodes": 3,
+          "fringe_remaining": 0,
+          "settled_nodes": 3,
+          "stop_reason": "target_finalized",
+          "target_distance": "1/3",
+          "target_settled": true
+        }
+      ],
+      "unique_original_edges": 2,
+      "unique_original_nodes": 2,
+      "witness_items_normalized": 3,
+      "witness_key_cache_hits": 0,
+      "witness_key_computations": 3,
+      "witness_key_requests": 3
+    },
+    "incoming_dummy_rejected": true,
+    "status": "PASSED",
+    "three_exact_searches": {
+      "bound_pruned_entries": 0,
+      "candidate_entries": 3,
+      "exact_entry_searches": 3,
+      "fractional_weight_edges": 0,
+      "graph_reuses": 2,
+      "integer_weight_edges": 5,
+      "product_states_unique": 3,
+      "qualifying_sccs": 1,
+      "reachable_nodes": 3,
+      "reachable_original_edges": 5,
+      "reachable_original_nodes": 3,
+      "reverse_views": 1,
+      "subgraph_copies": 0,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 2,
+      "suffix_graph_materializations": 1,
+      "suffix_graph_requests": 3,
+      "suffix_graph_reuses": 2,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 5,
+      "suffix_lifts": [
+        {
+          "edges": 6,
+          "entry": 0,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 4
+        },
+        {
+          "edges": 7,
+          "entry": 1,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 4
+        },
+        {
+          "edges": 7,
+          "entry": 2,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 4
+        }
+      ],
+      "target_searches": [
+        {
+          "discovered_nodes": 4,
+          "fringe_remaining": 0,
+          "settled_nodes": 4,
+          "stop_reason": "target_finalized",
+          "target_distance": "101",
+          "target_settled": true
+        },
+        {
+          "discovered_nodes": 4,
+          "fringe_remaining": 0,
+          "settled_nodes": 4,
+          "stop_reason": "target_finalized",
+          "target_distance": "101",
+          "target_settled": true
+        },
+        {
+          "discovered_nodes": 3,
+          "fringe_remaining": 1,
+          "settled_nodes": 2,
+          "stop_reason": "target_finalized",
+          "target_distance": "3",
+          "target_settled": true
+        }
+      ],
+      "unique_original_edges": 5,
+      "unique_original_nodes": 3,
+      "witness_items_normalized": 5,
+      "witness_key_cache_hits": 0,
+      "witness_key_computations": 5,
+      "witness_key_requests": 5
+    }
+  },
+  "status": "PASSED",
+  "suffix_context": {
+    "checks": [
+      {
+        "entry": 0,
+        "snapshot": {
+          "dummy": [
+            -1,
+            false
+          ],
+          "finish": [
+            0,
+            true
+          ],
+          "graph": {
+            "edges": [
+              [
+                [
+                  0,
+                  false
+                ],
+                [
+                  1,
+                  false
+                ],
+                {
+                  "weight": "1/3"
+                }
+              ],
+              [
+                [
+                  0,
+                  true
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "1/3"
+                }
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                [
+                  2,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                [
+                  1,
+                  false
+                ],
+                {
+                  "weight": "1"
+                }
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  2,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "1"
+                }
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                [
+                  0,
+                  false
+                ],
+                {
+                  "weight": "1208925819614629174706177"
+                }
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                [
+                  1,
+                  false
+                ],
+                {
+                  "weight": "2"
+                }
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  0,
+                  true
+                ],
+                {
+                  "weight": "1208925819614629174706177"
+                }
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "2"
+                }
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  1,
+                  false
+                ],
+                {
+                  "weight": "1/3"
+                }
+              ]
+            ],
+            "nodes": [
+              [
+                [
+                  0,
+                  false
+                ],
+                {}
+              ],
+              [
+                [
+                  0,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                {}
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                {}
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                {}
+              ]
+            ],
+            "predecessors": [
+              [
+                [
+                  0,
+                  false
+                ],
+                [
+                  [
+                    2,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  0,
+                  true
+                ],
+                [
+                  [
+                    2,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                [
+                  [
+                    0,
+                    false
+                  ],
+                  [
+                    1,
+                    false
+                  ],
+                  [
+                    2,
+                    false
+                  ],
+                  [
+                    -1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  [
+                    0,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ],
+                  [
+                    2,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                []
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  [
+                    1,
+                    false
+                  ],
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                []
+              ]
+            ],
+            "successors": [
+              [
+                [
+                  0,
+                  false
+                ],
+                [
+                  [
+                    1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  0,
+                  true
+                ],
+                [
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                [
+                  [
+                    2,
+                    true
+                  ],
+                  [
+                    1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  [
+                    2,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                [
+                  [
+                    0,
+                    false
+                  ],
+                  [
+                    1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  [
+                    0,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  [
+                    1,
+                    false
+                  ]
+                ]
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "entry": 1,
+        "snapshot": {
+          "dummy": [
+            -1,
+            false
+          ],
+          "finish": [
+            1,
+            true
+          ],
+          "graph": {
+            "edges": [
+              [
+                [
+                  0,
+                  false
+                ],
+                [
+                  1,
+                  false
+                ],
+                {
+                  "weight": "1/3"
+                }
+              ],
+              [
+                [
+                  0,
+                  true
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "1/3"
+                }
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                [
+                  2,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                [
+                  1,
+                  false
+                ],
+                {
+                  "weight": "1"
+                }
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  2,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "1"
+                }
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                [
+                  0,
+                  false
+                ],
+                {
+                  "weight": "1208925819614629174706177"
+                }
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                [
+                  1,
+                  false
+                ],
+                {
+                  "weight": "2"
+                }
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  0,
+                  true
+                ],
+                {
+                  "weight": "1208925819614629174706177"
+                }
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "2"
+                }
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  2,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  1,
+                  false
+                ],
+                {
+                  "weight": "1"
+                }
+              ]
+            ],
+            "nodes": [
+              [
+                [
+                  0,
+                  false
+                ],
+                {}
+              ],
+              [
+                [
+                  0,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                {}
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                {}
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                {}
+              ]
+            ],
+            "predecessors": [
+              [
+                [
+                  0,
+                  false
+                ],
+                [
+                  [
+                    2,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  0,
+                  true
+                ],
+                [
+                  [
+                    2,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                [
+                  [
+                    0,
+                    false
+                  ],
+                  [
+                    1,
+                    false
+                  ],
+                  [
+                    2,
+                    false
+                  ],
+                  [
+                    -1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  [
+                    0,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ],
+                  [
+                    2,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                []
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  [
+                    1,
+                    false
+                  ],
+                  [
+                    1,
+                    true
+                  ],
+                  [
+                    -1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                []
+              ]
+            ],
+            "successors": [
+              [
+                [
+                  0,
+                  false
+                ],
+                [
+                  [
+                    1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  0,
+                  true
+                ],
+                [
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  false
+                ],
+                [
+                  [
+                    2,
+                    true
+                  ],
+                  [
+                    1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  [
+                    2,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  2,
+                  false
+                ],
+                [
+                  [
+                    0,
+                    false
+                  ],
+                  [
+                    1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  [
+                    0,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  [
+                    2,
+                    true
+                  ],
+                  [
+                    1,
+                    false
+                  ]
+                ]
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "entry": 2,
+        "snapshot": {
+          "dummy": [
+            -1,
+            false
+          ],
+          "finish": [
+            2,
+            true
+          ],
+          "graph": {
+            "edges": [
+              [
+                [
+                  0,
+                  true
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "1/3"
+                }
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  2,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "1"
+                }
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  0,
+                  true
+                ],
+                {
+                  "weight": "1208925819614629174706177"
+                }
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "2"
+                }
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  0,
+                  true
+                ],
+                {
+                  "weight": "1208925819614629174706177"
+                }
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  1,
+                  true
+                ],
+                {
+                  "weight": "2"
+                }
+              ]
+            ],
+            "nodes": [
+              [
+                [
+                  0,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                {}
+              ]
+            ],
+            "predecessors": [
+              [
+                [
+                  0,
+                  true
+                ],
+                [
+                  [
+                    2,
+                    true
+                  ],
+                  [
+                    -1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  [
+                    0,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ],
+                  [
+                    2,
+                    true
+                  ],
+                  [
+                    -1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                []
+              ]
+            ],
+            "successors": [
+              [
+                [
+                  0,
+                  true
+                ],
+                [
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  1,
+                  true
+                ],
+                [
+                  [
+                    2,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  2,
+                  true
+                ],
+                [
+                  [
+                    0,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  [
+                    0,
+                    true
+                  ],
+                  [
+                    1,
+                    true
+                  ]
+                ]
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "entry": 3,
+        "snapshot": {
+          "dummy": [
+            -1,
+            false
+          ],
+          "finish": [
+            3,
+            true
+          ],
+          "graph": {
+            "edges": [
+              [
+                [
+                  3,
+                  false
+                ],
+                [
+                  4,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ],
+              [
+                [
+                  3,
+                  true
+                ],
+                [
+                  4,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ],
+              [
+                [
+                  4,
+                  false
+                ],
+                [
+                  3,
+                  false
+                ],
+                {
+                  "weight": "5/7"
+                }
+              ],
+              [
+                [
+                  4,
+                  true
+                ],
+                [
+                  3,
+                  true
+                ],
+                {
+                  "weight": "5/7"
+                }
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  4,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ]
+            ],
+            "nodes": [
+              [
+                [
+                  3,
+                  false
+                ],
+                {}
+              ],
+              [
+                [
+                  3,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  4,
+                  false
+                ],
+                {}
+              ],
+              [
+                [
+                  4,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                {}
+              ]
+            ],
+            "predecessors": [
+              [
+                [
+                  3,
+                  false
+                ],
+                [
+                  [
+                    4,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  3,
+                  true
+                ],
+                [
+                  [
+                    4,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  4,
+                  false
+                ],
+                []
+              ],
+              [
+                [
+                  4,
+                  true
+                ],
+                [
+                  [
+                    3,
+                    false
+                  ],
+                  [
+                    3,
+                    true
+                  ],
+                  [
+                    -1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                []
+              ]
+            ],
+            "successors": [
+              [
+                [
+                  3,
+                  false
+                ],
+                [
+                  [
+                    4,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  3,
+                  true
+                ],
+                [
+                  [
+                    4,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  4,
+                  false
+                ],
+                [
+                  [
+                    3,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  4,
+                  true
+                ],
+                [
+                  [
+                    3,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  [
+                    4,
+                    true
+                  ]
+                ]
+              ]
+            ]
+          }
+        }
+      },
+      {
+        "entry": 4,
+        "snapshot": {
+          "dummy": [
+            -1,
+            false
+          ],
+          "finish": [
+            4,
+            true
+          ],
+          "graph": {
+            "edges": [
+              [
+                [
+                  3,
+                  true
+                ],
+                [
+                  4,
+                  true
+                ],
+                {
+                  "weight": "0"
+                }
+              ],
+              [
+                [
+                  4,
+                  true
+                ],
+                [
+                  3,
+                  true
+                ],
+                {
+                  "weight": "5/7"
+                }
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  3,
+                  true
+                ],
+                {
+                  "weight": "5/7"
+                }
+              ]
+            ],
+            "nodes": [
+              [
+                [
+                  3,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  4,
+                  true
+                ],
+                {}
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                {}
+              ]
+            ],
+            "predecessors": [
+              [
+                [
+                  3,
+                  true
+                ],
+                [
+                  [
+                    4,
+                    true
+                  ],
+                  [
+                    -1,
+                    false
+                  ]
+                ]
+              ],
+              [
+                [
+                  4,
+                  true
+                ],
+                [
+                  [
+                    3,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                []
+              ]
+            ],
+            "successors": [
+              [
+                [
+                  3,
+                  true
+                ],
+                [
+                  [
+                    4,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  4,
+                  true
+                ],
+                [
+                  [
+                    3,
+                    true
+                  ]
+                ]
+              ],
+              [
+                [
+                  -1,
+                  false
+                ],
+                [
+                  [
+                    3,
+                    true
+                  ]
+                ]
+              ]
+            ]
+          }
+        }
+      }
+    ],
+    "status": "PASSED",
+    "work": {
+      "suffix_graph_component_indexes": 2,
+      "suffix_graph_dummy_rebinds": 1,
+      "suffix_graph_materializations": 4,
+      "suffix_graph_requests": 7,
+      "suffix_graph_reuses": 1,
+      "suffix_graph_source_edge_scans": 2,
+      "suffix_graph_source_edges_examined": 14,
+      "suffix_lifts": [
+        {
+          "edges": 11,
+          "entry": 0,
+          "entry_accepting": false,
+          "layers": 2,
+          "nodes": 7
+        },
+        {
+          "edges": 12,
+          "entry": 1,
+          "entry_accepting": false,
+          "layers": 2,
+          "nodes": 7
+        },
+        {
+          "edges": 7,
+          "entry": 2,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 4
+        },
+        {
+          "edges": 5,
+          "entry": 3,
+          "entry_accepting": false,
+          "layers": 2,
+          "nodes": 5
+        },
+        {
+          "edges": 3,
+          "entry": 4,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 3
+        }
+      ]
+    }
+  }
+}

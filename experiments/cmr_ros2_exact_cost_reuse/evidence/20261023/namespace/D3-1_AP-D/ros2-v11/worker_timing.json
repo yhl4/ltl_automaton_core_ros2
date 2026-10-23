@@ -1,0 +1,71 @@
+{
+  "entry_metrics": {
+    "binding_reads": 2,
+    "schema_builds": 1,
+    "descriptor_requests": 2,
+    "release_checks": 1,
+    "schema_requests": 1
+  },
+  "entry_timing": {
+    "write": {
+      "calls": 4,
+      "elapsed_ns": 3215900
+    },
+    "schema_for": {
+      "calls": 1,
+      "elapsed_ns": 60202999
+    },
+    "schema_validate_result": {
+      "calls": 1,
+      "elapsed_ns": 464400
+    },
+    "release_check": {
+      "calls": 1,
+      "elapsed_ns": 28187899
+    }
+  },
+  "core_timing": {
+    "original_function_code_preserved": {
+      "run_one": true,
+      "persist_and_verify_certificate": true
+    },
+    "preflight": {
+      "calls": 1,
+      "elapsed_ns": 662749588
+    },
+    "load_instance": {
+      "calls": 1,
+      "elapsed_ns": 16888600
+    },
+    "_payload_for_ai": {
+      "calls": 1,
+      "elapsed_ns": 8056800
+    },
+    "certificate_canonical_record": {
+      "calls": 1,
+      "elapsed_ns": 76952798
+    },
+    "certificate__certificate_payload": {
+      "calls": 1,
+      "elapsed_ns": 99900
+    },
+    "certificate_fsync": {
+      "calls": 1,
+      "elapsed_ns": 58549999
+    },
+    "certificate_sha256_file": {
+      "calls": 1,
+      "elapsed_ns": 68400
+    },
+    "certificate_verify_bound_certificate": {
+      "calls": 1,
+      "elapsed_ns": 61102799
+    },
+    "persist_and_verify_certificate": {
+      "calls": 1,
+      "elapsed_ns": 197073996
+    }
+  },
+  "metrics_scope": "AttemptEntry only; load_plan and frozen authority checks also execute",
+  "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0"
+}

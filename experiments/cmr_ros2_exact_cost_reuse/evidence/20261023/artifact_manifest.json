@@ -1,0 +1,34 @@
+{
+  "excludes": [
+    "index.json",
+    "artifact_manifest.json"
+  ],
+  "files": [
+    {
+      "path": "raw_attempts.zip",
+      "sha256": "9cad781b5d3f9c81076786ae053256a8a2060324c197816f05c20fdcb003b5a2",
+      "size": 507585
+    },
+    {
+      "path": "context.json",
+      "sha256": "541fec439caee7607889d93a5c334008c17f5a71e13287575854a41f7e626072",
+      "size": 1069
+    },
+    {
+      "path": "archive_manifest.json",
+      "sha256": "76ece4d84fddc36851ad1879168b50146d0ff83726c378bd6efb124fba791713",
+      "size": 82940
+    },
+    {
+      "path": "archive_receipt.json",
+      "sha256": "ea0a71ae6bfe854a328160bbc4f0633d100a40acededc536b1ae450de6815dc9",
+      "size": 701
+    },
+    {
+      "path": "root_archive_readback.json",
+      "sha256": "8ca36527230cbc4e41431fcd085a6c6c20a5793abfed7c4a3d871bc7b40f8f8f",
+      "size": 793
+    }
+  ],
+  "schema": "cmr-v11-exact-cost-reuse-artifact-manifest-v1"
+}

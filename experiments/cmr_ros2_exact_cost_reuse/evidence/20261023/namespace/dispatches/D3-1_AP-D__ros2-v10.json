@@ -1,0 +1,23 @@
+{
+  "instance_id": "D3-1",
+  "method": "AP-D",
+  "source_cell_id": "be130fb5dc7da6529ac0ccbaf0f0357a08b45a9f5b1385883f7cc1082141b76f",
+  "canonical_instance_index": 142,
+  "execution_index": 427,
+  "method_order_position": 1,
+  "expected_initial_S0": [
+    0
+  ],
+  "instance_sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e",
+  "backend": "ros2-v10",
+  "backend_id": "ROS2-DISCRETE-PLAN-CMR-SUFFIX-GRAPH-REUSE-V10",
+  "backend_sha256": "336d2bec6b66d179a3b03eb3d68e2dc2c88304a846655a486c8c41494533dbe5",
+  "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+  "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd",
+  "qualification_id": "CMR_EXACT_COST_REUSE_20261023",
+  "population": "CMR_EXACT_COST_REUSE_THREE_CELL_QUALIFICATION",
+  "formal_campaign": false,
+  "execution_identity": "e5ff91294b373a1f33e7ae9458641e4a2200ab56+cmr-exact-cost-reuse-4d2f6859c8290d00",
+  "planner_budget_seconds": 180,
+  "outer_watchdog_seconds": 195
+}

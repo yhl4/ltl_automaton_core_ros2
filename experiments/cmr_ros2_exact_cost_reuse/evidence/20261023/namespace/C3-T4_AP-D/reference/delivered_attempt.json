@@ -1,0 +1,1093 @@
+{
+  "row": {
+    "schema_version": "cmr-p2b-result-v1",
+    "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+    "execution_commit": "e5ff91294b373a1f33e7ae9458641e4a2200ab56+cmr-exact-cost-reuse-4d2f6859c8290d00",
+    "benchmark_identity": "RACMR-Bench-v1-r1",
+    "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+    "instance_id": "C3-T4",
+    "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+    "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+    "method": "AP-D",
+    "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+    "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+    "method_order_position": 1,
+    "terminal_status": "OPTIMALITY_CERTIFIED",
+    "canonical_status": "OPTIMALITY_CERTIFIED",
+    "exact_status": "OPTIMAL",
+    "timing_status": "UNCENSORED",
+    "right_censored": false,
+    "timeout_stage": "none",
+    "planner_budget_seconds": 180,
+    "outer_watchdog_seconds": 195,
+    "objective": "12",
+    "T_input_preprocess": 0.717252925,
+    "T_initialization": 2.6e-06,
+    "T_plan_wall": 1.55614817,
+    "T_method": 0.631596209,
+    "method_start_ns": 133966091047,
+    "terminal_completion_ns": 135522243017,
+    "initial_precision_size": 1,
+    "final_precision_size": 6,
+    "initial_S0": [
+      3
+    ],
+    "final_precision": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "refinement_rounds": 5,
+    "cumulative_work": {
+      "reduced_ts_states_built": 126,
+      "reduced_ts_edges_built": 757,
+      "product_states_built": 252,
+      "product_edges_built": 3531,
+      "search_settled_events": 783
+    },
+    "final_unique_graph_size": {
+      "reduced_ts_states": 64,
+      "reduced_ts_edges": 384,
+      "product_states": 128,
+      "product_edges": 1792
+    },
+    "rounds": [
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 0,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+        "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          3
+        ],
+        "S_k_size": 1,
+        "H_k": [
+          0,
+          1,
+          2,
+          4,
+          5
+        ],
+        "R_k": [
+          2
+        ],
+        "J_lb": "11",
+        "J_ub": null,
+        "abstract_prefix_cost": "1",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": null,
+        "suffix_cost": null,
+        "certificate_status": "NOT_CONCRETIZABLE_AT_CURRENT_PRECISION",
+        "concretization_status": "NOT_CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": null,
+        "m": null,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 2,
+        "reduced_ts_edges": 13,
+        "product_unique_states": 4,
+        "product_unique_edges": 59,
+        "reachable_product_nodes": 4,
+        "qualifying_sccs": 1,
+        "candidate_entries": 4,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 3,
+        "queue_pushes": 16,
+        "queue_pops": 14,
+        "prefix_settled": 4,
+        "lower_bound_settled": 8,
+        "suffix_settled": 2,
+        "candidate_fingerprint": "c7dcc5864065633c99c0906a8af63910fbde402d3b3ef1a5053f691d8e3a8236",
+        "prefix_actions": [
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_gripper_state"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            1
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 0.009176501,
+          "T_reduction": 0.008366902,
+          "T_product": 0.0046509,
+          "T_search": 0.008958402,
+          "T_concretization": 0.0014909,
+          "T_certification": 6.2e-06,
+          "T_refinement": 0.0001014
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            134683386872,
+            134692563373
+          ],
+          "T_reduction": [
+            134692564973,
+            134700931875
+          ],
+          "T_product": [
+            134700933275,
+            134705584175
+          ],
+          "T_search": [
+            134705604075,
+            134714562477
+          ],
+          "T_concretization": [
+            134714574877,
+            134716065777
+          ],
+          "T_certification": [
+            134716067477,
+            134716073677
+          ],
+          "T_refinement": [
+            134716100977,
+            134716202377
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({3}), new_precision=frozenset({2, 3}), added_dimension=2, candidate_actions=('change_cabinet_door', 'change_gripper_state'), relevant_k_entries=(('change_cabinet_door', (2,)), ('change_gripper_state', (5,))), occurrence_counts=((2, 1), (5, 1)), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='NOT_CONCRETIZABLE_AT_CURRENT_PRECISION')",
+        "added_dimension": 2,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "reference",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 1,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+        "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          2,
+          3
+        ],
+        "S_k_size": 2,
+        "H_k": [
+          0,
+          1,
+          4,
+          5
+        ],
+        "R_k": [
+          5
+        ],
+        "J_lb": "12",
+        "J_ub": "22",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "2",
+        "certificate_status": "CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 2,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 4,
+        "reduced_ts_edges": 24,
+        "product_unique_states": 8,
+        "product_unique_edges": 112,
+        "reachable_product_nodes": 8,
+        "qualifying_sccs": 1,
+        "candidate_entries": 8,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 7,
+        "queue_pushes": 32,
+        "queue_pops": 29,
+        "prefix_settled": 8,
+        "lower_bound_settled": 16,
+        "suffix_settled": 5,
+        "candidate_fingerprint": "afb1f442b09f71f82a3820f3a8e9639d15df19266ce47d8f7b9e9f5073b158c1",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_gripper_state"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            1,
+            1
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 0.008314102,
+          "T_reduction": 0.007270701,
+          "T_product": 0.009628302,
+          "T_search": 0.009105801,
+          "T_concretization": 0.007886902,
+          "T_certification": 1.74e-05,
+          "T_refinement": 6.01e-05
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            134716501677,
+            134724815779
+          ],
+          "T_reduction": [
+            134724817079,
+            134732087780
+          ],
+          "T_product": [
+            134732088780,
+            134741717082
+          ],
+          "T_search": [
+            134742138082,
+            134751243883
+          ],
+          "T_concretization": [
+            134751257283,
+            134759144185
+          ],
+          "T_certification": [
+            134759145985,
+            134759163385
+          ],
+          "T_refinement": [
+            134759176885,
+            134759236985
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({2, 3}), new_precision=frozenset({2, 3, 5}), added_dimension=5, candidate_actions=('change_robot_location', 'change_cabinet_door', 'change_gripper_state'), relevant_k_entries=(('change_cabinet_door', ()), ('change_gripper_state', (5,)), ('change_robot_location', ())), occurrence_counts=((5, 1),), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED')",
+        "added_dimension": 5,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "reference",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 2,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+        "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          2,
+          3,
+          5
+        ],
+        "S_k_size": 3,
+        "H_k": [
+          0,
+          1,
+          4
+        ],
+        "R_k": [
+          4
+        ],
+        "J_lb": "12",
+        "J_ub": "22",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "2",
+        "certificate_status": "CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 2,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 8,
+        "reduced_ts_edges": 48,
+        "product_unique_states": 16,
+        "product_unique_edges": 224,
+        "reachable_product_nodes": 16,
+        "qualifying_sccs": 1,
+        "candidate_entries": 16,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 15,
+        "queue_pushes": 63,
+        "queue_pops": 53,
+        "prefix_settled": 16,
+        "lower_bound_settled": 32,
+        "suffix_settled": 5,
+        "candidate_fingerprint": "19e81554406785174655ae1c4b75149e18061caef336d77e354c789002cc27e2",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_object_location"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            1,
+            1,
+            0
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 0.008964701,
+          "T_reduction": 0.008700002,
+          "T_product": 0.020123003,
+          "T_search": 0.018906404,
+          "T_concretization": 0.007701901,
+          "T_certification": 1.95e-05,
+          "T_refinement": 7.16e-05
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            134759472285,
+            134768436986
+          ],
+          "T_reduction": [
+            134768439286,
+            134777139288
+          ],
+          "T_product": [
+            134777140788,
+            134797263791
+          ],
+          "T_search": [
+            134797576391,
+            134816482795
+          ],
+          "T_concretization": [
+            134816508995,
+            134824210896
+          ],
+          "T_certification": [
+            134824213096,
+            134824232596
+          ],
+          "T_refinement": [
+            134824295696,
+            134824367296
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({2, 3, 5}), new_precision=frozenset({2, 3, 4, 5}), added_dimension=4, candidate_actions=('change_robot_location', 'change_cabinet_door', 'change_object_location'), relevant_k_entries=(('change_cabinet_door', ()), ('change_object_location', (4,)), ('change_robot_location', ())), occurrence_counts=((4, 1),), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED')",
+        "added_dimension": 4,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "reference",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 3,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+        "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "S_k_size": 4,
+        "H_k": [
+          0,
+          1
+        ],
+        "R_k": [
+          0
+        ],
+        "J_lb": "12",
+        "J_ub": "22",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "2",
+        "certificate_status": "CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 2,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 16,
+        "reduced_ts_edges": 96,
+        "product_unique_states": 32,
+        "product_unique_edges": 448,
+        "reachable_product_nodes": 32,
+        "qualifying_sccs": 1,
+        "candidate_entries": 32,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 31,
+        "queue_pushes": 117,
+        "queue_pops": 101,
+        "prefix_settled": 32,
+        "lower_bound_settled": 64,
+        "suffix_settled": 5,
+        "candidate_fingerprint": "84b181eac8b467ae5c0f16f7ef8235cfdbce7281b054aea97d690a8deb1b0146",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_safety_zone"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            1,
+            1,
+            0,
+            0
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 0.010101702,
+          "T_reduction": 0.008257801,
+          "T_product": 0.044659708,
+          "T_search": 0.020862504,
+          "T_concretization": 0.008584101,
+          "T_certification": 3.83e-05,
+          "T_refinement": 7.74e-05
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            134824673996,
+            134834775698
+          ],
+          "T_reduction": [
+            134834778298,
+            134843036099
+          ],
+          "T_product": [
+            134843037799,
+            134887697507
+          ],
+          "T_search": [
+            134888049107,
+            134908911611
+          ],
+          "T_concretization": [
+            134908927511,
+            134917511612
+          ],
+          "T_certification": [
+            134917514212,
+            134917552512
+          ],
+          "T_refinement": [
+            134917582212,
+            134917659612
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({2, 3, 4, 5}), new_precision=frozenset({0, 2, 3, 4, 5}), added_dimension=0, candidate_actions=('change_robot_location', 'change_cabinet_door', 'change_safety_zone'), relevant_k_entries=(('change_cabinet_door', ()), ('change_robot_location', ()), ('change_safety_zone', (0,))), occurrence_counts=((0, 1),), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED')",
+        "added_dimension": 0,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "reference",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 4,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+        "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          0,
+          2,
+          3,
+          4,
+          5
+        ],
+        "S_k_size": 5,
+        "H_k": [
+          1
+        ],
+        "R_k": [
+          1
+        ],
+        "J_lb": "12",
+        "J_ub": "22",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "2",
+        "certificate_status": "CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 2,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 32,
+        "reduced_ts_edges": 192,
+        "product_unique_states": 64,
+        "product_unique_edges": 896,
+        "reachable_product_nodes": 64,
+        "qualifying_sccs": 1,
+        "candidate_entries": 64,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 63,
+        "queue_pushes": 220,
+        "queue_pops": 197,
+        "prefix_settled": 64,
+        "lower_bound_settled": 128,
+        "suffix_settled": 5,
+        "candidate_fingerprint": "a23cb1b0f36fa46416bf5bb2f9fc277f307e90b32fbb070f8ecca36b38bcb285",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_service_light"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 0.009174502,
+          "T_reduction": 0.009995802,
+          "T_product": 0.083044614,
+          "T_search": 0.036649707,
+          "T_concretization": 0.006492301,
+          "T_certification": 1.63e-05,
+          "T_refinement": 5.96e-05
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            134918023612,
+            134927198114
+          ],
+          "T_reduction": [
+            134927200814,
+            134937196616
+          ],
+          "T_product": [
+            134937198016,
+            135020242630
+          ],
+          "T_search": [
+            135021711730,
+            135058361437
+          ],
+          "T_concretization": [
+            135058379537,
+            135064871838
+          ],
+          "T_certification": [
+            135064873538,
+            135064889838
+          ],
+          "T_refinement": [
+            135064918338,
+            135064977938
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({0, 2, 3, 4, 5}), new_precision=frozenset({0, 1, 2, 3, 4, 5}), added_dimension=1, candidate_actions=('change_robot_location', 'change_cabinet_door', 'change_service_light'), relevant_k_entries=(('change_cabinet_door', ()), ('change_robot_location', ()), ('change_service_light', (1,))), occurrence_counts=((1, 1),), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED')",
+        "added_dimension": 1,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "reference",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 5,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+        "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "S_k_size": 6,
+        "H_k": [],
+        "R_k": [],
+        "J_lb": "12",
+        "J_ub": "12",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "1",
+        "certificate_status": "OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 1,
+        "terminal_status": "OPTIMALITY_CERTIFIED",
+        "reduced_ts_states": 64,
+        "reduced_ts_edges": 384,
+        "product_unique_states": 128,
+        "product_unique_edges": 1792,
+        "reachable_product_nodes": 128,
+        "qualifying_sccs": 1,
+        "candidate_entries": 128,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 127,
+        "queue_pushes": 419,
+        "queue_pops": 389,
+        "prefix_settled": 128,
+        "lower_bound_settled": 256,
+        "suffix_settled": 5,
+        "candidate_fingerprint": "c3256d0b050eadd86a5977fe6ed97dd19f286209de048528a8b6db4139d96dd5",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "wait"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            0,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 0.008172001,
+          "T_reduction": 0.007906402,
+          "T_product": 0.151437626,
+          "T_search": 0.073023313,
+          "T_concretization": 0.003980701,
+          "T_certification": 1.61e-05,
+          "T_refinement": 0.0
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            135065659238,
+            135073831239
+          ],
+          "T_reduction": [
+            135073833039,
+            135081739441
+          ],
+          "T_product": [
+            135081740841,
+            135233178467
+          ],
+          "T_search": [
+            135234117067,
+            135307140380
+          ],
+          "T_concretization": [
+            135307167180,
+            135311147881
+          ],
+          "T_certification": [
+            135311150181,
+            135311166281
+          ]
+        },
+        "error": null,
+        "added_dimension": null,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "reference",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      }
+    ],
+    "candidate_identity": {
+      "prefix_actions": [
+        "change_robot_location",
+        "change_cabinet_door"
+      ],
+      "suffix_actions": [
+        "wait"
+      ],
+      "prefix_length": 3,
+      "suffix_length": 2,
+      "lower_bound": "12"
+    },
+    "infeasibility_certificate_type": null,
+    "infeasibility_proof_basis": null,
+    "infeasibility_precision": null,
+    "lower_precision_infeasibility": null,
+    "candidate_fingerprint": "c3256d0b050eadd86a5977fe6ed97dd19f286209de048528a8b6db4139d96dd5",
+    "prefix_actions": [
+      "change_robot_location",
+      "change_cabinet_door"
+    ],
+    "suffix_actions": [
+      "wait"
+    ],
+    "suffix_entry_product_state": {
+      "state": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+    },
+    "semantic_contract_id": "INITIAL_LABEL_V1",
+    "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+    "ai_selection": null,
+    "ai_selection_artifact_sha256": null,
+    "ai_inference_latency_seconds": null,
+    "phase_intervals_ns": {
+      "T_input_preprocess": [
+        133966091047,
+        134683343972
+      ],
+      "T_initialization": [
+        134683343972,
+        134683346572
+      ],
+      "T_certification_external": [
+        135315432581,
+        135522190317
+      ],
+      "T_logging": [
+        135522190917,
+        135522238717
+      ]
+    },
+    "error": null,
+    "llm_calls": 0,
+    "experimental_llm_calls": 0,
+    "api_key_reads": 0,
+    "certificate_path": "C3-T4__AP-D__121.json",
+    "certificate_hash": "a66f2c0b663341a9c42190f02c975bc21ade97c35baf2d8f464ea5d858a3a29f",
+    "certificate_schema": "ECC-E2.2-CERTIFICATE-INITIAL_LABEL_V1",
+    "certificate_verifier_status": "PASS",
+    "certificate_objective": "12",
+    "T_full_ts": 0.053903509,
+    "T_reduction": 0.05049761,
+    "T_product": 0.313544153,
+    "T_search": 0.167506131,
+    "T_concretization": 0.036136805999999994,
+    "T_certification": 0.206871536,
+    "T_refinement": 0.0003701,
+    "T_logging": 4.78e-05,
+    "T_total": 1.55614817,
+    "T_other": 0.010014999999999885,
+    "qualification_scope": "CMR_EXACT_COST_REUSE_THREE_CELL_QUALIFICATION",
+    "formal_campaign": false,
+    "search_counter_basis": "qualified reference SearchStats",
+    "backend": "reference",
+    "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+    "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd",
+    "result_hash": "f2f0eb803ed9a7c36c8b41c2b89242422b6913ded299d64a1095d9d93455fc3e"
+  },
+  "transport": {
+    "concrete_lasso": {
+      "prefix": [
+        [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+        ],
+        [
+          [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+        ],
+        [
+          [
+            0,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        ]
+      ],
+      "suffix": [
+        [
+          [
+            0,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        ],
+        [
+          [
+            0,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        ]
+      ],
+      "prefix_edges": [
+        {
+          "source": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+          ],
+          "action": "change_robot_location",
+          "target": [
+            [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+          ],
+          "cost": "1"
+        },
+        {
+          "source": [
+            [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+          ],
+          "action": "change_cabinet_door",
+          "target": [
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+          ],
+          "cost": "1"
+        }
+      ],
+      "suffix_edges": [
+        {
+          "source": [
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+          ],
+          "action": "wait",
+          "target": [
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+          ],
+          "cost": "1"
+        }
+      ],
+      "prefix_cost": "2",
+      "suffix_cost": "1",
+      "upper_bound": "12",
+      "ell": 0,
+      "m": 1
+    },
+    "accepting_buchi_states": [
+      "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]",
+      "[[[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],true]"
+    ]
+  },
+  "search_work": [],
+  "build_work": [],
+  "backend_binding": {
+    "backend": "reference",
+    "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+    "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+    "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+    "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+  },
+  "worker_pid": 93,
+  "backend_configuration": {
+    "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+    "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+    "original_loop_code_preserved": true,
+    "original_local_code_preserved": true,
+    "original_builder_global_preserved": true
+  },
+  "worker_exitcode": 0,
+  "worker_alive_after_cleanup": false,
+  "outer_start_ns": 122210866243
+}

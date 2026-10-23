@@ -1,0 +1,24 @@
+{
+  "archive_manifest": {
+    "path": "archive_manifest.json",
+    "sha256": "76ece4d84fddc36851ad1879168b50146d0ff83726c378bd6efb124fba791713",
+    "size": 82940
+  },
+  "context": {
+    "path": "context.json",
+    "sha256": "541fec439caee7607889d93a5c334008c17f5a71e13287575854a41f7e626072",
+    "size": 1069
+  },
+  "copied_original_and_archive_checks": 490,
+  "generated_single_checks": 2,
+  "member_count": 247,
+  "mismatch_count": 0,
+  "raw_attempts": {
+    "path": "raw_attempts.zip",
+    "sha256": "9cad781b5d3f9c81076786ae053256a8a2060324c197816f05c20fdcb003b5a2",
+    "size": 507585
+  },
+  "schema": "cmr-v11-exact-cost-reuse-archive-receipt-v1",
+  "status": "PASSED",
+  "total_checks": 492
+}

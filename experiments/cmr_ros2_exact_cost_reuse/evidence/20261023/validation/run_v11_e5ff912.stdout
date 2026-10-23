@@ -1,0 +1,9 @@
+{"cell": "C3-T4_AP-D", "backend": "reference", "status": "OPTIMALITY_CERTIFIED", "objective": "12", "seconds": 1.820352016}
+{"cell": "C3-T4_AP-D", "backend": "ros2-v10", "status": "OPTIMALITY_CERTIFIED", "objective": "12", "seconds": 1.477440007}
+{"cell": "C3-T4_AP-D", "backend": "ros2-v11", "status": "OPTIMALITY_CERTIFIED", "objective": "12", "seconds": 1.617666594}
+{"cell": "D3-1_AP-D", "backend": "reference", "status": "OPTIMALITY_CERTIFIED", "objective": "20", "seconds": 1.166936764}
+{"cell": "D3-1_AP-D", "backend": "ros2-v10", "status": "OPTIMALITY_CERTIFIED", "objective": "20", "seconds": 1.131894966}
+{"cell": "D3-1_AP-D", "backend": "ros2-v11", "status": "OPTIMALITY_CERTIFIED", "objective": "20", "seconds": 1.174659579}
+{"cell": "D3-2_AP-D", "backend": "reference", "status": "OPTIMALITY_CERTIFIED", "objective": "20", "seconds": 1.013304294}
+{"cell": "D3-2_AP-D", "backend": "ros2-v10", "status": "OPTIMALITY_CERTIFIED", "objective": "20", "seconds": 1.277144071}
+{"cell": "D3-2_AP-D", "backend": "ros2-v11", "status": "OPTIMALITY_CERTIFIED", "objective": "20", "seconds": 1.177149183}

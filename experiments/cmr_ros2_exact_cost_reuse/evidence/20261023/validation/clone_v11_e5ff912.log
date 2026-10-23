@@ -1,0 +1,7 @@
+source=/mnt/d/Robotics/Robotics4LLM/ltl_automaton_core-ros2
+clone=/tmp/cmr_v11_source_e5ff912_20261023
+expected_head=e5ff91294b373a1f33e7ae9458641e4a2200ab56
+e5ff91294b373a1f33e7ae9458641e4a2200ab56 refs/heads/codex/v11-exact-cost-reuse
+Cloning into '/tmp/cmr_v11_source_e5ff912_20261023'...
+done.
+## codex/v11-exact-cost-reuse...origin/codex/v11-exact-cost-reuse

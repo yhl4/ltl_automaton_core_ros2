@@ -1,0 +1,24 @@
+{
+  "all_copies_equal_originals": true,
+  "archive_members": 216,
+  "archive_sha256": "9cad781b5d3f9c81076786ae053256a8a2060324c197816f05c20fdcb003b5a2",
+  "complete_helpers": true,
+  "complete_namespace": true,
+  "helper_folder_files": 24,
+  "kinds": {
+    "development_artifact": 25,
+    "generated": 2,
+    "runtime_namespace": 216,
+    "source_snapshot": 4
+  },
+  "manifest_members": 247,
+  "prior_v10_archive_unchanged": true,
+  "retained_validation_files": 25,
+  "root_result_readback_sha256": "4bdbcfd403dd3e1259e71fa25bf6cf2339575bd7fe97ee59b886ab8a5db133c4",
+  "schema": "cmr-v11-root-archive-readback-v1",
+  "solver_calls": 0,
+  "source_commit": "e5ff91294b373a1f33e7ae9458641e4a2200ab56",
+  "source_snapshots_equal_git_and_live": true,
+  "status": "PASSED",
+  "verifier_calls": 0
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "cmr-v11-development-validation-notes-v1",
+  "native_windows_entry_smoke": {
+    "status": "REJECTED_BEFORE_WORKER",
+    "error": "ValueError: qualified V2 baseline source bytes changed",
+    "original_log": "Conversation tool output only; no separate raw log was saved",
+    "interpretation": "The historical source-closure map uses WSL path separators; Windows Path string keys use backslashes. This native entry check is not qualifying evidence. No old source or guard was changed to bypass it.",
+    "solver_calls": 0,
+    "real_workers": 0
+  },
+  "authoritative_runtime": "The clean WSL clone and its prepare/run logs, source binding and independent root readback are authoritative.",
+  "failed_profile_import": "The first directed profile failed before a solver call because the kernel import path was absent; its original script and error log are retained.",
+  "failed_fixture_assertion": "The first V11 fixture expected Fraction reuse in an integer-only case. The failure is retained; the final assertion uses an actual Fraction case. The exact failed fixture source revision was not retained.",
+  "development_scope": {
+    "successful_directed_profile_solver_calls": 1,
+    "aggregate_synthetic_fixture_solver_calls": "unknown",
+    "real_qualification_workers": 9,
+    "formal_campaign": false,
+    "dds_requests": 0,
+    "provider_calls": 0
+  }
+}

@@ -1,0 +1,1742 @@
+{
+  "member_count": 247,
+  "members": [
+    {
+      "kind": "generated",
+      "name": "context.json",
+      "original_path": "generated:archive_context",
+      "sha256": "541fec439caee7607889d93a5c334008c17f5a71e13287575854a41f7e626072",
+      "size": 1069
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/certificates/C3-T4__AP-D__121.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/certificates/C3-T4__AP-D__121.json",
+      "sha256": "a66f2c0b663341a9c42190f02c975bc21ade97c35baf2d8f464ea5d858a3a29f",
+      "size": 2900
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/delivered_attempt.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/delivered_attempt.json",
+      "sha256": "7bdefda5ee674aaa39d000a2e71561393c89364a21b82a003c115ed102695534",
+      "size": 34518
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/external_replay_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/external_replay_timing.json",
+      "sha256": "c57aede4b1efb167a4e30ef4ad9f8c22529aa015318659123aad0b63f02d3d80",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/parent_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/parent_timing.json",
+      "sha256": "b1fd5117d22cebc98d4ac041c1f49d6737f66652c539014d5c42d7dd0cd666c7",
+      "size": 779
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/preflight.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/preflight.json",
+      "sha256": "d780497da45c8967b6b76d14ebdbd7a9aa975ebcf98ebc47b0659332ff2fa803",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/request.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/request.json",
+      "sha256": "2274a24df1eab111ebb48841cdf45cba7639f1fa124b2a3710a3e313972c4520",
+      "size": 1000
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/result.json",
+      "sha256": "e814d8ba76a7dc8306e7f76d8619d58d2bcfe37a8edeb790665e34bb47888712",
+      "size": 35052
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/runner_raw_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/runner_raw_result.json",
+      "sha256": "c0d4e3fc4e7a717069a116957ce0337ad2a33a3c76c45f6f74ddd535ac799928",
+      "size": 26654
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/schema_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/schema_binding.json",
+      "sha256": "2dba2daf6604bfbcbbd2cc8d27a9e2412aed0bbdd0c09f23d52565296f1617a3",
+      "size": 22026
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/stderr.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/stdout.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/worker.rc",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/worker_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/worker_result.json",
+      "sha256": "8fb7b37ba46958c1b20c9b4d5f90b2aaba47ac95744f1eff3fae3a26580d2d88",
+      "size": 34421
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/reference/worker_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/reference/worker_timing.json",
+      "sha256": "662a45efc82e4feaf66d172a20f7caac153ddc9b0fd3370e5621ec48cd20ff78",
+      "size": 1560
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/certificates/C3-T4__AP-D__121.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/certificates/C3-T4__AP-D__121.json",
+      "sha256": "a66f2c0b663341a9c42190f02c975bc21ade97c35baf2d8f464ea5d858a3a29f",
+      "size": 2900
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/delivered_attempt.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/delivered_attempt.json",
+      "sha256": "22a722c8c19e4d128db8590a3fb3a12f54b58bb5bae0cede837663e9fc68c8d2",
+      "size": 57877
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/external_replay_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/external_replay_timing.json",
+      "sha256": "170d498c61270dd950236515f28db150a3773947c09db93923e20f80760ab643",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/parent_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/parent_timing.json",
+      "sha256": "b3e2dde00b928e0ec8e5511e799cf85e77ce6b224e818de1c5a5bda2a9d2f68c",
+      "size": 778
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/preflight.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/preflight.json",
+      "sha256": "d780497da45c8967b6b76d14ebdbd7a9aa975ebcf98ebc47b0659332ff2fa803",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/request.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/request.json",
+      "sha256": "8e66bb2fb255b41ef89d10bfd5e8d217e3be4b8759bd12c9e2b3b3ba6c1cd6bc",
+      "size": 1017
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/result.json",
+      "sha256": "979a9c1ddabb4a041ad04618a2490db51765adeccfeedcd32ef9a3d167fb5807",
+      "size": 58410
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/runner_raw_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/runner_raw_result.json",
+      "sha256": "941cbca0c71ddbc25c33f178cdd019204186f0dc82f568e2b974c11b3e4277c4",
+      "size": 26751
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/schema_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/schema_binding.json",
+      "sha256": "a2f6be9b2a70fc837e1f6c0ba1c005020b1e6c59900eaa7643c30c11b648ac23",
+      "size": 22088
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/stderr.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/stdout.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/worker.rc",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/worker_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/worker_result.json",
+      "sha256": "b03b00646faee46f9a945f822db9d4a64f335d936a96950879a9c6e92c8267c0",
+      "size": 57780
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v10/worker_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v10/worker_timing.json",
+      "sha256": "98e6e6962dd105f1e52dc99ba79da0bf73aa2f9f8c7c7942528b84929077880f",
+      "size": 1560
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/certificates/C3-T4__AP-D__121.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/certificates/C3-T4__AP-D__121.json",
+      "sha256": "a66f2c0b663341a9c42190f02c975bc21ade97c35baf2d8f464ea5d858a3a29f",
+      "size": 2900
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/delivered_attempt.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/delivered_attempt.json",
+      "sha256": "f1e1f8b159a8ef328033f2beb80ca507caa7899d9fb80f816d721aec815a064e",
+      "size": 57819
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/external_replay_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/external_replay_timing.json",
+      "sha256": "9a7c1a21717b8042d54315f2f4f7f4e3c2c93e4c69f757904d038aed037199ef",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/parent_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/parent_timing.json",
+      "sha256": "d48c6b476febfd21fc57b50492d1314ceee56990359328f07d6c2efcf25b7046",
+      "size": 778
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/preflight.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/preflight.json",
+      "sha256": "d780497da45c8967b6b76d14ebdbd7a9aa975ebcf98ebc47b0659332ff2fa803",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/request.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/request.json",
+      "sha256": "2a6f767db70c37d0dcda7cb3af95f104cc51fd1ca06a731a4eda10db127cf9db",
+      "size": 1015
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/result.json",
+      "sha256": "57eb120a1bae6bcff977fb6722e92ceafe0ccfcd70c15c28c952b32998b993b3",
+      "size": 58353
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/runner_raw_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/runner_raw_result.json",
+      "sha256": "7dc4e041a72938affb418ea3feb94cc4fee8db9a6b7b2c785c010bed49e21e69",
+      "size": 26698
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/schema_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/schema_binding.json",
+      "sha256": "7a53701a2ba5b95bdc35cc40d454f6b31343a5574c7ecd7e787acaabd612cee1",
+      "size": 22092
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/stderr.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/stdout.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/worker.rc",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/worker_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/worker_result.json",
+      "sha256": "1af5b3a84042083fcb6bc2e8a59b26169c1337b8691478cd04d236faa8c6095f",
+      "size": 57722
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/C3-T4_AP-D/ros2-v11/worker_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/C3-T4_AP-D/ros2-v11/worker_timing.json",
+      "sha256": "2b3d967eb768625593baae2e602a7f87925cff1ce8c93c4cecf13148be1cdb39",
+      "size": 1560
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/certificates/D3-1__AP-D__142.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/certificates/D3-1__AP-D__142.json",
+      "sha256": "aa898497eef259d156debe82ecf441f154364b624d2c1e6b0e1755a351fab6c4",
+      "size": 1906
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/delivered_attempt.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/delivered_attempt.json",
+      "sha256": "de12209e75fed2f452c6faa0337cb53c3b507d5f448f7a007e4da760a7df71af",
+      "size": 10198
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/external_replay_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/external_replay_timing.json",
+      "sha256": "2deb7d1f5141fb8f9d3590fca1df3295006beac522ff1fa01b9278c0228e939e",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/parent_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/parent_timing.json",
+      "sha256": "1413a74954ff2672df614575ff65e1e67d585d7f5556e9d87aa2c3a6e0699d98",
+      "size": 778
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/preflight.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/preflight.json",
+      "sha256": "d780497da45c8967b6b76d14ebdbd7a9aa975ebcf98ebc47b0659332ff2fa803",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/request.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/request.json",
+      "sha256": "fd1a10fc5acf536375f571e4506d4ea2867a254e5b122779be5ef89071e52f2f",
+      "size": 999
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/result.json",
+      "sha256": "e616d02c0cbb9c18edc7e50b982a8ebcfb80f0f5eede0b723c70a8400cd35b37",
+      "size": 10539
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/runner_raw_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/runner_raw_result.json",
+      "sha256": "4d0c7f4111f657943bfb95c790655fc2a510eae021f68bc2fa85c0ab676b0ddf",
+      "size": 6655
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/schema_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/schema_binding.json",
+      "sha256": "2dba2daf6604bfbcbbd2cc8d27a9e2412aed0bbdd0c09f23d52565296f1617a3",
+      "size": 22026
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/stderr.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/stdout.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/worker.rc",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/worker_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/worker_result.json",
+      "sha256": "9d0ecaf0b6a43d3cc04db2c1dd4bac141467652b1b4ca6907223aa88e339753d",
+      "size": 10101
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/reference/worker_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/reference/worker_timing.json",
+      "sha256": "ee27596ad9117770721078e24ff6867f7e136454dfe79a9909240903eae446d9",
+      "size": 1558
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/certificates/D3-1__AP-D__142.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/certificates/D3-1__AP-D__142.json",
+      "sha256": "aa898497eef259d156debe82ecf441f154364b624d2c1e6b0e1755a351fab6c4",
+      "size": 1906
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/delivered_attempt.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/delivered_attempt.json",
+      "sha256": "66f915238aa30ee7a026c35121269c6980b55556ae38e57fbcff55d755208143",
+      "size": 15733
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/external_replay_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/external_replay_timing.json",
+      "sha256": "c5e36a662cc1d5b6c57ad896f12cc49537b191f8ca654258b9fdd8b13068bb0d",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/parent_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/parent_timing.json",
+      "sha256": "2bfc8f5da2b5a847b50aad616006c4de929f3c9eb5825cd892f07d6c838bf48b",
+      "size": 778
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/preflight.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/preflight.json",
+      "sha256": "d780497da45c8967b6b76d14ebdbd7a9aa975ebcf98ebc47b0659332ff2fa803",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/request.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/request.json",
+      "sha256": "9b0c44c99448458b8fa4494a7629c473e7747ff99bf0ebccd27468cd3f5c2fcc",
+      "size": 1016
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/result.json",
+      "sha256": "fc640265aa1b1d180d0eeeb692d45023014e702613f4430c21c3ef649824d04a",
+      "size": 16074
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/runner_raw_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/runner_raw_result.json",
+      "sha256": "899a3f8e13e9ce9d64da18667ed8c007ecc2174b165571b6815d0583d5839d5c",
+      "size": 6693
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/schema_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/schema_binding.json",
+      "sha256": "a2f6be9b2a70fc837e1f6c0ba1c005020b1e6c59900eaa7643c30c11b648ac23",
+      "size": 22088
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/stderr.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/stdout.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/worker.rc",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/worker_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/worker_result.json",
+      "sha256": "5f32278d81849559127dd2201c2710cf11be41901399efbf1c78c3b61ac25309",
+      "size": 15636
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v10/worker_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v10/worker_timing.json",
+      "sha256": "dd54b849916b8aa39c59fd9125495c293e2a8403730d956d7db1d6e14c8ef2eb",
+      "size": 1558
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/certificates/D3-1__AP-D__142.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/certificates/D3-1__AP-D__142.json",
+      "sha256": "aa898497eef259d156debe82ecf441f154364b624d2c1e6b0e1755a351fab6c4",
+      "size": 1906
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/delivered_attempt.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/delivered_attempt.json",
+      "sha256": "cc85c144d30b51bab9210923c6f82f1309a9fcc7eaf5c0288f0575ef573fd13b",
+      "size": 15727
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/external_replay_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/external_replay_timing.json",
+      "sha256": "d90678efe2c30b7e7ae373a98cab94e5bce4fbc0f5dd7f1aee9d6238fc52d42f",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/parent_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/parent_timing.json",
+      "sha256": "bd9022eca34e03abdadc017e268016df9eda178c187f135bd1ad08e6a44839dc",
+      "size": 777
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/preflight.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/preflight.json",
+      "sha256": "d780497da45c8967b6b76d14ebdbd7a9aa975ebcf98ebc47b0659332ff2fa803",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/request.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/request.json",
+      "sha256": "10420c2bbb1e1ad80c926d9e5310e84c56684dcdd26b9cdc23d783554ec1d3d2",
+      "size": 1014
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/result.json",
+      "sha256": "9b39352ead3273d2acbf3d46a06a5f48bb942fb03c076cbbb553acbb5ae28a22",
+      "size": 16068
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/runner_raw_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/runner_raw_result.json",
+      "sha256": "a816cc7955ec6ea50682bf0d0dd54d2a52b150534c81749b29744c55aa4a55aa",
+      "size": 6690
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/schema_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/schema_binding.json",
+      "sha256": "7a53701a2ba5b95bdc35cc40d454f6b31343a5574c7ecd7e787acaabd612cee1",
+      "size": 22092
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/stderr.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/stdout.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/worker.rc",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/worker_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/worker_result.json",
+      "sha256": "f508116d21e85be7dbb53ccb9c0c16307df15e0f83aae12a9fbfbe0bfa6afc65",
+      "size": 15630
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-1_AP-D/ros2-v11/worker_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-1_AP-D/ros2-v11/worker_timing.json",
+      "sha256": "cc6f1faf7e6599ab8294234f720237891336b46403e09ef5901d25cee82eed2d",
+      "size": 1558
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/certificates/D3-2__AP-D__143.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/certificates/D3-2__AP-D__143.json",
+      "sha256": "2f33da3715f1ed7ccd81cbe2237b0bac342ee8c856b9cf743628a1c002e07dd7",
+      "size": 1902
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/delivered_attempt.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/delivered_attempt.json",
+      "sha256": "82cd0e95034671247b02e79266247b56beaea91f827da5236edd2cd16d2b0c57",
+      "size": 10191
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/external_replay_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/external_replay_timing.json",
+      "sha256": "7cc74acefc06a9ad41ca534b8e08d5e0bb698066b532935692d0af62ea93f232",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/parent_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/parent_timing.json",
+      "sha256": "5ca2a06e49005722aeaebbbdd8c18127844c2e11a0939821de2dc866cc3a8ecc",
+      "size": 778
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/preflight.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/preflight.json",
+      "sha256": "d780497da45c8967b6b76d14ebdbd7a9aa975ebcf98ebc47b0659332ff2fa803",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/request.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/request.json",
+      "sha256": "06b142154348ac0a297b058b4c0065f53b37dd8ec8c23711550148c07458e683",
+      "size": 999
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/result.json",
+      "sha256": "555d80316161701f151c043a3cdd0ddbc7151bdbcc479009f1c5602369ab6b47",
+      "size": 10525
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/runner_raw_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/runner_raw_result.json",
+      "sha256": "a6cae9278830f5e67ead1717bd75b70ad7011e9e6776d199ec0fc983d7565160",
+      "size": 6652
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/schema_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/schema_binding.json",
+      "sha256": "2dba2daf6604bfbcbbd2cc8d27a9e2412aed0bbdd0c09f23d52565296f1617a3",
+      "size": 22026
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/stderr.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/stdout.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/worker.rc",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/worker_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/worker_result.json",
+      "sha256": "d597bdb0163a39016429e6aa1d491c9e5a735b72f8d54da3d66234e6888ea26a",
+      "size": 10094
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/reference/worker_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/reference/worker_timing.json",
+      "sha256": "1c42cfdb58ea878d88bfb683d1eb9f2fe1202c08785fe342f0ee3b6445c84e26",
+      "size": 1558
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/certificates/D3-2__AP-D__143.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/certificates/D3-2__AP-D__143.json",
+      "sha256": "2f33da3715f1ed7ccd81cbe2237b0bac342ee8c856b9cf743628a1c002e07dd7",
+      "size": 1902
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/delivered_attempt.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/delivered_attempt.json",
+      "sha256": "8980d8d251d91e5824d2b2a9a5817cd25b952c29e69ca60f5f5e06bc098f35ca",
+      "size": 15701
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/external_replay_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/external_replay_timing.json",
+      "sha256": "e8fdc801f77d1431a030725dcdc475cd9fb28b4b3c2289adab2248c1ddb538e5",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/parent_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/parent_timing.json",
+      "sha256": "1229e41610a3b1ae4f24730f24fac5e4c9d0ad4766403e25c51355a18870b4f7",
+      "size": 779
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/preflight.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/preflight.json",
+      "sha256": "d780497da45c8967b6b76d14ebdbd7a9aa975ebcf98ebc47b0659332ff2fa803",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/request.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/request.json",
+      "sha256": "3c14ca562dfbd19666437a30804d088dc3221d542b61adc2ce0c72c6ac439933",
+      "size": 1016
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/result.json",
+      "sha256": "fc30eef4d7002c1061e508354b502113173db031a0bdeeb2cb8f69a7074adf4c",
+      "size": 16045
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/runner_raw_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/runner_raw_result.json",
+      "sha256": "a50f0f4198ef03e52c80204d3ee28cacd7416688be3fa04148bcc8e0b1cdb368",
+      "size": 6686
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/schema_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/schema_binding.json",
+      "sha256": "a2f6be9b2a70fc837e1f6c0ba1c005020b1e6c59900eaa7643c30c11b648ac23",
+      "size": 22088
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/stderr.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/stdout.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/worker.rc",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/worker_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/worker_result.json",
+      "sha256": "935df5b16da988a4797cab961bf59eaf3fc6cc51a98f31edab6d1b802ac2a42d",
+      "size": 15604
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v10/worker_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v10/worker_timing.json",
+      "sha256": "9866f3838b7730de12680080f11be6c1e7807f48dea02ecba90050357a91221d",
+      "size": 1559
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/certificates/D3-2__AP-D__143.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/certificates/D3-2__AP-D__143.json",
+      "sha256": "2f33da3715f1ed7ccd81cbe2237b0bac342ee8c856b9cf743628a1c002e07dd7",
+      "size": 1902
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/delivered_attempt.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/delivered_attempt.json",
+      "sha256": "eedc57b1f4680791e0f209dc909f16c207ad0524fae8c15caeec145d80d362a7",
+      "size": 15696
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/external_replay_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/external_replay_timing.json",
+      "sha256": "41c495b34b4457d137f1087684499071bff59ff307c2b6c8eec453d7d36f31f6",
+      "size": 87
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/parent_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/parent_timing.json",
+      "sha256": "649b55959605378ad32cd9b034303fc232a505a336e8b18086e42389c19b85ca",
+      "size": 778
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/preflight.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/preflight.json",
+      "sha256": "d780497da45c8967b6b76d14ebdbd7a9aa975ebcf98ebc47b0659332ff2fa803",
+      "size": 29739
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/request.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/request.json",
+      "sha256": "75ad214deb1d178cce75e663d412f3d9872f81c777ecc2733f64755ff36bb950",
+      "size": 1014
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/result.json",
+      "sha256": "b775f6c83309ca2bc2f4df107d98fdb605c13b5277687d7d90bf78a01a5de508",
+      "size": 16038
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/runner_raw_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/runner_raw_result.json",
+      "sha256": "5ca94a12ea7d67ae6c961460561d2690d13e6986b3e5ff6ef3cded16be09254e",
+      "size": 6684
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/schema_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/schema_binding.json",
+      "sha256": "7a53701a2ba5b95bdc35cc40d454f6b31343a5574c7ecd7e787acaabd612cee1",
+      "size": 22092
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/stderr.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/stdout.txt",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/worker.rc",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/worker.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/worker_result.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/worker_result.json",
+      "sha256": "4ecc2f128cf7c6f1c0f4f2e98a0cfed209df10ce5b04d2eccc87172dcae94202",
+      "size": 15599
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/D3-2_AP-D/ros2-v11/worker_timing.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/D3-2_AP-D/ros2-v11/worker_timing.json",
+      "sha256": "90162ed77fee45517a0826c3807e380cf236a059f4948c9c3385a6a91af78c4f",
+      "size": 1558
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/backend_binding.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/backend_binding.json",
+      "sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd",
+      "size": 10321
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/comparison.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/comparison.json",
+      "sha256": "531284c1f779d09e4919cb1ddd92ba06b5d026562014e6052ddd32014e8365d9",
+      "size": 306964
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/C3-T4_AP-D__reference.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/dispatches/C3-T4_AP-D__reference.json",
+      "sha256": "2274a24df1eab111ebb48841cdf45cba7639f1fa124b2a3710a3e313972c4520",
+      "size": 1000
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/C3-T4_AP-D__ros2-v10.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/dispatches/C3-T4_AP-D__ros2-v10.json",
+      "sha256": "8e66bb2fb255b41ef89d10bfd5e8d217e3be4b8759bd12c9e2b3b3ba6c1cd6bc",
+      "size": 1017
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/C3-T4_AP-D__ros2-v11.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/dispatches/C3-T4_AP-D__ros2-v11.json",
+      "sha256": "2a6f767db70c37d0dcda7cb3af95f104cc51fd1ca06a731a4eda10db127cf9db",
+      "size": 1015
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-1_AP-D__reference.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/dispatches/D3-1_AP-D__reference.json",
+      "sha256": "fd1a10fc5acf536375f571e4506d4ea2867a254e5b122779be5ef89071e52f2f",
+      "size": 999
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-1_AP-D__ros2-v10.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/dispatches/D3-1_AP-D__ros2-v10.json",
+      "sha256": "9b0c44c99448458b8fa4494a7629c473e7747ff99bf0ebccd27468cd3f5c2fcc",
+      "size": 1016
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-1_AP-D__ros2-v11.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/dispatches/D3-1_AP-D__ros2-v11.json",
+      "sha256": "10420c2bbb1e1ad80c926d9e5310e84c56684dcdd26b9cdc23d783554ec1d3d2",
+      "size": 1014
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-2_AP-D__reference.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/dispatches/D3-2_AP-D__reference.json",
+      "sha256": "06b142154348ac0a297b058b4c0065f53b37dd8ec8c23711550148c07458e683",
+      "size": 999
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-2_AP-D__ros2-v10.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/dispatches/D3-2_AP-D__ros2-v10.json",
+      "sha256": "3c14ca562dfbd19666437a30804d088dc3221d542b61adc2ce0c72c6ac439933",
+      "size": 1016
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/dispatches/D3-2_AP-D__ros2-v11.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/dispatches/D3-2_AP-D__ros2-v11.json",
+      "sha256": "75ad214deb1d178cce75e663d412f3d9872f81c777ecc2733f64755ff36bb950",
+      "size": 1014
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/entry_fixture_details.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/entry_fixture_details.json",
+      "sha256": "c66ee22a78b7c44f2166c5e3c0e0350aaa3c6bc6387c5b605601425f9665a345",
+      "size": 678
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/fixture_details.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/fixture_details.json",
+      "sha256": "86d0e09b12779f56a59438dba9d3b229c6f674268fee66dcd28e1024c22975ca",
+      "size": 89459
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/fixtures.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/fixtures.json",
+      "sha256": "f663245ab363159b6f4f2933bf8535ce2dedfb36aa26b64a8e0ac89a0d3de895",
+      "size": 295
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/backend.py",
+      "sha256": "59fb3147d114e88978b71827934e09267542eae6bcb058fda266532a024176cf",
+      "size": 3009
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/builder.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/builder.py",
+      "sha256": "2faadef438667dee06d82c728fff0aade34734c8855f20f2cce7eb6364aab8ef",
+      "size": 3987
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/fixtures.py",
+      "sha256": "72f74e36790fc93918257657623f658fda9698b0ec73bb67bcf3b7f432efcc39",
+      "size": 9901
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/runner.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_ap_ts_reuse/runner.py",
+      "sha256": "840bc064cf7ca6c088320459db7c6786c3570866e92887c76ffc26df8a6c5148",
+      "size": 20905
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_backend/acceptance.py",
+      "sha256": "e948f3c35719ab0d02e02e5ea4df900674f7b25a5697933bf2aa55d1810893d8",
+      "size": 8869
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/backends.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_backend/backends.py",
+      "sha256": "6462b35803f128c370b33eadfa343f83d35cf7f86a06b6a057ea3450b1d24891",
+      "size": 5491
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/dds.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_backend/dds.py",
+      "sha256": "9f03cd095dd8995f0d48db787c76cf1f4cce18a61e311325faaafcb03644dcef",
+      "size": 25492
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_backend/fixtures.py",
+      "sha256": "003c8bf533dd8187ed721c47bae2226091b9cb491265471717da063a206dc885",
+      "size": 6363
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_backend/lifecycle.py",
+      "sha256": "0741a7d85fb6000be997c3e3d852eaee0557cfb11235982de3f5ff48d6413c87",
+      "size": 14131
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_backend/offline_chain.py",
+      "sha256": "22e68cd675f2917463674f72e448c7c14f17c256c37bdabdca39df3c1a7b0f57",
+      "size": 38098
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/qualification.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_backend/qualification.py",
+      "sha256": "05aabac43e8c3612c0e30c3ef9a6299fb4fe12c48ab60636eefe4cd9f874b82b",
+      "size": 11161
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_backend/runner.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_backend/runner.py",
+      "sha256": "443971fe68ba5b5868e71b5cc153e04c54d089df90bdc5f3d9f5f92c866267dd",
+      "size": 16424
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_compact/backend.py",
+      "sha256": "e29c783eaa82b5c89eeb5315447a2a915cd4e9e177c4b1a2a085f022b5ca8ed5",
+      "size": 9241
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_compact/compare.py",
+      "sha256": "b59f3c1bb087535e6c4967466651ee1139f0b4363c70d5cfa87a72107b91c922",
+      "size": 3435
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_compact/fixtures.py",
+      "sha256": "4308ee9a773bab9d34d95200c0119a35cddefd89f0e07179640e3f6d2708de27",
+      "size": 8675
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_perf/backend.py",
+      "sha256": "d9ba9ee9996bd5a6323dfd650f627354f06a638769814d0cbd25f9f2210138b6",
+      "size": 9380
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_perf/compare.py",
+      "sha256": "1ffd4c4bac0bb898998cabba618de21b9c328d600c24d0b5a97bef3a50956628",
+      "size": 19250
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_perf/fixtures.py",
+      "sha256": "2495002dd68748ded4720077ac99e77f0e68182f41fbe797dbfec96c9f96a09f",
+      "size": 6861
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_reuse/backend.py",
+      "sha256": "b28dc2a4735e3df7429d40d9f0f452c3b62d5ef0dbf27b2f0246ac5545ae9f68",
+      "size": 8820
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_reuse/compare.py",
+      "sha256": "05ddb158f9f9a449b023388aeaa0359ad0960d267d2fb47887cd95b7a1eb7e75",
+      "size": 3709
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_reuse/fixtures.py",
+      "sha256": "c09747318d0324005391b3bfe7bfa0e0fba12611c836baf7a0c5e2a5bb4be1a7",
+      "size": 9712
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_target/backend.py",
+      "sha256": "d8a64147e7149e726436a8704d0b3fa1b894da6317c2b67616eae5a0d3991117",
+      "size": 6350
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_target/compare.py",
+      "sha256": "e4f94ba88604c2a9bfbdbe80558c34c4b8f330178824649bf950c68d00f2edf5",
+      "size": 3616
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_bfull_target/fixtures.py",
+      "sha256": "90f1b7ae160fefadf55f9d5eba6ce99f6b9b46f6475f3d310375db2d786f9614",
+      "size": 11084
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/backend.py",
+      "sha256": "4f04b8eb97500f9a2d47395e4e9ab3a085afe0b9fd57660783d38530389c1da2",
+      "size": 3153
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/fixtures.py",
+      "sha256": "4eb17ca4d5d2d5e777498ff06811d3c7bb4b4aac4608cb7d41085949b2b9465b",
+      "size": 16414
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/runner.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/runner.py",
+      "sha256": "9906c014a88b2b799c330108398d173e2ff4813c7f2a8c5f200bffc2a9258d2f",
+      "size": 16221
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/search.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_exact_cost_reuse/search.py",
+      "sha256": "1eeee60145cdb722ee8665cbfe94ac0d8e68f60f562bb6aff043af0d0c6083cb",
+      "size": 4139
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_integration/dds_smoke.py",
+      "sha256": "b855a34c653ad579dfc80a1d46e682587ec9c971da1502f650246747cc0c8434",
+      "size": 52772
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_integration/runtime.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_integration/runtime.py",
+      "sha256": "d5dbdb0b64bf79a1b9a4588731a9aa6d723c886463709e4829a8d806797bcdd9",
+      "size": 20890
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_product_perf/builder.py",
+      "sha256": "0fddb2a19ffe7c4af042fd764d4c28b370f998cdea726dfd832f5573b5a82c5c",
+      "size": 7082
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_product_perf/compare.py",
+      "sha256": "7e3282822af1159aab34d5976772244f6e3ef5b4e6f1af1550a29b0f35f3bbbc",
+      "size": 14888
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_product_perf/fixtures.py",
+      "sha256": "1052cb074b21d5cba81334d988c73f237371fd43d5dc56953faf419167fa3260",
+      "size": 20626
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_real/bound_runner.py",
+      "sha256": "529a803f3577e627e054ddd7224e6e3e8ec4e83841a048c6d95e1f24d9b76fa0",
+      "size": 18851
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/dds_real.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_real/dds_real.py",
+      "sha256": "1bb7c8cd4a767e544fd794805d3c02f61e99346923f44241be372e64702f94b3",
+      "size": 8665
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/runner.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_real/runner.py",
+      "sha256": "41513abfa99d335a48dd7e5652fae0f61f8e6e100b4f0b36c926e817a1dc7606",
+      "size": 15393
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/selection.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_real/selection.json",
+      "sha256": "01342f0b9f6edb62fdfaad4191bdc2a332fdbe182667ef32f170ef0e51a4c0cf",
+      "size": 7263
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_real/verifier_checks.py",
+      "sha256": "1a54ca86b1b1d280c9b4c58d0fcc5886a6fc3b8354e4665a3c7133d7bd3b98b6",
+      "size": 5954
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_real/verify_small.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_real/verify_small.py",
+      "sha256": "152ebbc41cc32c7686c7854de8697e802495693d3648f336e95dca8e9ab1420e",
+      "size": 4509
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_reduction_reuse/backend.py",
+      "sha256": "f584332d6316abc629e0d791885892dfe898319422ce4f1d7b34ba44575d5ba9",
+      "size": 3239
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/builder.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_reduction_reuse/builder.py",
+      "sha256": "138e401f67d3852f65fc08de475d1eb01cd4cbe58d2c60663620844558835553",
+      "size": 4091
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_reduction_reuse/fixtures.py",
+      "sha256": "38bead646012a263794f39c9d3cc1babb22860bcc288b594801b5e1e914bc94b",
+      "size": 15779
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/runner.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_reduction_reuse/runner.py",
+      "sha256": "cb64e29d49cb0b60530e0752154a26107a0a22d2d7e73b2b2c57c152bdbe71ff",
+      "size": 13695
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_reduction_reuse/search.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_reduction_reuse/search.py",
+      "sha256": "590f0cfc39725b70f789b893819dc08a178dafdb030bcc469a8f426974d594b7",
+      "size": 3756
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_search_entry/backend.py",
+      "sha256": "17936fb63ef67a2d9f901c623eaf04108e702e0e66b8a988d4a6bab1d86c5ab9",
+      "size": 1650
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/dds.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_search_entry/dds.py",
+      "sha256": "2d816f142c066e247d1d4c2e8f4f1400467dfa3a610f5a71b9a014d61892a3ff",
+      "size": 18467
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/entry.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_search_entry/entry.py",
+      "sha256": "4f37d3c8bac30daaed33e46d7a41071393554c87d420d7ff6dd120d88b65f641",
+      "size": 12819
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/entry_fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_search_entry/entry_fixtures.py",
+      "sha256": "dad0c6bf30e12ea05d87dcc29f7f253c6db6bfef9e8dab72fa48723fddd3ba7c",
+      "size": 9293
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_search_entry/fixtures.py",
+      "sha256": "4d635949f5bfb005ed60cba0c21dc8d63177045ab3d53236966b495a50cf135f",
+      "size": 2626
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_search_entry/runner.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_search_entry/runner.py",
+      "sha256": "c2962e6dc9a505b8f5524d534a8a7af36b1f2ab3e2c6387d1c2463632d3530d9",
+      "size": 23185
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_smoke/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_smoke/backend.py",
+      "sha256": "5ebc0280cddb333ef6bd3ca9a0ee1d65792ecd7db622b08c1a773bc813ab83f4",
+      "size": 9102
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_smoke/smoke.py",
+      "sha256": "6e90932b1fbd2ae47b8f78683f862521ec07c3eb6c554b850ff21bb579e2f060",
+      "size": 23223
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/backend.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_suffix_reuse/backend.py",
+      "sha256": "25b0daf7134055f48476365d9cb26f70d636a1863a4c5c9eef608cfa7568b89f",
+      "size": 3109
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/fixtures.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_suffix_reuse/fixtures.py",
+      "sha256": "05df3737ad7e23bf450c037dddb24a7f545e1061bb6db0d114d43e6269af2ff4",
+      "size": 11593
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/runner.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_suffix_reuse/runner.py",
+      "sha256": "8a55cb644805eacf4767994ef1faec78959b0516bf7228aa3a268d796e438d73",
+      "size": 16109
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/experiments/cmr_ros2_suffix_reuse/search.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/experiments/cmr_ros2_suffix_reuse/search.py",
+      "sha256": "dbf942acca6c1a6205fbdc3cd32f44a841c26ffc3b3996dbef2191383a54e31c",
+      "size": 8610
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/accepted_run_resolver.py",
+      "sha256": "a2adbacffa0f0f0e2596291fda17d616f603aef6907bdbbd42baf9405a0017d7",
+      "size": 6438
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution.py",
+      "sha256": "322e7fce2a302e47a0013830a83a1fd3068e33983ace137744d4bc6c7124f78a",
+      "size": 5367
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/execution_node.py",
+      "sha256": "8580a8aa695600e1ccc7956e0f1727e4f54c158c529f3ec8fec5f751c1b82d72",
+      "size": 20830
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/fake_runtime.py",
+      "sha256": "e8c60384fcd318e8e843a51b927f414ab4c2ff73f3899bc6ec15a5626900d8a7",
+      "size": 4021
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/models.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/models.py",
+      "sha256": "714be70a164892e29fd5ba5f2accd60c2591b92bd1ae20d55127ad40993a9f95",
+      "size": 3114
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/observation.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_execution/ltl_automaton_execution/observation.py",
+      "sha256": "55e3f91955ebfd211e1c03f140df2ae098a864df2883f3b438f8274030b98588",
+      "size": 949
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/AcceptedRunSnapshot.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/AcceptedRunSnapshot.msg",
+      "sha256": "8ee52866e16ed11125053f3e46e76dbb7a80bf897ba1075750b378d9e15ed0b2",
+      "size": 554
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphEdge.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphEdge.msg",
+      "sha256": "48facaa6de8e475749563d2a8e51bb296fedd9c496861dc29f2a095444a4c355",
+      "size": 278
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphNode.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/BuchiGraphNode.msg",
+      "sha256": "2d39df9fb62af0ac18ecf47de282f46da8fc1dc65a6e13c21179d44611b85442",
+      "size": 371
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/PlanningExecutionObservation.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/PlanningExecutionObservation.msg",
+      "sha256": "005c3598d54f0b1ed13bbdd249cc67b0812999e3a1c8f1bf12e6ce37b302ad9f",
+      "size": 820
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphMetadata.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphMetadata.msg",
+      "sha256": "d953c35e3f7db80c60f53347483b865ebfd224c834dd54c88069a945362b11eb",
+      "size": 784
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphSnapshot.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/PlanningGraphSnapshot.msg",
+      "sha256": "2819724a8b4d936b3f45e453b53f1648d503efc9dbedd03d5360a68818d2a339",
+      "size": 272
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphEdge.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphEdge.msg",
+      "sha256": "225a9fe65cebd0ff3788ed2eef126e68092b34ea42e9a2518c832939794e57b5",
+      "size": 179
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphNode.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/ProductGraphNode.msg",
+      "sha256": "6a8f32ce1039a3c8c004b26b50ad9c60fffa8b1cc46a2fc0d62a70ad03f9a091",
+      "size": 169
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemState.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemState.msg",
+      "sha256": "b8a5d7a46c81ae3e86cfcc73a0a7e0d9d7bb4624ba1335b5f67c2d7220121212",
+      "size": 534
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg",
+      "sha256": "7325d312b99629a54ba378cf5cf4487aa6cd90a6d1e38c1f951180674dbf2926",
+      "size": 193
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_adapter/ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_adapter/ltl_automaton_planner/ltl_automaton_planner/planning_graph_snapshot.py",
+      "sha256": "15247712288d759359a9927f5e3ac185ddaacf46a813ca20a4adf765d9d2e583",
+      "size": 13166
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_inputs_after.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_inputs_after.json",
+      "sha256": "44648b279ab0790efb4b8a1a589fc8a729ab2779c48531430525a9b67bef0b55",
+      "size": 13266
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/frozen_inputs_before.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/frozen_inputs_before.json",
+      "sha256": "44648b279ab0790efb4b8a1a589fc8a729ab2779c48531430525a9b67bef0b55",
+      "size": 13266
+    },
+    {
+      "kind": "runtime_namespace",
+      "name": "namespace/plan.json",
+      "original_path": "/tmp/cmr_v11_exact_cost_e5ff912_20261023/plan.json",
+      "sha256": "0a3bf37d5b4e9b1d612f6b1bfd640779e496609ce2d0320b5ede6ff7191d342e",
+      "size": 14582
+    },
+    {
+      "kind": "generated",
+      "name": "raw_attempts.zip",
+      "original_path": "generated:zip(namespace)",
+      "sha256": "9cad781b5d3f9c81076786ae053256a8a2060324c197816f05c20fdcb003b5a2",
+      "size": 507585
+    },
+    {
+      "kind": "source_snapshot",
+      "name": "source_snapshots/backend.py",
+      "original_path": "git:e5ff91294b373a1f33e7ae9458641e4a2200ab56:experiments/cmr_ros2_exact_cost_reuse/backend.py",
+      "sha256": "4f04b8eb97500f9a2d47395e4e9ab3a085afe0b9fd57660783d38530389c1da2",
+      "size": 3153
+    },
+    {
+      "kind": "source_snapshot",
+      "name": "source_snapshots/fixtures.py",
+      "original_path": "git:e5ff91294b373a1f33e7ae9458641e4a2200ab56:experiments/cmr_ros2_exact_cost_reuse/fixtures.py",
+      "sha256": "4eb17ca4d5d2d5e777498ff06811d3c7bb4b4aac4608cb7d41085949b2b9465b",
+      "size": 16414
+    },
+    {
+      "kind": "source_snapshot",
+      "name": "source_snapshots/runner.py",
+      "original_path": "git:e5ff91294b373a1f33e7ae9458641e4a2200ab56:experiments/cmr_ros2_exact_cost_reuse/runner.py",
+      "sha256": "9906c014a88b2b799c330108398d173e2ff4813c7f2a8c5f200bffc2a9258d2f",
+      "size": 16221
+    },
+    {
+      "kind": "source_snapshot",
+      "name": "source_snapshots/search.py",
+      "original_path": "git:e5ff91294b373a1f33e7ae9458641e4a2200ab56:experiments/cmr_ros2_exact_cost_reuse/search.py",
+      "sha256": "1eeee60145cdb722ee8665cbfe94ac0d8e68f60f562bb6aff043af0d0c6083cb",
+      "size": 4139
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/archive_v11_e5ff912_20261023.py",
+      "original_path": "/mnt/c/Users/Yuhling/AppData/Local/Temp/archive_v11_e5ff912_20261023.py",
+      "sha256": "94ce916624125ea9ef5a21fcf2a0e9eeb04198ddf045a4d1b4148fd913f68a89",
+      "size": 9281
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/clone_v11_e5ff912.log",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/clone_v11_e5ff912.log",
+      "sha256": "a0a081e33d151fd2e8f2dae09dc5fe972df801ca14be8b24c27143b375da3da8",
+      "size": 364
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/fixtures_command.log",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/fixtures_command.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/fixtures_command_final.log",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/fixtures_command_final.log",
+      "sha256": "e295f59af263e1c0e92830b01a2d686a2dcb472b027577e6c4d72b07202c61a1",
+      "size": 429
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/fixtures_command_initial_failed.log",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/fixtures_command_initial_failed.log",
+      "sha256": "df28110f1726e1bb8e754435bfa8d2d463602361e0560356073529a5ff226672",
+      "size": 111
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/fixtures_native.json",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/fixtures_native.json",
+      "sha256": "ffa5300cfebebefae28e274ad6343b02aa8e314354b9185ba8ea1e42fa33c0b5",
+      "size": 89459
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/fixtures_native_initial_failed.json",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/fixtures_native_initial_failed.json",
+      "sha256": "b1fb993aad0328ecc44fed0ad1ec41e5a0fafec9d5f26b5de7b124e9c2ceede0",
+      "size": 109
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/importguard_v11_e5ff912.log",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/importguard_v11_e5ff912.log",
+      "sha256": "05761009dafbe02005f764ea8217646eebaf1b679583c8c7e65c6d586da03a24",
+      "size": 545
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/outer_v11_e5ff912_20261023.rc",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/outer_v11_e5ff912_20261023.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/prepare_v11_e5ff912.rc",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/prepare_v11_e5ff912.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/prepare_v11_e5ff912.stderr",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/prepare_v11_e5ff912.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/prepare_v11_e5ff912.stdout",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/prepare_v11_e5ff912.stdout",
+      "sha256": "a6d903ab926bcc2e4beb4fb03bbc3e200b6c8881a6dc8c0f2232107eb036fd70",
+      "size": 88
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_search.json",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/profile_search.json",
+      "sha256": "0c926064f0da7d457fe3b8ce418efe3352d8a841717e33c1fb60bcde0379aff9",
+      "size": 49908
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_search.log",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/profile_search.log",
+      "sha256": "297a2d42b98f1cce08e92bcbb43d79c4c067381abd5630c2bc73ce58fd3fc240",
+      "size": 5820
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_search.pstats",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/profile_search.pstats",
+      "sha256": "e69835826921a79eff2a186678f00d5050ad66c80060fd005879408bbe9f9f75",
+      "size": 21124
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_search.py",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/profile_search.py",
+      "sha256": "319c19d7a58268a2763f8eae3596af50df6dcb67896a6be2bd03c82047fad0aa",
+      "size": 3372
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_search_failed_import.log",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/profile_search_failed_import.log",
+      "sha256": "a8b93fe86941297051d794d5a2a01360fb646c78464a236d49a05627cca754a9",
+      "size": 827
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/profile_search_failed_import.py",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/profile_search_failed_import.py",
+      "sha256": "3a923ffb421cada0fac44baa8200a4cd4f0a95ff0801abc647c340a19f32fdd8",
+      "size": 3340
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/readback.py",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/readback.py",
+      "sha256": "598f8ff1734e2de9eb3f2df1ec0ed4daceb5d5de5da739f793939dde10609081",
+      "size": 11126
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/readback_final.json",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/readback_final.json",
+      "sha256": "4bdbcfd403dd3e1259e71fa25bf6cf2339575bd7fe97ee59b886ab8a5db133c4",
+      "size": 6244
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/run_v11_e5ff912.rc",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/run_v11_e5ff912.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size": 2
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/run_v11_e5ff912.stderr",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/run_v11_e5ff912.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/run_v11_e5ff912.stdout",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/run_v11_e5ff912.stdout",
+      "sha256": "0885bc593e0a2505337c52d27f41873845d279771973ff573eed1587ea13d2ab",
+      "size": 1104
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/run_v11_e5ff912_20261023.sh",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/run_v11_e5ff912_20261023.sh",
+      "sha256": "d8d3654a3f45203a6ce5110915a6907ab28c5863487912517559e532ac8bfc3b",
+      "size": 2777
+    },
+    {
+      "kind": "development_artifact",
+      "name": "validation/validation_notes.json",
+      "original_path": "/mnt/c/Users/Yuhling/.codex/worktrees/v7-audit-dds-regression/v11_hotspot_20261023/validation_notes.json",
+      "sha256": "ade168dd2c534ef41b2ffb7964f05d198006bcb224d662ff6f9af9e0ba276772",
+      "size": 1373
+    }
+  ],
+  "schema": "cmr-v11-exact-cost-reuse-archive-manifest-v1",
+  "source_commit": "e5ff91294b373a1f33e7ae9458641e4a2200ab56",
+  "verification": {
+    "copied_original_and_archive_checks": 490,
+    "generated_single_checks": 2,
+    "mismatch_count": 0,
+    "total_checks": 492
+  }
+}

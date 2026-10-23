@@ -1,0 +1,1971 @@
+{
+  "row": {
+    "schema_version": "cmr-p2b-result-v1",
+    "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+    "execution_commit": "e5ff91294b373a1f33e7ae9458641e4a2200ab56+cmr-exact-cost-reuse-4d2f6859c8290d00",
+    "benchmark_identity": "RACMR-Bench-v1-r1",
+    "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+    "instance_id": "C3-T4",
+    "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+    "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+    "method": "AP-D",
+    "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-COST-REUSE-V11",
+    "backend_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4",
+    "method_order_position": 1,
+    "terminal_status": "OPTIMALITY_CERTIFIED",
+    "canonical_status": "OPTIMALITY_CERTIFIED",
+    "exact_status": "OPTIMAL",
+    "timing_status": "UNCENSORED",
+    "right_censored": false,
+    "timeout_stage": "none",
+    "planner_budget_seconds": 180,
+    "outer_watchdog_seconds": 195,
+    "objective": "12",
+    "T_input_preprocess": 0.789249896,
+    "T_initialization": 3.9e-06,
+    "T_plan_wall": 1.243626795,
+    "T_method": 0.236246499,
+    "method_start_ns": 179103483115,
+    "terminal_completion_ns": 180347113810,
+    "initial_precision_size": 1,
+    "final_precision_size": 6,
+    "initial_S0": [
+      3
+    ],
+    "final_precision": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "refinement_rounds": 5,
+    "cumulative_work": {
+      "reduced_ts_states_built": 126,
+      "reduced_ts_edges_built": 757,
+      "product_states_built": 252,
+      "product_edges_built": 3531,
+      "search_settled_events": 813
+    },
+    "final_unique_graph_size": {
+      "reduced_ts_states": 64,
+      "reduced_ts_edges": 384,
+      "product_states": 128,
+      "product_edges": 1792
+    },
+    "rounds": [
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 0,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-COST-REUSE-V11",
+        "backend_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          3
+        ],
+        "S_k_size": 1,
+        "H_k": [
+          0,
+          1,
+          2,
+          4,
+          5
+        ],
+        "R_k": [
+          2
+        ],
+        "J_lb": "11",
+        "J_ub": null,
+        "abstract_prefix_cost": "1",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": null,
+        "suffix_cost": null,
+        "certificate_status": "NOT_CONCRETIZABLE_AT_CURRENT_PRECISION",
+        "concretization_status": "NOT_CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": null,
+        "m": null,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 2,
+        "reduced_ts_edges": 13,
+        "product_unique_states": 4,
+        "product_unique_edges": 59,
+        "reachable_product_nodes": 4,
+        "qualifying_sccs": 1,
+        "candidate_entries": 4,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 3,
+        "queue_pushes": 17,
+        "queue_pops": 15,
+        "prefix_settled": 4,
+        "lower_bound_settled": 8,
+        "suffix_settled": 3,
+        "candidate_fingerprint": "c7dcc5864065633c99c0906a8af63910fbde402d3b3ef1a5053f691d8e3a8236",
+        "prefix_actions": [
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_gripper_state"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            1
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 0.0106041,
+          "T_reduction": 0.0034077,
+          "T_product": 0.0024375,
+          "T_search": 0.0020844,
+          "T_concretization": 0.0009306,
+          "T_certification": 5.6e-06,
+          "T_refinement": 5.83e-05
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            179892930711,
+            179903534811
+          ],
+          "T_reduction": [
+            179903538211,
+            179906945911
+          ],
+          "T_product": [
+            179906947911,
+            179909385411
+          ],
+          "T_search": [
+            179909441711,
+            179911526111
+          ],
+          "T_concretization": [
+            179911536211,
+            179912466811
+          ],
+          "T_certification": [
+            179912468211,
+            179912473811
+          ],
+          "T_refinement": [
+            179912478411,
+            179912536711
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({3}), new_precision=frozenset({2, 3}), added_dimension=2, candidate_actions=('change_cabinet_door', 'change_gripper_state'), relevant_k_entries=(('change_cabinet_door', (2,)), ('change_gripper_state', (5,))), occurrence_counts=((2, 1), (5, 1)), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='NOT_CONCRETIZABLE_AT_CURRENT_PRECISION')",
+        "added_dimension": 2,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "ros2-v11",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 1,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-COST-REUSE-V11",
+        "backend_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          2,
+          3
+        ],
+        "S_k_size": 2,
+        "H_k": [
+          0,
+          1,
+          4,
+          5
+        ],
+        "R_k": [
+          5
+        ],
+        "J_lb": "12",
+        "J_ub": "22",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "2",
+        "certificate_status": "CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 2,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 4,
+        "reduced_ts_edges": 24,
+        "product_unique_states": 8,
+        "product_unique_edges": 112,
+        "reachable_product_nodes": 8,
+        "qualifying_sccs": 1,
+        "candidate_entries": 8,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 7,
+        "queue_pushes": 33,
+        "queue_pops": 27,
+        "prefix_settled": 8,
+        "lower_bound_settled": 16,
+        "suffix_settled": 3,
+        "candidate_fingerprint": "afb1f442b09f71f82a3820f3a8e9639d15df19266ce47d8f7b9e9f5073b158c1",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_gripper_state"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            1,
+            1
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 2.1e-06,
+          "T_reduction": 0.0056864,
+          "T_product": 0.0031593,
+          "T_search": 0.0038185,
+          "T_concretization": 0.009351099,
+          "T_certification": 2.28e-05,
+          "T_refinement": 0.0001634
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            179912739311,
+            179912741411
+          ],
+          "T_reduction": [
+            179912742511,
+            179918428911
+          ],
+          "T_product": [
+            179918433311,
+            179921592611
+          ],
+          "T_search": [
+            179921697311,
+            179925515811
+          ],
+          "T_concretization": [
+            179925532311,
+            179934883410
+          ],
+          "T_certification": [
+            179934886310,
+            179934909110
+          ],
+          "T_refinement": [
+            179934947510,
+            179935110910
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({2, 3}), new_precision=frozenset({2, 3, 5}), added_dimension=5, candidate_actions=('change_robot_location', 'change_cabinet_door', 'change_gripper_state'), relevant_k_entries=(('change_cabinet_door', ()), ('change_gripper_state', (5,)), ('change_robot_location', ())), occurrence_counts=((5, 1),), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED')",
+        "added_dimension": 5,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "ros2-v11",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 2,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-COST-REUSE-V11",
+        "backend_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          2,
+          3,
+          5
+        ],
+        "S_k_size": 3,
+        "H_k": [
+          0,
+          1,
+          4
+        ],
+        "R_k": [
+          4
+        ],
+        "J_lb": "12",
+        "J_ub": "22",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "2",
+        "certificate_status": "CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 2,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 8,
+        "reduced_ts_edges": 48,
+        "product_unique_states": 16,
+        "product_unique_edges": 224,
+        "reachable_product_nodes": 16,
+        "qualifying_sccs": 1,
+        "candidate_entries": 16,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 15,
+        "queue_pushes": 64,
+        "queue_pops": 54,
+        "prefix_settled": 16,
+        "lower_bound_settled": 32,
+        "suffix_settled": 6,
+        "candidate_fingerprint": "19e81554406785174655ae1c4b75149e18061caef336d77e354c789002cc27e2",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_object_location"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            1,
+            1,
+            0
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 4.2e-06,
+          "T_reduction": 0.0041116,
+          "T_product": 0.0027843,
+          "T_search": 0.0080895,
+          "T_concretization": 0.0075722,
+          "T_certification": 4.6e-05,
+          "T_refinement": 0.0001224
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            179935549010,
+            179935553210
+          ],
+          "T_reduction": [
+            179935555310,
+            179939666910
+          ],
+          "T_product": [
+            179939669210,
+            179942453510
+          ],
+          "T_search": [
+            179942593810,
+            179950683310
+          ],
+          "T_concretization": [
+            179950706310,
+            179958278510
+          ],
+          "T_certification": [
+            179958281010,
+            179958327010
+          ],
+          "T_refinement": [
+            179958383110,
+            179958505510
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({2, 3, 5}), new_precision=frozenset({2, 3, 4, 5}), added_dimension=4, candidate_actions=('change_robot_location', 'change_cabinet_door', 'change_object_location'), relevant_k_entries=(('change_cabinet_door', ()), ('change_object_location', (4,)), ('change_robot_location', ())), occurrence_counts=((4, 1),), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED')",
+        "added_dimension": 4,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "ros2-v11",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 3,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-COST-REUSE-V11",
+        "backend_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "S_k_size": 4,
+        "H_k": [
+          0,
+          1
+        ],
+        "R_k": [
+          0
+        ],
+        "J_lb": "12",
+        "J_ub": "22",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "2",
+        "certificate_status": "CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 2,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 16,
+        "reduced_ts_edges": 96,
+        "product_unique_states": 32,
+        "product_unique_edges": 448,
+        "reachable_product_nodes": 32,
+        "qualifying_sccs": 1,
+        "candidate_entries": 32,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 31,
+        "queue_pushes": 122,
+        "queue_pops": 108,
+        "prefix_settled": 32,
+        "lower_bound_settled": 64,
+        "suffix_settled": 12,
+        "candidate_fingerprint": "84b181eac8b467ae5c0f16f7ef8235cfdbce7281b054aea97d690a8deb1b0146",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_safety_zone"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            1,
+            1,
+            0,
+            0
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 2.9e-06,
+          "T_reduction": 0.0031817,
+          "T_product": 0.0066212,
+          "T_search": 0.0173688,
+          "T_concretization": 0.0130731,
+          "T_certification": 3.55e-05,
+          "T_refinement": 0.0001118
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            179958859810,
+            179958862710
+          ],
+          "T_reduction": [
+            179958864810,
+            179962046510
+          ],
+          "T_product": [
+            179962048210,
+            179968669410
+          ],
+          "T_search": [
+            179969034510,
+            179986403310
+          ],
+          "T_concretization": [
+            179986425710,
+            179999498810
+          ],
+          "T_certification": [
+            179999502210,
+            179999537710
+          ],
+          "T_refinement": [
+            179999584010,
+            179999695810
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({2, 3, 4, 5}), new_precision=frozenset({0, 2, 3, 4, 5}), added_dimension=0, candidate_actions=('change_robot_location', 'change_cabinet_door', 'change_safety_zone'), relevant_k_entries=(('change_cabinet_door', ()), ('change_robot_location', ()), ('change_safety_zone', (0,))), occurrence_counts=((0, 1),), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED')",
+        "added_dimension": 0,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "ros2-v11",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 4,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-COST-REUSE-V11",
+        "backend_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          0,
+          2,
+          3,
+          4,
+          5
+        ],
+        "S_k_size": 5,
+        "H_k": [
+          1
+        ],
+        "R_k": [
+          1
+        ],
+        "J_lb": "12",
+        "J_ub": "22",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "2",
+        "certificate_status": "CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 2,
+        "terminal_status": "NOT_TERMINAL",
+        "reduced_ts_states": 32,
+        "reduced_ts_edges": 192,
+        "product_unique_states": 64,
+        "product_unique_edges": 896,
+        "reachable_product_nodes": 64,
+        "qualifying_sccs": 1,
+        "candidate_entries": 64,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 63,
+        "queue_pushes": 231,
+        "queue_pops": 207,
+        "prefix_settled": 64,
+        "lower_bound_settled": 128,
+        "suffix_settled": 15,
+        "candidate_fingerprint": "a23cb1b0f36fa46416bf5bb2f9fc277f307e90b32fbb070f8ecca36b38bcb285",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "change_service_light"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 4.5e-06,
+          "T_reduction": 0.0056188,
+          "T_product": 0.0084213,
+          "T_search": 0.0248562,
+          "T_concretization": 0.0092025,
+          "T_certification": 2.08e-05,
+          "T_refinement": 6.4e-05
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            180000252710,
+            180000257210
+          ],
+          "T_reduction": [
+            180000259610,
+            180005878410
+          ],
+          "T_product": [
+            180005882910,
+            180014304210
+          ],
+          "T_search": [
+            180014572210,
+            180039428410
+          ],
+          "T_concretization": [
+            180039474710,
+            180048677210
+          ],
+          "T_certification": [
+            180048679310,
+            180048700110
+          ],
+          "T_refinement": [
+            180048760910,
+            180048824910
+          ]
+        },
+        "error": "RefinementReason(old_precision=frozenset({0, 2, 3, 4, 5}), new_precision=frozenset({0, 1, 2, 3, 4, 5}), added_dimension=1, candidate_actions=('change_robot_location', 'change_cabinet_door', 'change_service_light'), relevant_k_entries=(('change_cabinet_door', ()), ('change_robot_location', ()), ('change_service_light', (1,))), occurrence_counts=((1, 1),), tie_break='descending occurrence frequency, then ascending dimension ID', fallback_used=False, certificate_status='CONCRETIZABLE_NOT_OPTIMALITY_CERTIFIED')",
+        "added_dimension": 1,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "ros2-v11",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      },
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "C3-T4",
+        "instance_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "benchmark_payload_sha256": "e3be7c78321458a7599e4f533542923ddc028c48214c9aa33cdf851ac765879f",
+        "method": "AP-D",
+        "round_index": 5,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-COST-REUSE-V11",
+        "backend_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4",
+        "N": 6,
+        "S_phi": [
+          3
+        ],
+        "initial_S0": [
+          3
+        ],
+        "S_k": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "S_k_size": 6,
+        "H_k": [],
+        "R_k": [],
+        "J_lb": "12",
+        "J_ub": "12",
+        "abstract_prefix_cost": "2",
+        "abstract_suffix_cost": "1",
+        "prefix_cost": "2",
+        "suffix_cost": "1",
+        "certificate_status": "OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 1,
+        "terminal_status": "OPTIMALITY_CERTIFIED",
+        "reduced_ts_states": 64,
+        "reduced_ts_edges": 384,
+        "product_unique_states": 128,
+        "product_unique_edges": 1792,
+        "reachable_product_nodes": 128,
+        "qualifying_sccs": 1,
+        "candidate_entries": 128,
+        "exact_entry_searches": 1,
+        "bound_pruned_entries": 127,
+        "queue_pushes": 439,
+        "queue_pops": 402,
+        "prefix_settled": 128,
+        "lower_bound_settled": 256,
+        "suffix_settled": 18,
+        "candidate_fingerprint": "c3256d0b050eadd86a5977fe6ed97dd19f286209de048528a8b6db4139d96dd5",
+        "prefix_actions": [
+          "change_robot_location",
+          "change_cabinet_door"
+        ],
+        "suffix_actions": [
+          "wait"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            0,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        },
+        "timings": {
+          "T_full_ts": 2.5e-06,
+          "T_reduction": 0.0035053,
+          "T_product": 0.0116941,
+          "T_search": 0.0555643,
+          "T_concretization": 0.0066384,
+          "T_certification": 1.45e-05,
+          "T_refinement": 0.0
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            180049113810,
+            180049116310
+          ],
+          "T_reduction": [
+            180049117610,
+            180052622910
+          ],
+          "T_product": [
+            180052625410,
+            180064319510
+          ],
+          "T_search": [
+            180064699710,
+            180120264010
+          ],
+          "T_concretization": [
+            180120280610,
+            180126919010
+          ],
+          "T_certification": [
+            180126920910,
+            180126935410
+          ]
+        },
+        "error": null,
+        "added_dimension": null,
+        "final_precision": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "backend": "ros2-v11",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      }
+    ],
+    "candidate_identity": {
+      "prefix_actions": [
+        "change_robot_location",
+        "change_cabinet_door"
+      ],
+      "suffix_actions": [
+        "wait"
+      ],
+      "prefix_length": 3,
+      "suffix_length": 2,
+      "lower_bound": "12"
+    },
+    "infeasibility_certificate_type": null,
+    "infeasibility_proof_basis": null,
+    "infeasibility_precision": null,
+    "lower_precision_infeasibility": null,
+    "candidate_fingerprint": "c3256d0b050eadd86a5977fe6ed97dd19f286209de048528a8b6db4139d96dd5",
+    "prefix_actions": [
+      "change_robot_location",
+      "change_cabinet_door"
+    ],
+    "suffix_actions": [
+      "wait"
+    ],
+    "suffix_entry_product_state": {
+      "state": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "buchi_state": "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+    },
+    "semantic_contract_id": "INITIAL_LABEL_V1",
+    "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+    "ai_selection": null,
+    "ai_selection_artifact_sha256": null,
+    "ai_inference_latency_seconds": null,
+    "phase_intervals_ns": {
+      "T_input_preprocess": [
+        179103483115,
+        179892733011
+      ],
+      "T_initialization": [
+        179892733011,
+        179892736911
+      ],
+      "T_certification_external": [
+        180129482310,
+        180347081910
+      ],
+      "T_logging": [
+        180347082510,
+        180347109310
+      ]
+    },
+    "error": null,
+    "llm_calls": 0,
+    "experimental_llm_calls": 0,
+    "api_key_reads": 0,
+    "certificate_path": "C3-T4__AP-D__121.json",
+    "certificate_hash": "a66f2c0b663341a9c42190f02c975bc21ade97c35baf2d8f464ea5d858a3a29f",
+    "certificate_schema": "ECC-E2.2-CERTIFICATE-INITIAL_LABEL_V1",
+    "certificate_verifier_status": "PASS",
+    "certificate_objective": "12",
+    "T_full_ts": 0.0106203,
+    "T_reduction": 0.0255115,
+    "T_product": 0.0351177,
+    "T_search": 0.1117817,
+    "T_concretization": 0.046767899,
+    "T_certification": 0.21774480000000002,
+    "T_refinement": 0.0005199,
+    "T_logging": 2.68e-05,
+    "T_total": 1.243626795,
+    "T_other": 0.00628239999999991,
+    "qualification_scope": "CMR_EXACT_COST_REUSE_THREE_CELL_QUALIFICATION",
+    "formal_campaign": false,
+    "search_counter_basis": "V10 rules with actual exact-cost conversion/reuse counters",
+    "backend": "ros2-v11",
+    "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+    "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd",
+    "result_hash": "9e2b93cb5fdb7e814a90c03a7bec428b97c4188c5cbf9ee88663e0cf2ce10189"
+  },
+  "transport": {
+    "concrete_lasso": {
+      "prefix": [
+        [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+        ],
+        [
+          [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+        ],
+        [
+          [
+            0,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        ]
+      ],
+      "suffix": [
+        [
+          [
+            0,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        ],
+        [
+          [
+            0,
+            0,
+            1,
+            1,
+            0,
+            0
+          ],
+          "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+        ]
+      ],
+      "prefix_edges": [
+        {
+          "source": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+          ],
+          "action": "change_robot_location",
+          "target": [
+            [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+          ],
+          "cost": "1"
+        },
+        {
+          "source": [
+            [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],false]"
+          ],
+          "action": "change_cabinet_door",
+          "target": [
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+          ],
+          "cost": "1"
+        }
+      ],
+      "suffix_edges": [
+        {
+          "source": [
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+          ],
+          "action": "wait",
+          "target": [
+            [
+              0,
+              0,
+              1,
+              1,
+              0,
+              0
+            ],
+            "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]"
+          ],
+          "cost": "1"
+        }
+      ],
+      "prefix_cost": "2",
+      "suffix_cost": "1",
+      "upper_bound": "12",
+      "ell": 0,
+      "m": 1
+    },
+    "accepting_buchi_states": [
+      "[[[\"F\",\"cabinet_door_open\"],[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[[\"F\",\"cabinet_door_open\"]],true]",
+      "[[[\"G\",[\"F\",\"cabinet_door_open\"]]],0,[],true]"
+    ]
+  },
+  "search_work": [
+    {
+      "precision": [
+        3
+      ],
+      "helpers": [
+        {
+          "phase": "prefix",
+          "helper": "_prefix_distances",
+          "nodes": 4,
+          "edges": 15,
+          "completed": true,
+          "returned_len": 4,
+          "elapsed_ns": 29100
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 4,
+          "edges": 15,
+          "completed": true,
+          "returned_len": 4,
+          "elapsed_ns": 20800
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 4,
+          "edges": 15,
+          "completed": true,
+          "returned_len": 4,
+          "elapsed_ns": 17100
+        },
+        {
+          "phase": "suffix",
+          "helper": "_target_component_distances",
+          "nodes": 5,
+          "edges": 19,
+          "completed": true,
+          "returned_len": 3,
+          "elapsed_ns": 29100
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 5,
+          "edges": 19,
+          "completed": true,
+          "returned_len": 2,
+          "elapsed_ns": 12800
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 4,
+          "edges": 15,
+          "completed": true,
+          "returned_len": 2,
+          "elapsed_ns": 8900
+        }
+      ],
+      "queue_pushes": 17,
+      "queue_pops": 15,
+      "prefix_settled": 4,
+      "lower_bound_settled": 8,
+      "suffix_settled": 3,
+      "tracemalloc_enabled": true,
+      "deadline_ns": 359103483115,
+      "witness_key_requests": 59,
+      "witness_key_computations": 13,
+      "witness_key_cache_hits": 46,
+      "witness_items_normalized": 384,
+      "suffix_graph_requests": 1,
+      "suffix_graph_materializations": 1,
+      "suffix_graph_reuses": 0,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 15,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 0,
+      "exact_cost_requests": 445,
+      "exact_cost_reuses": 445,
+      "exact_cost_fallbacks": 0,
+      "integer_weight_edges": 15,
+      "fractional_weight_edges": 0,
+      "product_states_unique": 4,
+      "reachable_nodes": 4,
+      "qualifying_sccs": 1,
+      "candidate_entries": 4,
+      "exact_entry_searches": 1,
+      "bound_pruned_entries": 3,
+      "graph_reuses": 2,
+      "subgraph_copies": 0,
+      "reverse_views": 1,
+      "suffix_lifts": [
+        {
+          "entry": 1,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 5,
+          "edges": 19
+        }
+      ],
+      "unique_original_nodes": 4,
+      "unique_original_edges": 15,
+      "reachable_original_nodes": 4,
+      "reachable_original_edges": 15,
+      "target_searches": [
+        {
+          "target_settled": true,
+          "settled_nodes": 3,
+          "discovered_nodes": 5,
+          "fringe_remaining": 2,
+          "stop_reason": "target_finalized",
+          "target_distance": "1"
+        }
+      ],
+      "completed": true,
+      "deadline_observed_exceeded": false
+    },
+    {
+      "precision": [
+        2,
+        3
+      ],
+      "helpers": [
+        {
+          "phase": "prefix",
+          "helper": "_prefix_distances",
+          "nodes": 8,
+          "edges": 42,
+          "completed": true,
+          "returned_len": 8,
+          "elapsed_ns": 43200
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 8,
+          "edges": 42,
+          "completed": true,
+          "returned_len": 8,
+          "elapsed_ns": 38300
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 8,
+          "edges": 42,
+          "completed": true,
+          "returned_len": 8,
+          "elapsed_ns": 32700
+        },
+        {
+          "phase": "suffix",
+          "helper": "_target_component_distances",
+          "nodes": 9,
+          "edges": 49,
+          "completed": true,
+          "returned_len": 3,
+          "elapsed_ns": 89100
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 9,
+          "edges": 49,
+          "completed": true,
+          "returned_len": 2,
+          "elapsed_ns": 14600
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 8,
+          "edges": 42,
+          "completed": true,
+          "returned_len": 3,
+          "elapsed_ns": 14700
+        }
+      ],
+      "queue_pushes": 33,
+      "queue_pops": 27,
+      "prefix_settled": 8,
+      "lower_bound_settled": 16,
+      "suffix_settled": 3,
+      "tracemalloc_enabled": true,
+      "deadline_ns": 359103483115,
+      "witness_key_requests": 112,
+      "witness_key_computations": 24,
+      "witness_key_cache_hits": 88,
+      "witness_items_normalized": 384,
+      "suffix_graph_requests": 1,
+      "suffix_graph_materializations": 1,
+      "suffix_graph_reuses": 0,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 42,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 0,
+      "exact_cost_requests": 499,
+      "exact_cost_reuses": 499,
+      "exact_cost_fallbacks": 0,
+      "integer_weight_edges": 42,
+      "fractional_weight_edges": 0,
+      "product_states_unique": 8,
+      "reachable_nodes": 8,
+      "qualifying_sccs": 1,
+      "candidate_entries": 8,
+      "exact_entry_searches": 1,
+      "bound_pruned_entries": 7,
+      "graph_reuses": 2,
+      "subgraph_copies": 0,
+      "reverse_views": 1,
+      "suffix_lifts": [
+        {
+          "entry": 5,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 9,
+          "edges": 49
+        }
+      ],
+      "unique_original_nodes": 8,
+      "unique_original_edges": 42,
+      "reachable_original_nodes": 8,
+      "reachable_original_edges": 42,
+      "target_searches": [
+        {
+          "target_settled": true,
+          "settled_nodes": 3,
+          "discovered_nodes": 9,
+          "fringe_remaining": 6,
+          "stop_reason": "target_finalized",
+          "target_distance": "1"
+        }
+      ],
+      "completed": true,
+      "deadline_observed_exceeded": false
+    },
+    {
+      "precision": [
+        2,
+        3,
+        5
+      ],
+      "helpers": [
+        {
+          "phase": "prefix",
+          "helper": "_prefix_distances",
+          "nodes": 16,
+          "edges": 120,
+          "completed": true,
+          "returned_len": 16,
+          "elapsed_ns": 89300
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 16,
+          "edges": 120,
+          "completed": true,
+          "returned_len": 16,
+          "elapsed_ns": 83900
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 16,
+          "edges": 120,
+          "completed": true,
+          "returned_len": 16,
+          "elapsed_ns": 76500
+        },
+        {
+          "phase": "suffix",
+          "helper": "_target_component_distances",
+          "nodes": 17,
+          "edges": 130,
+          "completed": true,
+          "returned_len": 6,
+          "elapsed_ns": 95700
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 17,
+          "edges": 130,
+          "completed": true,
+          "returned_len": 2,
+          "elapsed_ns": 64400
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 16,
+          "edges": 120,
+          "completed": true,
+          "returned_len": 3,
+          "elapsed_ns": 37000
+        }
+      ],
+      "queue_pushes": 64,
+      "queue_pops": 54,
+      "prefix_settled": 16,
+      "lower_bound_settled": 32,
+      "suffix_settled": 6,
+      "tracemalloc_enabled": true,
+      "deadline_ns": 359103483115,
+      "witness_key_requests": 224,
+      "witness_key_computations": 48,
+      "witness_key_cache_hits": 176,
+      "witness_items_normalized": 384,
+      "suffix_graph_requests": 1,
+      "suffix_graph_materializations": 1,
+      "suffix_graph_reuses": 0,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 120,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 0,
+      "exact_cost_requests": 611,
+      "exact_cost_reuses": 611,
+      "exact_cost_fallbacks": 0,
+      "integer_weight_edges": 120,
+      "fractional_weight_edges": 0,
+      "product_states_unique": 16,
+      "reachable_nodes": 16,
+      "qualifying_sccs": 1,
+      "candidate_entries": 16,
+      "exact_entry_searches": 1,
+      "bound_pruned_entries": 15,
+      "graph_reuses": 2,
+      "subgraph_copies": 0,
+      "reverse_views": 1,
+      "suffix_lifts": [
+        {
+          "entry": 10,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 17,
+          "edges": 130
+        }
+      ],
+      "unique_original_nodes": 16,
+      "unique_original_edges": 120,
+      "reachable_original_nodes": 16,
+      "reachable_original_edges": 120,
+      "target_searches": [
+        {
+          "target_settled": true,
+          "settled_nodes": 6,
+          "discovered_nodes": 16,
+          "fringe_remaining": 10,
+          "stop_reason": "target_finalized",
+          "target_distance": "1"
+        }
+      ],
+      "completed": true,
+      "deadline_observed_exceeded": false
+    },
+    {
+      "precision": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "helpers": [
+        {
+          "phase": "prefix",
+          "helper": "_prefix_distances",
+          "nodes": 32,
+          "edges": 304,
+          "completed": true,
+          "returned_len": 32,
+          "elapsed_ns": 127700
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 32,
+          "edges": 304,
+          "completed": true,
+          "returned_len": 32,
+          "elapsed_ns": 245100
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 32,
+          "edges": 304,
+          "completed": true,
+          "returned_len": 32,
+          "elapsed_ns": 115400
+        },
+        {
+          "phase": "suffix",
+          "helper": "_target_component_distances",
+          "nodes": 33,
+          "edges": 317,
+          "completed": true,
+          "returned_len": 12,
+          "elapsed_ns": 241000
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 33,
+          "edges": 317,
+          "completed": true,
+          "returned_len": 2,
+          "elapsed_ns": 32700
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 32,
+          "edges": 304,
+          "completed": true,
+          "returned_len": 3,
+          "elapsed_ns": 19500
+        }
+      ],
+      "queue_pushes": 122,
+      "queue_pops": 108,
+      "prefix_settled": 32,
+      "lower_bound_settled": 64,
+      "suffix_settled": 12,
+      "tracemalloc_enabled": true,
+      "deadline_ns": 359103483115,
+      "witness_key_requests": 448,
+      "witness_key_computations": 96,
+      "witness_key_cache_hits": 352,
+      "witness_items_normalized": 384,
+      "suffix_graph_requests": 1,
+      "suffix_graph_materializations": 1,
+      "suffix_graph_reuses": 0,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 304,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 0,
+      "exact_cost_requests": 835,
+      "exact_cost_reuses": 835,
+      "exact_cost_fallbacks": 0,
+      "integer_weight_edges": 304,
+      "fractional_weight_edges": 0,
+      "product_states_unique": 32,
+      "reachable_nodes": 32,
+      "qualifying_sccs": 1,
+      "candidate_entries": 32,
+      "exact_entry_searches": 1,
+      "bound_pruned_entries": 31,
+      "graph_reuses": 2,
+      "subgraph_copies": 0,
+      "reverse_views": 1,
+      "suffix_lifts": [
+        {
+          "entry": 20,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 33,
+          "edges": 317
+        }
+      ],
+      "unique_original_nodes": 32,
+      "unique_original_edges": 304,
+      "reachable_original_nodes": 32,
+      "reachable_original_edges": 304,
+      "target_searches": [
+        {
+          "target_settled": true,
+          "settled_nodes": 12,
+          "discovered_nodes": 26,
+          "fringe_remaining": 14,
+          "stop_reason": "target_finalized",
+          "target_distance": "1"
+        }
+      ],
+      "completed": true,
+      "deadline_observed_exceeded": false
+    },
+    {
+      "precision": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "helpers": [
+        {
+          "phase": "prefix",
+          "helper": "_prefix_distances",
+          "nodes": 64,
+          "edges": 752,
+          "completed": true,
+          "returned_len": 64,
+          "elapsed_ns": 251900
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 64,
+          "edges": 752,
+          "completed": true,
+          "returned_len": 64,
+          "elapsed_ns": 553100
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 64,
+          "edges": 752,
+          "completed": true,
+          "returned_len": 64,
+          "elapsed_ns": 557700
+        },
+        {
+          "phase": "suffix",
+          "helper": "_target_component_distances",
+          "nodes": 65,
+          "edges": 768,
+          "completed": true,
+          "returned_len": 15,
+          "elapsed_ns": 124500
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 65,
+          "edges": 768,
+          "completed": true,
+          "returned_len": 2,
+          "elapsed_ns": 18000
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 64,
+          "edges": 752,
+          "completed": true,
+          "returned_len": 3,
+          "elapsed_ns": 14200
+        }
+      ],
+      "queue_pushes": 231,
+      "queue_pops": 207,
+      "prefix_settled": 64,
+      "lower_bound_settled": 128,
+      "suffix_settled": 15,
+      "tracemalloc_enabled": true,
+      "deadline_ns": 359103483115,
+      "witness_key_requests": 896,
+      "witness_key_computations": 192,
+      "witness_key_cache_hits": 704,
+      "witness_items_normalized": 384,
+      "suffix_graph_requests": 1,
+      "suffix_graph_materializations": 1,
+      "suffix_graph_reuses": 0,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 752,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 0,
+      "exact_cost_requests": 1283,
+      "exact_cost_reuses": 1283,
+      "exact_cost_fallbacks": 0,
+      "integer_weight_edges": 752,
+      "fractional_weight_edges": 0,
+      "product_states_unique": 64,
+      "reachable_nodes": 64,
+      "qualifying_sccs": 1,
+      "candidate_entries": 64,
+      "exact_entry_searches": 1,
+      "bound_pruned_entries": 63,
+      "graph_reuses": 2,
+      "subgraph_copies": 0,
+      "reverse_views": 1,
+      "suffix_lifts": [
+        {
+          "entry": 20,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 65,
+          "edges": 768
+        }
+      ],
+      "unique_original_nodes": 64,
+      "unique_original_edges": 752,
+      "reachable_original_nodes": 64,
+      "reachable_original_edges": 752,
+      "target_searches": [
+        {
+          "target_settled": true,
+          "settled_nodes": 15,
+          "discovered_nodes": 39,
+          "fringe_remaining": 24,
+          "stop_reason": "target_finalized",
+          "target_distance": "1"
+        }
+      ],
+      "completed": true,
+      "deadline_observed_exceeded": false
+    },
+    {
+      "precision": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "helpers": [
+        {
+          "phase": "prefix",
+          "helper": "_prefix_distances",
+          "nodes": 128,
+          "edges": 1792,
+          "completed": true,
+          "returned_len": 128,
+          "elapsed_ns": 532200
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 128,
+          "edges": 1792,
+          "completed": true,
+          "returned_len": 128,
+          "elapsed_ns": 1152000
+        },
+        {
+          "phase": "lower_bound",
+          "helper": "_prefix_distances",
+          "nodes": 128,
+          "edges": 1792,
+          "completed": true,
+          "returned_len": 128,
+          "elapsed_ns": 1221500
+        },
+        {
+          "phase": "suffix",
+          "helper": "_target_component_distances",
+          "nodes": 129,
+          "edges": 1811,
+          "completed": true,
+          "returned_len": 18,
+          "elapsed_ns": 190000
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 129,
+          "edges": 1811,
+          "completed": true,
+          "returned_len": 2,
+          "elapsed_ns": 20600
+        },
+        {
+          "phase": "restore",
+          "helper": "_restore_tight_path",
+          "nodes": 128,
+          "edges": 1792,
+          "completed": true,
+          "returned_len": 3,
+          "elapsed_ns": 14700
+        }
+      ],
+      "queue_pushes": 439,
+      "queue_pops": 402,
+      "prefix_settled": 128,
+      "lower_bound_settled": 256,
+      "suffix_settled": 18,
+      "tracemalloc_enabled": true,
+      "deadline_ns": 359103483115,
+      "witness_key_requests": 1792,
+      "witness_key_computations": 384,
+      "witness_key_cache_hits": 1408,
+      "witness_items_normalized": 384,
+      "suffix_graph_requests": 1,
+      "suffix_graph_materializations": 1,
+      "suffix_graph_reuses": 0,
+      "suffix_graph_source_edge_scans": 1,
+      "suffix_graph_source_edges_examined": 1792,
+      "suffix_graph_component_indexes": 1,
+      "suffix_graph_dummy_rebinds": 0,
+      "exact_cost_requests": 2179,
+      "exact_cost_reuses": 2179,
+      "exact_cost_fallbacks": 0,
+      "integer_weight_edges": 1792,
+      "fractional_weight_edges": 0,
+      "product_states_unique": 128,
+      "reachable_nodes": 128,
+      "qualifying_sccs": 1,
+      "candidate_entries": 128,
+      "exact_entry_searches": 1,
+      "bound_pruned_entries": 127,
+      "graph_reuses": 2,
+      "subgraph_copies": 0,
+      "reverse_views": 1,
+      "suffix_lifts": [
+        {
+          "entry": 20,
+          "entry_accepting": true,
+          "layers": 1,
+          "nodes": 129,
+          "edges": 1811
+        }
+      ],
+      "unique_original_nodes": 128,
+      "unique_original_edges": 1792,
+      "reachable_original_nodes": 128,
+      "reachable_original_edges": 1792,
+      "target_searches": [
+        {
+          "target_settled": true,
+          "settled_nodes": 18,
+          "discovered_nodes": 55,
+          "fringe_remaining": 37,
+          "stop_reason": "target_finalized",
+          "target_distance": "1"
+        }
+      ],
+      "completed": true,
+      "deadline_observed_exceeded": false
+    }
+  ],
+  "build_work": [
+    {
+      "projection_requests": 897,
+      "projection_computations": 64,
+      "projection_cache_hits": 833,
+      "position_map_builds": 1,
+      "precision": [
+        3
+      ],
+      "completed": true,
+      "full_ts_rebuild_calls": 1,
+      "buchi_queries": 28,
+      "cache_hits": 21,
+      "cache_misses": 7,
+      "cache_entries": 7,
+      "product_states": 4,
+      "product_edges": 59,
+      "reachable_ts_states": 2,
+      "reduced_ts_edges": 13,
+      "full_ts_cache_hits": 0,
+      "full_ts_callback_calls": 1,
+      "full_ts_source_states": 64,
+      "full_ts_source_edges": 384
+    },
+    {
+      "projection_requests": 897,
+      "projection_computations": 64,
+      "projection_cache_hits": 833,
+      "position_map_builds": 1,
+      "precision": [
+        2,
+        3
+      ],
+      "completed": true,
+      "full_ts_rebuild_calls": 0,
+      "buchi_queries": 51,
+      "cache_hits": 44,
+      "cache_misses": 7,
+      "cache_entries": 7,
+      "product_states": 8,
+      "product_edges": 112,
+      "reachable_ts_states": 4,
+      "reduced_ts_edges": 24,
+      "full_ts_cache_hits": 1,
+      "full_ts_callback_calls": 1,
+      "full_ts_source_states": 64,
+      "full_ts_source_edges": 384
+    },
+    {
+      "projection_requests": 897,
+      "projection_computations": 64,
+      "projection_cache_hits": 833,
+      "position_map_builds": 1,
+      "precision": [
+        2,
+        3,
+        5
+      ],
+      "completed": true,
+      "full_ts_rebuild_calls": 0,
+      "buchi_queries": 101,
+      "cache_hits": 94,
+      "cache_misses": 7,
+      "cache_entries": 7,
+      "product_states": 16,
+      "product_edges": 224,
+      "reachable_ts_states": 8,
+      "reduced_ts_edges": 48,
+      "full_ts_cache_hits": 1,
+      "full_ts_callback_calls": 1,
+      "full_ts_source_states": 64,
+      "full_ts_source_edges": 384
+    },
+    {
+      "projection_requests": 897,
+      "projection_computations": 64,
+      "projection_cache_hits": 833,
+      "position_map_builds": 1,
+      "precision": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "completed": true,
+      "full_ts_rebuild_calls": 0,
+      "buchi_queries": 201,
+      "cache_hits": 194,
+      "cache_misses": 7,
+      "cache_entries": 7,
+      "product_states": 32,
+      "product_edges": 448,
+      "reachable_ts_states": 16,
+      "reduced_ts_edges": 96,
+      "full_ts_cache_hits": 1,
+      "full_ts_callback_calls": 1,
+      "full_ts_source_states": 64,
+      "full_ts_source_edges": 384
+    },
+    {
+      "projection_requests": 897,
+      "projection_computations": 64,
+      "projection_cache_hits": 833,
+      "position_map_builds": 1,
+      "precision": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "completed": true,
+      "full_ts_rebuild_calls": 0,
+      "buchi_queries": 401,
+      "cache_hits": 394,
+      "cache_misses": 7,
+      "cache_entries": 7,
+      "product_states": 64,
+      "product_edges": 896,
+      "reachable_ts_states": 32,
+      "reduced_ts_edges": 192,
+      "full_ts_cache_hits": 1,
+      "full_ts_callback_calls": 1,
+      "full_ts_source_states": 64,
+      "full_ts_source_edges": 384
+    },
+    {
+      "projection_requests": 897,
+      "projection_computations": 64,
+      "projection_cache_hits": 833,
+      "position_map_builds": 1,
+      "precision": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "completed": true,
+      "full_ts_rebuild_calls": 0,
+      "buchi_queries": 801,
+      "cache_hits": 794,
+      "cache_misses": 7,
+      "cache_entries": 7,
+      "product_states": 128,
+      "product_edges": 1792,
+      "reachable_ts_states": 64,
+      "reduced_ts_edges": 384,
+      "full_ts_cache_hits": 1,
+      "full_ts_callback_calls": 1,
+      "full_ts_source_states": 64,
+      "full_ts_source_edges": 384
+    }
+  ],
+  "backend_binding": {
+    "backend": "ros2-v11",
+    "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-COST-REUSE-V11",
+    "backend_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4",
+    "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+    "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+  },
+  "worker_pid": 103,
+  "backend_configuration": {
+    "backend_id": "ROS2-DISCRETE-PLAN-CMR-EXACT-COST-REUSE-V11",
+    "backend_sha256": "35838cf764a85cd04e3376825d1f807bbb458bb2c39418046bd2f2624abb9cd4",
+    "original_loop_code_preserved": true,
+    "original_local_code_preserved": true,
+    "original_builder_global_preserved": true
+  },
+  "worker_exitcode": 0,
+  "worker_alive_after_cleanup": false,
+  "outer_start_ns": 167826512304
+}

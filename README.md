@@ -232,6 +232,15 @@ D3-2; this is evidence of less repeated construction, not an overall speedup.
 The unchanged 180/195 s budgets and certificate rules remain; the default backend
 and formal experiment ledger are untouched.
 
+The optional [V11 exact-cost prototype](experiments/cmr_ros2_exact_cost_reuse/README.md)
+retains the V10 graph cache and V9 projection/witness/full-TS reuse while avoiding
+reconstruction of exact built-in Fraction values. In a fresh nine-worker
+C3-T4/D3-1/D3-2 AP-D comparison, 5852/23/14 original conversions become direct
+value reuses; exact costs and all nine additional certificate replays agree.
+C3 search falls from 0.136800 to 0.111782 s, but total time rises from 1.477440
+to 1.617667 s. D3 timings are also mixed. Complete evidence and failures are
+retained; no overall speedup or default-backend promotion is claimed.
+
 ---
 
 ## 1. 当前支持范围

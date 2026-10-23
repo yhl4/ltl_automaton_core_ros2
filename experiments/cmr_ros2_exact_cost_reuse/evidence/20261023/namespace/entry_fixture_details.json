@@ -1,0 +1,35 @@
+{
+  "status": "PASSED",
+  "entries": [
+    {
+      "cell": "C3-T4",
+      "metrics": {
+        "binding_reads": 2,
+        "schema_builds": 3,
+        "descriptor_requests": 11,
+        "release_checks": 1,
+        "schema_requests": 6
+      }
+    },
+    {
+      "cell": "D3-1",
+      "metrics": {
+        "binding_reads": 2,
+        "schema_builds": 3,
+        "descriptor_requests": 11,
+        "release_checks": 1,
+        "schema_requests": 6
+      }
+    },
+    {
+      "cell": "D3-2",
+      "metrics": {
+        "binding_reads": 2,
+        "schema_builds": 3,
+        "descriptor_requests": 11,
+        "release_checks": 1,
+        "schema_requests": 6
+      }
+    }
+  ]
+}

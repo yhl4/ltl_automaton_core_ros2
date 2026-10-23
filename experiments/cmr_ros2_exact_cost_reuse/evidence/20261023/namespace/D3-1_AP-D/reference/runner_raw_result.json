@@ -1,0 +1,228 @@
+{
+  "schema_version": "cmr-p2b-result-v1",
+  "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+  "execution_commit": "e5ff91294b373a1f33e7ae9458641e4a2200ab56+cmr-exact-cost-reuse-4d2f6859c8290d00",
+  "benchmark_identity": "RACMR-Bench-v1-r1",
+  "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+  "instance_id": "D3-1",
+  "instance_sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e",
+  "benchmark_payload_sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e",
+  "method": "AP-D",
+  "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+  "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+  "method_order_position": 1,
+  "terminal_status": "OPTIMALITY_CERTIFIED",
+  "canonical_status": "OPTIMALITY_CERTIFIED",
+  "exact_status": "OPTIMAL",
+  "timing_status": "UNCENSORED",
+  "right_censored": false,
+  "timeout_stage": "none",
+  "planner_budget_seconds": 180,
+  "outer_watchdog_seconds": 195,
+  "objective": "20",
+  "T_input_preprocess": 0.720791878,
+  "T_initialization": 3e-06,
+  "T_plan_wall": 0.938612871,
+  "T_method": 0.0073743,
+  "method_start_ns": 201439407563,
+  "terminal_completion_ns": 202378023734,
+  "initial_precision_size": 1,
+  "final_precision_size": 1,
+  "initial_S0": [
+    0
+  ],
+  "final_precision": [
+    0
+  ],
+  "refinement_rounds": 0,
+  "cumulative_work": {
+    "reduced_ts_states_built": 2,
+    "reduced_ts_edges_built": 3,
+    "product_states_built": 4,
+    "product_edges_built": 14,
+    "search_settled_events": 23
+  },
+  "final_unique_graph_size": {
+    "reduced_ts_states": 2,
+    "reduced_ts_edges": 3,
+    "product_states": 4,
+    "product_edges": 14
+  },
+  "rounds": [
+    {
+      "schema_version": "cmr-p2b-round-v1",
+      "instance_id": "D3-1",
+      "instance_sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e",
+      "benchmark_payload_sha256": "2dc3e6bb1848abd2e94841c94905dd5798d642b35d327da8c9866e785eeabf2e",
+      "method": "AP-D",
+      "round_index": 0,
+      "semantic_contract_id": "INITIAL_LABEL_V1",
+      "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+      "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+      "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+      "N": 1,
+      "S_phi": [
+        0
+      ],
+      "initial_S0": [
+        0
+      ],
+      "S_k": [
+        0
+      ],
+      "S_k_size": 1,
+      "H_k": [],
+      "R_k": [],
+      "J_lb": "20",
+      "J_ub": "20",
+      "abstract_prefix_cost": "0",
+      "abstract_suffix_cost": "2",
+      "prefix_cost": "0",
+      "suffix_cost": "2",
+      "certificate_status": "OPTIMALITY_CERTIFIED",
+      "concretization_status": "CONCRETIZABLE",
+      "infeasibility_certificate_type": null,
+      "infeasibility_proof_basis": null,
+      "infeasibility_precision": null,
+      "lower_precision_infeasibility": null,
+      "ell": 0,
+      "m": 1,
+      "terminal_status": "OPTIMALITY_CERTIFIED",
+      "reduced_ts_states": 2,
+      "reduced_ts_edges": 3,
+      "product_unique_states": 4,
+      "product_unique_edges": 14,
+      "reachable_product_nodes": 4,
+      "qualifying_sccs": 1,
+      "candidate_entries": 4,
+      "exact_entry_searches": 3,
+      "bound_pruned_entries": 1,
+      "queue_pushes": 33,
+      "queue_pops": 25,
+      "prefix_settled": 4,
+      "lower_bound_settled": 8,
+      "suffix_settled": 11,
+      "candidate_fingerprint": "195525121fa0e147049aef322223c464389a9c83272a3d5b4c6ce9fd23491446",
+      "prefix_actions": [],
+      "suffix_actions": [
+        "out",
+        "back"
+      ],
+      "suffix_entry_product_state": {
+        "state": [
+          0
+        ],
+        "buchi_state": "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[],false]"
+      },
+      "timings": {
+        "T_full_ts": 0.0002818,
+        "T_reduction": 0.0002649,
+        "T_product": 0.0019381,
+        "T_search": 0.0024575,
+        "T_concretization": 0.0018776,
+        "T_certification": 3.47e-05,
+        "T_refinement": 0.0
+      },
+      "phase_intervals_ns": {
+        "T_full_ts": [
+          202160273941,
+          202160555741
+        ],
+        "T_reduction": [
+          202160576241,
+          202160841141
+        ],
+        "T_product": [
+          202160842641,
+          202162780741
+        ],
+        "T_search": [
+          202162797041,
+          202165254541
+        ],
+        "T_concretization": [
+          202165266941,
+          202167144541
+        ],
+        "T_certification": [
+          202167146441,
+          202167181141
+        ]
+      },
+      "error": null,
+      "added_dimension": null,
+      "final_precision": [
+        0
+      ]
+    }
+  ],
+  "candidate_identity": {
+    "prefix_actions": [],
+    "suffix_actions": [
+      "out",
+      "back"
+    ],
+    "prefix_length": 1,
+    "suffix_length": 3,
+    "lower_bound": "20"
+  },
+  "infeasibility_certificate_type": null,
+  "infeasibility_proof_basis": null,
+  "infeasibility_precision": null,
+  "lower_precision_infeasibility": null,
+  "candidate_fingerprint": "195525121fa0e147049aef322223c464389a9c83272a3d5b4c6ce9fd23491446",
+  "prefix_actions": [],
+  "suffix_actions": [
+    "out",
+    "back"
+  ],
+  "suffix_entry_product_state": {
+    "state": [
+      0
+    ],
+    "buchi_state": "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[],false]"
+  },
+  "semantic_contract_id": "INITIAL_LABEL_V1",
+  "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+  "ai_selection": null,
+  "ai_selection_artifact_sha256": null,
+  "ai_inference_latency_seconds": null,
+  "phase_intervals_ns": {
+    "T_input_preprocess": [
+      201439407563,
+      202160199441
+    ],
+    "T_initialization": [
+      202160199441,
+      202160202441
+    ],
+    "T_certification_external": [
+      202167664841,
+      202377997934
+    ],
+    "T_logging": [
+      202377998434,
+      202378020034
+    ]
+  },
+  "error": null,
+  "llm_calls": 0,
+  "experimental_llm_calls": 0,
+  "api_key_reads": 0,
+  "certificate_path": "D3-1__AP-D__142.json",
+  "certificate_hash": "aa898497eef259d156debe82ecf441f154364b624d2c1e6b0e1755a351fab6c4",
+  "certificate_schema": "ECC-E2.2-CERTIFICATE-INITIAL_LABEL_V1",
+  "certificate_verifier_status": "PASS",
+  "certificate_objective": "20",
+  "T_full_ts": 0.0002818,
+  "T_reduction": 0.0002649,
+  "T_product": 0.0019381,
+  "T_search": 0.0024575,
+  "T_concretization": 0.0018776,
+  "T_certification": 0.210367793,
+  "T_refinement": 0.0,
+  "T_logging": 2.16e-05,
+  "T_total": 0.938612871,
+  "T_other": 0.0006087000000000176,
+  "result_hash": "8965206cf623ad600756a5e2338b60c5ae7bdc8acc7139601ee70fb6131fdb37"
+}

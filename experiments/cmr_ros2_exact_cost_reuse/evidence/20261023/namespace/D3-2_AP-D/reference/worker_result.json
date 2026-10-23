@@ -1,0 +1,332 @@
+{
+  "row": {
+    "schema_version": "cmr-p2b-result-v1",
+    "experiment_id": "CMR-P2F-LABEL-BUCKET-GROUPING-INITIAL_LABEL_V1",
+    "execution_commit": "e5ff91294b373a1f33e7ae9458641e4a2200ab56+cmr-exact-cost-reuse-4d2f6859c8290d00",
+    "benchmark_identity": "RACMR-Bench-v1-r1",
+    "benchmark_commit": "62c6ed8a31837d2ad7956fb50d2dd88a7f1b90fd",
+    "instance_id": "D3-2",
+    "instance_sha256": "1866c02072cb5afadf593e8a81f0c71fd72f4de2ea744d35f3de18bb9322282b",
+    "benchmark_payload_sha256": "1866c02072cb5afadf593e8a81f0c71fd72f4de2ea744d35f3de18bb9322282b",
+    "method": "AP-D",
+    "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+    "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+    "method_order_position": 1,
+    "terminal_status": "OPTIMALITY_CERTIFIED",
+    "canonical_status": "OPTIMALITY_CERTIFIED",
+    "exact_status": "OPTIMAL",
+    "timing_status": "UNCENSORED",
+    "right_censored": false,
+    "timeout_stage": "none",
+    "planner_budget_seconds": 180,
+    "outer_watchdog_seconds": 195,
+    "objective": "20",
+    "T_input_preprocess": 0.637812185,
+    "T_initialization": 4e-06,
+    "T_plan_wall": 0.787631699,
+    "T_method": 0.0042994,
+    "method_start_ns": 266542583235,
+    "terminal_completion_ns": 267330218834,
+    "initial_precision_size": 1,
+    "final_precision_size": 1,
+    "initial_S0": [
+      0
+    ],
+    "final_precision": [
+      0
+    ],
+    "refinement_rounds": 0,
+    "cumulative_work": {
+      "reduced_ts_states_built": 2,
+      "reduced_ts_edges_built": 2,
+      "product_states_built": 4,
+      "product_edges_built": 6,
+      "search_settled_events": 23
+    },
+    "final_unique_graph_size": {
+      "reduced_ts_states": 2,
+      "reduced_ts_edges": 2,
+      "product_states": 4,
+      "product_edges": 6
+    },
+    "rounds": [
+      {
+        "schema_version": "cmr-p2b-round-v1",
+        "instance_id": "D3-2",
+        "instance_sha256": "1866c02072cb5afadf593e8a81f0c71fd72f4de2ea744d35f3de18bb9322282b",
+        "benchmark_payload_sha256": "1866c02072cb5afadf593e8a81f0c71fd72f4de2ea744d35f3de18bb9322282b",
+        "method": "AP-D",
+        "round_index": 0,
+        "semantic_contract_id": "INITIAL_LABEL_V1",
+        "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+        "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+        "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+        "N": 1,
+        "S_phi": [
+          0
+        ],
+        "initial_S0": [
+          0
+        ],
+        "S_k": [
+          0
+        ],
+        "S_k_size": 1,
+        "H_k": [],
+        "R_k": [],
+        "J_lb": "20",
+        "J_ub": "20",
+        "abstract_prefix_cost": "0",
+        "abstract_suffix_cost": "2",
+        "prefix_cost": "0",
+        "suffix_cost": "2",
+        "certificate_status": "OPTIMALITY_CERTIFIED",
+        "concretization_status": "CONCRETIZABLE",
+        "infeasibility_certificate_type": null,
+        "infeasibility_proof_basis": null,
+        "infeasibility_precision": null,
+        "lower_precision_infeasibility": null,
+        "ell": 0,
+        "m": 1,
+        "terminal_status": "OPTIMALITY_CERTIFIED",
+        "reduced_ts_states": 2,
+        "reduced_ts_edges": 2,
+        "product_unique_states": 4,
+        "product_unique_edges": 6,
+        "reachable_product_nodes": 4,
+        "qualifying_sccs": 1,
+        "candidate_entries": 4,
+        "exact_entry_searches": 3,
+        "bound_pruned_entries": 1,
+        "queue_pushes": 25,
+        "queue_pops": 23,
+        "prefix_settled": 4,
+        "lower_bound_settled": 8,
+        "suffix_settled": 11,
+        "candidate_fingerprint": "e55fc0a31493675745706ab1de74b80e84e1a33edd9fc577a4403725bc82f120",
+        "prefix_actions": [],
+        "suffix_actions": [
+          "out",
+          "back"
+        ],
+        "suffix_entry_product_state": {
+          "state": [
+            0
+          ],
+          "buchi_state": "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[],false]"
+        },
+        "timings": {
+          "T_full_ts": 0.0003465,
+          "T_reduction": 0.0002024,
+          "T_product": 0.0014234,
+          "T_search": 0.0010321,
+          "T_concretization": 0.0008813,
+          "T_certification": 1.67e-05,
+          "T_refinement": 0.0
+        },
+        "phase_intervals_ns": {
+          "T_full_ts": [
+            267180486020,
+            267180832520
+          ],
+          "T_reduction": [
+            267180834020,
+            267181036420
+          ],
+          "T_product": [
+            267181037920,
+            267182461320
+          ],
+          "T_search": [
+            267182479020,
+            267183511120
+          ],
+          "T_concretization": [
+            267183522820,
+            267184404120
+          ],
+          "T_certification": [
+            267184405720,
+            267184422420
+          ]
+        },
+        "error": null,
+        "added_dimension": null,
+        "final_precision": [
+          0
+        ],
+        "backend": "reference",
+        "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+        "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+      }
+    ],
+    "candidate_identity": {
+      "prefix_actions": [],
+      "suffix_actions": [
+        "out",
+        "back"
+      ],
+      "prefix_length": 1,
+      "suffix_length": 3,
+      "lower_bound": "20"
+    },
+    "infeasibility_certificate_type": null,
+    "infeasibility_proof_basis": null,
+    "infeasibility_precision": null,
+    "lower_precision_infeasibility": null,
+    "candidate_fingerprint": "e55fc0a31493675745706ab1de74b80e84e1a33edd9fc577a4403725bc82f120",
+    "prefix_actions": [],
+    "suffix_actions": [
+      "out",
+      "back"
+    ],
+    "suffix_entry_product_state": {
+      "state": [
+        0
+      ],
+      "buchi_state": "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[],false]"
+    },
+    "semantic_contract_id": "INITIAL_LABEL_V1",
+    "semantic_contract_sha256": "ceafe2799bf469f24bb53d2fdb5070f2e11d581445d4ae47adf921c4590d4308",
+    "ai_selection": null,
+    "ai_selection_artifact_sha256": null,
+    "ai_inference_latency_seconds": null,
+    "phase_intervals_ns": {
+      "T_input_preprocess": [
+        266542583235,
+        267180395420
+      ],
+      "T_initialization": [
+        267180395420,
+        267180399420
+      ],
+      "T_certification_external": [
+        267184772620,
+        267330191134
+      ],
+      "T_logging": [
+        267330191534,
+        267330214434
+      ]
+    },
+    "error": null,
+    "llm_calls": 0,
+    "experimental_llm_calls": 0,
+    "api_key_reads": 0,
+    "certificate_path": "D3-2__AP-D__143.json",
+    "certificate_hash": "2f33da3715f1ed7ccd81cbe2237b0bac342ee8c856b9cf743628a1c002e07dd7",
+    "certificate_schema": "ECC-E2.2-CERTIFICATE-INITIAL_LABEL_V1",
+    "certificate_verifier_status": "PASS",
+    "certificate_objective": "20",
+    "T_full_ts": 0.0003465,
+    "T_reduction": 0.0002024,
+    "T_product": 0.0014234,
+    "T_search": 0.0010321,
+    "T_concretization": 0.0008813,
+    "T_certification": 0.145435214,
+    "T_refinement": 0.0,
+    "T_logging": 2.29e-05,
+    "T_total": 0.787631699,
+    "T_other": 0.0004716999999998528,
+    "qualification_scope": "CMR_EXACT_COST_REUSE_THREE_CELL_QUALIFICATION",
+    "formal_campaign": false,
+    "search_counter_basis": "qualified reference SearchStats",
+    "backend": "reference",
+    "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+    "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd",
+    "result_hash": "e14a68759aba5bd004ff4ff77e37397cbdab39f1d694decea087cfe70ced111f"
+  },
+  "transport": {
+    "concrete_lasso": {
+      "prefix": [
+        [
+          [
+            0
+          ],
+          "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[],false]"
+        ]
+      ],
+      "suffix": [
+        [
+          [
+            0
+          ],
+          "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[],false]"
+        ],
+        [
+          [
+            1
+          ],
+          "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[[\"F\",\"g\"]],true]"
+        ],
+        [
+          [
+            0
+          ],
+          "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[],false]"
+        ]
+      ],
+      "prefix_edges": [],
+      "suffix_edges": [
+        {
+          "source": [
+            [
+              0
+            ],
+            "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[],false]"
+          ],
+          "action": "out",
+          "target": [
+            [
+              1
+            ],
+            "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[[\"F\",\"g\"]],true]"
+          ],
+          "cost": "1"
+        },
+        {
+          "source": [
+            [
+              1
+            ],
+            "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[[\"F\",\"g\"]],true]"
+          ],
+          "action": "back",
+          "target": [
+            [
+              0
+            ],
+            "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[],false]"
+          ],
+          "cost": "1"
+        }
+      ],
+      "prefix_cost": "0",
+      "suffix_cost": "2",
+      "upper_bound": "20",
+      "ell": 0,
+      "m": 1
+    },
+    "accepting_buchi_states": [
+      "[[[\"F\",\"g\"],[\"G\",[\"F\",\"g\"]]],0,[[\"F\",\"g\"]],true]",
+      "[[[\"G\",[\"F\",\"g\"]]],0,[],true]"
+    ]
+  },
+  "search_work": [],
+  "build_work": [],
+  "backend_binding": {
+    "backend": "reference",
+    "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+    "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+    "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0",
+    "version_binding_sha256": "c68af7a505b584e645025581428ac10619680069b2ddda1ea2f900c87271eebd"
+  },
+  "worker_pid": 180,
+  "backend_configuration": {
+    "backend_id": "ECC-P1-SCC-INITIAL_LABEL_V1",
+    "backend_sha256": "3f0c3775febe070699e9e353a5183aad24b569303547f77e1ea07d0e853ed1a3",
+    "original_loop_code_preserved": true,
+    "original_local_code_preserved": true,
+    "original_builder_global_preserved": true
+  }
+}

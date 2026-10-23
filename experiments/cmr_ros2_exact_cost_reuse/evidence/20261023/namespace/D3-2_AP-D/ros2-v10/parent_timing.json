@@ -1,0 +1,37 @@
+{
+  "entry_metrics": {
+    "binding_reads": 2,
+    "schema_builds": 1,
+    "descriptor_requests": 2,
+    "release_checks": 1,
+    "schema_requests": 2
+  },
+  "entry_timing": {
+    "write": {
+      "calls": 3,
+      "elapsed_ns": 2190900
+    },
+    "describe": {
+      "calls": 1,
+      "elapsed_ns": 143500
+    },
+    "schema_for": {
+      "calls": 2,
+      "elapsed_ns": 93769698
+    },
+    "schema_validate_result": {
+      "calls": 2,
+      "elapsed_ns": 1422800
+    },
+    "release_check": {
+      "calls": 1,
+      "elapsed_ns": 31658299
+    },
+    "delivery_checkpoint": {
+      "release_started_ns": 290501637930,
+      "release_completed_ns": 290533301829
+    }
+  },
+  "isolated_wall_ns": 13721919676,
+  "version_binding_id": "CMR_EXACT_COST_REUSE_V1-d7ddeec3931b21e0"
+}
