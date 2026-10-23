@@ -49,13 +49,18 @@ def run_ltl2ba(formula, executable="ltl2ba", timeout=30.0):
         ) from error
     except subprocess.CalledProcessError as error:
         message = (
-            error.stderr.strip()
-            or error.stdout.strip()
+            (error.stderr or "").strip()
+            or (error.stdout or "").strip()
             or "Unknown ltl2ba error."
         )
 
         raise LTL2BAError(
             f"ltl2ba execution failed: {message}"
+        ) from error
+
+    except OSError as error:
+        raise LTL2BAError(
+            f"Cannot execute ltl2ba at {executable_path!r}: {error}"
         ) from error
 
     if not result.stdout.strip():

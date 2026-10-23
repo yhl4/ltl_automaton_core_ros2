@@ -1,447 +1,206 @@
-# LTL Automaton Core — ROS 2 Migration
+# LTL Automaton Core for ROS 2
 
-本仓库是对 KTH-SML `ltl_automaton_core` 的 ROS 2 迁移版本，目标是在保留原有 LTL 规划语义的基础上，将消息接口、规划核心与 Planner 节点迁移到 ROS 2。
+ROS 2 migration of KTH-SML's `ltl_automaton_core`. The planning core
+constructs transition systems, Buchi and product automata, and searches for
+prefix/suffix accepting runs. ROS communication and symbolic execution are
+separate packages.
 
-当前版本重点完成了：
+## Scope and package boundaries
 
-- Transition System、Büchi Automaton 与 Product Automaton 的 ROS 无关核心；
-- 基于 `ltl2ba` 的 LTL 到 Büchi 自动机转换；
-- prefix–suffix 接受运行搜索；
-- ROS 2 Planner 节点；
-- TS 状态反馈、计划推进和意外状态重规划；
-- 计划、下一动作与候选 Product 状态发布；
-- 运行时任务重规划服务；
-- 标准 2D pose 与 6D joint-space TS 状态监控及 2D TS 生成工具；
-- Bool 与 Velocity mixed-initiative HIL 控制器；
-- 只读 `TrapDetectionPlugin` 诊断服务。
+| Package | Responsibility |
+| --- | --- |
+| `ltl_automaton_planner_core` | ROS-independent YAML/guard parsing, automata, planning and replanning |
+| `ltl_automaton_msgs` | Generated ROS messages, services and actions |
+| `ltl_automaton_planner` | ROS node, planning services, state feedback and graph snapshots |
+| `ltl_automaton_execution` | Optional accepted-run resolution and replaceable execution backend |
+| `ltl_automaton_std_transition_systems` | 2D pose / 6D joint-space monitors and TS generation |
+| `ltl_automaton_hil_mic` | Bool/velocity mixed-initiative controllers and read-only trap diagnostics |
 
-> 当前迁移保持 Product Automaton 与离散规划算法的核心语义，不将 ROS 2 通信逻辑写入规划核心。
+The core does not import `rclpy`. The planner does not depend on the optional
+execution package, whose current `FakeBackend` is symbolic: it does not provide
+Gazebo, Isaac Sim or robot control.
 
----
+Core is the general LTL planning/execution baseline. CMR algorithms, experiment
+datasets, benchmark campaigns and provider integrations belong in independently
+versioned research projects, outside Core's mainline dependency graph. Adapters
+must use explicit interfaces without importing experiment internals into the
+planner core. No CMR implementation is included in this cleanup.
 
-## 1. 当前支持范围
+At the 2026-10-23 audit, main was `2624458c`; open
+[PR #10](https://github.com/yhl4/ltl_automaton_core_ros2/pull/10)
+(`10b3d632`) combines further ROS migration and CMR experiments.
+Draft [PR #11](https://github.com/yhl4/ltl_automaton_core_ros2/pull/11)
+(`32803381`) is stacked on the #10 branch. Those are separate, unmerged
+baselines. This branch neither adopts their execution identity/API changes nor
+claims their validation results. Selecting and separating a broader migration
+baseline requires a dedicated architecture decision.
 
-### 1.1 规划核心
+## Environment
 
-当前已迁移并验证的核心模块包括：
+The existing ROS acceptance baseline is Ubuntu 22.04, ROS 2 Humble and Python
+3.10. Ubuntu 24.04 / Jazzy and other ROS/Python/OS combinations have not received
+equivalent acceptance validation. The offline CI jobs use Ubuntu 22.04 / Python
+3.10; they do not establish ROS or hardware acceptance.
 
-- Transition System 解析与组合；
-- Boolean guard 解析；
-- Promela 生成；
-- `ltl2ba` 调用与输出解析；
-- Büchi Automaton 构建；
-- TS × Büchi Product Automaton 构建；
-- prefix–suffix 接受运行搜索；
-- 静态 LTL 规划；
-- 基于当前 TS 状态的重规划；
-- 基于新 hard/soft task 的任务重规划。
+Python dependencies are NetworkX, PLY and PyYAML. They are declared both in
+planner-core's Python distribution metadata and its ROS `package.xml`.
+The external `ltl2ba` executable is required for real formula translation and
+end-to-end planning; it is not a Python dependency and is not bundled.
 
-规划核心位于：
+## Install the planning core without ROS
 
-```text
-ltl_automaton_planner_core/
-```
-
-该包不依赖 `rclpy`，可独立进行单元测试。
-
-### 1.2 ROS 2 接口
-
-当前 ROS 2 接口包：
-
-```text
-ltl_automaton_msgs/
-```
-
-已包含 Planner 使用的消息与服务定义，包括：
-
-- `TransitionSystemState`
-- `TransitionSystemStateStamped`
-- `LTLState`
-- `LTLStateArray`
-- `LTLPlan`
-- `PlannerStatus`
-- `LoadTransitionSystem`
-- `PlanLTL`
-- `TaskPlanning`
-
-面向新 ROS 2 consumer 的正式 V0.1 contract 见
-[`ltl_automaton_planner/docs/planning_api.md`](ltl_automaton_planner/docs/planning_api.md)。
-
-### 1.3 ROS 2 Planner 节点
-
-Planner 节点位于：
-
-```text
-ltl_automaton_planner/
-```
-
-当前支持：
-
-- 从 YAML 文件加载 Transition System；
-- 根据 hard task 和 soft task 构建 LTL 计划；
-- 可选等待机器人发布真实初始 TS 状态后再构建计划；
-- 发布完整 prefix 与 suffix；
-- 发布当前下一动作；
-- 接收 TS 状态反馈；
-- 正常推进执行游标；
-- 意外状态下从新状态重新规划；
-- 发布当前可能的 Product 状态；
-- 通过服务请求切换任务并重新规划。
-
-### 1.4 可选符号执行包
-
-可选执行包位于：
-
-```text
-ltl_automaton_execution/
-```
-
-它通过带 planning identity 的正式 execution observation 和只读 planning
-graph snapshot 解析当前接受运行步骤，再由可替换的 `ExecutionBackend` 完成动作
-并发布 `/ts_state`。当前仅提供符号级 `FakeBackend`，不包含物理仿真、Gazebo、
-Isaac Sim 或机器人控制依赖；Planner 与 planner core 均不依赖该包。
-
-### 1.5 标准 Transition System 工具
-
-标准状态监控与 TS 生成工具位于：
-
-```text
-ltl_automaton_std_transition_systems/
-```
-
-当前支持：
-
-- 将 `Pose`、`PoseStamped`、`PoseWithCovariance` 或
-  `PoseWithCovarianceStamped` 映射为 2D square/station region；
-- 保留 `current_region`、`station_access_request` 和 `closest_region`
-  ROS 1 通信契约；
-- 将 `JointState` 的前六个关节位置映射为 6D joint-space region；
-- 交互生成可被当前 planner core 直接加载的 2D grid/station TS YAML。
-
-### 1.6 HIL mixed-initiative 控制器
-
-ROS 2 HIL 控制器位于：
-
-```text
-ltl_automaton_hil_mic/
-```
-
-当前支持：
-
-- Bool 命令仲裁：规划器命令直接通过，人工命令仅在 TS 连通且非 trap 时通过；
-- Velocity 命令仲裁：依据 trap 距离平滑混合人工与导航速度；
-- trap 服务不可用、TS 未连通或状态超时时安全回退到导航命令；
-- 通过异步 ROS 2 service client 查询 `check_for_trap`，避免阻塞控制回调。
-
----
-
-## 2. 软件环境
-
-当前版本主要在以下环境中验证：
-
-- Ubuntu 22.04
-- ROS 2 Humble
-- Python 3.10
-- NetworkX
-- PLY
-- PyYAML
-- `ltl2ba`
-
-Ubuntu 24.04 与 ROS 2 Jazzy 仍需完成独立兼容性验证。
-
----
-
-## 3. 仓库结构
-
-```text
-.
-├── ltl_automaton_msgs/
-│   ├── msg/
-│   └── srv/
-├── ltl_automaton_planner_core/
-│   ├── ltl_automaton_planner_core/
-│   │   ├── boolean_formulas/
-│   │   ├── configuration/
-│   │   └── ltl_tools/
-│   └── test/
-├── ltl_automaton_planner/
-│   ├── config/
-│   ├── launch/
-│   ├── ltl_automaton_planner/
-│   │   └── planner_node.py
-│   └── test/
-├── ltl_automaton_execution/
-│   ├── launch/
-│   ├── ltl_automaton_execution/
-│   └── test/
-├── ltl_automaton_std_transition_systems/
-│   ├── config/
-│   ├── launch/
-│   ├── ltl_automaton_std_transition_systems/
-│   └── test/
-├── ltl_automaton_hil_mic/
-│   ├── config/
-│   ├── launch/
-│   ├── ltl_automaton_hil_mic/
-│   └── test/
-└── README.md
-```
-
----
-
-## 4. 依赖准备
-
-### 4.1 ROS 2 环境
+From a clone of this repository:
 
 ```bash
+python3.10 -m venv .venv
+source .venv/bin/activate
+python -m pip install -c ci/constraints.txt setuptools wheel
+python -m pip install --no-build-isolation -c ci/constraints.txt './ltl_automaton_planner_core[test]'
+```
+
+`ci/constraints.txt` records the dependency versions exercised by offline CI.
+A normal `pip install ./ltl_automaton_planner_core` also installs its runtime
+Python dependencies. This installs only the core, not generated ROS interfaces,
+ROS nodes or the translator executable.
+
+A minimal parsing smoke check is:
+
+```bash
+python - <<'PY'
+from ltl_automaton_planner_core.boolean_formulas.parser import parse
+from ltl_automaton_planner_core.configuration.transition_system import import_ts_from_file
+
+assert parse('cargo').check({'cargo'})
+assert import_ts_from_file('state_dim: [region]')['state_dim'] == ['region']
+PY
+```
+
+### External translator
+
+Obtain `ltl2ba` from the
+[authors' project/download page](https://lsv.ens-paris-saclay.fr/~gastin/ltl2ba/),
+build it following its supplied instructions, and place the executable on
+`PATH`. Record the source version and checksum with your experiment results.
+This repository does not currently pin or automate a translator source build.
+
+```bash
+command -v ltl2ba
+ltl2ba -f '<> cargo'
+```
+
+The second command must produce a Promela `never` claim. A missing executable,
+OS launch failure, timeout, nonzero exit or empty output raises
+`LTL2BAError`; an empty input formula raises `ValueError`.
+Offline subprocess tests simulate those cases and do not validate a real
+translator.
+
+## Build the ROS workspace
+
+Install ROS 2 Humble and `rosdep` first. Use a workspace path of your choice:
+
+```bash
+export LTL_WS="$HOME/ltl_ws"
+mkdir -p "$LTL_WS/src"
+git clone https://github.com/yhl4/ltl_automaton_core_ros2.git "$LTL_WS/src/ltl_automaton_core_ros2"
+cd "$LTL_WS"
 source /opt/ros/humble/setup.bash
-```
-
-### 4.2 Python 依赖
-
-建议通过系统包、`rosdep` 或虚拟环境安装：
-
-```bash
-python3 -m pip install networkx ply pyyaml
-```
-
-### 4.3 ltl2ba
-
-确保 `ltl2ba` 可执行文件位于 `PATH` 中：
-
-```bash
-which ltl2ba
-ltl2ba -h
-```
-
-若 `which ltl2ba` 没有输出，Planner 将无法把 LTL 公式转换为 Büchi 自动机。
-
----
-
-## 5. 构建
-
-假设仓库位于 ROS 2 工作空间的 `src` 下：
-
-```text
-<workspace>/src/ltl_automaton_core_ros2
-```
-
-执行：
-
-```bash
-cd <workspace>
-source /opt/ros/humble/setup.bash
-
-rosdep install \
-  --from-paths src \
-  --ignore-src \
-  -r \
-  -y
-
-colcon build --symlink-install
+rosdep install --from-paths src --ignore-src -r -y
+colcon build --symlink-install --packages-up-to ltl_automaton_planner
 source install/setup.bash
 ```
 
-仅构建 Planner 及其依赖：
+Install and check `ltl2ba` separately as above. To build every package, omit
+`--packages-up-to`. An independently maintained ROS environment is required;
+the Python-only virtual environment above does not supply ROS.
 
-```bash
-colcon build \
-  --symlink-install \
-  --packages-up-to ltl_automaton_planner
-```
-
----
-
-## 6. 运行 Planner
+## Quick start
 
 ```bash
 source /opt/ros/humble/setup.bash
-source <workspace>/install/setup.bash
-
-ros2 launch \
-  ltl_automaton_planner \
-  planner.launch.py
+source "$LTL_WS/install/setup.bash"
+ros2 launch ltl_automaton_planner planner.launch.py
 ```
 
-默认 Launch 使用示例 Transition System 和 LTL 任务。启动成功后，日志应包含类似信息：
+The default launch uses
+[`minimal_ts.yaml`](ltl_automaton_planner/config/minimal_ts.yaml),
+hard task `<> r2` and a tautological soft task. Successful startup logs the
+initial plan, prefix/suffix actions, possible LTL states and next move. The node
+then waits for state observations and remains running.
 
-```text
-Initial LTL planning succeeded.
-Prefix actions: [...]
-Suffix actions: [...]
-Published ... possible LTL states.
-Published prefix and suffix plans.
-Published next move: ...
-```
+The [planning API](ltl_automaton_planner/docs/planning_api.md) defines the
+mainline V0.1 consumer contract. The
+[KTH demo guide](ltl_automaton_planner/docs/KTH_ROS2_DEMO.md) contains the larger
+worked example; these existing examples and interfaces remain unchanged.
 
-节点会持续运行并等待 `/ts_state`，因此启动终端不会自动返回命令提示符。
+### Configuration
 
----
+| Parameter | Meaning |
+| --- | --- |
+| `transition_system_path` | TS YAML file |
+| `hard_task`, `soft_task` | Hard specification and optional soft preference |
+| `beta` | Soft-task distance multiplier in product-edge cost |
+| `gamma` | Suffix cost multiplier in accepting-run search |
+| `initial_ts_state_from_agent` | Wait for a valid first observation before planning |
+| `replan_on_unplanned_move` | Replan from unexpected TS feedback |
+| `check_timestamp` | Discard feedback with the same timestamp as the last observation |
+| `plugin_config_path` | Optional plugin YAML file |
 
-## 7. 参数
+Hard guards determine feasible product edges. Their satisfaction is not encoded
+as a large penalty. Product-edge cost is transition cost plus `beta` times
+soft-task distance; `gamma` weights the suffix in accepting-run search.
 
-当前 Planner 使用以下参数：
+Inspect parameters with `ros2 param get /ltl_planner <parameter>`.
+The `replan_on_unplanned_move` and `check_timestamp` behavior flags can change
+through `ros2 param set`. Use the replanning service to change hard/soft tasks
+transactionally, so a failed new plan retains the active plan.
 
-| 参数 | 类型 | 说明 |
-|---|---:|---|
-| `transition_system_path` | string | Transition System YAML 文件路径 |
-| `hard_task` | string | 必须满足的 LTL 任务 |
-| `soft_task` | string | 用于软约束或偏好的 LTL 任务 |
-| `beta` | double | hard-task 相关代价权重 |
-| `gamma` | double | soft-task 相关代价权重 |
-| `initial_ts_state_from_agent` | bool | 是否等待首个 `/ts_state` 作为规划初始状态 |
-| `replan_on_unplanned_move` | bool | 收到非计划下一状态时是否自动重规划 |
-| `check_timestamp` | bool | 是否丢弃时间戳与上一条相同的状态反馈 |
-| `plugin_config_path` | string | ROS 2 Planner 插件 YAML 配置文件路径 |
-
-查看运行参数：
+To use observed initial states:
 
 ```bash
-ros2 param get /ltl_planner transition_system_path
-ros2 param get /ltl_planner hard_task
-ros2 param get /ltl_planner soft_task
-ros2 param get /ltl_planner beta
-ros2 param get /ltl_planner gamma
-ros2 param get /ltl_planner initial_ts_state_from_agent
-ros2 param get /ltl_planner replan_on_unplanned_move
-ros2 param get /ltl_planner check_timestamp
-ros2 param get /ltl_planner plugin_config_path
+ros2 launch ltl_automaton_planner planner.launch.py initial_ts_state_from_agent:=true
 ```
 
-两个行为参数支持通过 `ros2 param set` 动态修改。hard/soft task 的运行时切换
-仍使用 `/replanning` 服务，以保证新任务先成功规划再替换当前计划。
+The node maps `state_dimension_names` to TS dimensions; invalid or mismatched
+observations do not start planning.
 
----
+### Topics and services
 
-## 8. Topics
+| Endpoint | Type | Direction / purpose |
+| --- | --- | --- |
+| `/ts_state` | `ltl_automaton_msgs/msg/TransitionSystemStateStamped` | Input state observation |
+| `/next_move_cmd` | `std_msgs/msg/String` | Output next action |
+| `/prefix_plan`, `/suffix_plan` | `ltl_automaton_msgs/msg/LTLPlan` | Output complete accepting-run segments |
+| `/possible_ltl_states` | `ltl_automaton_msgs/msg/LTLStateArray` | Output current possible product states |
+| `/replanning` | `ltl_automaton_msgs/srv/TaskPlanning` | Replace the task after successful planning |
 
-### 8.1 `/ts_state`
-
-- 类型：`ltl_automaton_msgs/msg/TransitionSystemStateStamped`
-- 方向：订阅
-- 作用：接收机器人或执行器反馈的当前 TS 状态。
-
-示例：
+For example, observe retained plan output and request a new task:
 
 ```bash
-ros2 topic pub --once \
-  /ts_state \
+ros2 topic echo /prefix_plan ltl_automaton_msgs/msg/LTLPlan \
+  --qos-reliability reliable --qos-durability transient_local --once
+ros2 service call /replanning ltl_automaton_msgs/srv/TaskPlanning \
+  "{hard_task: '<> r2', soft_task: '(r2 || ! r2)'}"
+```
+
+A successful service response has `success: true` and republishes state/plan/action
+outputs. An infeasible task, unknown state or planning exception retains the
+previous task, TS initial state, product, accepting run and execution cursor.
+
+For the symbolic minimal example, state feedback can be published manually:
+
+```bash
+ros2 topic pub --once /ts_state \
   ltl_automaton_msgs/msg/TransitionSystemStateStamped \
   "{ts_state: {states: ['r2'], state_dimension_names: ['region']}}"
 ```
 
-Planner 会比较反馈状态与计划中的期望状态：
+Expected observations advance the cursor. Repeated unexpected states are ignored;
+other unexpected states trigger replanning when enabled. The possible-product-state
+update precedes cursor advancement and next-action publication.
 
-- 到达期望状态：更新 Product 候选状态并推进计划；
-- 收到重复但非期望状态：忽略；
-- 收到意外状态：尝试从该状态重新规划。
+### Plugins and optional packages
 
-若启动时设置：
-
-```bash
-ros2 launch ltl_automaton_planner planner.launch.py \
-  initial_ts_state_from_agent:=true
-```
-
-Planner 会先等待首个合法 `/ts_state`，按消息中的
-`state_dimension_names` 将状态覆盖到对应 TS 维度，然后才构建并发布初始计划。
-无效或维度不匹配的消息不会触发规划，节点会继续等待下一条状态。
-
-### 8.2 `/next_move_cmd`
-
-- 类型：`std_msgs/msg/String`
-- 方向：发布
-- 作用：发布当前需要执行的下一动作。
-
-```bash
-ros2 topic echo \
-  /next_move_cmd \
-  std_msgs/msg/String \
-  --qos-reliability reliable \
-  --qos-durability transient_local \
-  --once
-```
-
-### 8.3 `/prefix_plan`
-
-- 类型：`ltl_automaton_msgs/msg/LTLPlan`
-- 方向：发布
-- 作用：发布完整 prefix 计划，而不是仅发布尚未执行的剩余部分。
-
-```bash
-ros2 topic echo \
-  /prefix_plan \
-  ltl_automaton_msgs/msg/LTLPlan \
-  --qos-reliability reliable \
-  --qos-durability transient_local \
-  --once
-```
-
-### 8.4 `/suffix_plan`
-
-- 类型：`ltl_automaton_msgs/msg/LTLPlan`
-- 方向：发布
-- 作用：发布接受运行的循环 suffix。
-
-```bash
-ros2 topic echo \
-  /suffix_plan \
-  ltl_automaton_msgs/msg/LTLPlan \
-  --qos-reliability reliable \
-  --qos-durability transient_local \
-  --once
-```
-
-### 8.5 `/possible_ltl_states`
-
-- 类型：`ltl_automaton_msgs/msg/LTLStateArray`
-- 方向：发布
-- 作用：发布当前 TS 观测下仍可能对应的 Product 状态。
-
-每个元素包含：
-
-```text
-TransitionSystemState + Büchi state
-```
-
-查看初始或最新缓存状态：
-
-```bash
-ros2 topic echo \
-  /possible_ltl_states \
-  ltl_automaton_msgs/msg/LTLStateArray \
-  --qos-reliability reliable \
-  --qos-durability transient_local \
-  --once
-```
-
-实时观察后续状态更新：
-
-```bash
-ros2 topic echo \
-  /possible_ltl_states \
-  ltl_automaton_msgs/msg/LTLStateArray \
-  --qos-reliability reliable \
-  --qos-durability volatile
-```
-
-Product 候选状态的更新顺序为：
-
-```text
-接收新的 TS 状态
-→ 更新 possible Product states
-→ 推进计划执行游标
-→ 发布下一动作
-```
-
-该顺序用于避免 Product 状态与计划游标之间出现一步时序错位。
-
----
-
-## 9. Planner 插件
-
-通过 `plugin_config_path` 可以加载与 KTH ROS 1 版本同样采用
-“类名 + Python 模块路径 + 参数字典”契约的插件：
+Plugin configuration preserves the class/module/argument contract:
 
 ```yaml
 plugins:
@@ -451,147 +210,72 @@ plugins:
       threshold: 3
 ```
 
-插件类构造函数及生命周期方法为：
+Plugins implement `__init__(ltl_planner, args)`, `init()`,
+`set_sub_and_pub()` and `run_at_ts_update(ts_state)`. ROS 2 plugins use
+`set_node(node)` to obtain the host node. A plugin failure is logged without
+terminating the planner or preventing other plugins from running. ROS 1 plugins
+that import `rospy` still require a ROS 2 communication-layer migration.
 
-```python
-class ExamplePlugin:
-    def __init__(self, ltl_planner, args): ...
-    def set_node(self, node): ...          # ROS 2 通信插件需要
-    def init(self): ...
-    def set_sub_and_pub(self): ...
-    def run_at_ts_update(self, ts_state): ...
-```
+Standard TS tools map pose messages to 2D regions and the first six joint
+positions to 6D regions, and can generate compatible grid/station YAML.
+Bool/velocity HIL controllers use asynchronous trap service requests; unavailable
+services, disconnected states and stale observations fall back to navigation
+commands. `TrapDetectionPlugin` is read-only and does not replace an active plan.
 
-`set_node()` 是 ROS 2 适配点，插件通过传入的 Planner Node 创建订阅、发布器、
-服务或客户端。其余三个生命周期钩子保持原版语义。单个插件加载或运行失败会被记录，
-不会终止 Planner 或阻止其他插件运行。
+## Validation and contribution workflow
 
-ROS 1 插件若仍直接导入 `rospy`，必须先把通信接口迁移到 `rclpy`；加载契约兼容
-不代表 ROS 1 插件源码可不经修改直接运行。
+Create a focused branch from main, keep public interfaces and scientific
+semantics stable, and include a regression for a reproducible bug. Describe the
+baseline, actual commands and unrun acceptance surfaces in an English PR.
+Keep credentials and machine-specific absolute paths out of examples.
 
-## 10. Services
-
-### 10.1 `/replanning`
-
-- 类型：`ltl_automaton_msgs/srv/TaskPlanning`
-- 作用：从当前 TS 状态出发，使用新的 hard task 和 soft task 重新规划。
-
-服务定义：
-
-```text
-string hard_task
-string soft_task
----
-bool success
-```
-
-调用示例：
+Run the same offline checks as CI from the repository root:
 
 ```bash
-ros2 service call \
-  /replanning \
-  ltl_automaton_msgs/srv/TaskPlanning \
-  "{hard_task: '<> r2', soft_task: '(r2 || ! r2)'}"
-```
-
-成功时返回：
-
-```text
-success: true
-```
-
-服务成功后会重新发布：
-
-- `/possible_ltl_states`
-- `/prefix_plan`
-- `/suffix_plan`
-- `/next_move_cmd`
-
-任务不可行、初始 TS 状态未知或规划内部抛出异常时，Planner 会保留调用前的
-hard/soft task、TS 初始状态、Product、run 和执行游标；失败请求不会留下半更新状态。
-
----
-
-## 11. 测试
-
-执行全部相关测试：
-
-```bash
-cd <workspace>
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-
-colcon test \
-  --packages-up-to ltl_automaton_planner
-
-colcon test-result --verbose
-```
-
-当前已验证的内容包括：
-
-- TS 构建；
-- Boolean guard 解析；
-- Promela 生成；
-- `ltl2ba` 集成；
-- Büchi 构建；
-- Product 构建；
-- prefix–suffix 规划；
-- `LTLPlanner` 静态规划与重规划；
-- Planner 节点的初始 ROS 2 输出；
-- TS 状态反馈后的计划推进；
-- `/replanning` 服务调用；
-- Launch 测试结束时的干净退出。
-- 不可行任务、未知状态与内部异常下的事务式重规划回滚。
-
-提交前建议额外执行：
-
-```bash
+python -m pip install -c ci/constraints.txt flake8
+python -m compileall -q ltl_automaton_planner_core/ltl_automaton_planner_core
+python -m flake8 --select=E9,F63,F7,F82 \
+  ltl_automaton_planner_core/ltl_automaton_planner_core \
+  ltl_automaton_planner_core/test/test_ltl2ba.py \
+  ltl_automaton_planner_core/test/test_distribution.py
+python -m pytest -q ltl_automaton_planner_core/test \
+  --ignore=ltl_automaton_planner_core/test/test_copyright.py \
+  --ignore=ltl_automaton_planner_core/test/test_flake8.py \
+  --ignore=ltl_automaton_planner_core/test/test_pep257.py \
+  --ignore=ltl_automaton_planner_core/test/test_ltl2ba_integration.py \
+  --ignore=ltl_automaton_planner_core/test/test_buchi_integration.py \
+  --ignore=ltl_automaton_planner_core/test/test_ltl_planner.py
 git diff --check
 ```
 
----
+The workflow also builds a wheel, installs it into a clean environment using
+only wheel-declared runtime dependencies, and runs parsing/error smoke checks
+outside the source checkout. It does not collect ROS tests or report missing
+external tools as successful integration coverage.
 
-## 12. ROS 1 到 ROS 2 迁移对照
+With a real translator on `PATH`, run the complete core functional suite
+(including planner/translator integration) by removing the last three ignores.
+The ament lint files require their ROS tools. For ROS acceptance, build the
+workspace, source ROS and its install overlay, then run:
 
-| KTH ROS 1 | 当前 ROS 2 | 说明 |
-|---|---|---|
-| catkin 包内规划算法 | `ltl_automaton_planner_core` | 与 ROS 通信解耦，可独立 pytest |
-| `transition_system_textfile` | `transition_system_path` | 传入 YAML 文件路径 |
-| `initial_beta` | `beta` | 权重含义不变 |
-| `~initial_ts_state_from_agent` | `initial_ts_state_from_agent` | 改为非阻塞等待首个 `/ts_state` |
-| dynamic_reconfigure | ROS 2 参数回调 | 使用 `ros2 param set` 修改两个行为参数 |
-| `~plugin/<name>/...` 参数树 | `plugin_config_path` YAML | 保留类名、模块路径、args 契约 |
-| `rospy` Publisher/Service | `rclpy` Node API | 插件通过 `set_node(node)` 获取宿主节点 |
-| `region_2d_pose_monitor.py` | `region_2d_pose_monitor` | 四种 pose 消息通过参数选择，保留 station 与 closest-region 行为 |
-| `region_6d_jointspace_monitor.py` | `region_6d_jointspace_monitor` | 迁移旧仓库中未安装的 6D monitor |
-| `region_2d_pose_definition.py` | `region_2d_pose_definition` | 显式输出路径，生成 planner-compatible TS |
-| `BoolCmdMixer` | `bool_cmd_hil_mic` | 保留 Bool 仲裁语义，trap 查询改为异步 ROS 2 service client |
-| `VelCmdMixer` | `vel_cmd_hil_mic` | 保留速度混合语义，增加服务不可用与状态超时的安全回退 |
-| `TrapDetectionPlugin` | `ltl_automaton_hil_mic.trap_detection` | 只读查询，不修改 active plan、generation 或 execution state |
-| `catkin_make` | `colcon build --symlink-install` | 构建与测试命令见第 5、11 节 |
-
-ROS 1 的插件源码若直接依赖 `rospy`，仍需逐个迁移通信层。
-
-## 13. 已知限制
-
-当前版本尚未完成以下 KTH ROS 1 功能的 ROS 2 等价迁移：
-
-- `IRLPlugin` 尚未接入事务式 ROS 2 Planner contract；旧的原地 mutation 实现仅保留在 Git 历史中，不进入 canonical runtime；
-- Ubuntu 24.04 / ROS 2 Jazzy 独立验证；
-
-此外，使用 Fast DDS 时可能出现共享内存端口警告：
-
-```text
-RTPS_TRANSPORT_SHM Error: Failed init_port ...
+```bash
+cd "$LTL_WS"
+colcon test --packages-up-to ltl_automaton_planner
+colcon test-result --verbose
 ```
 
-在当前验证中，该警告未阻止节点、Topic 或 Service 正常工作。若遇到 ROS 2 发现异常，应优先检查是否存在残留节点、重复 Publisher 或 DDS 共享内存锁冲突。
+Execution, HIL and standard TS packages have separate tests; include the relevant
+packages when changing them. ROS build, generated interfaces, launch/DDS services,
+real translator behavior, optional controllers and hardware are outside the
+offline CI jobs. A green offline run must not be presented as those checks passing.
 
----
+## Known limitations
 
-## 14. 后续计划
+IRL has not been integrated into the transactional mainline ROS 2 planner
+contract; the old in-place mutation implementation remains in Git history.
+Further migration needs explicit state isolation and execution identity design.
 
-建议按以下顺序继续迁移：
-
-1. 在候选状态隔离、单一写入者、freshness 与 generation identity contract 明确后，重新设计并迁移 `IRLPlugin`；
-2. 在需要时执行 Ubuntu 24.04 / ROS 2 Jazzy 独立验证。
+Fast DDS can emit `RTPS_TRANSPORT_SHM Error: Failed init_port ...`.
+If discovery or communication fails, inspect leftover nodes, duplicate publishers
+and shared-memory locks rather than assuming a warning is harmless. Broader
+ROS migration and experimental branch selection remain separate work.
