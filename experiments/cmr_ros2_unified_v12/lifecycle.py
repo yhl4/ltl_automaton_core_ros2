@@ -84,24 +84,28 @@ def _fault_child_worker(args, mode, original_worker, original_configure):
     def configure(self, formal, *configure_args, **configure_kwargs):
         capture = original_configure(self, formal, *configure_args, **configure_kwargs)
         formal.time = clock
+        # AttemptEntry instruments run_one using private copied globals. Bind
+        # the fault there so the original bytecode observes the injected phase.
+        one_globals = formal.run_one.__globals__
+        one_globals['time'] = clock
         if mode == "late_solver":
-            original = formal.run_method_local
+            original = one_globals['run_method_local']
 
             def late_solver(*call_args, **call_kwargs):
                 answer = original(*call_args, **call_kwargs)
                 clock.offset_ns = 180_000_000_000
                 return answer
 
-            formal.run_method_local = late_solver
+            one_globals['run_method_local'] = late_solver
         elif mode == "late_certificate":
-            original = formal.persist_and_verify_certificate
+            original = one_globals['persist_and_verify_certificate']
 
             def late_certificate(*call_args, **call_kwargs):
                 answer = original(*call_args, **call_kwargs)
                 clock.offset_ns = 180_000_000_000
                 return answer
 
-            formal.persist_and_verify_certificate = late_certificate
+            one_globals['persist_and_verify_certificate'] = late_certificate
         return capture
 
     descriptor = entry.describe(args.version_binding, "ros2-v12")
