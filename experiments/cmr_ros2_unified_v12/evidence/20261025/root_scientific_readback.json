@@ -1,0 +1,188 @@
+{
+  "actual_worker_counts_exclude_directed_negative_replays": true,
+  "completed_stages": {
+    "passed_stages": [
+      "boundary",
+      "campaign",
+      "core",
+      "dds",
+      "feedback",
+      "lifecycle",
+      "negatives",
+      "offline-recovery",
+      "prepare",
+      "provenance",
+      "zero-core",
+      "zero-dds",
+      "zero-prepare"
+    ],
+    "preserved_failed_stages": [
+      {
+        "log": "control/offline.log",
+        "phase": "offline",
+        "rc": 1,
+        "status": "FAILED_RETAINED"
+      }
+    ]
+  },
+  "dds": {
+    "main": {
+      "cases": 7,
+      "successful_action_cases": 3
+    },
+    "zero": {
+      "cases": 1,
+      "successful_action_cases": 1
+    }
+  },
+  "directed": {
+    "fault_cases": 4,
+    "negative_cases": 6,
+    "normal_cases": 4
+  },
+  "execution": "stdlib file/hash readback; no package imports or workers",
+  "frozen_inputs": {
+    "main": {
+      "current_paths_checked": 59,
+      "entries": 59,
+      "sha256": "0c1771e81616e833d19fac1dd32f6ad5a38e12348a105b6d68b982403f9a1d17"
+    },
+    "zero": {
+      "current_paths_checked": 61,
+      "entries": 61,
+      "sha256": "19216bca871355f180ee92a53aac332eadf4585ca6fa93060765ea54c8e8c1ed"
+    }
+  },
+  "head": "d79653300e7bed556a4d1583562e09f3c1dd6f88",
+  "historical": {
+    "core_readback": "PASSED",
+    "failed_modes": [
+      "late_certificate",
+      "late_logging",
+      "late_solver"
+    ],
+    "frozen_inputs": {
+      "main": {
+        "current_paths_checked": 59,
+        "entries": 59,
+        "sha256": "0c1771e81616e833d19fac1dd32f6ad5a38e12348a105b6d68b982403f9a1d17"
+      },
+      "zero": {
+        "current_paths_checked": 61,
+        "entries": 61,
+        "sha256": "661aba91a8b89025dfd9aadd7bc4d27b10bc3ffb6981b7bc17ba643b32629acc"
+      }
+    },
+    "interruption": {
+      "incomplete_dispatch": "B-D-BRANCH-S2/FULL/reference",
+      "inventory_files": 186,
+      "verdict": "ABSENT"
+    },
+    "lifecycle_status": "FAILED",
+    "main_cells": 13,
+    "main_workers": 26,
+    "old_binding_id": "CMR_UNIFIED_V12_V1-b3b3d242da7d561f",
+    "old_source": {
+      "closure_files": 84,
+      "head": "44a542e741b0dda258364ffe3ec27ab4d799852a",
+      "snapshots_checked": 84,
+      "source_root": "/tmp/cmr_unified_v12_source_44a542e_20261023"
+    },
+    "old_zero_source": {
+      "closure_files": 84,
+      "head": "44a542e741b0dda258364ffe3ec27ab4d799852a",
+      "snapshots_checked": 84,
+      "source_root": "/tmp/cmr_unified_v12_source_44a542e_20261023"
+    },
+    "retained_lifecycle_failures": 5,
+    "zero_cells": 3,
+    "zero_workers": 6
+  },
+  "lifecycle": {
+    "boundary_checks": 11,
+    "cases": 10
+  },
+  "main_cells": 13,
+  "main_qualified_deliveries": 26,
+  "main_workers": {
+    "carried": 0,
+    "fresh": 26
+  },
+  "no_package_imports": true,
+  "normalized_prior_transport": [
+    {
+      "cell": [
+        "C3-T4",
+        "AP-D"
+      ],
+      "normalized_rounds_work": "MATCH",
+      "result_hashes": {
+        "current": "bdac37fc74b66c31bca66173ea7429f1e597c9e75c2da4eb483f3d26160943a2",
+        "prior": "149c3efe16f9dafc25d56f5b4d1d702533a638b59366dcbee60c60d391095bff"
+      }
+    },
+    {
+      "cell": [
+        "D3-1",
+        "AP-D"
+      ],
+      "normalized_rounds_work": "MATCH",
+      "result_hashes": {
+        "current": "b4decc620a0c6814fb69c3d846372c2b6fc671cde5f715639eee48c204648536",
+        "prior": "8d73bc95610e047826cb284ff2de14b138c54c282cac401fc69e9021ade5c816"
+      }
+    }
+  ],
+  "offline": {
+    "original_failure_cause": "external stage supplied str instead of CLI Path binding",
+    "preserved_failed_stage": [
+      {
+        "log": "control/offline.log",
+        "phase": "offline",
+        "rc": 1,
+        "status": "FAILED_RETAINED"
+      }
+    ],
+    "real_results": 0,
+    "recovery_observation": {
+      "additional_worker_calls": 0,
+      "cause": "external stage supplied str instead of CLI Path binding",
+      "original_failure_retained": "control/offline.log",
+      "original_phase_rc": 1,
+      "qualified_directory": "/tmp/cmr_unified_v12_d796533_20261025_r3/offline_recovery",
+      "source_changed": false,
+      "status": "PASSED"
+    },
+    "rows": 510,
+    "status": "PASSED",
+    "tables": 16
+  },
+  "runtime_provenance": {
+    "modules_checked": 6,
+    "ros_distro": "humble",
+    "source_modules": [
+      "experiments.cmr_ros2_unified_v12.runner",
+      "ltl_automaton_execution.execution_node",
+      "ltl_automaton_planner.planning_graph_snapshot",
+      "ltl_automaton_planner_core.ltl_tools.discrete_plan"
+    ]
+  },
+  "schema": "cmr-unified-v12-scientific-readback-v1",
+  "source_closure": {
+    "main": {
+      "closure_files": 84,
+      "head": "d79653300e7bed556a4d1583562e09f3c1dd6f88",
+      "snapshots_checked": 84,
+      "source_root": "/tmp/cmr_unified_v12_source_d796533_20261025"
+    },
+    "zero": {
+      "closure_files": 84,
+      "head": "d79653300e7bed556a4d1583562e09f3c1dd6f88",
+      "snapshots_checked": 84,
+      "source_root": "/tmp/cmr_unified_v12_source_d796533_20261025"
+    }
+  },
+  "status": "PASSED",
+  "zero_cells": 3,
+  "zero_qualified_deliveries": 6
+}

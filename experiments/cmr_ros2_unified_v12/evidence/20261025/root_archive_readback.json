@@ -1,0 +1,25 @@
+{
+  "archive": "v12_evidence_20261025.zip",
+  "archive_bytes": 6160612,
+  "archive_members": 2445,
+  "archive_sha256": "9dab345be4722a3e711bdc4c7d52d09f3e196043f573f5da34568cffadbd111f",
+  "complete_runtime_inventories": true,
+  "dds_calls": 0,
+  "old_archives_unchanged": true,
+  "original_member_bytes_unchanged": true,
+  "readback_environment": {
+    "archive_checks_unchanged": true,
+    "git_source": "/tmp/cmr_unified_v12_source_d796533_20261025",
+    "original_path_mapping": "UNC/drive to same WSL files or mounted drives",
+    "platform": "WSL Ubuntu-22.04-D",
+    "source_head": "d79653300e7bed556a4d1583562e09f3c1dd6f88"
+  },
+  "schema": "cmr-unified-v12-root-archive-readback-v1",
+  "solver_calls": 0,
+  "source_commit": "d79653300e7bed556a4d1583562e09f3c1dd6f88",
+  "source_git_blobs": 7,
+  "status": "PASSED",
+  "unrelated_tracked_changes": false,
+  "v7_baseline": "00fc5a91383b24f85d33aa81682af22e531234cf",
+  "verifier_calls": 0
+}

@@ -1,0 +1,22 @@
+{
+  "artifacts": [
+    {
+      "path": "v12_evidence_20261025.zip",
+      "sha256": "9dab345be4722a3e711bdc4c7d52d09f3e196043f573f5da34568cffadbd111f",
+      "size": 6160612
+    },
+    {
+      "path": "archive_manifest.json",
+      "sha256": "2f5ea2103b8d3c062bf49f6c456ff06467d01ea8cd9c096f7fab8c7a713b8b68",
+      "size": 1076675
+    },
+    {
+      "path": "root_scientific_readback.json",
+      "sha256": "50c521482798df43b31a7c24c4add16118471e050e8ad3849ca7cf3a55208901",
+      "size": 5096
+    }
+  ],
+  "schema": "cmr-unified-v12-artifact-manifest-v1",
+  "self_hash": "OMITTED_TO_AVOID_CYCLE",
+  "source_commit": "d79653300e7bed556a4d1583562e09f3c1dd6f88"
+}

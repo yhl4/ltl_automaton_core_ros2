@@ -251,6 +251,20 @@ is not counted as a pass. Original preflight hashes/path checks remain fresh;
 the profile identifies WSL filesystem overhead without bypassing acceptance.
 This remains bounded evidence, with no default switch or formal campaign.
 
+The independently bound [unified V12 entry](experiments/cmr_ros2_unified_v12/README.md)
+adds explicit `reference` / `ros2-v12` selection for FULL, AP-D and DEP-D.
+FULL/DEP-D retain their original construction and refinement policies; AP-D
+retains one complete TS per method, and all three use the published V12 search.
+The new runtime and Campaign bindings preserve the old V12 component identity
+and evidence. Qualification remains isolated from the frozen default and formal
+experiment ledger; the linked README records its scope and validation artifacts.
+The final binding passes 26 fresh real-instance method records and six separate
+zero-cost CONTROL records, eight DDS cases, the worker failure checks and both
+actual 195-second watchdog branches. Three-method scientific publication/restore
+and six tamper/partial-output controls pass. All feasible certificates keep the
+original acceptance rules. Historical interruption and fault-harness failures
+remain archived; no general speedup or default promotion is claimed.
+
 ---
 
 ## 1. 当前支持范围
